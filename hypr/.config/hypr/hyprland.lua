@@ -55,6 +55,11 @@ local menu = "fuzzel"
 --   hl.exec_cmd("waybar & hyprpaper & firefox")
 -- end)
 
+-- Barra de estado
+hl.on("hyprland.start", function ()
+    hl.exec_cmd("waybar")
+end)
+
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----
@@ -64,7 +69,7 @@ local menu = "fuzzel"
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
-
+hl.env("XDG_DATA_DIRS", "/usr/local/share:/usr/share:/var/lib/flatpak/exports/share:/home/oscar/.local/share/flatpak/exports/share")
 
 -----------------------
 ----- PERMISSIONS -----
@@ -92,13 +97,13 @@ hl.env("HYPRCURSOR_SIZE", "24")
 -- Refer to https://wiki.hypr.land/configuring/core/config-options/
 hl.config({
     general = {
-        gaps_in  = 5,
-        gaps_out = 20,
+        gaps_in  = 3.5, -- Espacio entre ventanas
+        gaps_out = 7.5, -- Espacio entre las ventanas y el borde de la pantalla
 
-        border_size = 2,
+        border_size = 4,
 
         col = {
-            active_border   = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
+            active_border   = { colors = {"rgba(cba6f7ee)", "rgba(00ff99ee)"}, angle = 45 },
             inactive_border = "rgba(595959aa)",
         },
 
@@ -112,12 +117,12 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 10,
-        rounding_power = 2,
+        rounding       = 3, -- Que tan redondos son los bordes de cada ventana 
+        rounding_power = 3, 
 
         -- Change transparency of focused and unfocused windows
-        active_opacity   = 1.0,
-        inactive_opacity = 1.0,
+        active_opacity   = 0.85,
+        inactive_opacity = 0.90,
 
         shadow = {
             enabled      = true,
@@ -235,7 +240,7 @@ hl.config({
 
 hl.config({
     input = {
-        kb_layout  = "es",
+        kb_layout  = "latam",
         kb_variant = "",
         kb_model   = "",
         kb_options = "",
@@ -275,7 +280,7 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close())
 -- closeWindowBind:set_enabled(false)
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
+hl.bind(mainMod .. " + M", hl.dsp.exit())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
@@ -287,6 +292,11 @@ hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
+
+
+-- el mismisimo alt+f4
+--
+hl.bind("ALT + F4", hl.dsp.exec_cmd("wlogout"))
 
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
@@ -322,16 +332,22 @@ hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
+-- whatsapp
+--
+
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("flatpak run com.rtosta.zapzap"))
 
 -- screenshots
 
-local mainMod = "SUPER"
-
 -- 1. Región seleccionada (Guarda en archivo Y copia al portapapeles)
-hl.bind("PRINT", hl.dsp.exec_cmd([[grim -g "$(slurp)" - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]))
+hl.bind("PRINT", hl.dsp.exec_cmd([[mkdir -p ~/Imágenes && grim -g "$(slurp)" - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]))
 
 -- 2. Pantalla completa (Guarda en archivo Y copia al portapapeles)
-hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd([[grim - - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]))
+hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd([[mkdir -p ~/Imágenes && grim - - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]))
+
+--fullscreen-bind
+
+hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 
 --------------------------------
 ---- WINDOWS AND WORKSPACES ----
@@ -358,7 +374,7 @@ hl.window_rule({
         title      = "^$",
         xwayland   = true,
         float      = true,
-        fullscreen = false,
+        fullscreen = true,
         pin        = false,
     },
 
