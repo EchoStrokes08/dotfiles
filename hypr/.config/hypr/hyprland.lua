@@ -49,15 +49,12 @@ local menu = "fuzzel"
 -- Autostart necessary processes (like notifications daemons, status bars, etc.)
 -- Or execute your favorite apps at launch like this:
 --
--- hl.on("hyprland.start", function () 
---   hl.exec_cmd(terminal)
---   hl.exec_cmd("nm-applet")
---   hl.exec_cmd("waybar & hyprpaper & firefox")
--- end)
-
--- Barra de estado
-hl.on("hyprland.start", function ()
-    hl.exec_cmd("waybar")
+hl.on("hyprland.start", function () 
+  hl.exec_cmd(terminal)
+--  hl.exec_cmd("nm-applet") Gestor de redes que no está instalado
+  hl.exec_cmd("waybar")
+  hl.exec_cmd("hyprpaper")
+  hl.exec_cmd("firefox")
 end)
 
 
@@ -94,6 +91,19 @@ hl.env("XDG_DATA_DIRS", "/usr/local/share:/usr/share:/var/lib/flatpak/exports/sh
 ---- LOOK AND FEEL ----
 -----------------------
 
+-- COLOR AYU
+
+local ayu = {
+    fondo     = "0e1419",  -- background
+    texto     = "e5e1cf",  -- foreground
+    naranja   = "f19618",  -- cursor: el color estrella de Ayu
+    amarillo  = "e6c446",  -- color3
+    azul      = "36a3d9",  -- color4
+    verde     = "b8cc52",  -- color2
+    rojo      = "ff3333",  -- color1
+    seleccion = "243340",  -- selection_background
+}
+
 -- Refer to https://wiki.hypr.land/configuring/core/config-options/
 hl.config({
     general = {
@@ -102,13 +112,14 @@ hl.config({
 
         border_size = 4,
 
-        col = {
-            active_border   = { colors = {"rgba(cba6f7ee)", "rgba(00ff99ee)"}, angle = 45 },
-            inactive_border = "rgba(595959aa)",
+        col = { active_border = { colors = { "rgba(" .. 
+            ayu.naranja .. "ee)", "rgba(" .. ayu.azul .. 
+            "ff)"}, angle = 135 }, inactive_border = "rgba(" 
+            .. ayu.seleccion .. "aa)",
         },
 
-        -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
-        resize_on_border = false,
+        -- Set to true to enable resizing windows by clicking       and dragging on borders and gaps 
+	resize_on_border = false,
 
         -- Please see https://wiki.hypr.land/configuring/extra/tearing/ before you turn this on
         allow_tearing = false,
@@ -121,14 +132,14 @@ hl.config({
         rounding_power = 3, 
 
         -- Change transparency of focused and unfocused windows
-        active_opacity   = 0.85,
-        inactive_opacity = 0.90,
+        active_opacity   = 0.90,
+        inactive_opacity = 0.80,
 
         shadow = {
             enabled      = true,
             range        = 4,
             render_power = 3,
-            color        = 0xee1a1a1a,
+            color        = "0xee" .. ayu.fondo,
         },
 
         blur = {
@@ -217,8 +228,8 @@ hl.config({
 
 hl.config({
     misc = {
-        force_default_wallpaper = -1,    -- Set to 0 or 1 to disable the anime mascot wallpapers
-        disable_hyprland_logo   = false, -- If true disables the random hyprland logo / anime girl background. :(
+        force_default_wallpaper = 0,    -- Set to 0 or 1 to disable the anime mascot wallpapers
+        disable_hyprland_logo   = true, -- If true disables the random hyprland logo / anime girl background. :(
     },
 })
 
@@ -251,7 +262,7 @@ hl.config({
         sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
 
         touchpad = {
-            natural_scroll = false,
+            natural_scroll = true,
         },
     },
 })
@@ -336,6 +347,10 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 --
 
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("flatpak run com.rtosta.zapzap"))
+
+-- Redmi Buds: SUPER+B cambia de modo (apagado → ANC → transparencia), SUPER+SHIFT+B alterna ANC/apagado
+hl.bind(mainMod .. " + B",         hl.dsp.exec_cmd("~/.local/bin/buds mode next --notify"))
+hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.local/bin/buds mode toggle --notify"))
 
 -- screenshots
 

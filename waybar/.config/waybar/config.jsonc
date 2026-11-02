@@ -14,6 +14,7 @@
     ],
     "modules-right": [
         "tray",
+        "custom/buds",
         "pulseaudio",
         "network",
         "backlight",
@@ -110,5 +111,16 @@
     "tray": {
         "spacing": 10,
         "icon-size": 16
+    },
+
+    // Redmi Buds 8 Pro: batería y modo (~/proyectos/redmi-buds)
+    "custom/buds": {
+        "exec": "~/.local/bin/buds waybar",
+        "return-type": "json",
+        "interval": 120,
+        "signal": 8,
+        "on-click": "~/.local/bin/buds mode next --notify",
+        "on-click-right": "~/.local/bin/buds mode toggle --notify",
+        "on-click-middle": "~/.local/bin/buds-manager"
     }
 }

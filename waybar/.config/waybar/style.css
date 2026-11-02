@@ -52,8 +52,20 @@ tooltip label {
 #battery,
 #cpu,
 #memory,
-#tray {
+#tray,
+#custom-buds {
     padding: 0 10px;
+}
+
+#custom-buds.anc {
+    color: #33ccff;
+}
+#custom-buds.transparency {
+    color: #50fa7b;
+}
+#custom-buds.low,
+#custom-buds.error {
+    color: #ff5555;
 }
 
 #clock {
