@@ -122,7 +122,8 @@ hl.config({
 	resize_on_border = false,
 
         -- Please see https://wiki.hypr.land/configuring/extra/tearing/ before you turn this on
-        allow_tearing = false,
+        -- Activado para juegos (solo afecta a ventanas con la regla "immediate", p. ej. Roblox/Sober)
+        allow_tearing = true,
 
         layout = "dwindle",
     },
@@ -132,8 +133,8 @@ hl.config({
         rounding_power = 3, 
 
         -- Change transparency of focused and unfocused windows
-        active_opacity   = 0.90,
-        inactive_opacity = 0.80,
+        active_opacity   = 0.80,
+        inactive_opacity = 0.70,
 
         shadow = {
             enabled      = true,
@@ -230,6 +231,7 @@ hl.config({
     misc = {
         force_default_wallpaper = 0,    -- Set to 0 or 1 to disable the anime mascot wallpapers
         disable_hyprland_logo   = true, -- If true disables the random hyprland logo / anime girl background. :(
+        vrr = 2,                        -- VRR solo en pantalla completa (si el monitor lo soporta)
     },
 })
 
@@ -256,6 +258,8 @@ hl.config({
         kb_model   = "",
         kb_options = "",
         kb_rules   = "",
+
+        numlock_by_default = true, -- Bloq Num activo al iniciar (útil para la contraseña de hyprlock)
 
         follow_mouse = 1,
 
@@ -412,3 +416,14 @@ hl.window_rule({
     move  = "20 monitor_h-120",
     float = true,
 })
+
+-- Roblox (Sober): tearing permitido = menor latencia de entrada
+hl.window_rule({
+    name  = "roblox-sober-immediate",
+    match = { class = "^(org.vinegarhq.Sober)$" },
+
+    immediate = true,
+})
+
+-- Super + G: lanzar Roblox con GameMode
+hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("gamemoderun flatpak run org.vinegarhq.Sober"))

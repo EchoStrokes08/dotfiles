@@ -1,3 +1,5 @@
+@import "ayu.css";
+
 * {
     font-family: "JetBrainsMono Nerd Font", "Noto Sans", sans-serif;
     font-size: 13px;
@@ -8,40 +10,40 @@
 }
 
 window#waybar {
-    background: rgba(18, 18, 18, 0.88);
-    color: #e6e6e6;
+    background: alpha(@fondo, 0.88);
+    color: @texto;
 }
 
 tooltip {
-    background: rgba(18, 18, 18, 0.95);
-    border: 1px solid #33ccff;
+    background: alpha(@fondo, 0.95);
+    border: 1px solid @naranja;
     border-radius: 8px;
 }
 tooltip label {
-    color: #e6e6e6;
+    color: @texto;
     padding: 4px;
 }
 
 #workspaces button {
     padding: 0 8px;
-    color: #8a8a8a;
+    color: @gris;
     background: transparent;
 }
 #workspaces button.active {
-    color: #33ccff;
-    box-shadow: inset 0 -2px 0 #33ccff;
+    color: @naranja;
+    box-shadow: inset 0 -2px 0 @naranja;
 }
 #workspaces button:hover {
-    color: #e6e6e6;
-    background: rgba(255, 255, 255, 0.08);
+    color: @texto;
+    background: alpha(@texto, 0.08);
     box-shadow: none;
 }
 #workspaces button.urgent {
-    color: #ff5555;
+    color: @rojo;
 }
 
 #window {
-    color: #b8b8b8;
+    color: @gris;
     padding: 0 10px;
 }
 
@@ -58,40 +60,40 @@ tooltip label {
 }
 
 #custom-buds.anc {
-    color: #33ccff;
+    color: @azul;
 }
 #custom-buds.transparency {
-    color: #50fa7b;
+    color: @verde;
 }
 #custom-buds.low,
 #custom-buds.error {
-    color: #ff5555;
+    color: @rojo;
 }
 
 #clock {
-    color: #33ccff;
+    color: @naranja;
 }
 
 #battery.warning {
-    color: #ffb86c;
+    color: @amarillo;
 }
 #battery.critical {
-    color: #ff5555;
+    color: @rojo;
 }
 #battery.charging,
 #battery.plugged {
-    color: #50fa7b;
+    color: @verde;
 }
 
 #network.disconnected {
-    color: #ff5555;
+    color: @rojo;
 }
 
 #pulseaudio.muted {
-    color: #ff5555;
+    color: @rojo;
 }
 
 #cpu,
 #memory {
-    color: #b8b8b8;
+    color: @gris;
 }
