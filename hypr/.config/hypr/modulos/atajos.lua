@@ -22,6 +22,7 @@ u.atajos({
     { mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }) },
     { mod .. " + P", hl.dsp.window.pseudo() },
     { mod .. " + J", hl.dsp.layout("togglesplit") },  -- solo dwindle
+    { mod .. " + I", exec("~/.config/hypr/scripts/inspector.sh") },  -- info de la ventana (para window rules)
 
     -- Mover el foco con las flechas
     { mod .. " + left",  hl.dsp.focus({ direction = "left" }) },
@@ -88,3 +89,19 @@ for i = 1, 10 do
     hl.bind(mod .. " + " .. tecla,         hl.dsp.focus({ workspace = i }))
     hl.bind(mod .. " + SHIFT + " .. tecla, hl.dsp.window.move({ workspace = i }))
 end
+
+-- SUPER+TAB: cambiar el layout del workspace actual (dwindle → master → scrolling → monocle → …)
+-- Lo guarda como workspace rule, así cada workspace recuerda el suyo hasta recargar la config.
+hl.bind(mod .. " + TAB", function()
+    local layouts = { "dwindle", "master", "scrolling", "monocle" }
+    local ws = hl.get_active_special_workspace() or hl.get_active_workspace()
+    if not ws then return end
+    local siguiente = layouts[1]
+    for i, nombre in ipairs(layouts) do
+        if nombre == ws.tiled_layout then siguiente = layouts[(i % #layouts) + 1] break end
+    end
+    -- ojo: el ejemplo de la wiki usa "name:N", pero para workspaces numerados hay que usar el id ("1")
+    local selector = ws.special and tostring(ws.name) or tostring(ws.id)
+    hl.workspace_rule({ workspace = selector, layout = siguiente })
+    hl.exec_cmd("notify-send -a Layout -t 1500 'Layout' '" .. siguiente .. "'")
+end)

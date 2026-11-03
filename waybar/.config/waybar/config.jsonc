@@ -22,8 +22,19 @@
         "battery",
         "cpu",
         "memory",
+        "custom/modo-juego",
         "custom/notification"
     ],
+
+    // Modo juego (~/.config/hypr/modulos/modo_juego.lua): mando naranja = activo.
+    // Se actualiza cuando el modo juego manda la señal 9 (pkill -RTMIN+9 waybar).
+    "custom/modo-juego": {
+        "exec": "~/.config/hypr/scripts/modo-juego-waybar.sh",
+        "return-type": "json",
+        "interval": "once",
+        "signal": 9,
+        "on-click": "hyprctl dispatch 'modo_juego.alternar() or hl.dsp.no_op()'"
+    },
 
     // swaync: campana con el número de notificaciones. Clic = panel, clic derecho = No molestar
     "custom/notification": {

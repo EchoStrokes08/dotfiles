@@ -138,3 +138,15 @@ tooltip label {
 #custom-notification.dnd-inhibited-notification {
     color: @gris;
 }
+
+/* Modo juego: mando gris apagado, naranja encendido */
+#custom-modo-juego {
+    padding: 0 8px;
+    font-size: 15px;
+}
+#custom-modo-juego.inactivo {
+    color: @gris;
+}
+#custom-modo-juego.activo {
+    color: @naranja;
+}

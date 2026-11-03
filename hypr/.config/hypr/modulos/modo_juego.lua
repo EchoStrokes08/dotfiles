@@ -3,6 +3,9 @@
 --   · SUPER+SHIFT+G lo activa o desactiva a mano
 --   · se activa SOLO al abrir Roblox y se desactiva al cerrar la última ventana de Roblox
 -- Desactivar = recargar la config (vuelve todo a como está en los demás módulos).
+-- Waybar muestra el estado (módulo custom/modo-juego, señal 9) y con un clic lo alterna:
+--   hyprctl dispatch 'modo_juego.alternar() or hl.dsp.no_op()'
+
 local p = require("modulos.programas")
 
 local JUEGOS = { ["org.vinegarhq.Sober"] = true }  -- añadir aquí más classes de juegos
@@ -25,17 +28,22 @@ local function activar()
             blur             = { enabled = false },
         },
     })
-    hl.exec_cmd("swaync-client -dn; notify-send -a 'Modo juego' -u low 'Modo juego activado' 'Sin animaciones, blur ni notificaciones'")
+    hl.exec_cmd("swaync-client -dn; pkill -RTMIN+9 waybar; notify-send -a 'Modo juego' -u low 'Modo juego activado' 'Sin animaciones, blur ni notificaciones'")
 end
 
 local function desactivar()
     if not activo() then return end
-    hl.exec_cmd("swaync-client -df; hyprctl reload; notify-send -a 'Modo juego' -u low 'Modo juego desactivado'")
+    hl.exec_cmd("swaync-client -df; hyprctl reload; pkill -RTMIN+9 waybar; notify-send -a 'Modo juego' -u low 'Modo juego desactivado'")
 end
 
-hl.bind(p.mainMod .. " + SHIFT + G", function()
+local function alternar()
     if activo() then desactivar() else activar() end
-end)
+end
+
+hl.bind(p.mainMod .. " + SHIFT + G", alternar)
+
+-- Global (visible para hyprctl dispatch): así waybar puede alternar el modo con un clic
+_G.modo_juego = { alternar = alternar, activo = activo }
 
 -- Automático con los juegos de la lista
 hl.on("window.open", function(w)
