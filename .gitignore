@@ -1,0 +1,3 @@
+# Copias de seguridad locales (no van al repo)
+*.bak-*
+*.bak

@@ -15,14 +15,36 @@
     ],
     "modules-right": [
         "tray",
-        "custom/buds",
+        "group/buds",
         "pulseaudio",
         "network",
         "backlight",
         "battery",
         "cpu",
-        "memory"
+        "memory",
+        "custom/notification"
     ],
+
+    // swaync: campana con el número de notificaciones. Clic = panel, clic derecho = No molestar
+    "custom/notification": {
+        "exec": "swaync-client -swb",
+        "return-type": "json",
+        "escape": true,
+        "tooltip": false,
+        "format": "{icon}",
+        "format-icons": {
+            "none": "󰂚",
+            "notification": "󱅫",
+            "dnd-none": "󰂛",
+            "dnd-notification": "󰂛",
+            "inhibited-none": "󰂚",
+            "inhibited-notification": "󱅫",
+            "dnd-inhibited-none": "󰂛",
+            "dnd-inhibited-notification": "󰂛"
+        },
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw"
+    },
 
     "hyprland/workspaces": {
         "format": "{id}",
@@ -114,9 +136,59 @@
         "icon-size": 16
     },
 
-    // Redmi Buds 8 Pro: batería y modo (~/proyectos/redmi-buds)
-    "custom/buds": {
-        "exec": "~/.local/bin/buds waybar",
+    // Redmi Buds 8 Pro: batería de cada audífono y del estuche (~/proyectos/redmi-buds)
+    "group/buds": {
+        "orientation": "horizontal",
+        "modules": ["image#buds-left", "custom/buds-left", "image#buds-right", "custom/buds-right",
+                    "image#buds-case", "custom/buds-case"]
+    },
+    "image#buds-left": {
+        "exec": "~/.local/bin/buds waybar --part left --icon",
+        "size": 22,
+        "interval": 120,
+        "signal": 8,
+        "tooltip": false,
+        "on-click": "~/.local/bin/buds mode next --notify",
+        "on-click-middle": "~/.local/bin/buds-manager"
+    },
+    "custom/buds-left": {
+        "exec": "~/.local/bin/buds waybar --part left",
+        "return-type": "json",
+        "interval": 120,
+        "signal": 8,
+        "on-click": "~/.local/bin/buds mode next --notify",
+        "on-click-right": "~/.local/bin/buds mode toggle --notify",
+        "on-click-middle": "~/.local/bin/buds-manager"
+    },
+    "image#buds-right": {
+        "exec": "~/.local/bin/buds waybar --part right --icon",
+        "size": 22,
+        "interval": 120,
+        "signal": 8,
+        "tooltip": false,
+        "on-click": "~/.local/bin/buds mode next --notify",
+        "on-click-middle": "~/.local/bin/buds-manager"
+    },
+    "custom/buds-right": {
+        "exec": "~/.local/bin/buds waybar --part right",
+        "return-type": "json",
+        "interval": 120,
+        "signal": 8,
+        "on-click": "~/.local/bin/buds mode next --notify",
+        "on-click-right": "~/.local/bin/buds mode toggle --notify",
+        "on-click-middle": "~/.local/bin/buds-manager"
+    },
+    "image#buds-case": {
+        "exec": "~/.local/bin/buds waybar --part case --icon",
+        "size": 22,
+        "interval": 120,
+        "signal": 8,
+        "tooltip": false,
+        "on-click": "~/.local/bin/buds mode next --notify",
+        "on-click-middle": "~/.local/bin/buds-manager"
+    },
+    "custom/buds-case": {
+        "exec": "~/.local/bin/buds waybar --part case",
         "return-type": "json",
         "interval": 120,
         "signal": 8,

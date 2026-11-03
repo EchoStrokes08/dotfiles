@@ -1,0 +1,119 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "right",
+  "positionY": "top",
+  "layer": "overlay",
+  "control-center-layer": "top",
+  "layer-shell": true,
+  "cssPriority": "user",
+
+  "control-center-margin-top": 8,
+  "control-center-margin-bottom": 8,
+  "control-center-margin-right": 8,
+  "control-center-margin-left": 0,
+  "control-center-width": 420,
+  "control-center-height": 720,
+  "fit-to-screen": true,
+  "notification-window-width": 400,
+  "notification-icon-size": 48,
+  "notification-body-image-height": 120,
+  "notification-body-image-width": 200,
+
+  "timeout": 6,
+  "timeout-low": 3,
+  "timeout-critical": 0,
+  "transition-time": 200,
+
+  "relative-timestamps": true,
+  "notification-grouping": true,
+  "image-visibility": "when-available",
+  "keyboard-shortcuts": true,
+  "hide-on-clear": true,
+  "hide-on-action": true,
+  "text-empty": "Sin notificaciones",
+
+  "widgets": [
+    "title",
+    "buttons-grid",
+    "volume",
+    "backlight",
+    "mpris",
+    "dnd",
+    "notifications"
+  ],
+  "widget-config": {
+    "title": {
+      "text": "Centro de control",
+      "clear-all-button": true,
+      "button-text": "Borrar todo"
+    },
+    "buttons-grid": {
+      "buttons-per-row": 4,
+      "actions": [
+        {
+          "label": "󰤨",
+          "type": "toggle",
+          "command": "~/.config/swaync/scripts/toggle.sh wifi",
+          "update-command": "~/.config/swaync/scripts/toggle.sh wifi estado"
+        },
+        {
+          "label": "󰂯",
+          "type": "toggle",
+          "command": "~/.config/swaync/scripts/toggle.sh bluetooth",
+          "update-command": "~/.config/swaync/scripts/toggle.sh bluetooth estado"
+        },
+        {
+          "label": "󰑋",
+          "type": "toggle",
+          "command": "~/.config/swaync/scripts/toggle.sh replay",
+          "update-command": "~/.config/swaync/scripts/toggle.sh replay estado"
+        },
+        {
+          "label": "󱐋",
+          "type": "toggle",
+          "command": "~/.config/swaync/scripts/toggle.sh rendimiento",
+          "update-command": "~/.config/swaync/scripts/toggle.sh rendimiento estado"
+        },
+        {
+          "label": "󰋋",
+          "command": "~/.local/bin/buds mode next --notify"
+        },
+        {
+          "label": "󰹑",
+          "command": "swaync-client -cp && sleep 0.4 && mkdir -p ~/Imágenes && grim -g \"$(slurp)\" - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy"
+        },
+        {
+          "label": "󰌾",
+          "command": "swaync-client -cp && loginctl lock-session"
+        },
+        {
+          "label": "󰐥",
+          "command": "swaync-client -cp && wlogout"
+        }
+      ]
+    },
+    "volume": {
+      "label": "󰕾",
+      "show-per-app": true,
+      "show-per-app-icon": true,
+      "empty-list-label": "Ninguna app suena",
+      "expand-button-label": "󰅀",
+      "collapse-button-label": "󰅃"
+    },
+    "backlight": {
+      "label": "󰃠",
+      "device": "amdgpu_bl1",
+      "min": 5
+    },
+    "mpris": {
+      "autohide": true,
+      "show-album-art": "always"
+    },
+    "dnd": {
+      "text": "No molestar"
+    },
+    "notifications": {
+      "vexpand": true
+    }
+  }
+}

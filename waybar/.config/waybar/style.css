@@ -59,6 +59,30 @@ tooltip label {
     padding: 0 10px;
 }
 
+/* Buds: ícono + porcentaje por audífono y estuche */
+#buds {
+    padding: 0 6px;
+}
+#image.buds-left, #image.buds-right, #image.buds-case {
+    padding: 0 1px 0 7px;
+}
+#custom-buds-left, #custom-buds-right, #custom-buds-case {
+    padding: 0 3px 0 1px;
+}
+#custom-buds-left.anc, #custom-buds-right.anc, #custom-buds-case.anc {
+    color: @azul;
+}
+#custom-buds-left.transparency, #custom-buds-right.transparency, #custom-buds-case.transparency {
+    color: @verde;
+}
+#custom-buds-left.charging, #custom-buds-right.charging, #custom-buds-case.charging {
+    color: @amarillo;
+}
+#custom-buds-left.low, #custom-buds-right.low, #custom-buds-case.low,
+#custom-buds-left.critical, #custom-buds-right.critical, #custom-buds-case.critical {
+    color: @rojo;
+}
+
 #custom-buds.anc {
     color: @azul;
 }
@@ -95,5 +119,22 @@ tooltip label {
 
 #cpu,
 #memory {
+    color: @gris;
+}
+
+/* swaync: campana de notificaciones */
+#custom-notification {
+    padding: 0 12px 0 8px;
+    color: @texto;
+    font-size: 15px;
+}
+#custom-notification.notification,
+#custom-notification.inhibited-notification {
+    color: @naranja;
+}
+#custom-notification.dnd-none,
+#custom-notification.dnd-notification,
+#custom-notification.dnd-inhibited-none,
+#custom-notification.dnd-inhibited-notification {
     color: @gris;
 }
