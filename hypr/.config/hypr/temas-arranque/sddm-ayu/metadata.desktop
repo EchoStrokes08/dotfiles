@@ -1,0 +1,10 @@
+[SddmGreeterTheme]
+Name=Ayu Dark Glass
+Description=Login a juego con hyprlock (Ayu Dark Glass)
+Author=oscar
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+Screenshot=background.jpg
+QtVersion=6

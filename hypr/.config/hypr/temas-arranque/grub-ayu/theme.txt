@@ -1,0 +1,92 @@
+# ╭──────────────────────────────────────────╮
+# │        GRUB · Ayu Dark Glass             │
+# ╰──────────────────────────────────────────╯
+title-text: ""
+desktop-image: "background.png"
+desktop-color: "#0b0e14"
+terminal-font: "JBM Regular 16"
+terminal-box: "menu_*.png"
+
+# Título grande tipo reloj de hyprlock: "ARCH" en naranja, "LINUX" en azul
++ label {
+    left = 0
+    top = 16%
+    width = 50%-12
+    align = "right"
+    text = "ARCH"
+    font = "JBMX Regular 64"
+    color = "#f19618"
+}
++ label {
+    left = 50%+12
+    top = 16%
+    width = 50%
+    align = "left"
+    text = "LINUX"
+    font = "JBMX Regular 64"
+    color = "#36a3d9"
+}
++ label {
+    left = 0
+    top = 16%+92
+    width = 100%
+    align = "center"
+    text = "· ELIGE UN SISTEMA ·"
+    font = "JBM Regular 16"
+    color = "#5c6773"
+}
+
+# Menú en cristal oscuro con borde azul
++ boot_menu {
+    left = 50%-330
+    top = 38%
+    width = 660
+    height = 34%
+    menu_pixmap_style = "menu_*.png"
+    item_font = "JBM Regular 20"
+    item_color = "#e5e1cf"
+    selected_item_font = "JBM Bold 22"
+    selected_item_color = "#f19618"
+    selected_item_pixmap_style = "select_*.png"
+    item_height = 46
+    item_padding = 18
+    item_spacing = 8
+    icon_width = 0
+    icon_height = 0
+    item_icon_space = 0
+    scrollbar = false
+}
+
+# Barra de progreso de la cuenta atrás
++ progress_bar {
+    id = "__timeout__"
+    left = 50%-330
+    top = 75%
+    width = 660
+    height = 6
+    show_text = false
+    fg_color = "#f19618"
+    bg_color = "#1a1f29"
+    border_color = "#1a1f29"
+}
++ label {
+    id = "__timeout__"
+    left = 0
+    top = 75%+18
+    width = 100%
+    align = "center"
+    text = "arranca en %d s"
+    font = "JBM Regular 16"
+    color = "#5c6773"
+}
+
+# Barra inferior, como la de hyprlock
++ label {
+    left = 0
+    top = 100%-50
+    width = 100%
+    align = "center"
+    text = "↑ ↓ elegir    ⏎ arrancar    e editar    c consola"
+    font = "JBM Regular 16"
+    color = "#5c6773"
+}
