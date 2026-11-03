@@ -55,6 +55,12 @@ u.atajos({
     { "PRINT",            exec([[mkdir -p ~/Imágenes && grim -g "$(slurp)" - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
     { mod .. " + PRINT",  exec([[mkdir -p ~/Imágenes && grim - - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
 
+    { "SHIFT + PRINT",    exec("~/.config/hypr/scripts/capturas.sh") },  -- menú: región, pantalla, ventana, 5 s
+
+    -- Wallpapers: menú con miniaturas / uno al azar
+    { mod .. " + SHIFT + W",  exec("~/.config/hypr/scripts/wallpaper.sh") },
+    { mod .. " + CTRL + W",   exec("~/.config/hypr/scripts/wallpaper.sh aleatorio") },
+
     -- Replay: guardar los últimos 30 s / encender-apagar
     { mod .. " + SHIFT + PRINT", exec("~/.config/hypr/scripts/replay.sh save") },
     { mod .. " + ALT + PRINT",   exec("~/.config/hypr/scripts/replay.sh toggle") },

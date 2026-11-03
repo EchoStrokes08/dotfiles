@@ -45,3 +45,51 @@ hl.layer_rule({
     blur         = true,
     ignore_alpha = 0.3,
 })
+
+-- ---------- Nivel 3: reglas para el día a día ----------
+
+-- Picture-in-Picture de Firefox: flotante, fijo en todos los workspaces, esquina inferior derecha
+hl.window_rule({
+    name  = "pip-firefox",
+    match = { class = "^firefox$", title = "^(Picture-in-Picture|Imagen en imagen)$" },
+    float = true,
+    pin   = true,
+    size  = "480 270",
+    move  = "monitor_w-490 monitor_h-280",
+    keep_aspect_ratio = true,
+    opaque = true,
+})
+
+-- Diálogos que no deberían ocupar medio mosaico: flotantes y centrados
+hl.window_rule({
+    name   = "dialogos-flotantes",
+    match  = { title = "^(Open File|Save As|Save File|Abrir archivo|Guardar como|Guardar archivo|File Operation Progress|Progreso de la operación con archivos|Rename.*|Renombrar.*)$" },
+    float  = true,
+    center = true,
+})
+
+-- Ventana de contraseña de polkit y selector de archivos del portal: flotantes y centradas
+hl.window_rule({
+    name   = "polkit-portal-flotante",
+    match  = { class = "^(hyprpolkitagent|xdg-desktop-portal-gtk|org.freedesktop.impl.portal.desktop.kde)$" },
+    float  = true,
+    center = true,
+})
+
+-- Descargas / biblioteca de Firefox: flotante, tamaño cómodo
+hl.window_rule({
+    name   = "firefox-biblioteca",
+    match  = { class = "^firefox$", title = "^(Library|Biblioteca)$" },
+    float  = true,
+    size   = "900 600",
+    center = true,
+})
+
+-- Ventana de instalación (la kitty "Instalando-temas" que abre Claude): flotante y centrada
+hl.window_rule({
+    name   = "kitty-instalador",
+    match  = { class = "^kitty$", title = "^Instalando.*" },
+    float  = true,
+    size   = "900 500",
+    center = true,
+})

@@ -18,6 +18,7 @@
 --   reglas.lua      reglas de ventanas y capas
 --   atajos.lua      todos los atajos normales
 --   submaps.lua     modos "redimensionar" y "lanzar"
+--   modo_juego.lua  SUPER+SHIFT+G o automático con Roblox: sin efectos ni notificaciones
 --
 -- Cada require es un ámbito separado: si un módulo tiene un error, los demás
 -- se siguen cargando (y Hyprland muestra el error arriba). Revisar con:
@@ -33,3 +34,4 @@ require("modulos.sistema")
 require("modulos.reglas")
 require("modulos.atajos")
 require("modulos.submaps")
+require("modulos.modo_juego")
