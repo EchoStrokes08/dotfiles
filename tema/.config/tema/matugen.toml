@@ -1,0 +1,27 @@
+# matugen: genera la paleta del wallpaper en ~/.local/state/tema/ usando las plantillas.
+# Lo llama ~/.config/hypr/scripts/tema.sh (no hace falta llamarlo a mano).
+[config]
+
+[templates.colores]
+input_path  = "~/.config/tema/plantillas/colores.css"
+output_path = "~/.local/state/tema/colores.css"
+
+[templates.hyprland]
+input_path  = "~/.config/tema/plantillas/hyprland.lua"
+output_path = "~/.local/state/tema/hyprland.lua"
+
+[templates.kitty]
+input_path  = "~/.config/tema/plantillas/kitty.conf"
+output_path = "~/.local/state/tema/kitty.conf"
+
+[templates.fuzzel]
+input_path  = "~/.config/tema/plantillas/fuzzel.ini"
+output_path = "~/.local/state/tema/fuzzel.ini"
+
+[templates.gtk3]
+input_path  = "~/.config/tema/plantillas/gtk3.css"
+output_path = "~/.local/state/tema/gtk3.css"
+
+[templates.gtk4]
+input_path  = "~/.config/tema/plantillas/gtk4.css"
+output_path = "~/.local/state/tema/gtk4.css"

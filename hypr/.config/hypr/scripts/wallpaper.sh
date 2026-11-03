@@ -3,15 +3,21 @@
 #   wallpaper.sh            -> abre el menú y aplica el elegido
 #   wallpaper.sh aleatorio  -> pone uno al azar
 # Las miniaturas se crean una vez con ffmpeg en ~/.cache/wallpapers-mini (fuzzel solo muestra PNG/SVG).
-# Nota: hyprpaper sigue rotando la carpeta cada 10 min (hyprpaper.conf → timeout).
+# El wallpaper elegido queda enlazado en ~/.local/state/tema/wallpaper (hyprpaper lo carga al arrancar)
+# y, si el modo de color es "wallpaper", se regeneran los colores (tema.sh).
+# La rotación cada 10 min la hace Hyprland (modulos/tema.lua), no hyprpaper.
 
 CARPETA="$HOME/Imágenes/wallpapers"
 MINIS="$HOME/.cache/wallpapers-mini"
 MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
 mkdir -p "$MINIS"
 
+TEMA="$HOME/.config/hypr/scripts/tema.sh"
+
 aplicar() {
     hyprctl hyprpaper wallpaper "$MONITOR, $1, cover" >/dev/null
+    mkdir -p "$HOME/.local/state/tema"; ln -sf "$1" "$HOME/.local/state/tema/wallpaper"
+    [ "$("$TEMA" estado)" = wallpaper ] && "$TEMA" aplicar "$1"
     notify-send -a Wallpaper -i "$MINIS/$(basename "${1%.*}").png" "Wallpaper" "$(basename "$1")"
 }
 
@@ -31,7 +37,10 @@ done
 
 # Lista para fuzzel: "nombre\0icon\x1fruta-miniatura"
 elegido=$(
-    { printf 'Aleatorio\0icon\x1fmedia-playlist-shuffle\n'
+    { if [ "$("$TEMA" estado)" = wallpaper ]
+      then printf 'Colores: volver a Ayu\0icon\x1fpreferences-desktop-theme\n'
+      else printf 'Colores: sacarlos del wallpaper\0icon\x1fpreferences-desktop-color\n'; fi
+      printf 'Aleatorio\0icon\x1fmedia-playlist-shuffle\n'
       for f in "${fondos[@]}"; do
           n=$(basename "$f")
           printf '%s\0icon\x1f%s\n' "$n" "$MINIS/${n%.*}.png"
@@ -40,7 +49,9 @@ elegido=$(
 )
 [ -z "$elegido" ] && exit 0
 
-if [ "$elegido" = "Aleatorio" ]; then
+if [[ "$elegido" == Colores:* ]]; then
+    "$TEMA" alternar
+elif [ "$elegido" = "Aleatorio" ]; then
     "$0" aleatorio
 else
     aplicar "$CARPETA/$elegido"

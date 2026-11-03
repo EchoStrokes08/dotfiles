@@ -19,6 +19,7 @@
 --   atajos.lua      todos los atajos normales
 --   submaps.lua     modos "redimensionar" y "lanzar"
 --   modo_juego.lua  SUPER+SHIFT+G o automático con Roblox: sin efectos ni notificaciones
+--   tema.lua        colores Ayu o del wallpaper (SUPER+SHIFT+T) y rotación de fondos
 --
 -- Cada require es un ámbito separado: si un módulo tiene un error, los demás
 -- se siguen cargando (y Hyprland muestra el error arriba). Revisar con:
@@ -35,3 +36,4 @@ require("modulos.reglas")
 require("modulos.atajos")
 require("modulos.submaps")
 require("modulos.modo_juego")
+require("modulos.tema")

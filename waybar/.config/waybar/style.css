@@ -1,4 +1,5 @@
-@import "ayu.css";
+/* Colores: paleta activa (Ayu o wallpaper) — ver ~/.config/hypr/scripts/tema.sh */
+@import url("file:///home/oscar/.local/state/tema/colores.css");
 
 * {
     font-family: "JetBrainsMono Nerd Font", "Noto Sans", sans-serif;

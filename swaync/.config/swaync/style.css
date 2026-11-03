@@ -2,28 +2,34 @@
  * 1. Carga el estilo oficial completo (estructura, animaciones).
  * 2. Sobrescribe sus variables con la paleta Ayu.
  * 3. Retoca solo lo que el estilo oficial no deja cambiar por variables.
- * Colores: los mismos de ~/.config/waybar/ayu.css
+ * Colores: paleta activa de ~/.local/state/tema/ (Ayu o wallpaper, ver tema.sh)
  */
 @import url("file:///etc/xdg/swaync/style.css");
-@import url("file:///home/oscar/.config/waybar/ayu.css");
+@import url("file:///home/oscar/.local/state/tema/colores.css");   /* paleta activa (tema.sh) */
 
 :root {
-  --cc-bg: rgba(14, 20, 25, 0.95);                /* fondo del panel: @fondo al 95 % (+ blur de Hyprland) */
-  --noti-border-color: rgba(229, 225, 207, 0.10);
-  --noti-bg: 14, 20, 25;                           /* RGB sin alpha (el estilo oficial lo combina) */
-  --noti-bg-alpha: 0.92;
-  --noti-bg-darker: rgb(10, 14, 18);
-  --noti-bg-hover: rgb(36, 51, 64);                /* @seleccion */
-  --noti-bg-focus: rgba(36, 51, 64, 0.6);
-  --noti-close-bg: rgba(229, 225, 207, 0.08);
-  --noti-close-bg-hover: rgba(255, 51, 51, 0.6);   /* la X se pone roja */
-  --text-color: rgb(229, 225, 207);                /* @texto */
-  --text-color-disabled: rgb(92, 103, 115);        /* @gris */
-  --bg-selected: rgb(241, 150, 24);                /* @naranja */
+  /* Todo sale de la paleta activa (@fondo, @texto, @naranja…), así cambia con tema.sh */
+  --cc-bg: alpha(@fondo, 0.95);                    /* fondo del panel (+ blur de Hyprland) */
+  --noti-border-color: alpha(@texto, 0.10);
+  --noti-bg-darker: shade(@fondo, 0.8);
+  --noti-bg-hover: @seleccion;
+  --noti-bg-focus: alpha(@seleccion, 0.6);
+  --noti-close-bg: alpha(@texto, 0.08);
+  --noti-close-bg-hover: alpha(@rojo, 0.6);        /* la X se pone roja */
+  --text-color: @texto;
+  --text-color-disabled: @gris;
+  --bg-selected: @naranja;
   --border-radius: 10px;
   --font-size-body: 13px;
   --font-size-summary: 14px;
   --notification-icon-size: 48px;
+}
+
+/* El fondo de cada notificación: el estilo oficial lo arma con --noti-bg (RGB sin alpha),
+   que no puede salir de un @color; lo pongo directamente. */
+.notification-row .notification-background .notification,
+.notification-row .notification-background .notification.low {
+  background: alpha(@fondo, 0.92);
 }
 
 * {
@@ -40,7 +46,7 @@
 }
 .notification-row .notification-background .notification.critical {
   border-left-color: @rojo;
-  background: alpha(@rojo, 0.12);
+  background: alpha(mix(@fondo, @rojo, 0.15), 0.95);
 }
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary {
   color: @naranja;

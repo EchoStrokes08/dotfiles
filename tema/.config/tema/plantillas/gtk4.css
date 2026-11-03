@@ -1,0 +1,43 @@
+/* Ayu Dark para apps GTK4 / libadwaita (Nautilus, ajustes de GNOME, etc.).
+ * libadwaita 1.6+ usa variables CSS en :root. Paleta: ~/.config/waybar/ayu.css
+ */
+:root {
+  --accent-bg-color: {{colors.primary.default.hex}};
+  --accent-fg-color: {{colors.surface.default.hex}};
+  --accent-color: {{colors.primary.default.hex}};
+
+  --destructive-bg-color: {{colors.error.default.hex}};
+  --destructive-fg-color: {{colors.surface.default.hex}};
+  --destructive-color: {{colors.error.default.hex}};
+  --success-bg-color: #b8cc52;
+  --success-fg-color: {{colors.surface.default.hex}};
+  --success-color: #b8cc52;
+  --warning-bg-color: #e6c446;
+  --warning-fg-color: {{colors.surface.default.hex}};
+  --warning-color: #e6c446;
+  --error-bg-color: {{colors.error.default.hex}};
+  --error-fg-color: {{colors.surface.default.hex}};
+  --error-color: {{colors.error.default.hex}};
+
+  --window-bg-color: {{colors.surface.default.hex}};
+  --window-fg-color: {{colors.on_surface.default.hex}};
+  --view-bg-color: {{colors.surface_container_lowest.default.hex}};
+  --view-fg-color: {{colors.on_surface.default.hex}};
+  --headerbar-bg-color: {{colors.surface_container.default.hex}};
+  --headerbar-fg-color: {{colors.on_surface.default.hex}};
+  --headerbar-border-color: {{colors.surface_container_highest.default.hex}};
+  --headerbar-backdrop-color: {{colors.surface.default.hex}};
+  --sidebar-bg-color: {{colors.surface_container_lowest.default.hex}};
+  --sidebar-fg-color: {{colors.on_surface.default.hex}};
+  --sidebar-backdrop-color: {{colors.surface_container_lowest.default.hex}};
+  --secondary-sidebar-bg-color: {{colors.surface.default.hex}};
+  --secondary-sidebar-fg-color: {{colors.on_surface.default.hex}};
+  --card-bg-color: {{colors.surface_container.default.hex}};
+  --card-fg-color: {{colors.on_surface.default.hex}};
+  --dialog-bg-color: {{colors.surface_container.default.hex}};
+  --dialog-fg-color: {{colors.on_surface.default.hex}};
+  --popover-bg-color: {{colors.surface_container.default.hex}};
+  --popover-fg-color: {{colors.on_surface.default.hex}};
+  --thumbnail-bg-color: {{colors.surface_container.default.hex}};
+  --thumbnail-fg-color: {{colors.on_surface.default.hex}};
+}
