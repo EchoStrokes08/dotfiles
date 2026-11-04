@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Menú de capturas con fuzzel. Cada captura se guarda en ~/Imágenes y se copia al portapapeles.
+# Menú de capturas con fuzzel. Cada captura se guarda en ~/Imágenes/screenshots y se copia al portapapeles.
 #   capturas.sh          -> menú
 #   capturas.sh <modo>   -> directo: region | pantalla | ventana | temporizador
 
-DESTINO="$HOME/Imágenes"
+DESTINO="$HOME/Imágenes/screenshots"
 mkdir -p "$DESTINO"
 archivo="$DESTINO/$(date +'%Y%m%d_%H%M%S')_captura.png"
 

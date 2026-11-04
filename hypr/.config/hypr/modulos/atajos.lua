@@ -52,9 +52,9 @@ u.atajos({
     -- Portapapeles
     { mod .. " + SHIFT + V", exec("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy") },
 
-    -- Capturas (archivo en ~/Imágenes + portapapeles)
-    { "PRINT",            exec([[mkdir -p ~/Imágenes && grim -g "$(slurp)" - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
-    { mod .. " + PRINT",  exec([[mkdir -p ~/Imágenes && grim - - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
+    -- Capturas (archivo en ~/Imágenes/screenshots + portapapeles)
+    { "PRINT",            exec([[mkdir -p ~/Imágenes/screenshots && grim -g "$(slurp)" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
+    { mod .. " + PRINT",  exec([[mkdir -p ~/Imágenes/screenshots && grim - - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
 
     { "SHIFT + PRINT",    exec("~/.config/hypr/scripts/capturas.sh") },  -- menú: región, pantalla, ventana, 5 s
 

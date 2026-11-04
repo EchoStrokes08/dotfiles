@@ -80,7 +80,7 @@
         },
         {
           "label": "󰹑",
-          "command": "swaync-client -cp && sleep 0.4 && mkdir -p ~/Imágenes && grim -g \"$(slurp)\" - | tee ~/Imágenes/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy"
+          "command": "swaync-client -cp && sleep 0.4 && mkdir -p ~/Imágenes/screenshots && grim -g \"$(slurp)\" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy"
         },
         {
           "label": "󰌾",
