@@ -66,9 +66,9 @@ u.atajos({
     { mod .. " + SHIFT + PRINT", exec("~/.config/hypr/scripts/replay.sh save") },
     { mod .. " + ALT + PRINT",   exec("~/.config/hypr/scripts/replay.sh toggle") },
 
-    -- Redmi Buds: cambiar de modo / alternar ANC
-    { mod .. " + B",         exec("~/.local/bin/buds mode next --notify") },
-    { mod .. " + SHIFT + B", exec("~/.local/bin/buds mode toggle --notify") },
+    -- Redmi Buds: abrir (o ir a) Buds Manager / cambiar de modo (ANC → transparencia → apagado)
+    { mod .. " + B",         u.enfocar_o_abrir("io.github.echostrokes08.BudsManager", "~/.local/bin/buds-manager") },
+    { mod .. " + SHIFT + B", exec("~/.local/bin/buds mode next --notify") },
 
     -- Teclas multimedia
     { "XF86AudioRaiseVolume",  exec("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), repetible },
