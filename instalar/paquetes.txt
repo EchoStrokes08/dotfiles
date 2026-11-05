@@ -73,6 +73,7 @@ power-profiles-daemon
 python-gobject
 qt5-wayland
 qt6-wayland
+quickshell
 radeontop
 reflector
 ripgrep
