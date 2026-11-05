@@ -42,7 +42,7 @@ u.atajos({
     { mod .. " + SHIFT + S",   hl.dsp.window.move({ workspace = "special:magic" }) },
 
     -- Sesión
-    { mod .. " + L", exec("loginctl lock-session") },  -- bloquear (pasa por hypridle → hyprlock)
+    { mod .. " + L", exec("loginctl lock-session") },  -- bloquear (hypridle → scripts/bloquear.sh → Quickshell; hyprlock de respaldo)
     { mod .. " + M", hl.dsp.exit() },
     { "ALT + F4",    exec("wlogout") },
 
@@ -73,6 +73,9 @@ u.atajos({
 
     -- Modo de energía: ahorro → equilibrado → rendimiento (con notificación)
     { mod .. " + SHIFT + P", exec("~/.config/hypr/scripts/modo-energia.sh") },
+
+    -- Modo concentración: temporizador, No molestar y apps que distraen escondidas
+    { mod .. " + SHIFT + F", exec("qs ipc call menu concentracion") },
 
     -- Teclas multimedia. Volumen y micro: el OSD de Quickshell reacciona solo al cambio (escucha PipeWire).
     -- Brillo y música: se hace el cambio y luego se avisa al OSD (si qs no corre, las teclas siguen funcionando).

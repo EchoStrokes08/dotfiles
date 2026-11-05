@@ -33,19 +33,22 @@ Item {
     RowLayout {
         id: fila
         anchors.centerIn: parent
+        height: parent.height
         spacing: 6
-        Text {
+        // Glifo = centrado óptico (ver Glifo.qml): icono y texto quedan a la misma altura
+        Glifo {
             visible: modulo.icono !== ""
+            alto: modulo.height
             text: modulo.icono
             color: modulo.color
-            font { family: Paleta.fuente; pixelSize: modulo.tamIcono }
-            Behavior on color { ColorAnimation { duration: 200 } }
+            font.pixelSize: modulo.tamIcono
         }
-        Text {
+        Glifo {
             visible: modulo.texto !== ""
+            alto: modulo.height
             text: modulo.texto
             color: modulo.colorTexto
-            font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold }
+            font { pixelSize: 13; weight: Font.DemiBold }
         }
     }
 

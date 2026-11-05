@@ -256,6 +256,17 @@ RowLayout {
         onClic: derecha.ejecutar("kitty -e btop")
     }
 
+    // ── Modo concentración (solo durante una sesión) ─────────────────────
+    Modulo {
+        visible: Concentracion.activo
+        gestorAyuda: ayuda
+        icono: derecha.g(0xF04FE)
+        texto: Concentracion.texto()
+        color: Paleta.naranja
+        ayuda: "Concentración: " + Concentracion.minutos + " min · apps que distraen escondidas\nClic: añadir tiempo o terminar"
+        onClic: derecha.ejecutar("qs ipc call menu concentracion")
+    }
+
     // ── Modo juego ───────────────────────────────────────────────────────
     Modulo {
         id: modoJuego

@@ -78,6 +78,18 @@ ShellRoot {
     IpcHandler {
         target: "menu"
         function cerrar(): void { menu.abierto = false; }
+        // Modo concentración (SUPER+SHIFT+F): opciones según haya sesión o no
+        function concentracion(): void {
+            cerrarTodo();
+            const q = "qs ipc call concentracion ";
+            menu.abrirCon(Concentracion.activo ? "Concentración · quedan " + Concentracion.texto() : "Concentración",
+                Concentracion.activo
+                ? [ { icono: 0xF0415, texto: "Añadir 10 min", cmd: q + "sumar 10" },
+                    { icono: 0xF04DB, texto: "Terminar ahora", cmd: q + "terminar" } ]
+                : [ { icono: 0xF04FE, texto: "25 min (pomodoro)", cmd: q + "empezar 25" },
+                    { icono: 0xF04FE, texto: "50 min",             cmd: q + "empezar 50" },
+                    { icono: 0xF04FE, texto: "90 min",             cmd: q + "empezar 90" } ]);
+        }
         function capturas(): void {
             cerrarTodo();
             const c = "~/.config/hypr/scripts/capturas.sh ";
@@ -88,6 +100,14 @@ ShellRoot {
                 { icono: 0xF051B, texto: "Pantalla en 5 s",   cmd: c + "temporizador" }
             ]);
         }
+    }
+
+    IpcHandler {
+        target: "concentracion"
+        function empezar(minutos: int): void { Concentracion.empezar(minutos); }
+        function sumar(minutos: int): void { Concentracion.sumar(minutos); }
+        function terminar(): void { Concentracion.terminar(false); }
+        function estado(): string { return Concentracion.activo ? "quedan " + Concentracion.texto() : "inactivo"; }
     }
 
     // Avisar a las barras de que algo cambió:  qs ipc call barra refrescar buds

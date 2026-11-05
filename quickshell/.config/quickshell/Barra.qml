@@ -36,7 +36,7 @@ PanelWindow {
         anchors { left: parent.left; leftMargin: 6; verticalCenter: parent.verticalCenter }
         spacing: 10
 
-        BarraEspacios { monitor: barra.monitor }
+        BarraEspacios { id: espaciosBarra; monitor: barra.monitor }
 
         // Ventana activa: icono + título (se funde al cambiar)
         RowLayout {
@@ -47,8 +47,11 @@ PanelWindow {
                 return e ? Quickshell.iconPath(e.icon, true) : "";
             }
             spacing: 8
-            visible: actual !== null && actual.title !== ""
-            Layout.maximumWidth: 340
+            visible: actual !== null && actual.title !== "" && hueco > 60
+            // El título cede espacio: nunca debe llegar a donde va el reloj (si no, la bandeja lo tapa).
+            // Hueco = desde aquí hasta el lado derecho, menos el reloj y márgenes; tope 340 px.
+            readonly property real hueco: derecha.x - izquierda.x - espaciosBarra.width - 10 - centro.implicitWidth - 24
+            Layout.maximumWidth: Math.max(0, Math.min(340, hueco))
 
             IconImage {
                 implicitSize: 16
@@ -56,7 +59,7 @@ PanelWindow {
                 visible: ventanaActiva.icono !== ""
             }
             Text {
-                Layout.maximumWidth: 310
+                Layout.maximumWidth: Math.max(0, Math.min(310, ventanaActiva.hueco - 24))
                 text: ventanaActiva.actual?.title ?? ""
                 color: Paleta.gris
                 elide: Text.ElideRight
