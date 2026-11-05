@@ -91,7 +91,11 @@ Flow {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: { pildora.modelData.activate(); espacios.elegido(); }
+                onClicked: {
+                    // activate() manda la sintaxis vieja ("workspace 3"); Hyprland 0.57 con Lua espera una expresión Lua
+                    Hyprland.dispatch(`hl.dsp.focus({ workspace = ${pildora.modelData.id} })`);
+                    espacios.elegido();
+                }
             }
         }
     }

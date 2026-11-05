@@ -11,14 +11,27 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 
 ShellRoot {
     Dashboard { id: dashboard }
+
+    // Una barra por pantalla; si conectas un monitor, aparece otra sola
+    Variants {
+        model: Quickshell.screens
+        Barra {
+            required property var modelData
+            screen: modelData
+            onRelojPulsado: dashboard.abierto = !dashboard.abierto
+        }
+    }
 
     IpcHandler {
         target: "dashboard"
         function toggle(): void { dashboard.abierto = !dashboard.abierto; }
         function abrir(): void  { dashboard.abierto = true; }
         function cerrar(): void { dashboard.abierto = false; }
+        // Ir a un workspace desde fuera (pruebas/scripts):  qs ipc call dashboard irA 3
+        function irA(n: int): void { Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`); }
     }
 }
