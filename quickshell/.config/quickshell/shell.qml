@@ -15,6 +15,7 @@ import Quickshell.Hyprland
 
 ShellRoot {
     Dashboard { id: dashboard }
+    Lanzador { id: lanzador }
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
@@ -34,6 +35,14 @@ ShellRoot {
         function cerrar(): void { dashboard.abierto = false; }
         // Ir a un workspace desde fuera (pruebas/scripts):  qs ipc call dashboard irA 3
         function irA(n: int): void { Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`); }
+    }
+
+    // Lanzador de apps (SUPER+R):  qs ipc call lanzador toggle
+    IpcHandler {
+        target: "lanzador"
+        function toggle(): void { dashboard.abierto = false; lanzador.abierto = !lanzador.abierto; }
+        function buscar(texto: string): void { dashboard.abierto = false; lanzador.abrirCon(texto); }
+        function lanzar(texto: string): void { lanzador.lanzarPrimero(texto); }
     }
 
     // Avisar a las barras de que algo cambió:  qs ipc call barra refrescar buds
