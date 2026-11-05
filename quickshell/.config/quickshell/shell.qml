@@ -19,6 +19,7 @@ ShellRoot {
     OSD {}
     Emergentes {}
     CentroControl { id: centro }
+    Bloqueo {}
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {

@@ -37,7 +37,7 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | `tema` | Paleta Ayu y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper |
 | `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (fuzzel aún sirve el portapapeles y los wallpapers) |
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
-| `quickshell` | **Barra superior** (workspaces, ventana activa, reloj, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones) , **dashboard** SUPER+D (reloj, espacios, calendario, sistema, tiempo de pantalla, música) , **lanzador de apps** SUPER+R, **OSD** de volumen/brillo/Bloq Mayús y **notificaciones** con centro de control SUPER+N, en QML |
+| `quickshell` | **Barra superior** (workspaces, ventana activa, reloj, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones) , **dashboard** SUPER+D (reloj, espacios, calendario, sistema, tiempo de pantalla, música) , **lanzador de apps** SUPER+R, **OSD** de volumen/brillo/Bloq Mayús y **notificaciones** con centro de control SUPER+N y **pantalla de bloqueo** (hyprlock queda de respaldo), en QML |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide y fastfetch |
 | `gtk` | adw-gtk3 con colores Ayu e iconos Papirus-Ayu |
 | `btop` · `nvim` · `vscode` · `firefox` · `vesktop` · `spicetify` | Apps con el tema Ayu |
@@ -46,6 +46,11 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 
 Buds Manager (para controlar los Redmi Buds desde Linux) vive en su propio repo,
 [Buds-Manager](https://github.com/EchoStrokes08/Buds-Manager), y el instalador lo clona.
+
+## Si la pantalla de bloqueo se cuelga
+
+`Ctrl+Alt+F3`, entra con tu usuario y ejecuta `~/.config/hypr/scripts/desbloqueo-emergencia.sh`;
+vuelve con `Ctrl+Alt+F1` y desbloquea con hyprlock (posible gracias a `allow_session_lock_restore`).
 
 ## Atajos principales
 
