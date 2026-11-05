@@ -24,6 +24,11 @@ PY
 echo "==> Spotify (flatpak): permisos de escritura para spicetify"
 SP=/var/lib/flatpak/app/com.spotify.Client/x86_64/stable/active/files/extra/share/spotify
 PREFS=~/.var/app/com.spotify.Client/config/spotify/prefs
+if [ ! -d "$SP" ] || [ ! -f "$PREFS" ]; then
+    echo "   Spotify aún no está instalado o nunca se abrió (falta $PREFS)."
+    echo "   Ábrelo una vez, ciérralo y vuelve a correr: ~/dotfiles/instalar/apps-ayu.sh"
+    exit 0
+fi
 flatpak kill com.spotify.Client 2>/dev/null || true
 sudo chmod a+wr "$SP"
 sudo chmod a+wr -R "$SP/Apps"

@@ -1,0 +1,4 @@
+# Flatpak desde Flathub (generado por actualizar-listas.sh)
+com.rtosta.zapzap
+com.spotify.Client
+org.vinegarhq.Sober

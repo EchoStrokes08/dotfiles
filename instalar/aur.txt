@@ -1,0 +1,6 @@
+# AUR (los instala yay; generado por actualizar-listas.sh)
+bibata-cursor-theme-bin
+papirus-folders
+spicetify-cli
+vesktop-bin
+wlogout
