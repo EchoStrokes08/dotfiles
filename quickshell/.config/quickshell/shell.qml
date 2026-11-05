@@ -73,6 +73,7 @@ ShellRoot {
     IpcHandler {
         target: "portapapeles"
         function toggle(): void { const a = portapapeles.abierto; cerrarTodo(); portapapeles.abierto = !a; }
+        function copiarId(id: string): void { portapapeles.copiar({ id: id }); }   // lo mismo que un clic (pruebas)
     }
     IpcHandler {
         target: "menu"
