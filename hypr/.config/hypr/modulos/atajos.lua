@@ -51,7 +51,7 @@ u.atajos({
     { mod .. " + SHIFT + N", exec("qs ipc call notificaciones noMolestar") },  -- No molestar
 
     -- Portapapeles
-    { mod .. " + SHIFT + V", exec("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy") },
+    { mod .. " + SHIFT + V", exec("qs ipc call portapapeles toggle") },
 
     -- Capturas (archivo en ~/Imágenes/screenshots + portapapeles)
     { "PRINT",            exec([[mkdir -p ~/Imágenes/screenshots && grim -g "$(slurp)" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Selector de wallpapers con fuzzel (con miniaturas).
-#   wallpaper.sh            -> abre el menú y aplica el elegido
-#   wallpaper.sh aleatorio  -> pone uno al azar
+# Wallpapers.
+#   wallpaper.sh               -> abre el selector de Quickshell (Wallpapers.qml); si qs no responde, el menú de fuzzel
+#   wallpaper.sh aleatorio     -> pone uno al azar
+#   wallpaper.sh poner <ruta>  -> pone ese (lo usa el selector de Quickshell)
 # Las miniaturas se crean una vez con ffmpeg en ~/.cache/wallpapers-mini (fuzzel solo muestra PNG/SVG).
 # El wallpaper elegido queda enlazado en ~/.local/state/tema/wallpaper (hyprpaper lo carga al arrancar)
 # y, si el modo de color es "wallpaper", se regeneran los colores (tema.sh).
@@ -21,13 +22,21 @@ aplicar() {
     notify-send -a Wallpaper -i "$MINIS/$(basename "${1%.*}").png" "Wallpaper" "$(basename "$1")"
 }
 
-mapfile -t fondos < <(find "$CARPETA" -maxdepth 1 -type f \
+mapfile -t fondos < <(find "$CARPETA/" -maxdepth 1 -type f \
     \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | sort)
 [ ${#fondos[@]} -eq 0 ] && { notify-send -a Wallpaper "No hay imágenes en $CARPETA"; exit 1; }
 
 if [ "$1" = aleatorio ]; then
     aplicar "${fondos[RANDOM % ${#fondos[@]}]}"; exit 0
 fi
+if [ "$1" = poner ] && [ -f "$2" ]; then
+    aplicar "$2"; exit 0
+fi
+
+# Selector de Quickshell; "qs ipc call" no imprime nada si funcionó
+[ -z "$(qs ipc call wallpapers toggle 2>&1)" ] && exit 0
+
+# --- Respaldo: menú de fuzzel ---
 
 # Miniaturas que falten
 for f in "${fondos[@]}"; do

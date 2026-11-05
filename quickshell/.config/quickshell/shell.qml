@@ -20,6 +20,9 @@ ShellRoot {
     Emergentes {}
     CentroControl { id: centro }
     Bloqueo {}
+    Wallpapers { id: wallpapers }
+    Portapapeles { id: portapapeles }
+    Menu { id: menu }
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
@@ -57,6 +60,33 @@ ShellRoot {
         function noMolestarSi(): void { Notificaciones.noMolestar = true; }
         function noMolestarNo(): void { Notificaciones.noMolestar = false; }
         function borrar(): void { Notificaciones.borrarTodo(); }
+    }
+
+    // Selectores que sustituyen a fuzzel
+    //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
+    function cerrarTodo() { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
+                            wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false; }
+    IpcHandler {
+        target: "wallpapers"
+        function toggle(): void { const a = wallpapers.abierto; cerrarTodo(); wallpapers.abierto = !a; }
+    }
+    IpcHandler {
+        target: "portapapeles"
+        function toggle(): void { const a = portapapeles.abierto; cerrarTodo(); portapapeles.abierto = !a; }
+    }
+    IpcHandler {
+        target: "menu"
+        function cerrar(): void { menu.abierto = false; }
+        function capturas(): void {
+            cerrarTodo();
+            const c = "~/.config/hypr/scripts/capturas.sh ";
+            menu.abrirCon("Capturas", [
+                { icono: 0xF0A6D, texto: "Región",            cmd: c + "region" },
+                { icono: 0xF0E51, texto: "Pantalla completa", cmd: c + "pantalla" },
+                { icono: 0xF10AC, texto: "Ventana activa",    cmd: c + "ventana" },
+                { icono: 0xF051B, texto: "Pantalla en 5 s",   cmd: c + "temporizador" }
+            ]);
+        }
     }
 
     // Avisar a las barras de que algo cambió:  qs ipc call barra refrescar buds

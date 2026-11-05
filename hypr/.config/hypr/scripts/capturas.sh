@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Menú de capturas con fuzzel. Cada captura se guarda en ~/Imágenes/screenshots y se copia al portapapeles.
-#   capturas.sh          -> menú
+# Capturas. Cada una se guarda en ~/Imágenes/screenshots y se copia al portapapeles.
+#   capturas.sh          -> menú de Quickshell (Menu.qml); si qs no responde, el de fuzzel
 #   capturas.sh <modo>   -> directo: region | pantalla | ventana | temporizador
 
 DESTINO="$HOME/Imágenes/screenshots"
@@ -19,7 +19,10 @@ guardar() {  # recibe la geometría de grim ("" = pantalla completa)
 }
 
 modo="$1"
-if [ -z "$modo" ]; then
+if [ -z "$modo" ] && [ -z "$(qs ipc call menu capturas 2>&1)" ]; then
+    exit 0   # el menú de Quickshell llamará a "capturas.sh <modo>"
+fi
+if [ -z "$modo" ]; then   # respaldo: fuzzel
     eleccion=$(printf '%s\n' \
         "󰩭  Región" \
         "󰹑  Pantalla completa" \
