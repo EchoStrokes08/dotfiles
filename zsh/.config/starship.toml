@@ -1,0 +1,87 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Mismo diseño que tu prompt anterior, en dos líneas:
+#   ~/ruta/actual   rama  !2 ?1   3s     <- arriba
+#   ✦ orion ❯                               <- abajo
+# Los módulos que no aplican (git fuera de un repo, duración < 2 s…) no aparecen.
+
+add_newline = true
+palette = "ayu"
+
+format = """
+$directory$git_branch$git_state$git_status$python$nodejs$rust$golang$lua$cmd_duration
+${env_var.HOST_MIN}$jobs$status$character"""
+
+[palettes.ayu]
+naranja  = "#E6B450"
+amarillo = "#FFB454"
+menta    = "#95E6CB"
+morado   = "#D2A6FF"
+azul     = "#59C2FF"
+verde    = "#AAD94C"
+rojo     = "#F07178"
+gris     = "#626A73"
+
+[directory]
+style = "italic menta"
+truncation_length = 4
+truncate_to_repo = false
+read_only = " 󰌾"
+read_only_style = "rojo"
+format = "[$path]($style)[$read_only]($read_only_style) "
+
+[env_var.HOST_MIN]
+format = "[✦ $env_value](bold morado) "
+
+[character]
+success_symbol = "[❯](naranja)"
+error_symbol = "[❯](rojo)"
+
+[status]
+disabled = false
+symbol = "✘ "
+style = "rojo"
+format = "[$symbol$status]($style) "
+
+[jobs]
+symbol = "\uf013 "
+style = "verde"
+
+[git_branch]
+symbol = "\ue0a0 "
+style = "azul"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "amarillo"
+format = "([$all_status$ahead_behind]($style) )"
+
+[cmd_duration]
+min_time = 2000
+style = "gris"
+format = "[\uf017 $duration]($style) "
+
+[python]
+symbol = "\ue235 "
+style = "amarillo"
+format = "[$symbol$version( \\($virtualenv\\))]($style) "
+
+[nodejs]
+symbol = "\ued0d "
+style = "verde"
+format = "[$symbol$version]($style) "
+
+[rust]
+symbol = "\ue7a8 "
+style = "rojo"
+format = "[$symbol$version]($style) "
+
+[golang]
+symbol = "\ue627 "
+style = "azul"
+format = "[$symbol$version]($style) "
+
+[lua]
+symbol = "\ue620 "
+style = "azul"
+format = "[$symbol$version]($style) "
