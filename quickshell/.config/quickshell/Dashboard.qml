@@ -13,7 +13,6 @@ PanelWindow {
     property bool mostrar: false      // la ventana sigue viva mientras dura la animación de cierre
 
     onAbiertoChanged: {
-        Sistema.activo = abierto;     // medir CPU/RAM solo con el panel abierto
         if (abierto) {
             cierre.stop(); mostrar = true;
             Hyprland.refreshWorkspaces();   // datos frescos de ventanas (para sus iconos)

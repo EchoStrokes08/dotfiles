@@ -35,8 +35,9 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 |---|---|
 | `hypr` | Hyprland en Lua, partido en módulos (`modulos/`), scripts, hyprlock, hypridle, hyprpaper y los temas de arranque (`temas-arranque/`: SDDM, GRUB y Plymouth) |
 | `tema` | Paleta Ayu y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper |
-| `waybar` · `swaync` · `swayosd` · `fuzzel` | Barra, notificaciones y centro de control, indicador de volumen y brillo, lanzador |
-| `quickshell` | Dashboard SUPER+D: reloj, espacios de trabajo, calendario, CPU/RAM/temperatura/batería, tiempo de pantalla y música (QML) |
+| `swaync` · `swayosd` · `fuzzel` | Notificaciones y centro de control, indicador de volumen y brillo, lanzador |
+| `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
+| `quickshell` | **Barra superior** (workspaces, ventana activa, reloj, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones) y **dashboard** SUPER+D (reloj, espacios, calendario, sistema, tiempo de pantalla, música), en QML |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide y fastfetch |
 | `gtk` | adw-gtk3 con colores Ayu e iconos Papirus-Ayu |
 | `btop` · `nvim` · `vscode` · `firefox` · `vesktop` · `spicetify` | Apps con el tema Ayu |

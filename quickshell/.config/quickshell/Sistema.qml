@@ -1,5 +1,5 @@
 // Sistema: CPU, RAM, temperatura y tiempo encendido.
-// Solo mide mientras el dashboard está abierto (activo), así no gasta nada en segundo plano.
+// Lo usan la barra (siempre) y el dashboard. Un proceso cada 2 s: coste despreciable.
 pragma Singleton
 import QtQuick
 import Quickshell
@@ -8,9 +8,11 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    property bool activo: false
+    property bool activo: true
     property real cpu: 0        // 0..1
     property real ram: 0        // 0..1
+    property real ramUsadaGiB: 0
+    property real ramTotalGiB: 0
     property real temp: 0       // °C
     property string encendido: ""
 
@@ -52,6 +54,8 @@ Singleton {
                 root.anterior = { inactivo: inactivo, total: total };
             } else if (p[0] === "mem") {
                 root.ram = 1 - v[1] / v[0];
+                root.ramTotalGiB = v[0] / 1048576;          // kB → GiB
+                root.ramUsadaGiB = (v[0] - v[1]) / 1048576;
             } else if (p[0] === "temp") {
                 root.temp = v[0] / 1000;
             } else if (p[0] === "up") {

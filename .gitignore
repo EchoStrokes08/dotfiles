@@ -1,3 +1,6 @@
 # Copias de seguridad locales (no van al repo)
 *.bak-*
 *.bak
+
+# Caché de Python
+__pycache__/

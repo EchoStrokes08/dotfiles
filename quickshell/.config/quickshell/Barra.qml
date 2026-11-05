@@ -1,5 +1,5 @@
 // Barra superior hecha en Quickshell (sustituirá a waybar módulo a módulo).
-// Fase 1: izquierda (workspaces + ventana activa) y centro (reloj).
+// Izquierda: workspaces + ventana activa · centro: reloj · derecha: BarraDerecha.qml
 // Una barra por pantalla: shell.qml la crea con Variants { model: Quickshell.screens }.
 import QtQuick
 import QtQuick.Layouts
@@ -21,8 +21,18 @@ PanelWindow {
 
     SystemClock { id: reloj; precision: SystemClock.Minutes }
 
+    function refrescar(que) { derecha.refrescar(que); }
+
+    // ── Derecha: bandeja, Buds, volumen, red… ───────────────────────────
+    BarraDerecha {
+        id: derecha
+        ventana: barra
+        anchors { right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
+    }
+
     // ── Izquierda: workspaces y ventana activa ──────────────────────────
     RowLayout {
+        id: izquierda
         anchors { left: parent.left; leftMargin: 6; verticalCenter: parent.verticalCenter }
         spacing: 10
 
@@ -38,7 +48,7 @@ PanelWindow {
             }
             spacing: 8
             visible: actual !== null && actual.title !== ""
-            Layout.maximumWidth: 460
+            Layout.maximumWidth: 340
 
             IconImage {
                 implicitSize: 16
@@ -46,7 +56,7 @@ PanelWindow {
                 visible: ventanaActiva.icono !== ""
             }
             Text {
-                Layout.maximumWidth: 430
+                Layout.maximumWidth: 310
                 text: ventanaActiva.actual?.title ?? ""
                 color: Paleta.gris
                 elide: Text.ElideRight
@@ -58,7 +68,15 @@ PanelWindow {
     // ── Centro: reloj (hover = fecha, clic = dashboard) ─────────────────
     Item {
         id: centro
-        anchors.centerIn: parent
+        // Centrado en la pantalla si cabe; si no, centrado en el hueco libre entre izquierda y derecha
+        readonly property real libreIni: izquierda.x + izquierda.width + 8
+        readonly property real libreFin: derecha.x - 8
+        x: {
+            const ideal = (barra.width - width) / 2;
+            if (ideal >= libreIni && ideal + width <= libreFin) return ideal;
+            return Math.max(libreIni, (libreIni + libreFin - width) / 2);
+        }
+        anchors.verticalCenter: parent.verticalCenter
         implicitWidth: textoReloj.implicitWidth + 24
         implicitHeight: parent.height
         width: implicitWidth

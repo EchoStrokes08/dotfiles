@@ -18,6 +18,7 @@ ShellRoot {
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
+        id: barras
         model: Quickshell.screens
         Barra {
             required property var modelData
@@ -33,5 +34,14 @@ ShellRoot {
         function cerrar(): void { dashboard.abierto = false; }
         // Ir a un workspace desde fuera (pruebas/scripts):  qs ipc call dashboard irA 3
         function irA(n: int): void { Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`); }
+    }
+
+    // Avisar a las barras de que algo cambió:  qs ipc call barra refrescar buds
+    // (buds, modo-juego, red, brillo o todo). Lo usan modo_juego.lua, tema.sh y Buds Manager.
+    IpcHandler {
+        target: "barra"
+        function refrescar(que: string): void {
+            for (const b of barras.instances) b.refrescar(que);
+        }
     }
 }
