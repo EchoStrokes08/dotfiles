@@ -14,7 +14,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("qs")               -- Quickshell: barra superior + dashboard SUPER+D (~/.config/quickshell)
     -- hl.exec_cmd("swayosd-server")   -- sustituido por el OSD de Quickshell (OSD.qml)
     hl.exec_cmd("hypridle")   -- escucha "lock-session" y bloquea por inactividad
-    -- (swaync no hace falta: lo arranca systemd/D-Bus al llegar la primera notificación)
+    -- (las notificaciones las sirve Quickshell; swaync está enmascarado: systemctl --user mask swaync)
 
     -- Servicios
     hl.exec_cmd("wl-paste --type text --watch cliphist store")    -- historial del portapapeles

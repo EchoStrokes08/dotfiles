@@ -37,19 +37,10 @@ hl.window_rule({
     opaque = true,
 })
 
--- Blur detrás del panel y las notificaciones de swaync.
--- Ojo: las layer rules se aplican cuando la capa se CREA → tras cambiarlas, reiniciar swaync.
-hl.layer_rule({
-    name         = "swaync-blur",
-    match        = { namespace = "swaync-control-center|swaync-notification-window" },
-    blur         = true,
-    ignore_alpha = 0.3,
-})
-
 -- Blur detrás de la tarjeta del dashboard de Quickshell (el resto de la capa es transparente → ignore_alpha)
 hl.layer_rule({
     name         = "quickshell-blur",
-    match        = { namespace = "quickshell-(dashboard|lanzador|osd)" },
+    match        = { namespace = "quickshell-(dashboard|lanzador|osd|notificaciones|centro)" },
     blur         = true,
     ignore_alpha = 0.3,
 })

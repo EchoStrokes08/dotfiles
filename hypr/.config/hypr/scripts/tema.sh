@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cambia los colores de TODO el escritorio (Hyprland, waybar, swaync, kitty, fuzzel, GTK).
+# Cambia los colores de TODO el escritorio (Hyprland, Quickshell, kitty, fuzzel, GTK).
 #   tema.sh ayu         -> paleta Ayu fija (la de siempre)
 #   tema.sh wallpaper   -> colores sacados del wallpaper actual (matugen)
 #   tema.sh alternar    -> cambia entre los dos
@@ -31,7 +31,6 @@ generar() {
 
 recargar() {
     hyprctl reload >/dev/null                 # bordes y sombras (colores.lua lee la paleta)
-    swaync-client -rs >/dev/null 2>&1         # CSS de notificaciones
     pkill -SIGUSR2 -x waybar                  # waybar recarga config y estilo
     pkill -SIGUSR1 -x kitty                   # kitty recarga colores en todas sus ventanas
     pkill -RTMIN+9 -x waybar 2>/dev/null      # (refresca el mando de modo juego)

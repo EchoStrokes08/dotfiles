@@ -46,9 +46,9 @@ u.atajos({
     { mod .. " + M", hl.dsp.exit() },
     { "ALT + F4",    exec("wlogout") },
 
-    -- Notificaciones (swaync)
-    { mod .. " + N",         exec("swaync-client -t -sw") },  -- abrir/cerrar el panel
-    { mod .. " + SHIFT + N", exec("swaync-client -d -sw") },  -- No molestar
+    -- Notificaciones (Quickshell: Notificaciones.qml / CentroControl.qml)
+    { mod .. " + N",         exec("qs ipc call notificaciones toggle") },      -- abrir/cerrar el centro de control
+    { mod .. " + SHIFT + N", exec("qs ipc call notificaciones noMolestar") },  -- No molestar
 
     -- Portapapeles
     { mod .. " + SHIFT + V", exec("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy") },

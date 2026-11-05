@@ -283,29 +283,10 @@ RowLayout {
         onClic: Hyprland.dispatch("modo_juego.alternar() or hl.dsp.no_op()")
     }
 
-    // ── Notificaciones (swaync) ──────────────────────────────────────────
+    // ── Notificaciones (Notificaciones.qml) ──────────────────────────────
     Modulo {
-        id: notis
-        property string estado: "none"   // none | notification | dnd-… | inhibited-…
-        property int cuantas: 0
-        Process {
-            id: procNotis
-            // swaync -swb se queda abierto y escribe una línea JSON en cada cambio
-            running: true
-            command: ["swaync-client", "-swb"]
-            stdout: SplitParser {
-                onRead: (linea) => {
-                    try {
-                        const d = JSON.parse(linea);
-                        notis.estado = d.alt ?? "none";
-                        notis.cuantas = parseInt(d.text) || 0;
-                    } catch (e) {}
-                }
-            }
-            onExited: reintento.start()          // si swaync se reinicia, volver a conectar
-        }
-        Timer { id: reintento; interval: 2000; onTriggered: procNotis.running = true }
-        readonly property bool dnd: estado.startsWith("dnd")
+        readonly property int cuantas: Notificaciones.lista.length
+        readonly property bool dnd: Notificaciones.noMolestar
         gestorAyuda: ayuda
         relleno: 11
         tamIcono: 16
@@ -314,6 +295,9 @@ RowLayout {
         color: dnd ? Paleta.gris : cuantas > 0 ? Paleta.naranja : Paleta.texto
         ayuda: (dnd ? "No molestar activo" : cuantas > 0 ? cuantas + " notificaciones" : "Sin notificaciones")
              + "\nClic: centro de control · Clic derecho: no molestar"
-        onClic: (b) => derecha.ejecutar(b === Qt.RightButton ? "swaync-client -d -sw" : "swaync-client -t -sw")
+        onClic: (b) => {
+            if (b === Qt.RightButton) Notificaciones.alternarNoMolestar();
+            else derecha.ejecutar("qs ipc call notificaciones toggle");
+        }
     }
 }

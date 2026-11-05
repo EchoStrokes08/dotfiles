@@ -1,5 +1,5 @@
 -- Modo juego: quita todo lo que cuesta GPU o distrae (animaciones, blur, sombras,
--- transparencia, huecos) y activa "No molestar" en swaync.
+-- transparencia, huecos) y activa "No molestar" (notificaciones de Quickshell).
 --   · SUPER+SHIFT+G lo activa o desactiva a mano
 --   · se activa SOLO al abrir Roblox y se desactiva al cerrar la última ventana de Roblox
 -- Desactivar = recargar la config (vuelve todo a como está en los demás módulos).
@@ -28,12 +28,12 @@ local function activar()
             blur             = { enabled = false },
         },
     })
-    hl.exec_cmd("swaync-client -dn; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; qs ipc call osd mensaje 'Modo juego activado' f0297")  -- OSD: No molestar ocultaría una notificación
+    hl.exec_cmd("qs ipc call notificaciones noMolestarSi; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; qs ipc call osd mensaje 'Modo juego activado' f0297")  -- OSD: No molestar ocultaría una notificación
 end
 
 local function desactivar()
     if not activo() then return end
-    hl.exec_cmd("swaync-client -df; hyprctl reload; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; qs ipc call osd mensaje 'Modo juego desactivado' f0297")
+    hl.exec_cmd("qs ipc call notificaciones noMolestarNo; hyprctl reload; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; qs ipc call osd mensaje 'Modo juego desactivado' f0297")
 end
 
 local function alternar()

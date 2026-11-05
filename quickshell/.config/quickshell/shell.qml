@@ -17,6 +17,8 @@ ShellRoot {
     Dashboard { id: dashboard }
     Lanzador { id: lanzador }
     OSD {}
+    Emergentes {}
+    CentroControl { id: centro }
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
@@ -44,6 +46,16 @@ ShellRoot {
         function toggle(): void { dashboard.abierto = false; lanzador.abierto = !lanzador.abierto; }
         function buscar(texto: string): void { dashboard.abierto = false; lanzador.abrirCon(texto); }
         function lanzar(texto: string): void { lanzador.lanzarPrimero(texto); }
+    }
+
+    // Notificaciones (SUPER+N panel, SUPER+SHIFT+N no molestar; el modo juego usa noMolestarSi/No)
+    IpcHandler {
+        target: "notificaciones"
+        function toggle(): void { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = !centro.abierto; }
+        function noMolestar(): void { Notificaciones.alternarNoMolestar(); }
+        function noMolestarSi(): void { Notificaciones.noMolestar = true; }
+        function noMolestarNo(): void { Notificaciones.noMolestar = false; }
+        function borrar(): void { Notificaciones.borrarTodo(); }
     }
 
     // Avisar a las barras de que algo cambió:  qs ipc call barra refrescar buds
