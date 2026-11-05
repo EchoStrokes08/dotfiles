@@ -1,0 +1,63 @@
+/* Firefox — Ayu Dark Glass (a juego con waybar y GTK)
+ * La interfaz de Firefox está hecha con HTML/CSS: aquí se redefinen sus variables de color.
+ * Nombres sacados de Firefox 159 (pueden cambiar entre versiones: si algo deja de pintarse,
+ * Herramientas del navegador → Ctrl+Shift+Alt+I para inspeccionar la propia interfaz).
+ */
+:root, :root[lwtheme] {
+  --ayu-fondo:     #0e1419;
+  --ayu-hondo:     #0a0e12;   /* fila de pestañas, un poco más oscura */
+  --ayu-campo:     #151d25;
+  --ayu-seleccion: #243340;
+  --ayu-texto:     #e5e1cf;
+  --ayu-gris:      #5c6773;
+  --ayu-naranja:   #f19618;
+
+  /* Fila de pestañas y barra de navegación */
+  --toolbox-background-color: var(--ayu-hondo) !important;
+  --toolbox-background-color-inactive: var(--ayu-hondo) !important;
+  --toolbox-text-color: var(--ayu-texto) !important;
+  --toolbox-text-color-inactive: var(--ayu-gris) !important;
+  --toolbar-background-color: var(--ayu-fondo) !important;
+  --toolbar-text-color: var(--ayu-texto) !important;
+  --tabs-navbar-separator-color: transparent !important;
+
+  /* Pestañas */
+  --tab-background-color-selected: var(--ayu-fondo) !important;
+  --tab-text-color-selected: var(--ayu-texto) !important;
+  --tab-background-color-hover: var(--ayu-seleccion) !important;
+  --tab-text-color: var(--ayu-gris) !important;
+
+  /* Barra de direcciones */
+  --toolbar-field-background-color: var(--ayu-campo) !important;
+  --toolbar-field-text-color: var(--ayu-texto) !important;
+  --toolbar-field-border-color: transparent !important;
+  --toolbar-field-background-color-focus: var(--ayu-campo) !important;
+  --toolbar-field-text-color-focus: var(--ayu-texto) !important;
+  --toolbar-field-border-color-focus: var(--ayu-naranja) !important;
+
+  /* Menús desplegables, sidebar y acentos */
+  --panel-background-color: var(--ayu-fondo) !important;
+  --panel-text-color: var(--ayu-texto) !important;
+  --panel-border-color: var(--ayu-seleccion) !important;
+  --panel-separator-color: var(--ayu-seleccion) !important;
+  --sidebar-background-color: var(--ayu-fondo) !important;
+  --sidebar-text-color: var(--ayu-texto) !important;
+  --tabpanel-background-color: var(--ayu-fondo) !important;
+  --color-accent-primary: var(--ayu-naranja) !important;
+  --color-accent-primary-hover: #ffb454 !important;
+  --focus-outline-color: var(--ayu-naranja) !important;
+  --toolbarbutton-icon-fill: var(--ayu-texto) !important;
+}
+
+/* Raya naranja bajo la pestaña activa (como el workspace activo en waybar) */
+.tabbrowser-tab[selected] .tab-background {
+  box-shadow: inset 0 -2px 0 var(--ayu-naranja) !important;
+}
+
+/* Fondo de la fila de pestañas: el navegador a veces lo pinta directo, sin variable */
+#navigator-toolbox, #TabsToolbar {
+  background-color: var(--ayu-hondo) !important;
+}
+#nav-bar {
+  background-color: var(--ayu-fondo) !important;
+}

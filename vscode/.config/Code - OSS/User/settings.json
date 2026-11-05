@@ -1,0 +1,23 @@
+{
+    // Tema Ayu (extensión teabyii.ayu, de Open VSX)
+    "workbench.colorTheme": "Ayu Dark",
+    "workbench.iconTheme": "ayu",
+
+    // Misma fuente que kitty y waybar
+    "editor.fontFamily": "'JetBrainsMono Nerd Font', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 14,
+    "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font'",
+
+    // Detalles visuales
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.smoothScrolling": true,
+    "editor.renderLineHighlight": "all",
+    "editor.minimap.enabled": false,
+    "editor.bracketPairColorization.enabled": true,
+
+    // En Hyprland no hay marco de ventana: barra de título propia de VS Code
+    "window.titleBarStyle": "custom",
+    "window.menuBarVisibility": "toggle"
+}

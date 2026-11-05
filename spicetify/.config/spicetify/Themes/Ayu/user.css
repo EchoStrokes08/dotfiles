@@ -1,0 +1,5 @@
+/* Spotify — retoques Ayu sobre los colores de color.ini */
+/* Barra de progreso y volumen en naranja */
+.progress-bar { --fg-color: var(--spice-button) !important; }
+/* Bordes redondeados como en el resto del escritorio */
+.main-card-card, .main-image-image { border-radius: 10px !important; }

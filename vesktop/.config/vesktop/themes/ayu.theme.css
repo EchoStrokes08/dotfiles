@@ -1,0 +1,88 @@
+/**
+ * @name Ayu Dark Glass
+ * @author oscar
+ * @description Discord (Vesktop) con la paleta Ayu de waybar, kitty y GTK
+ * @version 1.0.0
+ */
+
+/* Discord cambia sus variables a menudo: se definen las antiguas y las del
+ * "visual refresh" (2025+). Si algo queda sin pintar: Ctrl+Shift+I → inspeccionar. */
+:root,
+.theme-dark,
+.visual-refresh.theme-dark {
+  --ayu-hondo:     #0a0e12;
+  --ayu-fondo:     #0e1419;
+  --ayu-campo:     #151d25;
+  --ayu-seleccion: #243340;
+  --ayu-texto:     #e5e1cf;
+  --ayu-suave:     #b3b1ad;
+  --ayu-gris:      #5c6773;
+  --ayu-naranja:   #f19618;
+  --ayu-azul:      #36a3d9;
+  --ayu-verde:     #b8cc52;
+  --ayu-rojo:      #ff3333;
+
+  /* Fondos (clásicos) */
+  --background-primary:        var(--ayu-fondo) !important;
+  --background-secondary:      var(--ayu-hondo) !important;
+  --background-secondary-alt:  var(--ayu-hondo) !important;
+  --background-tertiary:       var(--ayu-hondo) !important;
+  --background-floating:       var(--ayu-campo) !important;
+  --background-modifier-hover:    rgba(36, 51, 64, 0.5) !important;
+  --background-modifier-active:   rgba(36, 51, 64, 0.7) !important;
+  --background-modifier-selected: var(--ayu-seleccion) !important;
+  --channeltextarea-background: var(--ayu-campo) !important;
+  --input-background:           var(--ayu-campo) !important;
+  --modal-background:           var(--ayu-fondo) !important;
+  --modal-footer-background:    var(--ayu-hondo) !important;
+
+  /* Fondos (visual refresh) */
+  --background-base-lowest:   var(--ayu-hondo) !important;
+  --background-base-lower:    var(--ayu-hondo) !important;
+  --background-base-low:      var(--ayu-fondo) !important;
+  --background-surface-high:  var(--ayu-campo) !important;
+  --background-surface-higher: var(--ayu-campo) !important;
+  --background-surface-highest: var(--ayu-seleccion) !important;
+  --bg-base-primary:   var(--ayu-fondo) !important;
+  --bg-base-secondary: var(--ayu-hondo) !important;
+  --bg-base-tertiary:  var(--ayu-hondo) !important;
+  --bg-surface-raised:  var(--ayu-campo) !important;
+  --bg-surface-overlay: var(--ayu-campo) !important;
+  --chat-background-default: var(--ayu-fondo) !important;
+
+  /* Texto */
+  --text-normal:     var(--ayu-texto) !important;
+  --text-default:    var(--ayu-texto) !important;
+  --text-strong:     var(--ayu-texto) !important;
+  --text-muted:      var(--ayu-gris) !important;
+  --text-subtle:     var(--ayu-suave) !important;
+  --header-primary:  var(--ayu-texto) !important;
+  --header-secondary: var(--ayu-suave) !important;
+  --channels-default: var(--ayu-suave) !important;
+  --interactive-normal: var(--ayu-suave) !important;
+  --interactive-hover:  var(--ayu-texto) !important;
+  --interactive-active: var(--ayu-naranja) !important;
+  --interactive-muted:  var(--ayu-gris) !important;
+  --text-link:       var(--ayu-azul) !important;
+
+  /* Acento: el morado de Discord pasa a naranja Ayu */
+  --brand-500:        var(--ayu-naranja) !important;
+  --brand-560:        #d9850f !important;
+  --brand-experiment: var(--ayu-naranja) !important;
+  --control-brand-foreground: var(--ayu-naranja) !important;
+  --button-filled-brand-background: var(--ayu-naranja) !important;
+  --button-filled-brand-background-hover: #ffb454 !important;
+  --button-filled-brand-text: var(--ayu-hondo) !important;
+  --mention-foreground: var(--ayu-naranja) !important;
+  --mention-background: rgba(241, 150, 24, 0.12) !important;
+  --status-positive: var(--ayu-verde) !important;
+  --status-danger:   var(--ayu-rojo) !important;
+
+  --scrollbar-auto-thumb: var(--ayu-seleccion) !important;
+  --scrollbar-thin-thumb: var(--ayu-seleccion) !important;
+  --border-subtle: var(--ayu-seleccion) !important;
+  --border-faint:  var(--ayu-campo) !important;
+}
+
+/* Selección de texto */
+::selection { background: rgba(241, 150, 24, 0.3); }

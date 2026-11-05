@@ -25,3 +25,7 @@ output_path = "~/.local/state/tema/gtk3.css"
 [templates.gtk4]
 input_path  = "~/.config/tema/plantillas/gtk4.css"
 output_path = "~/.local/state/tema/gtk4.css"
+
+[templates.btop]
+input_path  = "~/.config/tema/plantillas/btop.theme"
+output_path = "~/.local/state/tema/btop.theme"

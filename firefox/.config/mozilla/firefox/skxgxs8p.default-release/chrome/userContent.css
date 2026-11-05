@@ -1,0 +1,9 @@
+/* Páginas internas de Firefox (nueva pestaña, inicio) con el fondo Ayu */
+@-moz-document url("about:newtab"), url("about:home"), url("about:blank"), url("about:privatebrowsing") {
+  :root, body {
+    --newtab-background-color: #0e1419 !important;
+    --newtab-background-color-secondary: #151d25 !important;
+    --newtab-text-primary-color: #e5e1cf !important;
+    background-color: #0e1419 !important;
+  }
+}
