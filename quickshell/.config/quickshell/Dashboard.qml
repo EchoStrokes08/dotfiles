@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.UPower
+import Quickshell.Hyprland
 
 PanelWindow {
     id: ventana
@@ -13,7 +14,11 @@ PanelWindow {
 
     onAbiertoChanged: {
         Sistema.activo = abierto;     // medir CPU/RAM solo con el panel abierto
-        if (abierto) { cierre.stop(); mostrar = true; }
+        if (abierto) {
+            cierre.stop(); mostrar = true;
+            Hyprland.refreshWorkspaces();   // datos frescos de ventanas (para sus iconos)
+            Hyprland.refreshToplevels();
+        }
         else cierre.restart();
     }
     Timer { id: cierre; interval: 260; onTriggered: ventana.mostrar = false }
@@ -50,7 +55,7 @@ PanelWindow {
     // ── La tarjeta ──────────────────────────────────────────────────────
     Rectangle {
         id: tarjeta
-        width: 600
+        width: 820
         height: contenido.implicitHeight + 48
         anchors.horizontalCenter: parent.horizontalCenter
         radius: 18
@@ -58,7 +63,7 @@ PanelWindow {
         border { width: 1; color: Qt.alpha(Paleta.naranja, 0.35) }
 
         // Entrada: baja 40 px y aparece; salida: al revés
-        y: ventana.abierto ? 56 : 16
+        y: ventana.abierto ? 40 : 4
         opacity: ventana.abierto ? 1 : 0
         scale: ventana.abierto ? 1 : 0.97
         Behavior on y       { NumberAnimation { duration: 320; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
@@ -110,16 +115,21 @@ PanelWindow {
                 }
             }
 
+            // ── Espacios de trabajo ──
+            Espacios {
+                Layout.fillWidth: true
+                onElegido: ventana.abierto = false
+            }
+
             Separador {}
 
-            // ── Calendario | anillos ──
+            // ── Calendario | anillos | tiempo de pantalla ──
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 20
                 Calendario { Layout.alignment: Qt.AlignTop }
                 Rectangle { Layout.fillHeight: true; width: 1; color: Qt.alpha(Paleta.texto, 0.08) }
                 GridLayout {
-                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
                     columns: 2
                     columnSpacing: 18
@@ -144,6 +154,11 @@ PanelWindow {
                         etiqueta: ventana.cargando ? " BAT" : "BAT"
                         texto: Math.round(ventana.carga * 100) + "%"
                     }
+                }
+                Rectangle { Layout.fillHeight: true; width: 1; color: Qt.alpha(Paleta.texto, 0.08) }
+                Tiempo {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
                 }
             }
 
