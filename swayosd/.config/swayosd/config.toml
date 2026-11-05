@@ -1,0 +1,6 @@
+# swayosd-server: el indicador flotante de volumen, brillo y bloq. mayús.
+[server]
+style = "/home/oscar/.config/swayosd/style.css"
+top_margin = 0.88        # 0 = arriba, 1 = abajo: lo dejamos sobre el borde inferior
+max_volume = 100         # igual que el antiguo "wpctl -l 1": nunca pasa del 100 %
+show_percentage = true

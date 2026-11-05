@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Ayu Glass
+Description=Ayu Dark Glass: gemelo de GRUB y SDDM (logo ✦ orion y puntos que ondulan)
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/ayu-glass
+ScriptFile=/usr/share/plymouth/themes/ayu-glass/ayu-glass.script

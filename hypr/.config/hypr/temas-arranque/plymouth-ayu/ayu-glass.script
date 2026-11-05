@@ -1,0 +1,82 @@
+// Ayu Glass — tema de Plymouth (la pantalla entre GRUB y SDDM, y al apagar)
+//
+// El lenguaje "script" de Plymouth se parece a JavaScript:
+//   Image("x.png")      carga una imagen de ImageDir
+//   Sprite(imagen)      la pone en pantalla; .SetPosition(x, y, z), .SetOpacity(0..1)
+//   Plymouth.SetRefreshFunction(f)   llama a f unas 50 veces por segundo (la animación)
+//   global.x            variable que sobrevive entre llamadas (sin "global." sería local)
+//
+// Probarlo sin reiniciar (desde una TTY, no desde Hyprland):
+//   sudo plymouthd; sudo plymouth --show-splash; sleep 8; sudo plymouth quit
+
+W = Window.GetWidth();
+H = Window.GetHeight();
+X = Window.GetX();
+Y = Window.GetY();
+
+// Color de respaldo mientras carga el fondo (Ayu #0B0E14)
+Window.SetBackgroundTopColor(0.043, 0.055, 0.078);
+Window.SetBackgroundBottomColor(0.043, 0.055, 0.078);
+
+// ── Fondo: la misma galaxia desenfocada que GRUB → la transición no se nota
+fondo = Sprite(Image("fondo.png").Scale(W, H));
+fondo.SetPosition(X, Y, -100);
+
+// ── Logo "✦ orion" centrado, un poco por encima del medio
+logo_img = Image("logo.png");
+logo = Sprite(logo_img);
+logo.SetPosition(X + W / 2 - logo_img.GetWidth() / 2, Y + H / 2 - logo_img.GetHeight() / 2 - 30, 10);
+logo.SetOpacity(0);
+
+// ── Texto según el modo: boot, shutdown, reboot o updates
+modo = Plymouth.GetMode();
+if (modo != "boot" && modo != "shutdown" && modo != "reboot" && modo != "updates")
+    modo = "boot";
+texto_img = Image("texto-" + modo + ".png");
+texto = Sprite(texto_img);
+texto.SetPosition(X + W / 2 - texto_img.GetWidth() / 2, Y + H / 2 + 90, 10);
+texto.SetOpacity(0);
+
+// ── Cinco puntos naranjas que ondulan
+punto_img = Image("punto.png");
+N = 5;
+SEP = 24;
+for (i = 0; i < N; i++) {
+    puntos[i] = Sprite(punto_img);
+    puntos[i].SetPosition(X + W / 2 - punto_img.GetWidth() / 2 + (i - (N - 1) / 2) * SEP,
+                          Y + H / 2 + 50, 10);
+    puntos[i].SetOpacity(0);
+}
+
+global.t = 0;
+
+fun refresco() {
+    global.t++;
+    // Aparición suave durante el primer segundo (50 fotogramas)
+    entrada = Math.Min(global.t / 50, 1);
+    logo.SetOpacity(entrada);
+    texto.SetOpacity(entrada * 0.85);
+
+    // Ola: cada punto va un poco detrás del anterior (desfase de 0.7 rad)
+    for (i = 0; i < N; i++) {
+        brillo = 0.25 + 0.75 * Math.Max(0, Math.Sin(global.t * 0.12 - i * 0.7));
+        puntos[i].SetOpacity(brillo * entrada);
+    }
+}
+Plymouth.SetRefreshFunction(refresco);
+
+// ── Contraseña (solo haría falta con disco cifrado): puntos en vez de letras
+fun pedir_clave(prompt, balas) {
+    s = "";
+    for (i = 0; i < balas; i++) s += "*";
+    img = Image.Text(prompt + "  " + s, 0.58, 0.9, 0.8);   // menta Ayu (r, g, b de 0 a 1)
+    if (!global.clave_txt) global.clave_txt = Sprite();
+    global.clave_txt.SetImage(img);
+    global.clave_txt.SetPosition(X + W / 2 - img.GetWidth() / 2, Y + H / 2 + 140, 20);
+    global.clave_txt.SetOpacity(1);
+}
+fun ocultar_clave() {
+    if (global.clave_txt) global.clave_txt.SetOpacity(0);
+}
+Plymouth.SetDisplayPasswordFunction(pedir_clave);
+Plymouth.SetDisplayNormalFunction(ocultar_clave);

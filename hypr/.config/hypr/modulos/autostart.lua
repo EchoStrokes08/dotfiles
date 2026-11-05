@@ -10,6 +10,7 @@ hl.on("hyprland.start", function()
     -- Escritorio
     hl.exec_cmd("waybar")
     hl.exec_cmd("hyprpaper")
+    hl.exec_cmd("swayosd-server")   -- indicador de volumen/brillo/Bloq Mayús (config: ~/.config/swayosd)
     hl.exec_cmd("hypridle")   -- escucha "lock-session" y bloquea por inactividad
     -- (swaync no hace falta: lo arranca systemd/D-Bus al llegar la primera notificación)
 

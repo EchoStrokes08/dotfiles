@@ -1,0 +1,66 @@
+/* swayosd — Ayu Dark Glass (a juego con waybar y swaync)
+ * Los colores salen de la paleta activa, así cambian con tema.sh (SUPER+SHIFT+T).
+ * swayosd usa GTK4: CSS normal, sin SCSS. Inspector de GTK para explorar nodos:
+ *   GTK_DEBUG=interactive swayosd-server
+ */
+@import url("file:///home/oscar/.local/state/tema/colores.css");
+
+window#osd {
+  border-radius: 14px;
+  border: 1px solid alpha(@naranja, 0.35);
+  background: alpha(@fondo, 0.85);          /* translúcido: Hyprland pone el blur detrás */
+}
+
+window#osd #container {
+  margin: 14px 20px;
+}
+
+window#osd image,
+window#osd label {
+  color: @naranja;
+  font-family: "JetBrainsMono Nerd Font";
+  font-weight: bold;
+}
+
+window#osd label {
+  color: @texto;
+  min-width: 3.2em;                          /* el % no hace bailar la barra */
+}
+
+/* silenciado / sin dispositivo */
+window#osd progressbar:disabled,
+window#osd image:disabled {
+  opacity: 0.4;
+}
+
+window#osd progressbar,
+window#osd segmentedprogress {
+  min-height: 8px;
+  min-width: 220px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+}
+
+window#osd trough,
+window#osd segment {
+  min-height: inherit;
+  border-radius: inherit;
+  border: none;
+  background: alpha(@texto, 0.12);
+}
+
+window#osd progress,
+window#osd segment.active {
+  min-height: inherit;
+  border-radius: inherit;
+  border: none;
+  background: @naranja;
+}
+
+window#osd segment {
+  margin-left: 8px;
+}
+window#osd segment:first-child {
+  margin-left: 0;
+}

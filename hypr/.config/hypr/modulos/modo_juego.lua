@@ -28,12 +28,12 @@ local function activar()
             blur             = { enabled = false },
         },
     })
-    hl.exec_cmd("swaync-client -dn; pkill -RTMIN+9 waybar; notify-send -a 'Modo juego' -u low 'Modo juego activado' 'Sin animaciones, blur ni notificaciones'")
+    hl.exec_cmd("swaync-client -dn; pkill -RTMIN+9 waybar; swayosd-client --custom-message 'Modo juego activado' --custom-icon input-gaming-symbolic")  -- OSD: No molestar ocultaría una notificación
 end
 
 local function desactivar()
     if not activo() then return end
-    hl.exec_cmd("swaync-client -df; hyprctl reload; pkill -RTMIN+9 waybar; notify-send -a 'Modo juego' -u low 'Modo juego desactivado'")
+    hl.exec_cmd("swaync-client -df; hyprctl reload; pkill -RTMIN+9 waybar; swayosd-client --custom-message 'Modo juego desactivado' --custom-icon input-gaming-symbolic")
 end
 
 local function alternar()
