@@ -4,7 +4,8 @@ return {
     mainMod     = "SUPER",   -- tecla "Windows"
     terminal    = "kitty",
     fileManager = "thunar",
-    menu        = "fuzzel",
+    menu        = "qs ipc call lanzador toggle",   -- lanzador propio (Quickshell); antes: "fuzzel"
     whatsapp    = "flatpak run com.rtosta.zapzap",
     roblox      = "gamemoderun flatpak run org.vinegarhq.Sober",
+    spotify     = "flatpak run com.spotify.Client",
 }

@@ -155,8 +155,8 @@ RowLayout {
         texto: mudo ? "" : Math.round(vol * 100) + "%"
         color: mudo ? Paleta.rojo : Paleta.texto
         ayuda: (salida?.description ?? "") + "\nClic: silenciar · Rueda: volumen"
-        onClic: derecha.ejecutar("swayosd-client --output-volume mute-toggle")
-        onRueda: (arriba) => derecha.ejecutar("swayosd-client --output-volume " + (arriba ? "+5" : "-5"))
+        onClic: derecha.ejecutar("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")   // el OSD reacciona solo
+        onRueda: (arriba) => derecha.ejecutar(arriba ? "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+" : "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-")
     }
 
     // ── Red (NetworkManager) ─────────────────────────────────────────────
@@ -204,7 +204,7 @@ RowLayout {
         texto: porcentaje + "%"
         ayuda: "Brillo · Rueda: subir/bajar"
         onRueda: (arriba) => {
-            derecha.ejecutar("swayosd-client --brightness " + (arriba ? "+5" : "-5"));
+            derecha.ejecutar("brightnessctl -e4 -n2 set " + (arriba ? "5%+" : "5%-") + " && qs ipc call osd brillo");
             espera.restart();
         }
         Timer { id: espera; interval: 250; onTriggered: brillo.leer() }

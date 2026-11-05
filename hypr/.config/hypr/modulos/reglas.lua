@@ -46,6 +46,14 @@ hl.layer_rule({
     ignore_alpha = 0.3,
 })
 
+-- Blur detrás de la tarjeta del dashboard de Quickshell (el resto de la capa es transparente → ignore_alpha)
+hl.layer_rule({
+    name         = "quickshell-blur",
+    match        = { namespace = "quickshell-(dashboard|lanzador|osd)" },
+    blur         = true,
+    ignore_alpha = 0.3,
+})
+
 -- ---------- Nivel 3: reglas para el día a día ----------
 
 -- Picture-in-Picture de Firefox: flotante, fijo en todos los workspaces, esquina inferior derecha
@@ -92,4 +100,14 @@ hl.window_rule({
     float  = true,
     size   = "900 500",
     center = true,
+})
+
+-- Calendario al hacer clic en la hora de waybar (~/.config/hypr/scripts/calendario.sh):
+-- flotante, en todos los workspaces, centrado arriba justo debajo de la barra
+hl.window_rule({
+    name  = "calendario-waybar",
+    match = { class = "^zenity$", title = "^Calendario$" },
+    float = true,
+    pin   = true,
+    move  = "(monitor_w*0.5)-(window_w*0.5) 44",
 })

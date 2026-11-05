@@ -36,8 +36,6 @@ recargar() {
     pkill -SIGUSR1 -x kitty                   # kitty recarga colores en todas sus ventanas
     pkill -RTMIN+9 -x waybar 2>/dev/null      # (refresca el mando de modo juego)
     qs ipc call barra refrescar todo >/dev/null 2>&1   # lo mismo en la barra de Quickshell
-    # swayosd no recarga el CSS en vivo: se reinicia (setsid = que no muera con este script)
-    pkill -x swayosd-server; setsid -f swayosd-server >/dev/null 2>&1
     # fuzzel lee el archivo al abrirse; las apps GTK, al abrir ventanas nuevas
 }
 

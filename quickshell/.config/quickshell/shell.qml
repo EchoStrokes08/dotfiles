@@ -16,6 +16,7 @@ import Quickshell.Hyprland
 ShellRoot {
     Dashboard { id: dashboard }
     Lanzador { id: lanzador }
+    OSD {}
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {

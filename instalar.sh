@@ -190,7 +190,7 @@ paso_buds() {
 paso_sistema() {
     local s
     for s in NetworkManager.service bluetooth.service power-profiles-daemon.service sddm.service \
-             swayosd-libinput-backend.service systemd-timesyncd.service fstrim.timer reflector.timer; do
+             systemd-timesyncd.service fstrim.timer reflector.timer; do
         run sudo systemctl enable --quiet "$s" && ok "servicio $s" || aviso "no pude activar $s"
     done
     if [ "$(getent passwd "$USER" | cut -d: -f7)" != /usr/bin/zsh ]; then

@@ -12,7 +12,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hyprpaper")
     hl.exec_cmd("~/.config/hypr/scripts/tiempo-pantalla.py")   -- escucha eventos: tiempo de pantalla por app
     hl.exec_cmd("qs")               -- Quickshell: barra superior + dashboard SUPER+D (~/.config/quickshell)
-    hl.exec_cmd("swayosd-server")   -- indicador de volumen/brillo/Bloq Mayús (config: ~/.config/swayosd)
+    -- hl.exec_cmd("swayosd-server")   -- sustituido por el OSD de Quickshell (OSD.qml)
     hl.exec_cmd("hypridle")   -- escucha "lock-session" y bloquea por inactividad
     -- (swaync no hace falta: lo arranca systemd/D-Bus al llegar la primera notificación)
 

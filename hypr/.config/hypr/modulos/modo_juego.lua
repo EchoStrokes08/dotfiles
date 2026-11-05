@@ -28,12 +28,12 @@ local function activar()
             blur             = { enabled = false },
         },
     })
-    hl.exec_cmd("swaync-client -dn; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; swayosd-client --custom-message 'Modo juego activado' --custom-icon input-gaming-symbolic")  -- OSD: No molestar ocultaría una notificación
+    hl.exec_cmd("swaync-client -dn; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; qs ipc call osd mensaje 'Modo juego activado' f0297")  -- OSD: No molestar ocultaría una notificación
 end
 
 local function desactivar()
     if not activo() then return end
-    hl.exec_cmd("swaync-client -df; hyprctl reload; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; swayosd-client --custom-message 'Modo juego desactivado' --custom-icon input-gaming-symbolic")
+    hl.exec_cmd("swaync-client -df; hyprctl reload; pkill -RTMIN+9 waybar; qs ipc call barra refrescar modo-juego; qs ipc call osd mensaje 'Modo juego desactivado' f0297")
 end
 
 local function alternar()

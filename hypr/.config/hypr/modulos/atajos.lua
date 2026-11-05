@@ -15,6 +15,7 @@ u.atajos({
     { mod .. " + R", exec(p.menu) },
     { mod .. " + W", u.enfocar_o_abrir("com.rtosta.zapzap", p.whatsapp) },
     { mod .. " + G", exec(p.roblox) },
+    { mod .. " + D", exec("qs ipc call dashboard toggle") },   -- dashboard de Quickshell
 
     -- Ventanas
     { mod .. " + C", hl.dsp.window.close() },
@@ -70,17 +71,24 @@ u.atajos({
     { mod .. " + B",         u.enfocar_o_abrir("io.github.echostrokes08.BudsManager", "~/.local/bin/buds-manager") },
     { mod .. " + SHIFT + B", exec("~/.local/bin/buds mode next --notify") },
 
-    -- Teclas multimedia
+    -- Modo de energía: ahorro → equilibrado → rendimiento (con notificación)
+    { mod .. " + SHIFT + P", exec("~/.config/hypr/scripts/modo-energia.sh") },
+
+    -- Teclas multimedia. Volumen y micro: el OSD de Quickshell reacciona solo al cambio (escucha PipeWire).
+    -- Brillo y música: se hace el cambio y luego se avisa al OSD (si qs no corre, las teclas siguen funcionando).
     { "XF86AudioRaiseVolume",  exec("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), repetible },
     { "XF86AudioLowerVolume",  exec("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      repetible },
-    { "XF86AudioMute",         exec("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     repetible },
-    { "XF86AudioMicMute",      exec("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   repetible },
-    { "XF86MonBrightnessUp",   exec("brightnessctl -e4 -n2 set 5%+"),                  repetible },
-    { "XF86MonBrightnessDown", exec("brightnessctl -e4 -n2 set 5%-"),                  repetible },
-    { "XF86AudioNext",  exec("playerctl next"),       fijo },
-    { "XF86AudioPause", exec("playerctl play-pause"), fijo },
-    { "XF86AudioPlay",  exec("playerctl play-pause"), fijo },
-    { "XF86AudioPrev",  exec("playerctl previous"),   fijo },
+    { "XF86AudioMute",         exec("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     fijo },
+    { "XF86AudioMicMute",      exec("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   fijo },
+    { "XF86MonBrightnessUp",   exec("brightnessctl -e4 -n2 set 5%+ && qs ipc call osd brillo"), repetible },
+    { "XF86MonBrightnessDown", exec("brightnessctl -e4 -n2 set 5%- && qs ipc call osd brillo"), repetible },
+    { "XF86AudioNext",  exec("playerctl next; qs ipc call osd media"),       fijo },
+    { "XF86AudioPause", exec("playerctl play-pause; qs ipc call osd media"), fijo },
+    { "XF86AudioPlay",  exec("playerctl play-pause; qs ipc call osd media"), fijo },
+    { "XF86AudioPrev",  exec("playerctl previous; qs ipc call osd media"),   fijo },
+
+    -- Bloq Mayús: al SOLTAR la tecla se avisa al OSD; non_consuming = la tecla sigue funcionando
+    { "Caps_Lock", exec("qs ipc call osd bloqMayus"), { release = true, non_consuming = true, ignore_mods = true, locked = true } },
 })
 
 -- Workspaces 1-10: SUPER+número va, SUPER+SHIFT+número mueve la ventana (el 0 es el 10)
