@@ -104,6 +104,9 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SUPER+rueda del ratón` | Workspace siguiente / anterior |
 | `SUPER+S` | Mostrar / ocultar el scratchpad (workspace especial «magic») |
 | `SUPER+SHIFT+S` | Mandar la ventana al scratchpad |
+| `SUPER+Return` | Terminal flotante (scratchpad; se abre sola la primera vez) |
+| `SUPER+Y` | Música: Spotify en su scratchpad (si ya estaba abierto, lo trae) |
+| `SUPER+O` | Notas: nvim con `~/Documents/notas.md` en un scratchpad flotante |
 | `SUPER+CTRL+←/→` | Foco al otro monitor |
 | `SUPER+CTRL+SHIFT+←/→` | Mandar la ventana al otro monitor |
 | `SUPER+CTRL+ALT+←/→` | Mandar el workspace entero al otro monitor |

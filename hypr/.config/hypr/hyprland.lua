@@ -18,6 +18,7 @@
 --   reglas.lua      reglas de ventanas y capas
 --   atajos.lua      todos los atajos normales
 --   submaps.lua     modos "redimensionar" y "lanzar"
+--   scratchpads.lua terminal, música y notas que aparecen y se esconden con una tecla
 --   modo_juego.lua  SUPER+SHIFT+G o automático con Roblox: sin efectos ni notificaciones
 --   tema.lua        colores Ayu o del wallpaper (SUPER+SHIFT+T) y rotación de fondos
 --
@@ -37,4 +38,5 @@ require("modulos.atajos")
 require("modulos.submaps")
 require("modulos.modo_juego")
 require("modulos.concentracion")   -- SUPER+SHIFT+F (temporizador en Quickshell)
+require("modulos.scratchpads")     -- SUPER+Return / Y / O: terminal, música y notas que aparecen y desaparecen
 require("modulos.tema")
