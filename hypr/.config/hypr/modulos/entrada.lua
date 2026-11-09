@@ -11,7 +11,22 @@ hl.config({
         follow_mouse       = 1,
         sensitivity        = 0,     -- -1.0 a 1.0; 0 = sin cambio
 
-        touchpad = { natural_scroll = true },
+        -- Repetición de teclas (Nivel 6, paso 7): al mantener una tecla, empieza antes y repite más rápido
+        repeat_delay = 300,   -- ms hasta que empieza a repetir (antes 600)
+        repeat_rate  = 40,    -- repeticiones por segundo (antes 25)
+
+        touchpad = {
+            natural_scroll       = true,
+            tap_to_click         = true,   -- tocar = clic (ya venía activo; aquí para que se vea)
+            disable_while_typing = true,   -- ignorar el touchpad mientras escribes (también por defecto)
+            clickfinger_behavior = true,   -- al HUNDIR el touchpad: 1 dedo = clic, 2 = derecho, 3 = central (en cualquier zona)
+        },
+    },
+
+    -- Cursor: que no estorbe al escribir ni al leer
+    cursor = {
+        hide_on_key_press = true,  -- se esconde al teclear y vuelve al mover el ratón
+        inactive_timeout  = 5,     -- y se esconde tras 5 s quieto
     },
 })
 

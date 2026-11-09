@@ -179,6 +179,9 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Swallow | Una app gráfica abierta desde kitty (`mpv video.mp4`, `imv foto.png`) ocupa el sitio de la terminal; al cerrarla vuelve la terminal |
 | Smart gaps | Una sola ventana en mosaico ocupa toda la pantalla, sin huecos ni borde (`apariencia.lua`) |
 | Workspaces con propósito | Firefox abre en el 2; WhatsApp (ZapZap) y Discord en el 9 (`reglas.lua`) |
+| Teclado | Mantener una tecla repite a los 300 ms, 40 veces/s (`entrada.lua`) |
+| Touchpad | Tocar = clic; al hundirlo, 1 dedo = clic, 2 = derecho, 3 = central; se ignora mientras escribes |
+| Cursor | Se esconde al teclear y tras 5 s quieto; vuelve al mover el ratón |
 
 ### Gestos del touchpad
 
