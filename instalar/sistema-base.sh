@@ -3,7 +3,7 @@
 #   1. Paquetes   archivos (USB, celular, miniaturas, zip), visores, llavero, mantenimiento
 #   2. zram       swap comprimida en RAM (no tenías nada de swap)
 #   3. Firewall   ufw: bloquea conexiones entrantes, deja salir todo
-#   4. Snapshots  snapper + snap-pac + grub-btrfs: volver atrás si una actualización rompe algo
+#   4. Snapshots  snapper (/ y /home) + snap-pac + grub-btrfs: volver atrás si algo se rompe
 #   5. Limpieza   paccache semanal, quitar tlp (choca con power-profiles-daemon)
 #   6. Apps por defecto  imágenes→imv, PDF→zathura, video→mpv
 #   7. Hub USB    no dejar que se duerma el hub del teclado+ratón (se desconectaba solo)
@@ -117,6 +117,16 @@ else
             NUMBER_LIMIT=10 NUMBER_LIMIT_IMPORTANT=5 ALLOW_USERS="$USER" SYNC_ACL=yes
         ok "snapper configurado para /"
     fi
+fi
+# /home también: si borras o rompes algo tuyo, `snapper -c home list` y copias el archivo de
+# /home/.snapshots/N/snapshot/... Retención corta (6 horas, 7 días, 2 semanas): /home cambia mucho.
+if [ -f /etc/snapper/configs/home ]; then
+    ok "snapper de /home ya configurado"
+elif findmnt -no FSTYPE /home | grep -q btrfs; then
+    run sudo snapper -c home create-config /home && run sudo snapper -c home set-config \
+        TIMELINE_CREATE=yes TIMELINE_LIMIT_HOURLY=6 TIMELINE_LIMIT_DAILY=7 TIMELINE_LIMIT_WEEKLY=2 \
+        TIMELINE_LIMIT_MONTHLY=0 TIMELINE_LIMIT_YEARLY=0 NUMBER_LIMIT=10 ALLOW_USERS="$USER" SYNC_ACL=yes \
+        && ok "snapper configurado para /home"
 fi
 run sudo systemctl enable --quiet --now snapper-timeline.timer snapper-cleanup.timer && ok "timers de snapper"
 run sudo systemctl enable --quiet --now grub-btrfsd.service && ok "grub-btrfsd: añade cada snapshot al menú de GRUB"
