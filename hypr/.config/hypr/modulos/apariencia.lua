@@ -49,11 +49,13 @@ hl.config({
     scrolling = { fullscreen_on_one_column = true },
 })
 
--- "Smart gaps" (sin huecos cuando hay una sola ventana): descomentar para probar
--- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
--- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
--- hl.window_rule({ name = "no-gaps-wtv1", match = { float = false, workspace = "w[tv1]" }, border_size = 0, rounding = 0 })
--- hl.window_rule({ name = "no-gaps-f1",   match = { float = false, workspace = "f[1]" },   border_size = 0, rounding = 0 })
+-- "Smart gaps" (Nivel 6, paso 6): una sola ventana en mosaico ocupa toda la pantalla, sin huecos, borde ni esquinas.
+--   w[tv1] = workspace con exactamente 1 ventana en mosaico visible · f[1] = workspace con una ventana maximizada
+-- Para volver a los huecos siempre: comentar estas 4 líneas.
+hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
+hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
+hl.window_rule({ name = "no-gaps-wtv1", match = { float = false, workspace = "w[tv1]" }, border_size = 0, rounding = 0 })
+hl.window_rule({ name = "no-gaps-f1",   match = { float = false, workspace = "f[1]" },   border_size = 0, rounding = 0 })
 
 -- Grupos = ventanas apiladas en pestañas (Nivel 6, paso 4). Atajos en atajos.lua (SUPER+T, SUPER+, y SUPER+.)
 -- Los colores salen de colores.lua, así que siguen al tema (Ayu o wallpaper) igual que el resto.

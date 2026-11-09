@@ -172,6 +172,14 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
 `Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
 
+### Comportamiento automático
+
+| Qué | Cómo funciona |
+|---|---|
+| Swallow | Una app gráfica abierta desde kitty (`mpv video.mp4`, `imv foto.png`) ocupa el sitio de la terminal; al cerrarla vuelve la terminal |
+| Smart gaps | Una sola ventana en mosaico ocupa toda la pantalla, sin huecos ni borde (`apariencia.lua`) |
+| Workspaces con propósito | Firefox abre en el 2; WhatsApp (ZapZap) y Discord en el 9 (`reglas.lua`) |
+
 ### Gestos del touchpad
 
 | Gesto | Acción |

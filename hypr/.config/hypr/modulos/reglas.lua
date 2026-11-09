@@ -102,3 +102,9 @@ hl.window_rule({
     pin   = true,
     move  = "(monitor_w*0.5)-(window_w*0.5) 44",
 })
+
+-- ---------- Nivel 6: workspaces con propósito ----------
+-- Cada app abre siempre en "su" workspace (y te lleva ahí). Con " silent" detrás abriría sin llevarte.
+--   1 terminal · 2 navegador · 9 chats   (Spotify vive en su scratchpad: SUPER+Y)
+hl.window_rule({ name = "ws-navegador", match = { initial_class = "^firefox$" },                              workspace = "2" })
+hl.window_rule({ name = "ws-chats",     match = { initial_class = "^(com.rtosta.zapzap|discord|vesktop)$" }, workspace = "9" })

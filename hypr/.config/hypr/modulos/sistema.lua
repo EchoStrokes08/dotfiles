@@ -5,6 +5,11 @@ hl.config({
         disable_hyprland_logo      = true,
         vrr                        = 2,     -- VRR solo en pantalla completa (si el monitor lo soporta)
         allow_session_lock_restore = true,  -- si hyprlock se cae, se puede relanzar sin perder la sesión
+
+        -- Swallow (Nivel 6, paso 6): si abres una app gráfica DESDE kitty (mpv, imv, zathura…),
+        -- la app ocupa el sitio de la terminal en vez de partir la pantalla; al cerrarla, vuelve la terminal.
+        enable_swallow = true,
+        swallow_regex  = "^(kitty)$",   -- class de las terminales que se "tragan" ventanas
     },
     layers = {
         -- capas nuevas (notificaciones, menús) se dibujan encima de una ventana a pantalla completa
