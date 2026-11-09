@@ -172,6 +172,15 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
 `Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
 
+### Atajos que se adaptan al layout (`modulos/layouts.lua`)
+
+| Tecla | dwindle | master | scrolling |
+|---|---|---|---|
+| `SUPER++` / `SUPER+-` | División más grande / pequeña | Área principal más ancha / fina | Columna más ancha / estrecha |
+| `SUPER+Z` | Llevar la ventana a la raíz | Cambiarla con la principal | Centrar la columna |
+| `SUPER+X` | Invertir la división | Girar la orientación | Meter / sacar de la columna anterior |
+| `SUPER+SHIFT++` / `SUPER+SHIFT+-` | — | Una ventana principal más / menos | — |
+
 ### Comportamiento automático
 
 | Qué | Cómo funciona |
