@@ -20,6 +20,7 @@
         "network",
         "backlight",
         "battery",
+        "power-profiles-daemon",
         "cpu",
         "memory",
         "custom/modo-juego",
@@ -34,6 +35,20 @@
         "interval": "once",
         "signal": 9,
         "on-click": "hyprctl dispatch 'modo_juego.alternar() or hl.dsp.no_op()'"
+    },
+
+    // Modo de energía (power-profiles-daemon). Clic = siguiente modo, clic derecho = anterior.
+    // También con SUPER+SHIFT+P o Fn+Q. Rojo = rendimiento, normal = equilibrado, verde = ahorro.
+    "power-profiles-daemon": {
+        "format": "{icon}",
+        "tooltip-format": "Modo de energía: {profile}\nClic: cambiar · SUPER+SHIFT+P",
+        "tooltip": true,
+        "format-icons": {
+            "default": "󰾅",
+            "performance": "󰓅",
+            "balanced": "󰾅",
+            "power-saver": "󰾆"
+        }
     },
 
     // swaync: campana con el número de notificaciones. Clic = panel, clic derecho = No molestar
@@ -84,6 +99,7 @@
                 "today": "<span color='#0e1419' background='#f19618'><b>{}</b></span>"
             }
         },
+        "on-click": "~/.config/hypr/scripts/calendario.sh",
         "actions": {
             "on-click-right": "mode",
             "on-scroll-up": "shift_up",

@@ -4,6 +4,9 @@ Mi escritorio en Arch Linux: Hyprland 0.57 con su configuración en Lua, y todo 
 paleta **Ayu**, desde el arranque (GRUB → Plymouth → SDDM) hasta las apps. Los colores pueden
 cambiar solos según el wallpaper, gracias a matugen.
 
+**¿Primera vez usándolo?** Lee el [manual de uso](docs/manual.md): explica cómo se maneja el escritorio
+día a día. Abajo está la referencia completa de atajos y comandos.
+
 ## Instalar en un Arch nuevo
 
 Solo necesitas un Arch recién instalado, con internet y un usuario con sudo. Luego, **un solo comando**:
