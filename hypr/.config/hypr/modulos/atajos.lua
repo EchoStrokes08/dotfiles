@@ -31,6 +31,18 @@ u.atajos({
     { mod .. " + up",    hl.dsp.focus({ direction = "up" }) },
     { mod .. " + down",  hl.dsp.focus({ direction = "down" }) },
 
+    -- Mover la ventana con el teclado (Nivel 6)
+    -- SHIFT = moverla en esa dirección: en dwindle cambia su sitio en el árbol (puede partir otro hueco)
+    { mod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "left" }) },
+    { mod .. " + SHIFT + right", hl.dsp.window.move({ direction = "right" }) },
+    { mod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "up" }) },
+    { mod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "down" }) },
+    -- ALT = intercambiarla con la vecina: las dos se cambian de sitio y el resto no se mueve
+    { mod .. " + ALT + left",  hl.dsp.window.swap({ direction = "left" }) },
+    { mod .. " + ALT + right", hl.dsp.window.swap({ direction = "right" }) },
+    { mod .. " + ALT + up",    hl.dsp.window.swap({ direction = "up" }) },
+    { mod .. " + ALT + down",  hl.dsp.window.swap({ direction = "down" }) },
+
     -- Ratón: SUPER + clic izquierdo mueve, SUPER + clic derecho redimensiona
     { mod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true } },
     { mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true } },
@@ -115,4 +127,22 @@ hl.bind(mod .. " + TAB", function()
     local selector = ws.special and tostring(ws.name) or tostring(ws.id)
     hl.workspace_rule({ workspace = selector, layout = siguiente })
     hl.exec_cmd("notify-send -a Layout -t 1500 'Layout' '" .. siguiente .. "'")
+end)
+
+-- Navegación rápida (Nivel 6, paso 2)
+-- SUPER+número sobre el workspace en el que ya estás → vuelve al anterior (ir y volver con la misma tecla)
+hl.config({ binds = { workspace_back_and_forth = true } })
+
+-- SUPER + tecla a la izquierda del 1 (en latam: | ° ¬): saltar a la última ventana enfocada, aunque esté en otro workspace.
+-- Se usa el código físico de la tecla (code:49) para que no dependa de la distribución del teclado.
+hl.bind(mod .. " + code:49", hl.dsp.focus({ last = true }))
+
+-- ALT+TAB / ALT+SHIFT+TAB: recorrer las ventanas del workspace y traer la elegida al frente (útil con flotantes)
+hl.bind("ALT + TAB", function()
+    hl.dispatch(hl.dsp.window.cycle_next())
+    hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" }))
+end)
+hl.bind("ALT + SHIFT + TAB", function()
+    hl.dispatch(hl.dsp.window.cycle_next({ next = false }))
+    hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" }))
 end)

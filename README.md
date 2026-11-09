@@ -83,6 +83,8 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SUPER+J` | Cambiar la dirección de la división (dwindle) |
 | `SUPER+TAB` | Layout del workspace: dwindle → master → scrolling → monocle |
 | `SUPER+flechas` | Mover el foco |
+| `SUPER+SHIFT+flechas` | Mover la ventana en esa dirección (cambia su sitio en el layout) |
+| `SUPER+ALT+flechas` | Intercambiar la ventana con su vecina |
 | `SUPER+clic izquierdo` (arrastrar) | Mover la ventana |
 | `SUPER+clic derecho` (arrastrar) | Redimensionar la ventana |
 | `SUPER+SHIFT+R`, luego flechas | Modo redimensionar (mantener = repetir); `Esc` o `Enter` salen |
@@ -92,7 +94,9 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 
 | Atajo | Acción |
 |---|---|
-| `SUPER+1` … `SUPER+0` | Ir al workspace 1-10 |
+| `SUPER+1` … `SUPER+0` | Ir al workspace 1-10 (el mismo otra vez = volver al anterior) |
+| `SUPER+\|` (tecla a la izquierda del 1) | Saltar a la última ventana enfocada |
+| `ALT+TAB` / `ALT+SHIFT+TAB` | Recorrer las ventanas del workspace (y traerla al frente) |
 | `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | Mover la ventana al workspace 1-10 |
 | `SUPER+rueda del ratón` | Workspace siguiente / anterior |
 | `SUPER+S` | Mostrar / ocultar el scratchpad (workspace especial «magic») |
@@ -161,6 +165,20 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 
 En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
 `Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
+
+### Gestos del touchpad
+
+| Gesto | Acción |
+|---|---|
+| 3 dedos ← → | Cambiar de workspace |
+| 3 dedos ↑ | Mostrar / ocultar el scratchpad |
+| 3 dedos ↓ | Dashboard |
+| Abrir 3 dedos | Pantalla completa (otra vez = salir) |
+| Juntar 3 dedos | Flotante ↔ mosaico |
+| 4 dedos (cualquier dirección) | Mover la ventana |
+| `SUPER` + 4 dedos | Redimensionar la ventana |
+| `SUPER` + 3 dedos ↓ | Cerrar la ventana |
+| `SUPER` + pellizco (2 dedos) | Lupa alrededor del cursor |
 
 ### Quickshell desde la terminal (`qs ipc call …`)
 
