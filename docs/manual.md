@@ -282,6 +282,10 @@ Los replays van a `~/Videos/Replays`.
 - `ALT+F4` abre el menú de apagar / reiniciar / cerrar sesión.
 - `SUPER+M` sale de Hyprland **sin preguntar**: cuidado.
 - Si no tocas el equipo: a los 29,5 min baja el brillo, a los 30 se bloquea, a los 30,5 se apaga la pantalla y a
+- La contraseña se comprueba sola al escribir el último carácter, sin Enter. La pantalla aprende la longitud
+  en cada desbloqueo correcto (la primera vez, o tras cambiar de contraseña, usa Enter). Si la nueva es más
+  larga, fallará una vez a la longitud vieja: escríbela entera + Enter y ya queda aprendida.
+  `sudo` en la terminal hace lo mismo y comparte la longitud aprendida (función en `~/.zshrc`).
   la hora se suspende.
 
 ## 16. Cambiar la configuración

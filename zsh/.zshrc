@@ -82,6 +82,44 @@ alias ...='cd ../..'
 alias rz='exec zsh'                 # recargar zsh tras editar este archivo
 alias actualizar='yay -Syu'
 
+# sudo con envío automático: la contraseña se comprueba sola al escribir su último carácter.
+# Comparte la longitud aprendida con la pantalla de bloqueo (~/.local/state/bloqueo/longitud;
+# nunca se guarda la clave). Si cambias de contraseña: Enter una vez y la aprende. Si la nueva es
+# más larga, fallará una vez a la longitud vieja y desde ahí espera Enter.
+sudo() {
+  local f=~/.local/state/bloqueo/longitud
+  # sin terminal, opciones raras o ya autenticado (sudo recuerda 5 min) → el sudo de siempre
+  if [[ ! -t 0 || ! -t 2 || $1 == -[kKSnvlAh]* ]] || command sudo -n true 2>/dev/null; then
+    command sudo "$@"; return
+  fi
+  local n=0 auto=1 pw c intento
+  [[ -r $f ]] && n=$(<$f)
+  [[ $n == <-> ]] || n=0
+  for intento in 1 2 3; do
+    pw=""
+    printf '[sudo] contraseña para %s: ' "$USER" >&2
+    while read -rsk1 c; do
+      case $c in
+        $'\n'|$'\r') break ;;
+        $'\x7f'|$'\b') pw=${pw%?} ;;      # Retroceso
+        $'\x15') pw="" ;;                 # Ctrl+U
+        *) pw+=$c; (( auto && n > 0 && ${#pw} == n )) && { auto=2; break } ;;
+      esac
+    done
+    printf '\n' >&2
+    [[ -z $pw ]] && continue
+    if printf '%s\n' "$pw" | command sudo -S -p '' -v 2>/dev/null; then
+      if (( ${#pw} != n )); then          # aprende la longitud nueva
+        mkdir -p ${f:h} && chmod 700 ${f:h} && print ${#pw} > $f
+      fi
+      pw=""; command sudo "$@"; return
+    fi
+    (( auto == 2 )) && auto=0             # falló el envío automático: ¿contraseña nueva? → Enter
+    print -P '%F{red}Contraseña incorrecta.%f' >&2
+  done
+  pw=""; return 1
+}
+
 bindkey '^[[3~'    delete-char            # Supr
 bindkey '^[[H'     beginning-of-line      # Inicio
 bindkey '^[[F'     end-of-line            # Fin
