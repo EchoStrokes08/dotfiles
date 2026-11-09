@@ -83,8 +83,11 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SUPER+J` | Cambiar la dirección de la división (dwindle) |
 | `SUPER+TAB` | Layout del workspace: dwindle → master → scrolling → monocle |
 | `SUPER+flechas` | Mover el foco |
-| `SUPER+SHIFT+flechas` | Mover la ventana en esa dirección (cambia su sitio en el layout) |
+| `SUPER+SHIFT+flechas` | Mover la ventana en esa dirección (cambia su sitio en el layout; entra o sale de un grupo vecino) |
 | `SUPER+ALT+flechas` | Intercambiar la ventana con su vecina |
+| `SUPER+T` | Convertir la ventana en grupo (pestañas) / deshacerlo |
+| `SUPER+.` / `SUPER+,` | Pestaña siguiente / anterior del grupo |
+| `SUPER+SHIFT+.` / `SUPER+SHIFT+,` | Mover la pestaña a la derecha / izquierda |
 | `SUPER+clic izquierdo` (arrastrar) | Mover la ventana |
 | `SUPER+clic derecho` (arrastrar) | Redimensionar la ventana |
 | `SUPER+SHIFT+R`, luego flechas | Modo redimensionar (mantener = repetir); `Esc` o `Enter` salen |

@@ -54,3 +54,34 @@ hl.config({
 -- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
 -- hl.window_rule({ name = "no-gaps-wtv1", match = { float = false, workspace = "w[tv1]" }, border_size = 0, rounding = 0 })
 -- hl.window_rule({ name = "no-gaps-f1",   match = { float = false, workspace = "f[1]" },   border_size = 0, rounding = 0 })
+
+-- Grupos = ventanas apiladas en pestañas (Nivel 6, paso 4). Atajos en atajos.lua (SUPER+T, SUPER+, y SUPER+.)
+-- Los colores salen de colores.lua, así que siguen al tema (Ayu o wallpaper) igual que el resto.
+hl.config({
+    group = {
+        col = {
+            -- borde de una ventana agrupada: amarillo → naranja, para distinguirla de una normal (naranja → azul)
+            border_active   = { colors = { c.rgba("amarillo", "ee"), c.rgba("naranja", "ff") }, angle = 135 },
+            border_inactive = c.rgba("seleccion", "aa"),
+        },
+        groupbar = {
+            enabled             = true,
+            font_family         = "JetBrainsMono Nerd Font",
+            font_size           = 11,
+            height              = 18,
+            gradients           = true,   -- pestañas rellenas de color (no solo una línea)
+            rounding            = 4,
+            gradient_rounding   = 4,
+            indicator_height    = 0,      -- sin rayita extra: ya se ve por el relleno
+            gaps_in             = 3,
+            keep_upper_gap      = false,
+            middle_click_close  = true,   -- clic central en una pestaña = cerrarla
+            text_color          = c.rgba("fondo"),         -- texto de la pestaña activa (sobre naranja)
+            text_color_inactive = c.rgba("texto", "cc"),
+            col = {
+                active   = c.rgba("naranja", "ee"),
+                inactive = c.rgba("seleccion", "dd"),
+            },
+        },
+    },
+})

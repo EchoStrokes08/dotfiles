@@ -32,11 +32,12 @@ u.atajos({
     { mod .. " + down",  hl.dsp.focus({ direction = "down" }) },
 
     -- Mover la ventana con el teclado (Nivel 6)
-    -- SHIFT = moverla en esa dirección: en dwindle cambia su sitio en el árbol (puede partir otro hueco)
-    { mod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "left" }) },
-    { mod .. " + SHIFT + right", hl.dsp.window.move({ direction = "right" }) },
-    { mod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "up" }) },
-    { mod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "down" }) },
+    -- SHIFT = moverla en esa dirección: en dwindle cambia su sitio en el árbol (puede partir otro hueco).
+    -- group_aware: si al lado hay un grupo, entra en él; si está en un grupo, sale por ese lado.
+    { mod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "left", group_aware = true }) },
+    { mod .. " + SHIFT + right", hl.dsp.window.move({ direction = "right", group_aware = true }) },
+    { mod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "up", group_aware = true }) },
+    { mod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "down", group_aware = true }) },
     -- ALT = intercambiarla con la vecina: las dos se cambian de sitio y el resto no se mueve
     { mod .. " + ALT + left",  hl.dsp.window.swap({ direction = "left" }) },
     { mod .. " + ALT + right", hl.dsp.window.swap({ direction = "right" }) },
@@ -146,3 +147,10 @@ hl.bind("ALT + SHIFT + TAB", function()
     hl.dispatch(hl.dsp.window.cycle_next({ next = false }))
     hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" }))
 end)
+
+-- Grupos / pestañas (Nivel 6, paso 4). Para meter o sacar ventanas: SUPER+SHIFT+flechas (ver arriba)
+hl.bind(mod .. " + T",              hl.dsp.group.toggle())                          -- convertir la ventana en grupo / deshacerlo
+hl.bind(mod .. " + period",         hl.dsp.group.next())                            -- pestaña siguiente
+hl.bind(mod .. " + comma",          hl.dsp.group.prev())                            -- pestaña anterior
+hl.bind(mod .. " + SHIFT + period", hl.dsp.group.move_window({ forward = true }))   -- mover la pestaña a la derecha
+hl.bind(mod .. " + SHIFT + comma",  hl.dsp.group.move_window({ forward = false }))  -- mover la pestaña a la izquierda
