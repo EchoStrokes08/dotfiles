@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 EXCLUIR='^(yay|yay-bin|yay-debug|paru-bin|paru-bin-debug|.*-debug|packettracer)$'
 
 # Dependencias que no son "explícitas" pero hacen falta (Buds Manager)
-EXTRA_PACMAN="python-gobject gtk4 libadwaita"
+EXTRA_PACMAN="python-gobject gtk4 libadwaita jq"   # jq: lo usan capturas.sh, respaldo, etc.
 # Del AUR que el instalador debe traer aunque aún no estén aquí
 EXTRA_AUR="vesktop-bin spicetify-cli"
 

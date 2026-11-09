@@ -23,6 +23,4 @@ hl.bind(mod .. " + CTRL + SHIFT + right", hl.dsp.window.move({ monitor = "+1" })
 hl.bind(mod .. " + CTRL + SHIFT + left",  hl.dsp.window.move({ monitor = "-1" }))
 hl.bind(mod .. " + CTRL + ALT + right",   hl.dsp.workspace.move({ monitor = "+1" }))        -- mandar el workspace entero
 
--- Aviso al conectar/desconectar
-hl.on("monitor.added",   function(m) hl.exec_cmd("notify-send -a Monitores 'Monitor conectado' '" .. m.name .. "'") end)
-hl.on("monitor.removed", function(m) hl.exec_cmd("notify-send -a Monitores 'Monitor desconectado' '" .. m.name .. "'") end)
+-- Al conectar/desconectar: menú duplicar/extender + No molestar → modulos/presentacion.lua

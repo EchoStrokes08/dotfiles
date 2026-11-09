@@ -12,6 +12,8 @@
 #  10. Arranque  GRUB sin menú (1 s; Esc o Shift al encender lo muestra)
 #  11. Batería   el botón «Conservar» del centro de control puede cambiar el modo conservación de Lenovo
 #  12. DNS       cifrado (DNS-over-TLS, Quad9 + Cloudflare); `dns-cifrado off` para Wi-Fi con portal
+#  13. Mirrors   reflector: servidores de paquetes rápidos cerca de Colombia (antes salía uno de Suecia)
+#  14. KDE Connect  puertos 1714-1764 abiertos SOLO para la red local (el móvil)
 #
 # Uso (SIN sudo; lo pide él):  ~/dotfiles/instalar/sistema-base.sh [--simular]
 # Idempotente: si algo ya está hecho, lo salta.
@@ -275,6 +277,35 @@ if [ "$SIMULAR" = 0 ] && [ "$(readlink /etc/resolv.conf)" != /run/systemd/resolv
          sudo cp /etc/resolv.conf.antes-dns-cifrado /etc/resolv.conf; sudo nmcli general reload conf; fi
 else
     ok "resolv.conf ya apunta a systemd-resolved"
+fi
+
+# ── 13. Servidores de paquetes (reflector) ─────────────────────────────
+paso "Mirrors cercanos (reflector)"
+escribir /etc/xdg/reflector/reflector.conf <<'REFL'
+# reflector: elige los servidores de paquetes (mirrors). Antes usaba "--latest 5 --sort age" (los más
+# recién sincronizados del mundo) y salía uno de Suecia, lentísimo desde Colombia.
+# Ahora: países cercanos, solo https, sincronizados en las últimas 12 h, ordenados por velocidad real.
+# Lo ejecuta reflector.timer cada semana. Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+--save /etc/pacman.d/mirrorlist
+--protocol https
+--country Colombia,Ecuador,Brazil,Chile,"United States"
+--age 12
+--latest 15
+--fastest 6
+--sort rate
+REFL
+run sudo systemctl enable --quiet reflector.timer && ok "reflector.timer (semanal)"
+
+# ── 14. KDE Connect (móvil) ─────────────────────────────────────────────
+# Abre sus puertos solo desde direcciones de red local: nadie de internet puede llegar a ellos.
+paso "KDE Connect: puertos para el móvil (solo red local)"
+if sudo ufw status | grep -q '1714:1764'; then
+    ok "ya estaban abiertos"
+else
+    for r in 192.168.0.0/16 10.0.0.0/8 172.16.0.0/12; do for p in tcp udp; do
+        run sudo ufw allow from "$r" to any port 1714:1764 proto "$p" comment 'KDE Connect (solo red local)' >/dev/null
+    done; done
+    ok "puertos 1714-1764 abiertos para 192.168/16, 10/8 y 172.16/12"
 fi
 
 paso "Listo"

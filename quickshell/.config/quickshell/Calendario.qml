@@ -69,6 +69,13 @@ ColumnLayout {
                     color: parent.esHoy ? Paleta.fondo : Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 12; bold: parent.esHoy }
                 }
+                // puntito = ese día hay algo en tu Google Calendar (Eventos.qml)
+                Rectangle {
+                    visible: dia > 0 && Eventos.hayEn(new Date(cal.mes.getFullYear(), cal.mes.getMonth(), dia))
+                    width: 4; height: 4; radius: 2
+                    anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 2 }
+                    color: parent.esHoy ? Paleta.fondo : Paleta.azul
+                }
             }
         }
     }

@@ -25,9 +25,12 @@ ShellRoot {
     Menu { id: menu }
     Conexiones { id: conexiones }
     Chuleta { id: chuleta }
+    Vista { id: vista }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
     readonly property int recordatoriosPendientes: Recordatorios.lista.length   // arranca Recordatorios.qml
+    readonly property bool hayAudifonos: Audifonos.hayAudifonos                 // arranca Audifonos.qml
+    readonly property bool climaListo: Clima.listo && Eventos.lista.length >= 0  // arranca Clima.qml y Eventos.qml
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
@@ -71,7 +74,8 @@ ShellRoot {
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
     function cerrarTodo() { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
-                            conexiones.abierto = false; chuleta.abierto = false; }
+                            conexiones.abierto = false; chuleta.abierto = false;
+                            vista.abierto = false; }
     IpcHandler {
         target: "wallpapers"
         function toggle(): void { const a = wallpapers.abierto; cerrarTodo(); wallpapers.abierto = !a; }
@@ -95,6 +99,17 @@ ShellRoot {
                 : [ { icono: 0xF04FE, texto: "25 min (pomodoro)", cmd: q + "empezar 25" },
                     { icono: 0xF04FE, texto: "50 min",             cmd: q + "empezar 50" },
                     { icono: 0xF04FE, texto: "90 min",             cmd: q + "empezar 90" } ]);
+        }
+        // Pantalla externa conectada (modulos/presentacion.lua; SUPER+ALT+P)
+        function pantalla(nombre: string): void {
+            cerrarTodo();
+            const h = f => `hyprctl dispatch 'pantalla.${f}("${nombre}") or hl.dsp.no_op()'`;
+            menu.abrirCon("Pantalla conectada: " + nombre, [
+                { icono: 0xF0379, texto: "Duplicar (proyector)",  cmd: h("duplicar") },
+                { icono: 0xF0E51, texto: "Extender a la derecha", cmd: h("extender") },
+                { icono: 0xF0379, texto: "Solo la externa",       cmd: h("solo_externa") },
+                { icono: 0xF0322, texto: "Solo el portátil",      cmd: h("solo_portatil") }
+            ]);
         }
         // Grabar pantalla (SUPER+ALT+R → grabar.sh)
         function grabar(): void {
@@ -144,6 +159,17 @@ ShellRoot {
         }
         function lista(): string { return Recordatorios.lista.map(x => `${x.id}  ${Recordatorios.cuandoTexto(x.cuando)}  ${x.texto}`).join("\n"); }
         function borrar(id: string): void { Recordatorios.borrar(id); }
+    }
+
+    // Vista general (SUPER+ESPACIO, SUPER + 3 dedos arriba): qs ipc call vista toggle
+    IpcHandler {
+        target: "vista"
+        function toggle(): void { const a = vista.abierto; cerrarTodo(); vista.abierto = !a; }
+        function datos(): string {   // diagnóstico: monitor y ventanas
+            const m = Hyprland.focusedMonitor;
+            return `monitor ${m?.name} ${m?.width}x${m?.height} @${m?.x},${m?.y} escala ${m?.scale} · ` +
+                   Hyprland.toplevels.values.slice(0, 3).map(t => `${t.address} ws${t.workspace?.id} at=${t.lastIpcObject?.at} size=${t.lastIpcObject?.size}`).join(" | ");
+        }
     }
 
     // Chuleta de atajos (SUPER+H): qs ipc call chuleta toggle

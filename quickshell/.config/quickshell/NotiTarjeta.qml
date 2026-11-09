@@ -147,8 +147,9 @@ Rectangle {
                             id: zonaAccion
                             anchors.fill: parent
                             hoverEnabled: true
-                            // guardar la noti ANTES de invocar: la acción puede cerrarla y destruir esta tarjeta
-                            onClicked: { const n = tarjeta.noti, residente = n.resident; modelData.invoke(); if (!residente && n) n.dismiss(); }
+                            // invoke() ya cierra la notificación si no es «residente»: cerrarla otra vez
+                            // daba «Cannot close destroyed notification» (y antes, ReferenceError: tarjeta)
+                            onClicked: modelData.invoke()
                         }
                     }
                 }

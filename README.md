@@ -40,7 +40,7 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | `tema` | Paleta Ayu y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper |
 | `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (los scripts vuelven a fuzzel si Quickshell no responde) |
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
-| `quickshell` | **Barra superior** (workspaces, ventana activa, reloj, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones) , **dashboard** SUPER+D (reloj, espacios, calendario, sistema, tiempo de pantalla, música) , **lanzador de apps** SUPER+R, **OSD** de volumen/brillo/Bloq Mayús y **notificaciones** con centro de control SUPER+N , **pantalla de bloqueo** (hyprlock de respaldo) y selectores de **wallpapers**, **portapapeles**, **capturas** y **Wi-Fi/Bluetooth** SUPER+K, en QML |
+| `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones), **dashboard** SUPER+D (reloj, clima, calendario con Google Calendar, sistema, tiempo de pantalla semanal, música con letra), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide y fastfetch |
 | `yazi` | Gestor de archivos en la terminal (SUPER+SHIFT+E o `y`), con el acento de la paleta |
 | `udiskie` | Monta solos los USB y discos externos, con aviso |
@@ -65,13 +65,18 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 
 ### Atajos de teclado
 
+Esta es la lista **completa** y la única: la chuleta (`SUPER+H`) la lee de aquí, y `docs/actualizar-atajos.py`
+la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ejecutar ese script.
+
 #### Apps
 
 | Atajo | Acción |
 |---|---|
 | `SUPER+Q` | Terminal (kitty) |
 | `SUPER+E` | Archivos (Thunar) |
-| `SUPER+R` | Lanzador de apps (Quickshell) |
+| `SUPER+R` | Lanzador: apps, acciones, calculadora, web, emojis, archivos y recordatorios (ver «El lanzador») |
+| `SUPER+H` | Chuleta: todos estos atajos, con buscador |
+| `SUPER+ESPACIO` | Vista general: todas las ventanas en miniatura (clic = ir · arrastrar = mover de workspace) |
 | `SUPER+W` | WhatsApp (lo enfoca si ya está abierto) |
 | `SUPER+G` | Roblox (Sober, con gamemode) |
 | `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
@@ -138,6 +143,7 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SUPER+SHIFT+V` | Historial del portapapeles |
 | `SUPER+K` | Wi-Fi y Bluetooth (también: clic en la red de la barra, clic derecho en los botones del centro de control) |
 | `SUPER+SHIFT+B` | Buds: cambiar de modo (ANC → transparencia → apagado) |
+| `SUPER+ALT+P` | Pantalla externa: duplicar / extender / solo la externa / solo el portátil |
 
 #### Capturas y grabación
 
@@ -148,15 +154,25 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SHIFT+PRINT` | Menú: región, pantalla, ventana activa o pantalla en 5 s |
 | `SUPER+SHIFT+PRINT` | Guardar los últimos 30 s de pantalla y audio en `~/Videos/Replays` |
 | `SUPER+ALT+PRINT` | Encender / apagar el replay |
+| `SUPER+ALT+R` | Grabar pantalla: menú región / pantalla / con audio / GIF; otra vez = parar → `~/Videos/Grabaciones` |
+| `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR): seleccionas una zona y su texto queda copiado |
+
+#### Texto y voz
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+ALT+D` | Dictar: pulsa, habla, vuelve a pulsar → el texto se escribe donde esté el cursor (Whisper, sin internet) |
+| `SUPER+ALT+T` | Traducir lo seleccionado (otro idioma → español; español → inglés), queda copiado |
 
 #### Teclas multimedia (funcionan también con la pantalla bloqueada)
 
 | Tecla | Acción |
 |---|---|
-| Volumen + / − / silencio | Cambia el volumen (máx. 100 %) y lo muestra el OSD |
+| Subir / bajar volumen | Cambia el volumen (máx. 100 %) y lo muestra el OSD |
+| Silencio | Silencia o activa el sonido |
 | Micrófono | Silencia o activa el micrófono |
-| Brillo + / − | Cambia el brillo y lo muestra el OSD |
-| ⏮ ⏯ ⏭ | Música anterior / pausa / siguiente, con la canción en el OSD |
+| Subir / bajar brillo | Cambia el brillo y lo muestra el OSD |
+| ⏮ anterior · ⏯ reproducir/pausa · ⏭ siguiente | Música, con la canción en el OSD |
 | `Bloq Mayús` | Avisa en el OSD si queda activado en cualquier teclado |
 
 ### Con el ratón
@@ -164,11 +180,14 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | Dónde | Acción |
 |---|---|
 | Barra: número de workspace | Clic = ir · rueda = siguiente / anterior |
+| Barra: barras de colores (solo con música) | Visualizador de audio · clic = dashboard |
+| Barra: punto rojo con tiempo / micrófono rojo | Grabando la pantalla / dictando · clic = parar |
+| Barra: móvil (solo si está conectado) | Batería del móvil · clic = KDE Connect · derecho = hacerlo sonar |
 | Barra: reloj | Al pasar el ratón muestra la fecha · clic = dashboard |
 | Barra: bandeja | Clic = abrir · clic derecho = menú · clic central = acción secundaria |
 | Barra: Buds | Clic = cambiar modo · derecho = ANC / apagado · central = Buds Manager |
 | Barra: volumen | Clic = silenciar · rueda = volumen |
-| Barra: red | Clic = nmtui |
+| Barra: red | Clic = panel de Wi-Fi y Bluetooth · derecho = nmtui |
 | Barra: brillo | Rueda = brillo |
 | Barra: energía | Clic = cambiar modo |
 | Barra: CPU / RAM | Clic = btop |
@@ -176,8 +195,26 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | Barra: mando | Clic = modo juego |
 | Barra: campana | Clic = centro de control · derecho = No molestar |
 | Dashboard: píldoras de workspaces | Clic = ir a ese workspace |
-| Dashboard: calendario | Flechas o rueda = mes · clic en el título = volver a hoy |
+| Dashboard: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · puntito = hay eventos ese día |
+| Dashboard: «Próximo» | Eventos de Google Calendar y recordatorios · clic en un recordatorio = borrarlo |
+| Dashboard: últimos 7 días | Pasa el ratón por una barra: total y app principal de ese día |
+| Centro de control: Wi-Fi / Bluetooth | Clic = encender/apagar · derecho = abrir su lista |
+| Centro de control: Conservar · Luz noche | Batería hasta ~80 % · pantalla cálida |
+| Centro de control: salidas de audio | Un botón por salida (altavoces, Buds, HDMI): clic = sonar por ahí |
+| Vista general | Clic en ventana = ir · clic en hueco = ir al workspace · arrastrar = mover de workspace · `1`-`9` |
 | Notificación | Clic = acción principal · botones = sus acciones · `×` = cerrar · el ratón encima pausa el tiempo |
+
+### El lanzador (`SUPER+R`)
+
+| Escribe | Resultado (Enter) |
+|---|---|
+| `firefox`, `ffx`, `blo`… | Apps (sin tildes, letras salteadas; las que más usas suben) y acciones: bloquear, apagar, atajos, OCR, dictar, grabar… |
+| `2*(3+4)` · `5 km a mi` · `30 °C a °F` · `100 USD a COP` · `=…` | Calculadora y conversor (qalc): copia el resultado |
+| `g …` · `yt …` · `w …` · `gh …` | Buscar en Google / YouTube / Wikipedia / GitHub |
+| `:fuego` · `:corazon` · `:sigma` · `:≤` | Emojis y símbolos: los escribe y quedan copiados |
+| `/apuntes` (solo `/` = recientes) | Archivos de tu carpeta personal: los abre |
+| `recordar 20m beber agua` · `recordar 18:30 llamar` · `recordar mañana 7:00 examen` | Recordatorio (aviso con sonido; sobrevive a reinicios). Abreviado: `rec` |
+| Cualquier cosa sin resultados | Buscarla en Google |
 
 En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
 `Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
@@ -207,6 +244,14 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Caché de pacman | Cada semana deja solo la última versión de cada paquete |
 | DNS | Cifrado (DNS-over-TLS, Quad9 + Cloudflare): el operador y la Wi-Fi no ven qué webs visitas. `dns-cifrado off` para Wi-Fi con página de acceso |
 | Memoria | Si se acaba la RAM, earlyoom cierra una app (pestañas/apps web primero) y avisa |
+| Recordatorios | `recordar …` en el lanzador: notificación crítica + sonido a su hora; si el equipo estaba apagado, al encender |
+| Calendario | Tus eventos de Google Calendar en el dashboard (cada 15 min) y aviso 10 min antes de cada uno |
+| Clima | Bogotá en el dashboard (Open-Meteo, cada 30 min; ubicación en `Clima.qml`) |
+| Tiempo de pantalla | Límites diarios por app en `~/.config/tiempo-pantalla/limites.json` (minutos por class): aviso al llegar y cada 30 min de más. No cuenta con la pantalla bloqueada |
+| Pantalla externa | Al conectarla: menú duplicar/extender + No molestar; al quitarla, todo vuelve (`presentacion.lua`) |
+| Audífonos | Buds Manager pausa/reanuda por el sensor de oreja; si los audífonos se desconectan solos mientras suena algo, se pausa (`Audifonos.qml`) |
+| Letras | La canción que suena, sincronizada, en el dashboard (lrclib.net) |
+| Servidores de paquetes | reflector elige cada semana los más rápidos cerca de Colombia |
 | Arranque | GRUB sin menú (1 s). **Esc o Shift** al encender lo muestra (con los snapshots para volver atrás) |
 | USB | udiskie los monta en `/run/media/oscar/<nombre>` y avisa (botón para abrir en Thunar). Expulsar: icono de la bandeja o `udiskie-umount -a` |
 
@@ -222,6 +267,7 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | 4 dedos (cualquier dirección) | Mover la ventana |
 | `SUPER` + 4 dedos | Redimensionar la ventana |
 | `SUPER` + 3 dedos ↓ | Cerrar la ventana |
+| `SUPER` + 3 dedos ↑ | Vista general |
 | `SUPER` + pellizco (2 dedos) | Lupa alrededor del cursor |
 
 ### Quickshell desde la terminal (`qs ipc call …`)
@@ -241,6 +287,10 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `qs ipc call conexiones toggle` / `wifi` / `bluetooth` | Panel de Wi-Fi y Bluetooth (en esa pestaña) |
 | `qs ipc call cargador estado` | ¿Con batería o cargador? (y el perfil que se restaurará) |
 | `qs ipc call cargador simular bat` · `ac` | Probar el cambio sin desenchufar |
+| `qs ipc call chuleta toggle` · `buscar captura` | Chuleta de atajos (con una búsqueda ya escrita) |
+| `qs ipc call vista toggle` | Vista general |
+| `qs ipc call recordatorios agregar "20m beber agua"` · `lista` · `borrar ID` | Recordatorios |
+| `qs ipc call menu grabar` · `pantalla HDMI-A-1` | Menú de grabar / de pantalla externa |
 | `qs ipc call conexiones estado` | Resumen: tarjeta Wi-Fi, redes vistas, Bluetooth, dispositivos |
 | `qs ipc call menu capturas` · `concentracion` · `cerrar` | Menús |
 | `qs ipc call notificaciones toggle` | Centro de control |
@@ -253,7 +303,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `qs ipc call bloqueo estado` | `libre`, `bloqueando` o `bloqueado` |
 | `qs ipc call osd brillo` · `bloqMayus` · `media` | Mostrar en el OSD el brillo / Bloq Mayús / la canción |
 | `qs ipc call osd mensaje "Hola" f04fe` | Aviso libre en el OSD (icono = código Nerd Font en hex) |
-| `qs ipc call barra refrescar buds` | Refrescar un módulo de la barra: `buds`, `modo-juego`, `red`, `brillo` o `todo` |
+| `qs ipc call barra refrescar buds` | Refrescar un módulo de la barra: `buds`, `modo-juego`, `red`, `brillo`, `grabacion` o `todo` |
 
 ### Hyprland desde la terminal
 
@@ -282,7 +332,13 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `inspector.sh` | Datos de la ventana activa (lo que hace `SUPER+I`) |
 | `bloquear.sh` | Bloquear (Quickshell; si no responde, hyprlock) |
 | `desbloqueo-emergencia.sh` | Recuperar la sesión desde una TTY (ver más arriba) |
-| `tiempo-pantalla.py --hoy` | Tiempo de pantalla de hoy por app |
+| `tiempo-pantalla.py --hoy` · `--semana` | Tiempo de pantalla de hoy por app / últimos 7 días (JSON) |
+| `ocr.sh [idioma]` | Texto de una zona de la pantalla al portapapeles (por defecto `spa+eng`) |
+| `dictado.sh` · `cancelar` | Empezar/terminar el dictado. Modelo en `~/.config/dictado/modelo` (`small` preciso · `base` rápido) |
+| `traducir.sh [idioma]` | Traducir la selección (forzar destino: `en`, `fr`…) |
+| `grabar.sh` · `region` · `pantalla` · `region-audio` · `pantalla-audio` · `gif` · `parar` · `estado` | Grabar pantalla |
+| `eventos.py --lista` | Tus próximos eventos de Google Calendar (dirección en `~/.config/calendario/url`, privada) |
+| `movil.sh estado` · `sonar` · `enviar archivo` · `app` | Móvil por KDE Connect |
 | `tiempo-pantalla.py` | El demonio que lo mide (arranca solo) |
 | `modo-juego-waybar.sh` · `calendario.sh` | Restos de waybar (se usan si vuelves a ella) |
 

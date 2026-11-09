@@ -44,6 +44,9 @@ hl.gesture({ fingers = 3, direction = "pinchin",  action = "float" })           
 hl.gesture({ fingers = 4, direction = "swipe", action = "move" })                           -- arrastrar la ventana con 4 dedos
 hl.gesture({ fingers = 4, direction = "swipe", mods = "SUPER", action = "resize" })         -- SUPER + 4 dedos: redimensionarla
 
+hl.gesture({ fingers = 3, direction = "up", mods = "SUPER", action = function()                -- SUPER + 3 dedos arriba: vista general
+    hl.exec_cmd("qs ipc call vista toggle")
+end })
 hl.gesture({ fingers = 3, direction = "down", mods = "SUPER", action = "close" })           -- SUPER + 3 dedos abajo: cerrar (con SUPER para no cerrar sin querer)
 hl.gesture({ fingers = 2, direction = "pinch", mods = "SUPER", action = "cursor_zoom",      -- SUPER + pellizco: lupa alrededor del cursor
              zoom_level = 1, mode = "live" })

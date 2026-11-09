@@ -101,7 +101,8 @@ PanelWindow {
         { n: "Cambiar colores",         d: "Ayu ↔ colores del wallpaper · SUPER+SHIFT+T",  i: 0xF03D8, k: "tema paleta",          c: scripts + "tema.sh alternar" },
         { n: "Wallpapers",              d: "Elegir fondo · SUPER+SHIFT+W",                 i: 0xF0E09, k: "fondo",                c: "qs ipc call wallpapers toggle" },
         { n: "Portapapeles",            d: "Historial · SUPER+SHIFT+V",                    i: 0xF0147, k: "clipboard historial",  c: "qs ipc call portapapeles toggle" },
-        { n: "Buscar el móvil",         d: "Hacer sonar el móvil (KDE Connect)",           i: 0xF011C, k: "telefono celular kdeconnect", c: "kdeconnect-cli -a --id-only | head -1 | xargs -r -I{} kdeconnect-cli -d {} --ring" },
+        { n: "Buscar el móvil",         d: "Hacer sonar el móvil (KDE Connect)",           i: 0xF011C, k: "telefono celular kdeconnect", c: scripts + "movil.sh sonar" },
+        { n: "KDE Connect",             d: "Emparejar el móvil, enviar archivos",           i: 0xF011C, k: "movil telefono celular android", c: scripts + "movil.sh app" },
         { n: "Copia de seguridad ahora", d: "Con el disco TOSHIBA conectado",              i: 0xF0E26, k: "respaldo backup",      c: "kitty -e sh -c 'respaldo ahora; read -p \"Enter para cerrar\" x'" }
     ]
     function puntajeAccion(a, q) {

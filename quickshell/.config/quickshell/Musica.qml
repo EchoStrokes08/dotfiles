@@ -1,12 +1,17 @@
 // Música: lo que suena en cualquier reproductor MPRIS (Spotify, Firefox, mpv…).
+// Con mostrarLetras: true (el dashboard) enseña la letra sincronizada de lrclib.net (gratis, sin cuenta):
+// la línea actual resaltada entre la anterior y la siguiente. Se busca una vez por canción.
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Mpris
 import Quickshell.Widgets
 
 RowLayout {
     id: musica
     spacing: 16
+    property bool mostrarLetras: false
 
     // El que esté sonando; si ninguno, el primero que haya
     readonly property var jugador: {
@@ -19,6 +24,54 @@ RowLayout {
         interval: 1000; repeat: true
         running: musica.visible && musica.jugador !== null && musica.jugador.isPlaying
         onTriggered: musica.jugador.positionChanged()
+    }
+
+    // ── Letras ──────────────────────────────────────────────────────────
+    property var letra: []                    // [{ t: segundos, txt }]
+    property var cacheLetras: ({})            // "artista|título" → letra ([] = no hay)
+    readonly property string clave: jugador ? (jugador.trackArtist + "|" + jugador.trackTitle) : ""
+    onClaveChanged: buscarLetra()
+    onMostrarLetrasChanged: buscarLetra()
+    function buscarLetra() {
+        letra = [];
+        if (!mostrarLetras || !jugador || !jugador.trackTitle) return;
+        if (cacheLetras[clave] !== undefined) { letra = cacheLetras[clave]; return; }
+        pedirLetra.clave = clave;
+        pedirLetra.command = ["curl", "-sf", "--max-time", "15", "-A", "dashboard-quickshell (github.com/EchoStrokes08/dotfiles)", "-G",
+            "https://lrclib.net/api/get", "--data-urlencode", "artist_name=" + (jugador.trackArtist || ""),
+            "--data-urlencode", "track_name=" + jugador.trackTitle,
+            ...(jugador.length > 0 ? ["--data-urlencode", "duration=" + Math.round(jugador.length)] : [])];
+        pedirLetra.running = true;
+    }
+    Process {
+        id: pedirLetra
+        property string clave: ""
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let l = [];
+                try {
+                    const sinc = JSON.parse(this.text).syncedLyrics ?? "";
+                    for (const linea of sinc.split("\n")) {
+                        const m = linea.match(/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/);
+                        if (m) l.push({ t: +m[1] * 60 + +m[2], txt: m[3] || "♪" });
+                    }
+                } catch (e) { }
+                const c = Object.assign({}, musica.cacheLetras); c[pedirLetra.clave] = l; musica.cacheLetras = c;
+                if (pedirLetra.clave === musica.clave) musica.letra = l;
+            }
+        }
+    }
+    // índice de la línea que suena (la última cuyo tiempo ya pasó)
+    property real posicion: 0
+    Timer {   // la letra necesita más precisión que la barra de progreso
+        interval: 250; repeat: true
+        running: musica.mostrarLetras && musica.letra.length > 0 && (musica.jugador?.isPlaying ?? false)
+        onTriggered: { musica.jugador.positionChanged(); musica.posicion = musica.jugador.position; }
+    }
+    readonly property int lineaActual: {
+        let i = -1;
+        for (let k = 0; k < letra.length; k++) { if (letra[k].t <= posicion + 0.3) i = k; else break; }
+        return i;
     }
 
     function mmss(s) {
@@ -113,6 +166,27 @@ RowLayout {
             Text {
                 text: musica.mmss(musica.jugador?.length ?? 0)
                 color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 }
+            }
+        }
+    }
+
+    // Letra: anterior · ACTUAL · siguiente
+    ColumnLayout {
+        visible: musica.mostrarLetras && musica.letra.length > 0
+        Layout.preferredWidth: 340
+        Layout.maximumWidth: 340
+        spacing: 6
+        Repeater {
+            model: [-1, 0, 1]
+            Text {
+                required property int modelData
+                readonly property int i: musica.lineaActual + modelData
+                Layout.fillWidth: true
+                text: i >= 0 && i < musica.letra.length ? musica.letra[i].txt : ""
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignRight
+                color: modelData === 0 ? Paleta.naranja : Qt.alpha(Paleta.texto, 0.45)
+                font { family: Paleta.fuente; pixelSize: modelData === 0 ? 14 : 11; bold: modelData === 0 }
             }
         }
     }

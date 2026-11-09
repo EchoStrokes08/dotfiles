@@ -38,6 +38,7 @@ require("modulos.reglas")
 require("modulos.atajos")
 require("modulos.submaps")
 require("modulos.modo_juego")
+require("modulos.presentacion")    -- proyector/TV: menú duplicar/extender + No molestar (SUPER+ALT+P)
 require("modulos.bateria")         -- sin cargador: sin blur ni sombras (lo avisa Quickshell, Cargador.qml)
 require("modulos.concentracion")   -- SUPER+SHIFT+F (temporizador en Quickshell)
 require("modulos.scratchpads")     -- SUPER+Return / Y / O: terminal, música y notas que aparecen y desaparecen

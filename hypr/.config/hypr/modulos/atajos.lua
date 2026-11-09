@@ -72,6 +72,9 @@ u.atajos({
     -- Chuleta: todos los atajos con buscador (Quickshell: Chuleta.qml, lee las tablas del README)
     { mod .. " + H", exec("qs ipc call chuleta toggle") },
 
+    -- Vista general: todas las ventanas en miniatura (Quickshell: Vista.qml); también SUPER + 3 dedos arriba
+    { mod .. " + SPACE", exec("qs ipc call vista toggle") },
+
     -- Capturas (archivo en ~/Imágenes/screenshots + portapapeles)
     { "PRINT",            exec([[mkdir -p ~/Imágenes/screenshots && grim -g "$(slurp)" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
     { mod .. " + PRINT",  exec([[mkdir -p ~/Imágenes/screenshots && grim - - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },

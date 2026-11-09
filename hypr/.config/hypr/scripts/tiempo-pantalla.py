@@ -12,9 +12,14 @@ Cómo funciona
 Datos: ~/.local/state/tiempo-pantalla/AAAA-MM-DD.json  →  {"firefox": 5321.0, "kitty": 1200.5, …}
        (los lee el dashboard de Quickshell, SUPER+D)
 
+Límites: ~/.config/tiempo-pantalla/limites.json  →  {"org.vinegarhq.Sober": 60, "vesktop": 60}
+       (minutos al día por class de ventana; SUPER+I dice la class). Al llegar al límite avisa,
+       y otra vez cada 30 min de más. Se lee en cada aviso: los cambios valen sin reiniciar nada.
+
 Uso
   tiempo-pantalla.py          demonio (lo arranca modulos/autostart.lua)
   tiempo-pantalla.py --hoy    resumen de hoy en la terminal
+  tiempo-pantalla.py --semana JSON con los últimos 7 días (lo usa el dashboard para el gráfico)
 """
 import datetime as dt
 import fcntl
@@ -29,6 +34,8 @@ from pathlib import Path
 DATOS = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "tiempo-pantalla"
 TICK = 5          # segundos entre comprobaciones (bloqueo, cambio de día)
 GUARDAR_CADA = 30  # segundos entre escrituras a disco
+LIMITES = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "tiempo-pantalla" / "limites.json"
+REPETIR = 30 * 60  # tras pasar el límite, avisar de nuevo cada 30 min
 
 
 def archivo(dia: dt.date) -> Path:
@@ -50,7 +57,13 @@ def guardar(dia: dt.date, tiempos: dict) -> None:
 
 
 def bloqueado() -> bool:
-    """¿Está hyprlock en marcha? (se mira en /proc, sin lanzar procesos)"""
+    """¿Está la pantalla bloqueada? Con la de Quickshell (qs ipc call bloqueo estado) o con hyprlock."""
+    try:
+        r = subprocess.run(["qs", "ipc", "call", "bloqueo", "estado"], capture_output=True, text=True, timeout=2)
+        if r.stdout.strip() in ("bloqueado", "bloqueando"):
+            return True
+    except (OSError, subprocess.TimeoutExpired):
+        pass
     for p in Path("/proc").iterdir():
         if p.name.isdigit():
             try:
@@ -72,6 +85,39 @@ def ventana_activa() -> str:
 def formato(seg: float) -> str:
     h, m = divmod(int(seg) // 60, 60)
     return f"{h} h {m:02d} min" if h else f"{m} min"
+
+
+def nombre_bonito(clase: str) -> str:
+    return {"org.vinegarhq.Sober": "Roblox", "com.rtosta.zapzap": "WhatsApp", "vesktop": "Discord"}.get(
+        clase, clase.split(".")[-1].capitalize())
+
+
+def revisar_limites(tiempos: dict, avisos: dict) -> None:
+    """Avisa al llegar al límite de una app y luego cada REPETIR segundos de más."""
+    try:
+        limites = json.loads(LIMITES.read_text())
+    except (OSError, ValueError):
+        return
+    for clase, minutos in limites.items():
+        usado, limite = tiempos.get(clase, 0), float(minutos) * 60
+        if usado >= limite and usado >= avisos.get(clase, limite):
+            avisos[clase] = usado + REPETIR
+            extra = f" (+{formato(usado - limite)} de más)" if usado - limite >= 60 else ""
+            subprocess.Popen(["notify-send", "-u", "critical", "-a", "Tiempo de pantalla", "-i", "appointment-soon",
+                              f"Llevas {formato(usado)} en {nombre_bonito(clase)} hoy",
+                              f"Tu límite es {formato(limite)}{extra}. ¿Un descanso?"])
+
+
+def semana() -> None:
+    """Últimos 7 días (de más viejo a hoy): total y app principal, en JSON."""
+    hoy = dt.date.today()
+    res = []
+    for i in range(6, -1, -1):
+        d = hoy - dt.timedelta(days=i)
+        t = leer(d)
+        top = max(t.items(), key=lambda x: x[1])[0] if t else ""
+        res.append({"dia": d.isoformat(), "total": round(sum(t.values())), "top": nombre_bonito(top) if top else ""})
+    print(json.dumps(res, ensure_ascii=False))
 
 
 def resumen() -> None:
@@ -105,6 +151,7 @@ def demonio() -> None:
     marca = time.monotonic()      # reloj que no salta si cambias la hora del sistema
     guardado = marca
     resto = b""
+    avisos = {}                   # clase → a partir de qué segundos volver a avisar (hoy)
 
     def apuntar():
         """Suma a la app actual el tiempo desde la última marca."""
@@ -133,13 +180,19 @@ def demonio() -> None:
             pass                               # nada nuevo: es solo el "tick"
 
         apuntar()
+        revisar_limites(tiempos, avisos)
         if dt.date.today() != dia:             # pasó la medianoche: cerrar el día y empezar otro
             guardar(dia, tiempos)
-            dia, tiempos = dt.date.today(), {}
+            dia, tiempos, avisos = dt.date.today(), {}, {}
         if time.monotonic() - guardado >= GUARDAR_CADA:
             guardar(dia, tiempos)
             guardado = time.monotonic()
 
 
 if __name__ == "__main__":
-    resumen() if "--hoy" in sys.argv else demonio()
+    if "--hoy" in sys.argv:
+        resumen()
+    elif "--semana" in sys.argv:
+        semana()
+    else:
+        demonio()

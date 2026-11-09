@@ -12,6 +12,7 @@ import Quickshell.Widgets
 import Quickshell.Services.SystemTray
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
+import Quickshell.Services.Mpris
 
 RowLayout {
     id: derecha
@@ -30,6 +31,45 @@ RowLayout {
     }
 
     Ayuda { id: ayuda; ventana: derecha.ventana }
+
+    // ── Visualizador de audio (cava): 10 barras que bailan, solo mientras suena algo ──
+    // cava se lanza solo con música (no gasta CPU en silencio); config en ~/.config/quickshell/cava.conf.
+    // Clic = abrir el dashboard (letra, controles).
+    Item {
+        id: visual
+        readonly property bool suena: Mpris.players.values.some(p => p.isPlaying)
+        property var valores: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        visible: suena
+        implicitWidth: 10 * 3 + 9 * 2 + 8
+        implicitHeight: 34
+        Process {
+            running: visual.suena
+            command: ["cava", "-p", Quickshell.env("HOME") + "/.config/quickshell/cava.conf"]
+            stdout: SplitParser {
+                onRead: (linea) => {
+                    const v = linea.split(";").filter(x => x !== "").map(Number);
+                    if (v.length === 10) visual.valores = v;
+                }
+            }
+            onRunningChanged: if (!running) visual.valores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+        Row {
+            anchors.centerIn: parent
+            spacing: 2
+            Repeater {
+                model: 10
+                Rectangle {
+                    required property int index
+                    width: 3; radius: 1.5
+                    height: 2 + (visual.valores[index] / 100) * 16
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Qt.tint(Paleta.naranja, Qt.alpha(Paleta.amarillo, index / 12))
+                    Behavior on height { NumberAnimation { duration: 60 } }
+                }
+            }
+        }
+        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["qs", "ipc", "call", "dashboard", "toggle"]) }
+    }
 
     // ── Grabando / dictando (solo visible mientras pasa) ─────────────────
     // grabar.sh y dictado.sh avisan con «qs ipc call barra refrescar grabacion»
@@ -99,6 +139,35 @@ RowLayout {
                 }
             }
         }
+    }
+
+    // ── Móvil (KDE Connect): batería; solo si hay uno emparejado y conectado ──
+    Modulo {
+        id: movil
+        property string nombre: ""
+        property int carga: -1
+        property bool cargando: false
+        function leer() { if (!lectorMovil.running) lectorMovil.running = true; }
+        Timer { interval: 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: movil.leer() }
+        Process {
+            id: lectorMovil
+            command: ["sh", "-c", "~/.config/hypr/scripts/movil.sh estado"]
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    const p = this.text.trim().split("|");
+                    movil.nombre = p.length >= 3 ? p[0] : "";
+                    movil.carga = p.length >= 3 && p[1] !== "" ? +p[1] : -1;
+                    movil.cargando = p[2] === "true";
+                }
+            }
+        }
+        visible: nombre !== ""
+        gestorAyuda: ayuda
+        icono: derecha.g(0xF011C)
+        texto: carga >= 0 ? carga + "%" : ""
+        color: cargando ? Paleta.verde : carga >= 0 && carga <= 15 ? Paleta.rojo : Paleta.texto
+        ayuda: nombre + (cargando ? " · cargando" : "") + "\nClic: KDE Connect · clic derecho: hacer sonar"
+        onClic: (b) => derecha.ejecutar("~/.config/hypr/scripts/movil.sh " + (b === Qt.RightButton ? "sonar" : "app"))
     }
 
     // ── Redmi Buds: izquierdo · derecho · estuche ────────────────────────

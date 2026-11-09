@@ -9,7 +9,7 @@ La lista completa de atajos y comandos está en el [README](../README.md#todos-l
 ## Índice
 
 1. [Ideas básicas](#1-ideas-básicas)
-2. [Chuleta: los 25 atajos que más se usan](#2-chuleta-los-25-atajos-que-más-se-usan)
+2. [Chuleta: los atajos que más se usan](#2-chuleta-los-atajos-que-más-se-usan)
 3. [Abrir apps](#3-abrir-apps)
 4. [Manejar ventanas](#4-manejar-ventanas)
 5. [Workspaces y navegación](#5-workspaces-y-navegación)
@@ -26,6 +26,10 @@ La lista completa de atajos y comandos está en el [README](../README.md#todos-l
 16. [Cambiar la configuración](#16-cambiar-la-configuración)
 17. [Si algo falla](#17-si-algo-falla)
 18. [Copias de seguridad, memoria y salud del equipo](#18-copias-de-seguridad-memoria-y-salud-del-equipo)
+19. [Texto, voz, recordatorios y tiempo de pantalla](#19-texto-voz-recordatorios-y-tiempo-de-pantalla)
+20. [El móvil (KDE Connect)](#20-el-móvil-kde-connect)
+
+Apéndice A. [Todos los atajos](#apéndice-a-todos-los-atajos)
 
 ---
 
@@ -50,12 +54,17 @@ Regla para recordar los atajos de ventanas:
 | `SUPER+ALT` | **intercambiar** la ventana con la vecina |
 | `SUPER+CTRL` | cosas de **monitores** |
 
-## 2. Chuleta: los 25 atajos que más se usan
+## 2. Chuleta: los atajos que más se usan
+
+`SUPER+H` abre en pantalla **todos** los atajos, con buscador. La lista completa también está al final de este
+manual (apéndice A).
 
 | Atajo | Acción |
 |---|---|
 | `SUPER+Q` | Terminal |
-| `SUPER+R` | Lanzador de apps |
+| `SUPER+R` | Lanzador (apps, cálculos, web, emojis, archivos, recordatorios) |
+| `SUPER+H` | Todos los atajos |
+| `SUPER+ESPACIO` | Vista general de las ventanas |
 | `SUPER+E` | Archivos |
 | `SUPER+C` | Cerrar ventana |
 | `SUPER+V` | Flotante ↔ mosaico |
@@ -79,12 +88,26 @@ Regla para recordar los atajos de ventanas:
 | `SUPER+SHIFT+V` | Portapapeles |
 | `SUPER+K` | Wi-Fi y Bluetooth |
 | `PRINT` | Captura de una región |
+| `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR) |
+| `SUPER+ALT+R` | Grabar la pantalla |
+| `SUPER+ALT+D` | Dictar con la voz |
+| `SUPER+ALT+T` | Traducir lo seleccionado |
 | `SUPER+L` | Bloquear |
 | `ALT+F4` | Menú de apagado |
 
 ## 3. Abrir apps
 
 - **Lanzador** (`SUPER+R`): escribe parte del nombre, `↑↓` para elegir, `Enter` para abrir, `Esc` para cerrar.
+  Sirve para mucho más que apps; lo escrito decide qué busca:
+
+  | Escribe | Qué hace |
+  |---|---|
+  | `firefox`, `ffx` | Apps. También acciones: `blo` (bloquear), `apa` (apagar), `ocr`, `dictar`, `grabar`, `atajos`… |
+  | `2*(3+4)` · `5 km a mi` · `30 °C a °F` · `100 USD a COP` | Calcula / convierte; `Enter` copia el resultado |
+  | `g método simplex` · `yt …` · `w …` · `gh …` | Busca en Google / YouTube / Wikipedia / GitHub |
+  | `:fuego` · `:corazon` · `:sigma` · `:≤` | Emojis y símbolos matemáticos: `Enter` los escribe donde estabas |
+  | `/apuntes` (solo `/`: los recientes) | Busca archivos en tu carpeta personal y los abre |
+  | `recordar 20m beber agua` · `recordar mañana 7:00 examen` | Recordatorio (ver sección 19) |
 - **Atajos directos**: `SUPER+Q` terminal, `SUPER+E` archivos, `SUPER+W` WhatsApp, `SUPER+B` Buds Manager,
   `SUPER+G` Roblox.
 - **Modo lanzar** (`SUPER+A` y luego una letra): `F` Firefox, `T` terminal, `E` archivos, `W` WhatsApp,
@@ -248,9 +271,17 @@ Los gestos siguen a los dedos: si sueltas a medias, se cancelan.
 | Mando | Modo juego | |
 | Campana | Centro de control | Derecho = No molestar |
 
-**Dashboard** (`SUPER+D` o 3 dedos hacia abajo): reloj, workspaces, calendario, estado del sistema, tiempo de
-pantalla de hoy y la música que suena. En el calendario, flechas o rueda cambian de mes y un clic en el título
-vuelve a hoy.
+**Dashboard** (`SUPER+D` o 3 dedos hacia abajo): reloj, **clima de Bogotá** (y la probabilidad de lluvia de las
+próximas horas), workspaces, calendario, estado del sistema, tiempo de pantalla y la música que suena.
+- **Calendario**: flechas o rueda cambian de mes y un clic en el título vuelve a hoy. Un **puntito** bajo un día =
+  tienes algo en tu Google Calendar. Debajo, **«Próximo»**: tus eventos y recordatorios (clic en un recordatorio =
+  borrarlo). 10 minutos antes de cada evento sale un aviso.
+- **Tiempo de pantalla**: hoy por app y, debajo, **los últimos 7 días** (pasa el ratón por una barra).
+- **Música**: con la **letra sincronizada** de la canción a la derecha (si lrclib.net la tiene).
+
+**Barra**, además: unas **barras de colores** que bailan con la música (clic = dashboard), un **punto rojo con el
+tiempo** mientras grabas la pantalla (clic = parar), un **micrófono rojo** mientras dictas, y la **batería del
+móvil** cuando está conectado por KDE Connect.
 
 **Centro de control** (`SUPER+N`): botones rápidos (Wi-Fi, Bluetooth…), volumen, brillo, música y el historial
 de notificaciones. Clic derecho en Wi-Fi o Bluetooth abre su lista.
@@ -289,6 +320,14 @@ usado cada app hoy.
 Las capturas van a `~/Imágenes/screenshots` y además al portapapeles (se pueden pegar directamente).
 Los replays van a `~/Videos/Replays`.
 
+**Grabar la pantalla** (`SUPER+ALT+R`): menú con *Región*, *Pantalla completa*, *con audio* (lo que suena en el
+equipo) y *Región como GIF*. Mientras graba hay un **punto rojo con el tiempo** en la barra; para terminar,
+`SUPER+ALT+R` otra vez o clic en el punto. Se guarda en `~/Videos/Grabaciones` y la ruta queda copiada.
+
+**Copiar texto de la pantalla (OCR)** (`SUPER+SHIFT+X`, o *Copiar texto* en el menú de capturas): selecciona una
+zona (borde azul) y su texto queda en el portapapeles. Sirve para PDFs escaneados, vídeos, fotos de la pizarra…
+Funciona sin internet, en español e inglés.
+
 ## 13. Modos: juego, concentración, energía y No molestar
 
 | Modo | Atajo | Qué hace |
@@ -296,6 +335,7 @@ Los replays van a `~/Videos/Replays`.
 | **Juego** | `SUPER+SHIFT+G` (o solo al abrir Roblox) | Quita animaciones y efectos y silencia notificaciones, para ganar rendimiento |
 | **Concentración** | `SUPER+SHIFT+F` | Temporizador de 25, 50 o 90 min con No molestar; WhatsApp, Discord, Roblox y Steam se esconden y vuelven al terminar. Cuenta atrás en la barra (clic = +10 min o terminar) |
 | **Energía** | `SUPER+SHIFT+P` | Ahorro → equilibrado → rendimiento |
+| **Presentación** | Solo, al conectar un proyector/TV · `SUPER+ALT+P` | Menú: duplicar, extender, solo la externa o solo el portátil. Activa No molestar; al desconectar, todo vuelve |
 | **Batería** | Solo, al desenchufar | Pasa a «ahorro» y quita blur y sombras. Al enchufar vuelve tu modo anterior y la apariencia normal. Si con batería eliges otro modo a mano, se respeta |
 | **No molestar** | `SUPER+SHIFT+N` | Las notificaciones se guardan sin aparecer |
 | **Luz nocturna** | `SUPER+ALT+N` | Pantalla cálida (menos luz azul). Se enciende sola a las 20:30 y se apaga a las 7:00 (horario en `~/.config/hypr/hyprsunset.conf`); el atajo la cambia a mano hasta el siguiente cambio de horario |
@@ -314,6 +354,9 @@ Los replays van a `~/Videos/Replays`.
   de cargar en ~80 %: dura muchos más años. Apágalo solo cuando necesites el 100 % (un viaje) y vuelve a
   encenderlo después. El tooltip de la batería en la barra dice en qué modo está.
 - **Luz noche** en el centro de control hace lo mismo que `SUPER+ALT+N`.
+- **Audífonos**: Buds Manager pausa la música al quitarte un audífono y la reanuda al ponértelo (sensor de oreja).
+  Si se **desconectan** solos (sin batería, te alejaste) mientras suena algo, la música se pausa para que no salga
+  de golpe por los altavoces.
 - **Redmi Buds**: `SUPER+SHIFT+B` cambia de modo (ANC → transparencia → apagado); `SUPER+B` abre Buds Manager.
   En la terminal, `buds status`, `buds battery`, etc. (`buds <comando> --help` para más).
 
@@ -344,8 +387,15 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | Pantallas | `monitores.lua` |
 | Programas al iniciar | `autostart.lua` |
 | Apps de los scratchpads | `scratchpads.lua` |
+| Ciudad del clima | `~/.config/quickshell/Clima.qml` (lat, lon, lugar) |
+| Calendarios de Google | `~/.config/calendario/url` (una dirección iCal secreta por línea; **no va al repo**) |
+| Límites de tiempo por app | `~/.config/tiempo-pantalla/limites.json` |
+| Modelo del dictado | `~/.config/dictado/modelo` (`small` o `base`) |
 | Qué se apaga con batería | `bateria.lua` (y el perfil, en `~/.config/quickshell/Cargador.qml`) |
 | Colores | No a mano: `SUPER+SHIFT+T` o `~/.config/hypr/scripts/tema.sh` |
+
+**Si cambias o añades un atajo**: apúntalo en la tabla que toque del `README.md` (es la única lista: de ahí
+la lee la chuleta `SUPER+H`) y ejecuta `~/dotfiles/docs/actualizar-atajos.py`, que lo copia al apéndice A.
 
 **Cómo probar un cambio**:
 
@@ -380,6 +430,10 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | Necesito el menú de arranque (otro sistema, volver a un snapshot) | Mantén **Esc** (o Shift) justo al encender: GRUB está oculto y espera solo 1 s |
 | La Wi-Fi de un hotel/aeropuerto no abre su página de acceso | `dns-cifrado off`, entra, y luego `dns-cifrado on` |
 | Aviso «⚠ Disco» | El SSD empieza a fallar: `respaldo ahora` con el disco TOSHIBA conectado, y piensa en cambiarlo |
+| La barra/atajos de Quickshell no responden (`qs ipc call …` dice «Not ready to accept queries yet») | Pasa tras muchas recargas en caliente: `pkill -x qs; qs &` (o cerrar sesión y entrar). Si vuelve a pasar justo al arrancar, revisa que ningún archivo que lea un singleton falte |
+| El dictado no escribe nada | ¿Micrófono correcto? Prueba `dictado.sh` dos veces y mira la notificación. La primera vez tarda más (carga el modelo) |
+| El móvil no aparece en KDE Connect | Mismo Wi-Fi, app KDE Connect abierta en el móvil y el firewall abierto (sección 20) |
+| No salen eventos en el dashboard | `~/.config/hypr/scripts/eventos.py --lista`: si no lista nada, revisa la dirección de `~/.config/calendario/url` |
 | Reinstalar todo en otro equipo | `bash <(curl -fsSL https://raw.githubusercontent.com/EchoStrokes08/dotfiles/main/instalar.sh)` |
 
 ## 18. Copias de seguridad, memoria y salud del equipo
@@ -435,3 +489,229 @@ kitty ni el audio. Si te cierra algo, es que tenías demasiado abierto. Configur
 
 **Arranque**: unos 20 s. De ellos ~9 s son de la BIOS antes de Linux: si quieres arañarlos, entra en la BIOS
 (F2 al encender) y activa *Fast Boot* (o *Quick Boot*).
+
+## 19. Texto, voz, recordatorios y tiempo de pantalla
+
+**Dictar** (`SUPER+ALT+D`): pulsa, habla, vuelve a pulsar. El texto se escribe donde esté el cursor (y queda
+copiado). Mientras escucha hay un micrófono rojo en la barra. Usa Whisper **en tu equipo**: la voz no sale a
+internet. Tarda unos segundos por frase (modelo `small`, preciso); con `echo base > ~/.config/dictado/modelo` va
+más rápido pero se equivoca más. Si el micrófono estaba silenciado, lo activa solo mientras grabas. Si te olvidas,
+se para solo a los 2 minutos.
+
+**Traducir** (`SUPER+ALT+T`): selecciona un texto con el ratón (en cualquier app) y pulsa. La traducción sale en una
+notificación y queda copiada. Otro idioma → español; si ya está en español → inglés. Necesita internet.
+
+**Recordatorios**: en el lanzador (`SUPER+R`) escribe `recordar` (o `rec`) + cuándo + qué:
+
+| Ejemplo | Cuándo avisa |
+|---|---|
+| `recordar 20m beber agua` | En 20 minutos (también `1h`, `1h30`, `45 minutos`, `90s`) |
+| `recordar 18:30 llamar a mamá` · `recordar 6pm …` | Hoy a esa hora (si ya pasó, mañana) |
+| `recordar mañana 7:00 examen` | Mañana a esa hora |
+
+Avisa con notificación y sonido. Se guardan en disco: si el equipo estaba apagado a esa hora, avisa al encender.
+Los próximos se ven en el dashboard (clic en uno = borrarlo).
+
+**Tiempo de pantalla**: el dashboard muestra hoy y los últimos 7 días. Para ponerte **límites**, edita
+`~/.config/tiempo-pantalla/limites.json` (minutos al día por *class* de la ventana; `SUPER+I` te dice la class):
+
+```
+{
+  "org.vinegarhq.Sober": 60,
+  "vesktop": 60
+}
+```
+
+Al llegar al límite sale un aviso, y otro cada 30 min de más. Mientras la pantalla está bloqueada no cuenta.
+
+## 20. El móvil (KDE Connect)
+
+Con KDE Connect el móvil Android y el portátil se hablan por el Wi-Fi: notificaciones del móvil en el escritorio,
+portapapeles compartido, enviar archivos en los dos sentidos, batería del móvil en la barra, usar el móvil como
+mando o ratón, y hacerlo sonar cuando no lo encuentras.
+
+**Emparejar (una vez):**
+
+1. Abre los puertos de KDE Connect en el firewall, **solo para la red local** (una vez, en una terminal):
+   ```
+   for r in 192.168.0.0/16 10.0.0.0/8 172.16.0.0/12; do for p in tcp udp; do sudo ufw allow from $r to any port 1714:1764 proto $p comment 'KDE Connect'; done; done
+   ```
+2. Instala **KDE Connect** en el móvil (Play Store o F-Droid) y conéctalo al mismo Wi-Fi.
+3. En el portátil, abre KDE Connect (lanzador: `kde` → *KDE Connect*, o el icono del móvil en la bandeja),
+   elige tu móvil y pulsa *Solicitar emparejamiento*; acepta en el móvil.
+4. En el móvil, dale los permisos que pide cada función (notificaciones, archivos…).
+
+**Uso**: la batería del móvil sale en la barra (clic = KDE Connect, clic derecho = hacerlo sonar). Enviar un
+archivo: icono de la bandeja → *Enviar archivo*, o `~/.config/hypr/scripts/movil.sh enviar archivo.pdf`. En el
+lanzador: *Buscar el móvil*.
+
+## Apéndice A. Todos los atajos
+
+<!-- atajos:inicio — NO editar a mano: sale del README con docs/actualizar-atajos.py -->
+
+### Atajos de teclado
+
+Esta es la lista **completa** y la única: la chuleta (`SUPER+H`) la lee de aquí, y `docs/actualizar-atajos.py`
+la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ejecutar ese script.
+
+#### Apps
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+Q` | Terminal (kitty) |
+| `SUPER+E` | Archivos (Thunar) |
+| `SUPER+R` | Lanzador: apps, acciones, calculadora, web, emojis, archivos y recordatorios (ver «El lanzador») |
+| `SUPER+H` | Chuleta: todos estos atajos, con buscador |
+| `SUPER+ESPACIO` | Vista general: todas las ventanas en miniatura (clic = ir · arrastrar = mover de workspace) |
+| `SUPER+W` | WhatsApp (lo enfoca si ya está abierto) |
+| `SUPER+G` | Roblox (Sober, con gamemode) |
+| `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
+| `SUPER+D` | Dashboard: reloj, espacios, calendario, sistema, tiempo de pantalla y música |
+| `SUPER+A`, luego una letra | Modo lanzar: `F` Firefox · `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify. Cualquier otra tecla cancela |
+
+#### Ventanas
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+C` | Cerrar la ventana |
+| `SUPER+V` | Flotante / en mosaico |
+| `SUPER+F` | Pantalla completa |
+| `SUPER+P` | Pseudo-mosaico |
+| `SUPER+J` | Cambiar la dirección de la división (dwindle) |
+| `SUPER+TAB` | Layout del workspace: dwindle → master → scrolling → monocle |
+| `SUPER+flechas` | Mover el foco |
+| `SUPER+SHIFT+flechas` | Mover la ventana en esa dirección (cambia su sitio en el layout; entra o sale de un grupo vecino) |
+| `SUPER+ALT+flechas` | Intercambiar la ventana con su vecina |
+| `SUPER+T` | Convertir la ventana en grupo (pestañas) / deshacerlo |
+| `SUPER+.` / `SUPER+,` | Pestaña siguiente / anterior del grupo |
+| `SUPER+SHIFT+.` / `SUPER+SHIFT+,` | Mover la pestaña a la derecha / izquierda |
+| `SUPER+clic izquierdo` (arrastrar) | Mover la ventana |
+| `SUPER+clic derecho` (arrastrar) | Redimensionar la ventana |
+| `SUPER+SHIFT+R`, luego flechas | Modo redimensionar (mantener = repetir); `Esc` o `Enter` salen |
+| `SUPER+I` | Inspector: class, título, workspace, tamaño y pid de la ventana; copia la class |
+
+#### Workspaces y monitores
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+1` … `SUPER+0` | Ir al workspace 1-10 (el mismo otra vez = volver al anterior) |
+| `SUPER+\|` (tecla a la izquierda del 1) | Saltar a la última ventana enfocada |
+| `ALT+TAB` / `ALT+SHIFT+TAB` | Recorrer las ventanas del workspace (y traerla al frente) |
+| `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | Mover la ventana al workspace 1-10 |
+| `SUPER+rueda del ratón` | Workspace siguiente / anterior |
+| `SUPER+S` | Mostrar / ocultar el scratchpad (workspace especial «magic») |
+| `SUPER+SHIFT+S` | Mandar la ventana al scratchpad |
+| `SUPER+Return` | Terminal flotante (scratchpad; se abre sola la primera vez) |
+| `SUPER+Y` | Música: Spotify en su scratchpad (si ya estaba abierto, lo trae) |
+| `SUPER+O` | Notas: nvim con `~/Documents/notas.md` en un scratchpad flotante |
+| `SUPER+SHIFT+E` | Archivos: yazi en un scratchpad flotante (`SUPER+E` sigue siendo Thunar) |
+| `SUPER+CTRL+←/→` | Foco al otro monitor |
+| `SUPER+CTRL+SHIFT+←/→` | Mandar la ventana al otro monitor |
+| `SUPER+CTRL+ALT+←/→` | Mandar el workspace entero al otro monitor |
+
+#### Sistema
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+L` | Bloquear la pantalla |
+| `SUPER+M` | Salir de Hyprland (sin confirmar) |
+| `ALT+F4` | Menú de apagado (wlogout) |
+| `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
+| `SUPER+SHIFT+N` | No molestar |
+| `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
+| `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
+| `SUPER+SHIFT+C` | Selector de color: clic en un píxel → hex copiado |
+| `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
+| `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
+| `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |
+| `SUPER+SHIFT+W` | Selector de wallpapers |
+| `SUPER+CTRL+W` | Wallpaper al azar |
+| `SUPER+SHIFT+V` | Historial del portapapeles |
+| `SUPER+K` | Wi-Fi y Bluetooth (también: clic en la red de la barra, clic derecho en los botones del centro de control) |
+| `SUPER+SHIFT+B` | Buds: cambiar de modo (ANC → transparencia → apagado) |
+| `SUPER+ALT+P` | Pantalla externa: duplicar / extender / solo la externa / solo el portátil |
+
+#### Capturas y grabación
+
+| Atajo | Acción |
+|---|---|
+| `PRINT` | Captura de una región → `~/Imágenes/screenshots` + portapapeles |
+| `SUPER+PRINT` | Captura de toda la pantalla |
+| `SHIFT+PRINT` | Menú: región, pantalla, ventana activa o pantalla en 5 s |
+| `SUPER+SHIFT+PRINT` | Guardar los últimos 30 s de pantalla y audio en `~/Videos/Replays` |
+| `SUPER+ALT+PRINT` | Encender / apagar el replay |
+| `SUPER+ALT+R` | Grabar pantalla: menú región / pantalla / con audio / GIF; otra vez = parar → `~/Videos/Grabaciones` |
+| `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR): seleccionas una zona y su texto queda copiado |
+
+#### Texto y voz
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+ALT+D` | Dictar: pulsa, habla, vuelve a pulsar → el texto se escribe donde esté el cursor (Whisper, sin internet) |
+| `SUPER+ALT+T` | Traducir lo seleccionado (otro idioma → español; español → inglés), queda copiado |
+
+#### Teclas multimedia (funcionan también con la pantalla bloqueada)
+
+| Tecla | Acción |
+|---|---|
+| Subir / bajar volumen | Cambia el volumen (máx. 100 %) y lo muestra el OSD |
+| Silencio | Silencia o activa el sonido |
+| Micrófono | Silencia o activa el micrófono |
+| Subir / bajar brillo | Cambia el brillo y lo muestra el OSD |
+| ⏮ anterior · ⏯ reproducir/pausa · ⏭ siguiente | Música, con la canción en el OSD |
+| `Bloq Mayús` | Avisa en el OSD si queda activado en cualquier teclado |
+
+### Con el ratón
+
+| Dónde | Acción |
+|---|---|
+| Barra: número de workspace | Clic = ir · rueda = siguiente / anterior |
+| Barra: barras de colores (solo con música) | Visualizador de audio · clic = dashboard |
+| Barra: punto rojo con tiempo / micrófono rojo | Grabando la pantalla / dictando · clic = parar |
+| Barra: móvil (solo si está conectado) | Batería del móvil · clic = KDE Connect · derecho = hacerlo sonar |
+| Barra: reloj | Al pasar el ratón muestra la fecha · clic = dashboard |
+| Barra: bandeja | Clic = abrir · clic derecho = menú · clic central = acción secundaria |
+| Barra: Buds | Clic = cambiar modo · derecho = ANC / apagado · central = Buds Manager |
+| Barra: volumen | Clic = silenciar · rueda = volumen |
+| Barra: red | Clic = panel de Wi-Fi y Bluetooth · derecho = nmtui |
+| Barra: brillo | Rueda = brillo |
+| Barra: energía | Clic = cambiar modo |
+| Barra: CPU / RAM | Clic = btop |
+| Barra: concentración (solo en sesión) | Clic = +10 min o terminar |
+| Barra: mando | Clic = modo juego |
+| Barra: campana | Clic = centro de control · derecho = No molestar |
+| Dashboard: píldoras de workspaces | Clic = ir a ese workspace |
+| Dashboard: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · puntito = hay eventos ese día |
+| Dashboard: «Próximo» | Eventos de Google Calendar y recordatorios · clic en un recordatorio = borrarlo |
+| Dashboard: últimos 7 días | Pasa el ratón por una barra: total y app principal de ese día |
+| Centro de control: Wi-Fi / Bluetooth | Clic = encender/apagar · derecho = abrir su lista |
+| Centro de control: Conservar · Luz noche | Batería hasta ~80 % · pantalla cálida |
+| Centro de control: salidas de audio | Un botón por salida (altavoces, Buds, HDMI): clic = sonar por ahí |
+| Vista general | Clic en ventana = ir · clic en hueco = ir al workspace · arrastrar = mover de workspace · `1`-`9` |
+| Notificación | Clic = acción principal · botones = sus acciones · `×` = cerrar · el ratón encima pausa el tiempo |
+
+### El lanzador (`SUPER+R`)
+
+| Escribe | Resultado (Enter) |
+|---|---|
+| `firefox`, `ffx`, `blo`… | Apps (sin tildes, letras salteadas; las que más usas suben) y acciones: bloquear, apagar, atajos, OCR, dictar, grabar… |
+| `2*(3+4)` · `5 km a mi` · `30 °C a °F` · `100 USD a COP` · `=…` | Calculadora y conversor (qalc): copia el resultado |
+| `g …` · `yt …` · `w …` · `gh …` | Buscar en Google / YouTube / Wikipedia / GitHub |
+| `:fuego` · `:corazon` · `:sigma` · `:≤` | Emojis y símbolos: los escribe y quedan copiados |
+| `/apuntes` (solo `/` = recientes) | Archivos de tu carpeta personal: los abre |
+| `recordar 20m beber agua` · `recordar 18:30 llamar` · `recordar mañana 7:00 examen` | Recordatorio (aviso con sonido; sobrevive a reinicios). Abreviado: `rec` |
+| Cualquier cosa sin resultados | Buscarla en Google |
+
+En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
+`Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
+
+### Atajos que se adaptan al layout (`modulos/layouts.lua`)
+
+| Tecla | dwindle | master | scrolling |
+|---|---|---|---|
+| `SUPER++` / `SUPER+-` | División más grande / pequeña | Área principal más ancha / fina | Columna más ancha / estrecha |
+| `SUPER+Z` | Llevar la ventana a la raíz | Cambiarla con la principal | Centrar la columna |
+| `SUPER+X` | Invertir la división | Girar la orientación | Meter / sacar de la columna anterior |
+| `SUPER+SHIFT++` / `SUPER+SHIFT+-` | — | Una ventana principal más / menos | — |
+
+<!-- atajos:fin -->

@@ -96,6 +96,42 @@ PanelWindow {
                     }
                 }
                 Item { Layout.fillWidth: true }
+                // ── Clima (Clima.qml, Open-Meteo) ──
+                RowLayout {
+                    visible: Clima.listo
+                    spacing: 12
+                    Text {
+                        text: Clima.icono(Clima.codigo, Clima.deDia)
+                        color: Paleta.amarillo
+                        font { family: Paleta.fuente; pixelSize: 44 }
+                    }
+                    ColumnLayout {
+                        spacing: 1
+                        Text {
+                            text: `${Math.round(Clima.temp)}°  ${Clima.texto(Clima.codigo)}`
+                            color: Paleta.texto
+                            font { family: Paleta.fuente; pixelSize: 15; bold: true }
+                        }
+                        Text {
+                            text: `${Clima.lugar} · máx ${Math.round(Clima.max)}° · mín ${Math.round(Clima.min)}° · lluvia ${Clima.lluviaHoy}%`
+                            color: Paleta.gris
+                            font { family: Paleta.fuente; pixelSize: 10 }
+                        }
+                        Row {   // próximas horas: hora + probabilidad de lluvia (azul si ≥ 40 %)
+                            spacing: 10
+                            Repeater {
+                                model: Clima.proximas
+                                Text {
+                                    required property var modelData
+                                    text: `${modelData.hora}h ${modelData.lluvia}%`
+                                    color: modelData.lluvia >= 40 ? Paleta.azul : Qt.alpha(Paleta.gris, 0.8)
+                                    font { family: Paleta.fuente; pixelSize: 9 }
+                                }
+                            }
+                        }
+                    }
+                }
+                Item { Layout.fillWidth: true }
                 ColumnLayout {
                     Layout.alignment: Qt.AlignTop
                     spacing: 4
@@ -126,7 +162,49 @@ PanelWindow {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 20
-                Calendario { Layout.alignment: Qt.AlignTop }
+                ColumnLayout {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.maximumWidth: 230
+                    spacing: 10
+                    Calendario { }
+                    // ── Próximo: eventos de Google Calendar + recordatorios ──
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        readonly property var items: [
+                            ...Eventos.proximos(4).map(e => ({ cuando: Eventos.cuando(e), texto: e.titulo, ms: e.inicio.getTime(), rec: null })),
+                            ...Recordatorios.lista.slice(0, 3).map(r => ({ cuando: "⏰ " + Recordatorios.cuandoTexto(r.cuando).split(" · ")[0], texto: r.texto, ms: r.cuando, rec: r.id }))
+                        ].sort((a, b) => a.ms - b.ms).slice(0, 4)
+                        visible: items.length > 0
+                        Text { text: "Próximo"; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
+                        Repeater {
+                            model: parent.items
+                            RowLayout {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                spacing: 6
+                                Text {
+                                    text: modelData.cuando
+                                    color: modelData.rec ? Paleta.morado : Paleta.azul
+                                    font { family: Paleta.fuente; pixelSize: 10; bold: true }
+                                }
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.texto
+                                    elide: Text.ElideRight
+                                    color: Paleta.texto
+                                    font { family: Paleta.fuente; pixelSize: 10 }
+                                    MouseArea {   // clic en un recordatorio = borrarlo
+                                        anchors.fill: parent
+                                        enabled: !!modelData.rec
+                                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                        onClicked: Recordatorios.borrar(modelData.rec)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 Rectangle { Layout.fillHeight: true; width: 1; color: Qt.alpha(Paleta.texto, 0.08) }
                 GridLayout {
                     Layout.alignment: Qt.AlignVCenter
@@ -164,7 +242,7 @@ PanelWindow {
             Separador {}
 
             // ── Música ──
-            Musica { Layout.fillWidth: true }
+            Musica { Layout.fillWidth: true; mostrarLetras: true }
         }
     }
 
