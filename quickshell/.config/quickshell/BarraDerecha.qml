@@ -26,9 +26,47 @@ RowLayout {
         if (que === "modo-juego" || que === "todo") modoJuego.leer();
         if (que === "red" || que === "todo") red.leer();
         if (que === "brillo" || que === "todo") brillo.leer();
+        if (que === "grabacion" || que === "todo") grabacion.leer();
     }
 
     Ayuda { id: ayuda; ventana: derecha.ventana }
+
+    // ── Grabando / dictando (solo visible mientras pasa) ─────────────────
+    // grabar.sh y dictado.sh avisan con «qs ipc call barra refrescar grabacion»
+    Modulo {
+        id: grabacion
+        property string modo: ""          // modo de grabar.sh ("" = no graba)
+        property int inicio: 0
+        property bool dictando: false
+        property int ahora: 0
+        function leer() { if (!lectorGrab.running) lectorGrab.running = true; }
+        Component.onCompleted: leer()
+        Process {
+            id: lectorGrab
+            command: ["sh", "-c", 'r=${XDG_RUNTIME_DIR:-/tmp}; p=$(cat $r/grabar.pid 2>/dev/null); ' +
+                      '[ -n "$p" ] && kill -0 $p 2>/dev/null && cat $r/grabar.estado; echo "|"; ' +
+                      'd=$(cat $r/dictado.pid 2>/dev/null); [ -n "$d" ] && kill -0 $d 2>/dev/null && echo si']
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    const [g, d] = this.text.split("|");
+                    const c = g.trim().split(" ");
+                    grabacion.modo = c.length >= 3 ? c[0] : "";
+                    grabacion.inicio = c.length >= 3 ? +c[2] : 0;
+                    grabacion.dictando = d.trim() === "si";
+                    grabacion.ahora = Math.floor(Date.now() / 1000);
+                }
+            }
+        }
+        Timer { interval: 1000; repeat: true; running: grabacion.visible; onTriggered: grabacion.ahora = Math.floor(Date.now() / 1000) }
+        readonly property int seg: Math.max(0, ahora - inicio)
+        visible: modo !== "" || dictando
+        gestorAyuda: ayuda
+        icono: derecha.g(modo !== "" ? 0xF044A : 0xF036C)
+        texto: modo !== "" ? `${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, "0")}${modo === "gif" ? " GIF" : ""}` : "dictando"
+        color: Paleta.rojo
+        ayuda: modo !== "" ? "Grabando la pantalla · clic o SUPER+ALT+R para parar" : "Dictando · clic o SUPER+ALT+D para terminar"
+        onClic: derecha.ejecutar(modo !== "" ? "~/.config/hypr/scripts/grabar.sh parar" : "~/.config/hypr/scripts/dictado.sh")
+    }
 
     // ── Bandeja del sistema ─────────────────────────────────────────────
     RowLayout {

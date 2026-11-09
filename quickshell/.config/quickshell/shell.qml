@@ -24,8 +24,10 @@ ShellRoot {
     Portapapeles { id: portapapeles }
     Menu { id: menu }
     Conexiones { id: conexiones }
+    Chuleta { id: chuleta }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
+    readonly property int recordatoriosPendientes: Recordatorios.lista.length   // arranca Recordatorios.qml
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
@@ -69,7 +71,7 @@ ShellRoot {
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
     function cerrarTodo() { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
-                            conexiones.abierto = false; }
+                            conexiones.abierto = false; chuleta.abierto = false; }
     IpcHandler {
         target: "wallpapers"
         function toggle(): void { const a = wallpapers.abierto; cerrarTodo(); wallpapers.abierto = !a; }
@@ -94,6 +96,18 @@ ShellRoot {
                     { icono: 0xF04FE, texto: "50 min",             cmd: q + "empezar 50" },
                     { icono: 0xF04FE, texto: "90 min",             cmd: q + "empezar 90" } ]);
         }
+        // Grabar pantalla (SUPER+ALT+R → grabar.sh)
+        function grabar(): void {
+            cerrarTodo();
+            const c = "~/.config/hypr/scripts/grabar.sh ";
+            menu.abrirCon("Grabar pantalla", [
+                { icono: 0xF0A6D, texto: "Región",                cmd: c + "region" },
+                { icono: 0xF0E51, texto: "Pantalla completa",     cmd: c + "pantalla" },
+                { icono: 0xF075A, texto: "Región con audio",      cmd: c + "region-audio" },
+                { icono: 0xF075A, texto: "Pantalla con audio",    cmd: c + "pantalla-audio" },
+                { icono: 0xF0D78, texto: "Región como GIF",       cmd: c + "gif" }
+            ]);
+        }
         function capturas(): void {
             cerrarTodo();
             const c = "~/.config/hypr/scripts/capturas.sh ";
@@ -101,7 +115,8 @@ ShellRoot {
                 { icono: 0xF0A6D, texto: "Región",            cmd: c + "region" },
                 { icono: 0xF0E51, texto: "Pantalla completa", cmd: c + "pantalla" },
                 { icono: 0xF10AC, texto: "Ventana activa",    cmd: c + "ventana" },
-                { icono: 0xF051B, texto: "Pantalla en 5 s",   cmd: c + "temporizador" }
+                { icono: 0xF051B, texto: "Pantalla en 5 s",   cmd: c + "temporizador" },
+                { icono: 0xF0EF1, texto: "Copiar texto (OCR)", cmd: "~/.config/hypr/scripts/ocr.sh" }
             ]);
         }
     }
@@ -117,6 +132,25 @@ ShellRoot {
             return `wifi=${conexiones.wifi ? "si" : "no"} redes=${conexiones.redes.length} ` +
                    `bt=${conexiones.adaptador?.enabled ?? false} dispositivos=${conexiones.dispositivos.length}`;
         }
+    }
+
+    // Recordatorios (también: «recordar 20m …» en el lanzador)
+    IpcHandler {
+        target: "recordatorios"
+        function agregar(texto: string): string {
+            const r = Recordatorios.interpretar(texto);
+            if (!r) return "no entendí la hora";
+            Recordatorios.agregar(r.cuando, r.texto); return "ok: " + Recordatorios.cuandoTexto(r.cuando);
+        }
+        function lista(): string { return Recordatorios.lista.map(x => `${x.id}  ${Recordatorios.cuandoTexto(x.cuando)}  ${x.texto}`).join("\n"); }
+        function borrar(id: string): void { Recordatorios.borrar(id); }
+    }
+
+    // Chuleta de atajos (SUPER+H): qs ipc call chuleta toggle
+    IpcHandler {
+        target: "chuleta"
+        function toggle(): void { const a = chuleta.abierto; cerrarTodo(); chuleta.abierto = !a; }
+        function buscar(texto: string): void { cerrarTodo(); chuleta.abierto = true; chuleta.buscar(texto); }
     }
 
     // Cargador.qml (enchufar/desenchufar)

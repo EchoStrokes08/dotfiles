@@ -69,11 +69,20 @@ u.atajos({
     -- Wi-Fi y Bluetooth (Quickshell: Conexiones.qml). Tab cambia de pestaña dentro del panel
     { mod .. " + K", exec("qs ipc call conexiones toggle") },
 
+    -- Chuleta: todos los atajos con buscador (Quickshell: Chuleta.qml, lee las tablas del README)
+    { mod .. " + H", exec("qs ipc call chuleta toggle") },
+
     -- Capturas (archivo en ~/Imágenes/screenshots + portapapeles)
     { "PRINT",            exec([[mkdir -p ~/Imágenes/screenshots && grim -g "$(slurp)" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
     { mod .. " + PRINT",  exec([[mkdir -p ~/Imágenes/screenshots && grim - - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
 
-    { "SHIFT + PRINT",    exec("~/.config/hypr/scripts/capturas.sh") },  -- menú: región, pantalla, ventana, 5 s
+    { "SHIFT + PRINT",    exec("~/.config/hypr/scripts/capturas.sh") },  -- menú: región, pantalla, ventana, 5 s, OCR
+    { mod .. " + ALT + R", exec("~/.config/hypr/scripts/grabar.sh") },     -- grabar pantalla: menú / parar
+    { mod .. " + SHIFT + X", exec("~/.config/hypr/scripts/ocr.sh") },      -- OCR: el texto de una zona, al portapapeles
+
+    -- Texto: dictar con la voz (Whisper en local) y traducir lo seleccionado
+    { mod .. " + ALT + D", exec("~/.config/hypr/scripts/dictado.sh") },     -- pulsa, habla, vuelve a pulsar
+    { mod .. " + ALT + T", exec("~/.config/hypr/scripts/traducir.sh") },    -- otro idioma → español; español → inglés
 
     -- Wallpapers: menú con miniaturas / uno al azar
     { mod .. " + SHIFT + W",  exec("~/.config/hypr/scripts/wallpaper.sh") },

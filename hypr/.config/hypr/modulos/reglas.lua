@@ -40,7 +40,7 @@ hl.window_rule({
 -- Blur detrás de la tarjeta del dashboard de Quickshell (el resto de la capa es transparente → ignore_alpha)
 hl.layer_rule({
     name         = "quickshell-blur",
-    match        = { namespace = "quickshell-(dashboard|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|conexiones)" },
+    match        = { namespace = "quickshell-(dashboard|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|conexiones|chuleta)" },
     blur         = true,
     ignore_alpha = 0.3,
 })
