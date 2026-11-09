@@ -1,0 +1,19 @@
+# udiskie: monta solos los USB / discos externos al conectarlos (en /run/media/oscar/<nombre>)
+# y avisa con una notificación (la pinta Quickshell). Arranca desde autostart.lua.
+#   Expulsar: icono de la bandeja (aparece solo si hay algo montado) o `udiskie-umount -a`
+#   Botón "Abrir" de la notificación → Thunar en esa carpeta
+program_options:
+  automount: true
+  notify: true
+  tray: auto           # icono en la bandeja SOLO mientras haya algo conectado
+  menu: flat
+  file_manager: thunar
+  terminal: kitty --directory
+
+notifications:
+  timeout: 5
+  device_mounted: 6
+  device_unmounted: 3
+  device_added: false      # ya avisa al montarse; no repetir
+  device_removed: 3
+  job_failed: -1           # los errores no desaparecen solos

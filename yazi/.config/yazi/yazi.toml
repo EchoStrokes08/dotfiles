@@ -1,0 +1,15 @@
+# yazi: gestor de archivos en la terminal (SUPER+SHIFT+E en un scratchpad, o `y` en zsh).
+# Las opciones que no aparecen aquí usan el valor por defecto de yazi.
+#   Ayuda dentro de yazi: F1 o ~      Docs: https://yazi-rs.github.io/docs/configuration/yazi
+[mgr]
+ratio          = [ 1, 3, 4 ]     # columnas: padre · actual · vista previa (más sitio a la vista previa)
+sort_by        = "natural"       # foto2 antes que foto10
+sort_dir_first = true
+linemode       = "size"          # tamaño a la derecha de cada archivo
+show_hidden    = false           # punto (.) los muestra/oculta
+scrolloff      = 5
+
+[preview]
+# Imágenes: kitty las pinta de verdad (protocolo gráfico de kitty), no con caracteres
+max_width  = 1200
+max_height = 1200

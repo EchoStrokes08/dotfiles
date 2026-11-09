@@ -42,6 +42,8 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
 | `quickshell` | **Barra superior** (workspaces, ventana activa, reloj, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones) , **dashboard** SUPER+D (reloj, espacios, calendario, sistema, tiempo de pantalla, música) , **lanzador de apps** SUPER+R, **OSD** de volumen/brillo/Bloq Mayús y **notificaciones** con centro de control SUPER+N , **pantalla de bloqueo** (hyprlock de respaldo) y selectores de **wallpapers**, **portapapeles**, **capturas** y **Wi-Fi/Bluetooth** SUPER+K, en QML |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide y fastfetch |
+| `yazi` | Gestor de archivos en la terminal (SUPER+SHIFT+E o `y`), con el acento de la paleta |
+| `udiskie` | Monta solos los USB y discos externos, con aviso |
 | `gtk` | adw-gtk3 con colores Ayu e iconos Papirus-Ayu |
 | `btop` · `nvim` · `vscode` · `firefox` · `vesktop` · `spicetify` | Apps con el tema Ayu |
 | `wallpapers` | Mis fondos, en `~/Imágenes/wallpapers` |
@@ -110,6 +112,7 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SUPER+Return` | Terminal flotante (scratchpad; se abre sola la primera vez) |
 | `SUPER+Y` | Música: Spotify en su scratchpad (si ya estaba abierto, lo trae) |
 | `SUPER+O` | Notas: nvim con `~/Documents/notas.md` en un scratchpad flotante |
+| `SUPER+SHIFT+E` | Archivos: yazi en un scratchpad flotante (`SUPER+E` sigue siendo Thunar) |
 | `SUPER+CTRL+←/→` | Foco al otro monitor |
 | `SUPER+CTRL+SHIFT+←/→` | Mandar la ventana al otro monitor |
 | `SUPER+CTRL+ALT+←/→` | Mandar el workspace entero al otro monitor |
@@ -197,6 +200,8 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Teclado | Mantener una tecla repite a los 300 ms, 40 veces/s (`entrada.lua`) |
 | Touchpad | Tocar = clic; al hundirlo, 1 dedo = clic, 2 = derecho, 3 = central; se ignora mientras escribes |
 | Cursor | Se esconde al teclear y tras 5 s quieto; vuelve al mover el ratón |
+| Cargador | Al desenchufar: perfil «ahorro» y sin blur ni sombras. Al enchufar: vuelve el perfil anterior y la apariencia normal (`Cargador.qml` + `modulos/bateria.lua`; respeta el modo juego) |
+| USB | udiskie los monta en `/run/media/oscar/<nombre>` y avisa (botón para abrir en Thunar). Expulsar: icono de la bandeja o `udiskie-umount -a` |
 
 ### Gestos del touchpad
 
@@ -227,6 +232,8 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `qs ipc call portapapeles toggle` | Historial del portapapeles |
 | `qs ipc call portapapeles copiarId 204` | Copiar la entrada 204 de cliphist |
 | `qs ipc call conexiones toggle` / `wifi` / `bluetooth` | Panel de Wi-Fi y Bluetooth (en esa pestaña) |
+| `qs ipc call cargador estado` | ¿Con batería o cargador? (y el perfil que se restaurará) |
+| `qs ipc call cargador simular bat` · `ac` | Probar el cambio sin desenchufar |
 | `qs ipc call conexiones estado` | Resumen: tarjeta Wi-Fi, redes vistas, Bluetooth, dispositivos |
 | `qs ipc call menu capturas` · `concentracion` · `cerrar` | Menús |
 | `qs ipc call notificaciones toggle` | Centro de control |
@@ -294,6 +301,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `..` · `...` | Subir una / dos carpetas |
 | `rz` | Recargar zsh |
 | `actualizar` | `yay -Syu` |
+| `y [carpeta]` | yazi; al salir con `q` la terminal se queda en la carpeta donde estabas (`Q` no cambia) |
 | `zplug-actualizar` | Actualizar los plugins de zsh |
 | `Ctrl+R` · `Ctrl+T` · `Alt+C` | Buscar en el historial / archivos / carpetas (fzf) |
 | `Tab` | Completar con menú y vista previa (fzf-tab) |

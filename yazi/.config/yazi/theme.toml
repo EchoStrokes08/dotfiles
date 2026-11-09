@@ -1,0 +1,55 @@
+# Tema de yazi a juego con el escritorio. Solo usa los NOMBRES de color de la terminal
+# (yellow, red…), no códigos #hex: así toma los colores que kitty tenga en cada momento
+# (los pone tema.sh), igual que el resto de la terminal. El acento (azul por defecto) pasa a amarillo.
+# Lo que no se cambia aquí lo hereda del tema por defecto de yazi.
+[mgr]
+cwd          = { fg = "yellow", bold = true }
+border_style = { fg = "darkgray" }
+
+[tabs]
+active   = { fg = "black", bg = "yellow", bold = true }
+inactive = { fg = "yellow", bg = "darkgray" }
+
+[mode]
+normal_main = { fg = "black", bg = "yellow", bold = true }
+normal_alt  = { fg = "yellow", bg = "darkgray" }
+select_main = { fg = "black", bg = "red", bold = true }
+select_alt  = { fg = "red", bg = "darkgray" }
+unset_main  = { fg = "black", bg = "red", bold = true }
+unset_alt   = { fg = "red", bg = "darkgray" }
+
+[indicator]
+current = { fg = "black", bg = "yellow" }
+parent  = { fg = "yellow", bg = "darkgray" }
+
+[which]
+border = { fg = "yellow" }
+cand   = { fg = "yellow" }
+desc   = { fg = "white" }
+
+[confirm]
+border = { fg = "yellow" }
+title  = { fg = "yellow" }
+
+[spot]
+border  = { fg = "yellow" }
+title   = { fg = "yellow" }
+tbl_col = { fg = "yellow" }
+
+[pick]
+border = { fg = "yellow" }
+active = { fg = "yellow", bold = true }
+
+[input]
+border = { fg = "yellow" }
+
+[cmp]
+border = { fg = "yellow" }
+
+[tasks]
+border  = { fg = "yellow" }
+hovered = { fg = "yellow", bold = true }
+
+[help]
+border  = { fg = "yellow" }
+chord   = { fg = "yellow" }

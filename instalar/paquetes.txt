@@ -1,4 +1,5 @@
 # pacman: paquetes de los repos oficiales (generado por actualizar-listas.sh)
+7zip
 adw-gtk-theme
 amd-ucode
 android-tools
@@ -49,6 +50,7 @@ hyprshot
 hyprsunset
 imv
 inotify-tools
+jq
 kitty
 lib32-gamemode
 lib32-vulkan-radeon
@@ -84,6 +86,7 @@ pipewire-alsa
 pipewire-pulse
 playerctl
 plymouth
+poppler
 power-profiles-daemon
 python-gobject
 qt5-wayland
@@ -111,6 +114,7 @@ thunar-archive-plugin
 ttf-jetbrains-mono-nerd
 ttf-liberation
 tumbler
+udiskie
 ufw
 unzip
 vulkan-radeon
@@ -124,6 +128,7 @@ winetricks
 wireplumber
 wl-clipboard
 xdg-desktop-portal-hyprland
+yazi
 zathura
 zathura-pdf-mupdf
 zoxide

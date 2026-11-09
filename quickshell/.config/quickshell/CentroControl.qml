@@ -68,7 +68,14 @@ PanelWindow {
     readonly property var salida: Pipewire.defaultAudioSink
     // solo apps que SUENAN (Stream/Output); las que graban (p. ej. el replay) son Stream/Input
     readonly property var apps: Pipewire.nodes.values.filter(n => n.isStream && n.audio && n.properties["media.class"] === "Stream/Output/Audio")
-    PwObjectTracker { objects: [ventana.salida, ...ventana.apps] }
+    // dispositivos de salida (altavoces, Buds, HDMI…) y el micrófono por defecto
+    readonly property var salidas: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream && n.audio)
+    readonly property var entrada: Pipewire.defaultAudioSource
+    PwObjectTracker { objects: [ventana.salida, ventana.entrada, ...ventana.apps] }
+    function iconoSalida(n) {
+        const id = n.name ?? "";
+        return g(id.startsWith("bluez") ? 0xF02CB : id.includes("hdmi") ? 0xF0379 : 0xF04C3);
+    }
 
     // ── El panel ────────────────────────────────────────────────────────
     Rectangle {
@@ -188,6 +195,47 @@ PanelWindow {
                     onMovido: (v) => modelData.audio.volume = v
                     onIconoPulsado: modelData.audio.muted = !modelData.audio.muted
                 }
+            }
+
+            // Salida de audio: un chip por dispositivo; clic = sonar por ahí (solo si hay más de uno)
+            Flow {
+                Layout.fillWidth: true
+                spacing: 6
+                visible: ventana.salidas.length > 1
+                Repeater {
+                    model: ventana.salidas
+                    Rectangle {
+                        required property var modelData
+                        readonly property bool actual: modelData === ventana.salida
+                        width: filaSalida.implicitWidth + 18; height: 26; radius: 8
+                        color: actual ? Qt.alpha(Paleta.naranja, 0.22) : Qt.alpha(Paleta.texto, zonaSalida.containsMouse ? 0.10 : 0.05)
+                        Row {
+                            id: filaSalida
+                            anchors.centerIn: parent
+                            spacing: 6
+                            Text { text: ventana.iconoSalida(modelData); color: actual ? Paleta.naranja : Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
+                            Text {
+                                text: (modelData.nickname || modelData.description || modelData.name).replace(/ (Analog|Digital) Stereo$/, "")
+                                color: actual ? Paleta.texto : Paleta.gris
+                                font { family: Paleta.fuente; pixelSize: 10; bold: actual }
+                            }
+                        }
+                        MouseArea { id: zonaSalida; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                    onClicked: Pipewire.preferredDefaultAudioSink = modelData }
+                    }
+                }
+            }
+
+            // Micrófono (clic en el icono = silenciar / activar)
+            Deslizador {
+                Layout.fillWidth: true
+                visible: ventana.entrada?.audio !== undefined
+                readonly property bool mudo: ventana.entrada?.audio?.muted ?? true
+                icono: ventana.g(mudo ? 0xF036D : 0xF036C)
+                apagado: mudo
+                valor: ventana.entrada?.audio?.volume ?? 0
+                onMovido: (v) => { if (ventana.entrada?.audio) ventana.entrada.audio.volume = v; }
+                onIconoPulsado: { if (ventana.entrada?.audio) ventana.entrada.audio.muted = !mudo; }
             }
 
             // Brillo

@@ -24,6 +24,8 @@ ShellRoot {
     Portapapeles { id: portapapeles }
     Menu { id: menu }
     Conexiones { id: conexiones }
+    // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
+    readonly property bool conBateria: Cargador.conBateria
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
@@ -115,6 +117,13 @@ ShellRoot {
             return `wifi=${conexiones.wifi ? "si" : "no"} redes=${conexiones.redes.length} ` +
                    `bt=${conexiones.adaptador?.enabled ?? false} dispositivos=${conexiones.dispositivos.length}`;
         }
+    }
+
+    // Cargador.qml (enchufar/desenchufar)
+    IpcHandler {
+        target: "cargador"
+        function estado(): string { return Cargador.conBateria ? `batería · antes ${Cargador.perfilAntes}` : "cargador"; }
+        function simular(que: string): void { que === "bat" ? Cargador.alDesenchufar() : Cargador.alEnchufar(); }
     }
 
     IpcHandler {

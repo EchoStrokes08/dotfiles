@@ -6,6 +6,7 @@
 --   SUPER+Return  terminal flotante
 --   SUPER+Y       música (Spotify)
 --   SUPER+O       notas (nvim en ~/Documents/notas.md)
+--   SUPER+SHIFT+E archivos (yazi; SUPER+E sigue abriendo Thunar)
 --   SUPER+S       "magic" (el de siempre, para lo que quieras: SUPER+SHIFT+S manda la ventana)
 local p   = require("modulos.programas")
 local mod = p.mainMod
@@ -19,6 +20,8 @@ local scratchpads = {
       comando = p.spotify },
     { nombre = "notas",    tecla = "O",      clase = "scratch-notas",
       comando = "mkdir -p ~/Documents && " .. p.terminal .. " --class scratch-notas -e nvim " .. NOTAS },
+    { nombre = "archivos", tecla = "SHIFT + E", clase = "scratch-archivos",
+      comando = p.terminal .. " --class scratch-archivos -e yazi" },
 }
 
 for _, s in ipairs(scratchpads) do
@@ -37,10 +40,10 @@ for _, s in ipairs(scratchpads) do
     end)
 end
 
--- Terminal y notas: flotantes, centradas y de tamaño cómodo (Spotify se queda en mosaico, ocupando el scratchpad)
+-- Terminal, notas y archivos: flotantes, centradas y de tamaño cómodo (Spotify se queda en mosaico, ocupando el scratchpad)
 hl.window_rule({
     name   = "scratch-flotantes",
-    match  = { class = "^scratch-(terminal|notas)$" },
+    match  = { class = "^scratch-(terminal|notas|archivos)$" },
     float  = true,
     size   = "(monitor_w*0.6) (monitor_h*0.65)",
     center = true,

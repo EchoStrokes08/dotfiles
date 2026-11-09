@@ -72,6 +72,7 @@ Regla para recordar los atajos de ventanas:
 | `SUPER+Return` | Terminal flotante |
 | `SUPER+Y` | Música |
 | `SUPER+O` | Notas |
+| `SUPER+SHIFT+E` | Archivos (yazi) |
 | `SUPER+D` | Dashboard |
 | `SUPER+N` | Centro de control |
 | `SUPER+SHIFT+V` | Portapapeles |
@@ -179,6 +180,7 @@ barra para meterla. Una ventana agrupada tiene el borde amarillo → naranja.
 | `SUPER+Return` | Una terminal flotante, centrada |
 | `SUPER+Y` | Spotify |
 | `SUPER+O` | Notas: nvim con `~/Documents/notas.md` |
+| `SUPER+SHIFT+E` | Archivos: yazi (gestor de archivos de teclado) |
 | `SUPER+S` | El scratchpad libre «magic»: manda cualquier ventana con `SUPER+SHIFT+S` |
 
 - La misma tecla lo muestra y lo esconde. Lo de debajo no se mueve.
@@ -186,6 +188,26 @@ barra para meterla. Una ventana agrupada tiene el borde amarillo → naranja.
   sigue ahí.
 - Si Spotify ya estaba abierto en otro workspace, `SUPER+Y` lo trae en vez de abrir otro.
 - En las notas, `Espacio w` guarda y `Espacio q` sale.
+
+**Archivos con yazi** (`SUPER+SHIFT+E`, o `y` en la terminal). Tres columnas: carpeta de arriba · actual ·
+vista previa (imágenes, PDF, videos y comprimidos se ven ahí mismo).
+
+| Tecla | Qué hace |
+|---|---|
+| `↑↓` o `j` `k` | Moverse |
+| `→` / `Enter` · `←` | Entrar / abrir con su app · subir |
+| `Espacio` | Marcar (para copiar o mover varios) |
+| `y` · `x` · `p` | Copiar · cortar · pegar |
+| `d` · `a` · `r` | A la papelera · crear (termina en `/` para carpeta) · renombrar |
+| `/` · `z` | Buscar en la carpeta · saltar a una carpeta (zoxide) |
+| `.` | Mostrar / ocultar archivos ocultos |
+| `q` · `F1` | Salir · ayuda con todas las teclas |
+
+Con `y` en la terminal, al salir con `q` te quedas en la carpeta donde estabas en yazi.
+
+**USB y discos externos**: se montan solos al conectarlos (en `/run/media/oscar/<nombre>`) y sale un aviso con
+un botón para abrirlos en Thunar. Para expulsar: el icono que aparece en la bandeja mientras hay algo conectado,
+o `udiskie-umount -a` en la terminal. Espera a que desaparezca antes de sacarlo.
 
 ## 9. Gestos del touchpad
 
@@ -273,6 +295,7 @@ Los replays van a `~/Videos/Replays`.
 | **Juego** | `SUPER+SHIFT+G` (o solo al abrir Roblox) | Quita animaciones y efectos y silencia notificaciones, para ganar rendimiento |
 | **Concentración** | `SUPER+SHIFT+F` | Temporizador de 25, 50 o 90 min con No molestar; WhatsApp, Discord, Roblox y Steam se esconden y vuelven al terminar. Cuenta atrás en la barra (clic = +10 min o terminar) |
 | **Energía** | `SUPER+SHIFT+P` | Ahorro → equilibrado → rendimiento |
+| **Batería** | Solo, al desenchufar | Pasa a «ahorro» y quita blur y sombras. Al enchufar vuelve tu modo anterior y la apariencia normal. Si con batería eliges otro modo a mano, se respeta |
 | **No molestar** | `SUPER+SHIFT+N` | Las notificaciones se guardan sin aparecer |
 | **Luz nocturna** | `SUPER+ALT+N` | Pantalla cálida (menos luz azul). Se enciende sola a las 20:30 y se apaga a las 7:00 (horario en `~/.config/hypr/hyprsunset.conf`); el atajo la cambia a mano hasta el siguiente cambio de horario |
 
@@ -283,6 +306,9 @@ Los replays van a `~/Videos/Replays`.
 - Las teclas de volumen, micrófono, brillo y música funcionan siempre, incluso con la pantalla bloqueada, y
   muestran un aviso (OSD) en pantalla.
 - El OSD también avisa cuando activas o desactivas Bloq Mayús.
+- En el centro de control (`SUPER+N`): volumen general y de cada app, **micrófono** (clic en su icono lo
+  silencia o activa) y, si hay más de una salida (altavoces, Buds, HDMI), un botón por cada una: clic = el
+  sonido va por ahí.
 - **Redmi Buds**: `SUPER+SHIFT+B` cambia de modo (ANC → transparencia → apagado); `SUPER+B` abre Buds Manager.
   En la terminal, `buds status`, `buds battery`, etc. (`buds <comando> --help` para más).
 
@@ -312,11 +338,15 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | Qué app va a qué workspace, ventanas flotantes | `reglas.lua` |
 | Pantallas | `monitores.lua` |
 | Programas al iniciar | `autostart.lua` |
+| Apps de los scratchpads | `scratchpads.lua` |
+| Qué se apaga con batería | `bateria.lua` (y el perfil, en `~/.config/quickshell/Cargador.qml`) |
 | Colores | No a mano: `SUPER+SHIFT+T` o `~/.config/hypr/scripts/tema.sh` |
 
 **Cómo probar un cambio**:
 
-1. Antes de tocar un archivo, haz una copia: `cp archivo.lua archivo.lua.bak-FECHA`.
+1. No hace falta copiar el archivo antes: git guarda cada versión (`git diff` muestra qué cambiaste y
+   `git checkout -- archivo` lo deja como en el último commit). Además snapper guarda `/home` cada hora
+   (`snapper -c home list`; los archivos de cada snapshot están en `/home/.snapshots/N/snapshot/`).
 2. Guarda el archivo y recarga: `hyprctl reload`.
 3. Comprueba errores: `hyprctl configerrors` (si sale vacío, todo bien). Un error en un módulo no rompe los demás.
 4. Si va bien, haz commit en `~/dotfiles`.
@@ -334,7 +364,7 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | Problema | Solución |
 |---|---|
 | Los atajos no responden: estás atrapado en un modo (submap) | `Esc`; si no, en una terminal: `hyprctl dispatch 'hl.dsp.submap("reset")'` |
-| Sale un aviso rojo arriba tras editar la config | `hyprctl configerrors` dice el archivo y la línea; vuelve a la copia `.bak` si hace falta |
+| Sale un aviso rojo arriba tras editar la config | `hyprctl configerrors` dice el archivo y la línea; `git checkout -- archivo` lo deja como en el último commit |
 | La pantalla de bloqueo se cuelga | `Ctrl+Alt+F3`, entra con tu usuario, ejecuta `~/.config/hypr/scripts/desbloqueo-emergencia.sh`, vuelve con `Ctrl+Alt+F1` y desbloquea |
 | La barra, el lanzador o las notificaciones desaparecieron | Quickshell se cerró: en una terminal, `qs -d` lo vuelve a arrancar (los scripts usan fuzzel mientras tanto) |
 | Todo en mayúsculas aunque Bloq Mayús parece apagado | Tienes dos teclados y uno quedó con Bloq Mayús activo: púlsalo en el otro teclado (el OSD avisa) |

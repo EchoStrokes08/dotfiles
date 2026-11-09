@@ -82,6 +82,16 @@ alias ...='cd ../..'
 alias rz='exec zsh'                 # recargar zsh tras editar este archivo
 alias actualizar='yay -Syu'
 
+# y: abre yazi (gestor de archivos) y al salir con q te deja en la carpeta donde estabas
+# (Q sale sin cambiar de carpeta). yazi escribe la carpeta final en un archivo temporal.
+y() {
+    local tmp="$(mktemp -t yazi-cwd.XXXXXX)" cwd
+    yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd < "$tmp"
+    [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+    rm -f -- "$tmp"
+}
+
 # sudo con envío automático: la contraseña se comprueba sola al escribir su último carácter.
 # Comparte la longitud aprendida con la pantalla de bloqueo (~/.local/state/bloqueo/longitud;
 # nunca se guarda la clave). Si cambias de contraseña: Enter una vez y la aprende. Si la nueva es
