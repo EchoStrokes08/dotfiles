@@ -6,6 +6,7 @@
 #   4. Snapshots  snapper + snap-pac + grub-btrfs: volver atrás si una actualización rompe algo
 #   5. Limpieza   paccache semanal, quitar tlp (choca con power-profiles-daemon)
 #   6. Apps por defecto  imágenes→imv, PDF→zathura, video→mpv
+#   7. Hub USB    no dejar que se duerma el hub del teclado+ratón (se desconectaba solo)
 #
 # Uso (SIN sudo; lo pide él):  ~/dotfiles/instalar/sistema-base.sh [--simular]
 # Idempotente: si algo ya está hecho, lo salta.
@@ -139,6 +140,20 @@ for m in image/png image/jpeg image/webp image/gif image/bmp image/avif image/sv
 [ -n "$ZATH" ] && run xdg-mime default "$ZATH" application/pdf
 for m in video/mp4 video/x-matroska video/webm video/quicktime video/x-msvideo audio/mpeg audio/flac audio/ogg; do run xdg-mime default mpv.desktop "$m"; done
 ok "imágenes→imv, PDF→zathura, video/audio→mpv"
+
+# ── 7. Hub USB del teclado y ratón ──────────────────────────────────────
+# El hub barato (214b:7250 "USB2.0 HUB") se desconectaba y reconectaba solo (error -71).
+# El kernel duerme los hubs USB al instante (autosuspend 0 ms) y este hub no despierta bien.
+# Esta regla lo mantiene siempre encendido. Si aun así falla: otro puerto o cable.
+paso "Hub USB siempre encendido"
+escribir /etc/udev/rules.d/50-hub-usb-sin-suspender.rules <<'REGLA'
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="214b", ATTR{idProduct}=="7250", TEST=="power/control", ATTR{power/control}="on"
+REGLA
+run sudo udevadm control --reload && ok "reglas udev recargadas"
+for d in /sys/bus/usb/devices/*; do
+    [ "$(cat "$d/idVendor" 2>/dev/null):$(cat "$d/idProduct" 2>/dev/null)" = "214b:7250" ] || continue
+    run sudo sh -c "echo on > $d/power/control" && ok "hub $(basename "$d"): encendido ya, sin reiniciar"
+done
 
 paso "Listo"
 echo "  Comprueba:"

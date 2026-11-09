@@ -43,8 +43,10 @@ hypridle
 hyprland
 hyprlock
 hyprpaper
+hyprpicker
 hyprpolkitagent
 hyprshot
+hyprsunset
 imv
 inotify-tools
 kitty
