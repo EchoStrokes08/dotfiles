@@ -212,6 +212,7 @@ RowLayout {
 
     // ── Batería (UPower) ─────────────────────────────────────────────────
     Modulo {
+        id: bateria
         readonly property var bat: UPower.displayDevice
         readonly property real carga: bat ? (bat.percentage > 1 ? bat.percentage / 100 : bat.percentage) : 0
         readonly property int pct: Math.round(carga * 100)
@@ -223,8 +224,15 @@ RowLayout {
         icono: derecha.g(cargando ? 0xF0084 : pct >= 95 ? 0xF0079 : 0xF007A + Math.max(0, Math.min(8, Math.floor(pct / 10) - 1)))
         texto: pct + "%"
         color: cargando ? Paleta.verde : pct <= 15 ? Paleta.rojo : pct <= 30 ? Paleta.amarillo : Paleta.texto
-        ayuda: cargando ? (bat?.timeToFull > 0 ? "Enchufada · llena en " + duracion(bat.timeToFull) : "Enchufada")
-                        : (bat?.timeToEmpty > 0 ? "Quedan " + duracion(bat.timeToEmpty) : "Batería")
+        ayuda: (cargando ? (bat?.timeToFull > 0 ? "Enchufada · llena en " + duracion(bat.timeToFull) : "Enchufada")
+                         : (bat?.timeToEmpty > 0 ? "Quedan " + duracion(bat.timeToEmpty) : "Batería"))
+             + (conservacion ? "\nModo conservación: carga hasta ~80 %" : "\nCarga completa (100 %)")
+             + "\nBotón «Conservar» en el centro de control"
+        // Modo conservación de Lenovo (lo cambia el botón del centro de control; se lee cada 30 s)
+        property bool conservacion: false
+        FileView { id: archivoConserv; path: "/sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode"; blockLoading: true }
+        Timer { interval: 30000; running: true; repeat: true; triggeredOnStart: true
+                onTriggered: { archivoConserv.reload(); bateria.conservacion = archivoConserv.text().trim() === "1"; } }
     }
 
     // ── Modo de energía (power-profiles-daemon) ──────────────────────────

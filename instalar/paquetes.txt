@@ -101,6 +101,7 @@ ripgrep
 scrcpy
 sddm
 slurp
+smartmontools
 snap-pac
 snapper
 sof-firmware

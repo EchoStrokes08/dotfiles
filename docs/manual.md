@@ -25,7 +25,7 @@ La lista completa de atajos y comandos está en el [README](../README.md#todos-l
 15. [Bloqueo, inactividad y apagado](#15-bloqueo-inactividad-y-apagado)
 16. [Cambiar la configuración](#16-cambiar-la-configuración)
 17. [Si algo falla](#17-si-algo-falla)
-18. [Copias de seguridad y memoria](#18-copias-de-seguridad-y-memoria)
+18. [Copias de seguridad, memoria y salud del equipo](#18-copias-de-seguridad-memoria-y-salud-del-equipo)
 
 ---
 
@@ -310,6 +310,10 @@ Los replays van a `~/Videos/Replays`.
 - En el centro de control (`SUPER+N`): volumen general y de cada app, **micrófono** (clic en su icono lo
   silencia o activa) y, si hay más de una salida (altavoces, Buds, HDMI), un botón por cada una: clic = el
   sonido va por ahí.
+- **Batería**: el botón **Conservar** del centro de control (encendido por defecto) hace que la batería pare
+  de cargar en ~80 %: dura muchos más años. Apágalo solo cuando necesites el 100 % (un viaje) y vuelve a
+  encenderlo después. El tooltip de la batería en la barra dice en qué modo está.
+- **Luz noche** en el centro de control hace lo mismo que `SUPER+ALT+N`.
 - **Redmi Buds**: `SUPER+SHIFT+B` cambia de modo (ANC → transparencia → apagado); `SUPER+B` abre Buds Manager.
   En la terminal, `buds status`, `buds battery`, etc. (`buds <comando> --help` para más).
 
@@ -373,9 +377,12 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | Una ventana nueva tapa la terminal desde la que la abriste | Es el *swallow*: al cerrar la app vuelve la terminal. Para desactivarlo: `enable_swallow = false` en `sistema.lua` |
 | Prefieres huecos aunque haya una sola ventana | Comenta las 4 líneas de *smart gaps* en `apariencia.lua` |
 | Un gesto se siente lento o brusco | Añade `scale = 1.5` (o lo que te guste) a ese gesto en `entrada.lua` |
+| Necesito el menú de arranque (otro sistema, volver a un snapshot) | Mantén **Esc** (o Shift) justo al encender: GRUB está oculto y espera solo 1 s |
+| La Wi-Fi de un hotel/aeropuerto no abre su página de acceso | `dns-cifrado off`, entra, y luego `dns-cifrado on` |
+| Aviso «⚠ Disco» | El SSD empieza a fallar: `respaldo ahora` con el disco TOSHIBA conectado, y piensa en cambiarlo |
 | Reinstalar todo en otro equipo | `bash <(curl -fsSL https://raw.githubusercontent.com/EchoStrokes08/dotfiles/main/instalar.sh)` |
 
-## 18. Copias de seguridad y memoria
+## 18. Copias de seguridad, memoria y salud del equipo
 
 **Copias de seguridad.** Van al disco externo **TOSHIBA EXT**, carpeta `OSCAR/hyprland`, **cifradas** (en Windows
 solo se ven archivos ilegibles: no los toques ni los borres). Lo demás del disco no se toca.
@@ -414,3 +421,17 @@ Windows, apaga el «Inicio rápido» y expúlsalo siempre antes de desconectarlo
 avisa. Elige primero pestañas del navegador y apps web (WhatsApp, Discord, VS Code); nunca Hyprland, la barra,
 kitty ni el audio. Si te cierra algo, es que tenías demasiado abierto. Configuración: `/etc/default/earlyoom`
 (gestionado desde `instalar/sistema-base.sh`).
+
+**Salud del SSD.** `smartd` lo vigila: si aparecen errores, se gasta la reserva o pasa de 75 °C, sale un aviso
+«⚠ Disco». Verlo a mano: `sudo smartctl -a /dev/nvme0n1` (lo importante: *Percentage Used* = desgaste,
+*Media and Data Integrity Errors* = 0). En noviembre de 2026: 7 % de desgaste, 0 errores.
+
+**Firmware** (BIOS, SSD…): se comprueba solo cada semana. `fwupdmgr get-updates` para ver si hay y
+`fwupdmgr update` para instalar (con el cargador puesto).
+
+**DNS cifrado.** Las consultas DNS (qué web visitas) van cifradas a Quad9, que además bloquea dominios de malware.
+`dns-cifrado estado` dice si está activo. En una Wi-Fi con página de acceso (hotel, aeropuerto) que no carga:
+`dns-cifrado off`, entra, y `dns-cifrado on`.
+
+**Arranque**: unos 20 s. De ellos ~9 s son de la BIOS antes de Linux: si quieres arañarlos, entra en la BIOS
+(F2 al encender) y activa *Fast Boot* (o *Quick Boot*).

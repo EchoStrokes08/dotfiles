@@ -113,10 +113,10 @@ PanelWindow {
                 }
             }
 
-            // Botones rápidos (4 por fila)
+            // Botones rápidos (5 por fila)
             GridLayout {
                 Layout.fillWidth: true
-                columns: 4
+                columns: 5
                 columnSpacing: 8; rowSpacing: 8
                 Repeater {
                     model: [
@@ -124,6 +124,8 @@ PanelWindow {
                         { icono: 0xF00AF, nombre: "Bluetooth",   cosa: "bluetooth" },
                         { icono: 0xF044B, nombre: "Replay",      cosa: "replay" },
                         { icono: 0xF140B, nombre: "Rendimiento", cosa: "rendimiento" },
+                        { icono: 0xF032A, nombre: "Conservar",   cosa: "conservacion" },   // batería hasta ~80 %
+                        { icono: 0xF0594, nombre: "Luz noche",   cosa: "luz" },
                         { icono: 0xF02CB, nombre: "Buds",        cmd: "~/.local/bin/buds mode next --notify" },
                         { icono: 0xF0E51, nombre: "Captura",     cmd: "sleep 0.4 && mkdir -p ~/Imágenes/screenshots && grim -g \"$(slurp)\" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy", cerrar: true },
                         { icono: 0xF033E, nombre: "Bloquear",    cmd: "loginctl lock-session", cerrar: true },

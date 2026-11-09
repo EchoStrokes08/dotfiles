@@ -202,6 +202,12 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Touchpad | Tocar = clic; al hundirlo, 1 dedo = clic, 2 = derecho, 3 = central; se ignora mientras escribes |
 | Cursor | Se esconde al teclear y tras 5 s quieto; vuelve al mover el ratón |
 | Cargador | Al desenchufar: perfil «ahorro» y sin blur ni sombras. Al enchufar: vuelve el perfil anterior y la apariencia normal (`Cargador.qml` + `modulos/bateria.lua`; respeta el modo juego) |
+| Disco (SSD) | smartd lo vigila y avisa en el escritorio si aparecen errores o pasa de 75 °C (`/etc/smartd.conf`) |
+| Firmware | `fwupd-refresh.timer` busca actualizaciones de BIOS/SSD; instalarlas: `fwupdmgr update` |
+| Caché de pacman | Cada semana deja solo la última versión de cada paquete |
+| DNS | Cifrado (DNS-over-TLS, Quad9 + Cloudflare): el operador y la Wi-Fi no ven qué webs visitas. `dns-cifrado off` para Wi-Fi con página de acceso |
+| Memoria | Si se acaba la RAM, earlyoom cierra una app (pestañas/apps web primero) y avisa |
+| Arranque | GRUB sin menú (1 s). **Esc o Shift** al encender lo muestra (con los snapshots para volver atrás) |
 | USB | udiskie los monta en `/run/media/oscar/<nombre>` y avisa (botón para abrir en Thunar). Expulsar: icono de la bandeja o `udiskie-umount -a` |
 
 ### Gestos del touchpad
@@ -270,7 +276,8 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `capturas.sh` · `region` · `pantalla` · `ventana` · `temporizador` | Menú / captura directa |
 | `replay.sh start` · `save` · `toggle` | Replay: arrancar / guardar 30 s / encender-apagar |
 | `conmutadores.sh todos` | Estado de Wi-Fi, Bluetooth, replay y rendimiento |
-| `conmutadores.sh wifi on` · `off` · `estado` | Igual para `bluetooth`, `replay`, `rendimiento` |
+| `conmutadores.sh wifi on` · `off` · `estado` | Igual para `bluetooth`, `replay`, `rendimiento`, `conservacion` (batería hasta ~80 %), `luz` |
+| `dns-cifrado.sh on` · `off` · `estado` | DNS cifrado (alias `dns-cifrado` en zsh) |
 | `modo-energia.sh` | Siguiente modo de energía |
 | `inspector.sh` | Datos de la ventana activa (lo que hace `SUPER+I`) |
 | `bloquear.sh` | Bloquear (Quickshell; si no responde, hyprlock) |
@@ -287,7 +294,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `~/dotfiles/instalar.sh --simular` · `--sin-sistema` · `--solo PASO` | Simular / solo el usuario / un paso |
 | `~/dotfiles/instalar/actualizar-listas.sh` | Regenerar las listas de paquetes desde este sistema |
 | `~/dotfiles/instalar/apps-ayu.sh` | Instalar Vesktop y spicetify con el tema Ayu |
-| `~/dotfiles/instalar/sistema-base.sh [--simular]` | Snapshots (snapper + GRUB), zram, firewall, soporte de USB/celular, visores, llavero, limpieza de caché |
+| `~/dotfiles/instalar/sistema-base.sh [--simular]` | Snapshots (snapper + GRUB), zram, firewall, USB/celular, visores, llavero, caché, hub USB, earlyoom, vigilancia del SSD, firmware, GRUB rápido, botón de conservación de batería y DNS cifrado |
 | `sudo ~/.config/hypr/temas-arranque/instalar.sh` | Temas de SDDM y GRUB |
 | `sudo ~/.config/hypr/temas-arranque/instalar-plymouth-osd.sh` | Plymouth (pantalla de arranque) |
 | `systemctl --user unmask swaync` | Volver a swaync (y cerrar Quickshell) |
@@ -302,6 +309,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `..` · `...` | Subir una / dos carpetas |
 | `rz` | Recargar zsh |
 | `actualizar` | `yay -Syu` |
+| `dns-cifrado off` · `on` · `estado` | Apagar el DNS cifrado para una Wi-Fi con página de acceso / volver a encenderlo |
 | `y [carpeta]` | yazi; al salir con `q` la terminal se queda en la carpeta donde estabas (`Q` no cambia) |
 | `zplug-actualizar` | Actualizar los plugins de zsh |
 | `Ctrl+R` · `Ctrl+T` · `Alt+C` | Buscar en el historial / archivos / carpetas (fzf) |

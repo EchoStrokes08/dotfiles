@@ -147,7 +147,8 @@ Rectangle {
                             id: zonaAccion
                             anchors.fill: parent
                             hoverEnabled: true
-                            onClicked: { modelData.invoke(); if (!tarjeta.noti.resident) tarjeta.noti.dismiss(); }
+                            // guardar la noti ANTES de invocar: la acción puede cerrarla y destruir esta tarjeta
+                            onClicked: { const n = tarjeta.noti, residente = n.resident; modelData.invoke(); if (!residente && n) n.dismiss(); }
                         }
                     }
                 }

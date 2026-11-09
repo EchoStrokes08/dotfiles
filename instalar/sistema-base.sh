@@ -8,6 +8,10 @@
 #   6. Apps por defecto  imágenes→imv, PDF→zathura, video→mpv
 #   7. Hub USB    no dejar que se duerma el hub del teclado+ratón (se desconectaba solo)
 #   8. earlyoom   si se acaba la RAM, cierra UNA app (pestañas/apps web primero) en vez de congelarse
+#   9. Salud      aviso si el SSD falla (smartd), firmware semanal (fwupd), caché de pacman: 1 versión
+#  10. Arranque  GRUB sin menú (1 s; Esc o Shift al encender lo muestra)
+#  11. Batería   el botón «Conservar» del centro de control puede cambiar el modo conservación de Lenovo
+#  12. DNS       cifrado (DNS-over-TLS, Quad9 + Cloudflare); `dns-cifrado off` para Wi-Fi con portal
 #
 # Uso (SIN sudo; lo pide él):  ~/dotfiles/instalar/sistema-base.sh [--simular]
 # Idempotente: si algo ya está hecho, lo salta.
@@ -184,6 +188,94 @@ escribir /etc/default/earlyoom <<'CONF'
 EARLYOOM_ARGS="-m 5 -s 10 -r 3600 -n --avoid (^|/)(init|systemd|sddm|Hyprland|Xwayland|qs|kitty|zsh|pipewire|pipewire-pulse|wireplumber|hypridle|dbus-daemon|dbus-broker)$ --prefer (^|/)(Isolated.Web.Co|Web.Content|QtWebEngineProc|electron|code-oss|vesktop|zapzap|java)$"
 CONF
 run sudo systemctl enable --quiet earlyoom && run sudo systemctl restart earlyoom && ok "earlyoom activo"
+
+# ── 9. Salud del equipo ─────────────────────────────────────────────────
+paso "Salud: SSD, firmware y caché"
+run sudo pacman -S --needed --noconfirm smartmontools >/dev/null && ok "smartmontools"
+escribir /usr/local/bin/aviso-disco <<'AVISO'
+#!/bin/sh
+# Lo llama smartd (-M exec) cuando el SSD da un aviso: lo pasa a las notificaciones del escritorio
+# (systembus-notify). smartd pone el texto en $SMARTD_MESSAGE. Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+dbus-send --system / net.nuetzlich.SystemNotifications.Notify \
+    "string:⚠ Disco: ${SMARTD_FAILTYPE:-aviso}" "string:${SMARTD_MESSAGE:-smartd detectó un problema} · haz una copia: respaldo ahora"
+AVISO
+run sudo chmod 755 /usr/local/bin/aviso-disco
+DISCO=$(lsblk -dno NAME,TYPE | awk '$2=="disk" && $1 ~ /^nvme/ {print "/dev/"$1; exit}')
+[ -f /etc/smartd.conf.original ] || run sudo cp /etc/smartd.conf /etc/smartd.conf.original
+escribir /etc/smartd.conf <<SMART
+# smartd: vigila la salud del SSD y avisa en el escritorio (/usr/local/bin/aviso-disco) si:
+#   -a          cambia algo importante de SMART (errores, reserva de bloques, desgaste, aviso crítico)
+#   -W 0,60,75  la temperatura pasa de 60 °C (anotado) o 75 °C (aviso)
+# Original de Arch: /etc/smartd.conf.original. Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+${DISCO:-DEVICESCAN} -a -W 0,60,75 -m <nomailer> -M exec /usr/local/bin/aviso-disco
+SMART
+escribir /etc/systemd/system/paccache.service.d/una-version.conf <<'PACC'
+# Cada semana: dejar solo la última versión de cada paquete (los snapshots de snapper ya permiten volver
+# atrás) y borrar las de paquetes desinstalados. Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+[Service]
+Environment=PACCACHE_ARGS=-k1
+ExecStartPost=/usr/bin/paccache -ruk0
+PACC
+run sudo systemctl daemon-reload
+run sudo systemctl enable --quiet --now smartd fwupd-refresh.timer && ok "smartd + fwupd-refresh.timer"
+
+# ── 10. Arranque ────────────────────────────────────────────────────────
+# GRUB esperaba 5 s con el menú. Oculto + 1 s: Esc o Shift al encender lo muestra (snapshots incluidos).
+paso "Arranque rápido (GRUB)"
+if grep -qE '^GRUB_TIMEOUT=1$' /etc/default/grub && grep -qE '^GRUB_TIMEOUT_STYLE=hidden$' /etc/default/grub; then
+    ok "GRUB ya estaba en 1 s / oculto"
+else
+    run sudo sed -i -E 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/; s/^#?GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=hidden/' /etc/default/grub
+    run sudo grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1 && ok "GRUB: 1 s, menú oculto"
+fi
+
+# ── 11. Modo conservación de la batería (Lenovo) ────────────────────────
+paso "Batería: modo conservación sin sudo"
+if ls /sys/bus/platform/drivers/ideapad_acpi/*/conservation_mode >/dev/null 2>&1; then
+    escribir /etc/tmpfiles.d/conservacion-bateria.conf <<'TMPF'
+# Modo conservación de Lenovo (la batería para de cargar en ~80 % para durar más años):
+# dejar que el grupo wheel lo cambie sin sudo (botón «Conservar» del centro de control de Quickshell).
+# Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+z /sys/bus/platform/drivers/ideapad_acpi/*/conservation_mode 0664 root wheel - -
+TMPF
+    run sudo systemd-tmpfiles --create /etc/tmpfiles.d/conservacion-bateria.conf && ok "conservation_mode escribible por wheel"
+else
+    ok "no es un Lenovo ideapad: nada que hacer"
+fi
+
+# ── 12. DNS cifrado ─────────────────────────────────────────────────────
+paso "DNS cifrado (DNS-over-TLS)"
+escribir /etc/systemd/resolved.conf.d/dns-cifrado.conf <<'DNS'
+# DNS cifrado (DNS-over-TLS): ni el operador ni la red Wi-Fi ven qué páginas visitas.
+#   Quad9 (bloquea dominios de malware/phishing) y Cloudflare de respaldo; IPv4 e IPv6.
+#   Domains=~.  → usar ESTOS para todo, no los que da el router.
+# Comprobar:  resolvectl status   (debe salir +DNSOverTLS)
+# Si una Wi-Fi de hotel/aeropuerto no abre su página de acceso: dns-cifrado off  (y luego on)
+# Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+[Resolve]
+DNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 1.1.1.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com
+FallbackDNS=
+Domains=~.
+DNSOverTLS=yes
+DNSSEC=no
+DNS
+escribir /etc/NetworkManager/conf.d/dns.conf <<'NMDNS'
+# DNS cifrado: NetworkManager NO pasa a resolved el DNS del router/operador (iría sin cifrar);
+# se usan solo los de /etc/systemd/resolved.conf.d/dns-cifrado.conf. Para Wi-Fi con portal: dns-cifrado off
+[main]
+dns=none
+NMDNS
+run sudo systemctl enable --quiet --now systemd-resolved
+if [ "$SIMULAR" = 0 ] && [ "$(readlink /etc/resolv.conf)" != /run/systemd/resolve/stub-resolv.conf ]; then
+    sudo cp /etc/resolv.conf /etc/resolv.conf.antes-dns-cifrado
+    sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    sudo nmcli general reload conf
+    if getent hosts archlinux.org >/dev/null; then ok "DNS cifrado activo"
+    else aviso "el DNS no responde: vuelvo al anterior"; sudo rm -f /etc/NetworkManager/conf.d/dns.conf /etc/resolv.conf
+         sudo cp /etc/resolv.conf.antes-dns-cifrado /etc/resolv.conf; sudo nmcli general reload conf; fi
+else
+    ok "resolv.conf ya apunta a systemd-resolved"
+fi
 
 paso "Listo"
 echo "  Comprueba:"

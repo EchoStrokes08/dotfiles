@@ -81,6 +81,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias rz='exec zsh'                 # recargar zsh tras editar este archivo
 alias actualizar='yay -Syu'
+alias dns-cifrado='~/.config/hypr/scripts/dns-cifrado.sh'   # on · off (Wi-Fi con portal) · estado
 
 # y: abre yazi (gestor de archivos) y al salir con q te deja en la carpeta donde estabas
 # (Q sale sin cambiar de carpeta). yazi escribe la carpeta final en un archivo temporal.
