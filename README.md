@@ -23,7 +23,7 @@ que estorben se mueven a `~/.respaldo-dotfiles-FECHA/`, nunca se borran.
 ~/dotfiles/instalar.sh --simular        # ver qué haría, sin tocar nada
 ~/dotfiles/instalar.sh --sin-sistema    # solo tu usuario: sin /etc, servicios ni arranque
 ~/dotfiles/instalar.sh --solo dotfiles  # un único paso (repos paquetes aur flatpak dotfiles
-                                        #   tema buds sistema arranque apps)
+                                        #   tema buds sistema base arranque apps)
 ```
 
 Cuando instales algo nuevo, actualiza las listas y haz commit:
@@ -274,6 +274,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `~/dotfiles/instalar.sh --simular` · `--sin-sistema` · `--solo PASO` | Simular / solo el usuario / un paso |
 | `~/dotfiles/instalar/actualizar-listas.sh` | Regenerar las listas de paquetes desde este sistema |
 | `~/dotfiles/instalar/apps-ayu.sh` | Instalar Vesktop y spicetify con el tema Ayu |
+| `~/dotfiles/instalar/sistema-base.sh [--simular]` | Snapshots (snapper + GRUB), zram, firewall, soporte de USB/celular, visores, llavero, limpieza de caché |
 | `sudo ~/.config/hypr/temas-arranque/instalar.sh` | Temas de SDDM y GRUB |
 | `sudo ~/.config/hypr/temas-arranque/instalar-plymouth-osd.sh` | Plymouth (pantalla de arranque) |
 | `systemctl --user unmask swaync` | Volver a swaync (y cerrar Quickshell) |

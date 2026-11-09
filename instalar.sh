@@ -8,7 +8,7 @@
 #
 #   --simular      muestra lo que haría, sin cambiar nada
 #   --sin-sistema  no toca /etc, servicios, GRUB ni Plymouth (solo tu usuario)
-#   --solo PASO    corre un único paso: repos paquetes aur flatpak dotfiles tema buds sistema arranque apps
+#   --solo PASO    corre un único paso: repos paquetes aur flatpak dotfiles tema buds sistema base arranque apps
 #
 # Es idempotente: correrlo dos veces no rompe nada, salta lo que ya está hecho.
 # Los archivos que estorben a stow se mueven a ~/.respaldo-dotfiles-FECHA/ (nunca se borran).
@@ -236,6 +236,7 @@ toca dotfiles &&                     { paso "Dotfiles (stow)";  paso_dotfiles ||
 toca tema     &&                     { paso "Paleta";           paso_tema     || aviso "paso tema con errores"; }
 toca buds     &&                     { paso "Buds Manager";     paso_buds     || aviso "paso buds con errores"; }
 toca sistema  && [ $SISTEMA = 1 ] && { paso "Sistema";          paso_sistema  || aviso "paso sistema con errores"; }
+toca base     && [ $SISTEMA = 1 ] && { paso "Sistema base";     run "$DOT/instalar/sistema-base.sh" $([ $SIMULAR = 1 ] && echo --simular) || aviso "paso base con errores"; }
 toca arranque && [ $SISTEMA = 1 ] && { paso "Arranque";         paso_arranque || aviso "paso arranque con errores"; }
 toca apps     &&                     { paso "Apps";             paso_apps     || aviso "paso apps con errores"; }
 
