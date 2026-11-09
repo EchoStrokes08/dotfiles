@@ -152,7 +152,14 @@ PanelWindow {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: modelData.cosa ? ventana.conmutar(modelData.cosa) : ventana.ejecutar(modelData.cmd, modelData.cerrar)
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            // clic derecho en Wi-Fi/Bluetooth: abrir la lista (Conexiones.qml)
+                            onClicked: (e) => {
+                                if (e.button === Qt.RightButton && (modelData.cosa === "wifi" || modelData.cosa === "bluetooth"))
+                                    ventana.ejecutar("qs ipc call conexiones " + modelData.cosa, true);
+                                else if (e.button === Qt.LeftButton)
+                                    modelData.cosa ? ventana.conmutar(modelData.cosa) : ventana.ejecutar(modelData.cmd, modelData.cerrar);
+                            }
                         }
                     }
                 }

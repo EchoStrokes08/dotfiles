@@ -66,6 +66,9 @@ u.atajos({
     -- Portapapeles
     { mod .. " + SHIFT + V", exec("qs ipc call portapapeles toggle") },
 
+    -- Wi-Fi y Bluetooth (Quickshell: Conexiones.qml). Tab cambia de pestaña dentro del panel
+    { mod .. " + K", exec("qs ipc call conexiones toggle") },
+
     -- Capturas (archivo en ~/Imágenes/screenshots + portapapeles)
     { "PRINT",            exec([[mkdir -p ~/Imágenes/screenshots && grim -g "$(slurp)" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
     { mod .. " + PRINT",  exec([[mkdir -p ~/Imágenes/screenshots && grim - - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },

@@ -23,6 +23,7 @@ ShellRoot {
     Wallpapers { id: wallpapers }
     Portapapeles { id: portapapeles }
     Menu { id: menu }
+    Conexiones { id: conexiones }
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
@@ -65,7 +66,8 @@ ShellRoot {
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
     function cerrarTodo() { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
-                            wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false; }
+                            wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
+                            conexiones.abierto = false; }
     IpcHandler {
         target: "wallpapers"
         function toggle(): void { const a = wallpapers.abierto; cerrarTodo(); wallpapers.abierto = !a; }
@@ -99,6 +101,19 @@ ShellRoot {
                 { icono: 0xF10AC, texto: "Ventana activa",    cmd: c + "ventana" },
                 { icono: 0xF051B, texto: "Pantalla en 5 s",   cmd: c + "temporizador" }
             ]);
+        }
+    }
+
+    // Wi-Fi y Bluetooth (SUPER+K, clic en la red de la barra, clic derecho en los botones del centro)
+    //   qs ipc call conexiones toggle · wifi · bluetooth · estado
+    IpcHandler {
+        target: "conexiones"
+        function toggle(): void { const a = conexiones.abierto; cerrarTodo(); conexiones.abierto = !a; }
+        function wifi(): void { cerrarTodo(); conexiones.abrirEn("wifi"); }
+        function bluetooth(): void { cerrarTodo(); conexiones.abrirEn("bluetooth"); }
+        function estado(): string {
+            return `wifi=${conexiones.wifi ? "si" : "no"} redes=${conexiones.redes.length} ` +
+                   `bt=${conexiones.adaptador?.enabled ?? false} dispositivos=${conexiones.dispositivos.length}`;
         }
     }
 

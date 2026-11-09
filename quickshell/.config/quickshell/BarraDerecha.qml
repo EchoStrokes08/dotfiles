@@ -184,8 +184,8 @@ RowLayout {
         icono: derecha.g(tipo === "wifi" ? 0xF0928 : tipo === "ethernet" ? 0xF0200 : 0xF092D)
         texto: tipo === "" ? "sin red" : tipo === "wifi" ? nombre : ""
         color: tipo === "" ? Paleta.rojo : Paleta.texto
-        ayuda: (detalle || "Sin conexión") + "\nClic: nmtui"
-        onClic: derecha.ejecutar("kitty -e nmtui")
+        ayuda: (detalle || "Sin conexión") + "\nClic: redes Wi-Fi · clic derecho: nmtui"
+        onClic: (b) => derecha.ejecutar(b === Qt.RightButton ? "kitty -e nmtui" : "qs ipc call conexiones wifi")
     }
 
     // ── Brillo ──────────────────────────────────────────────────────────

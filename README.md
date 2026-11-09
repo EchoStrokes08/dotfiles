@@ -40,7 +40,7 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | `tema` | Paleta Ayu y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper |
 | `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (los scripts vuelven a fuzzel si Quickshell no responde) |
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
-| `quickshell` | **Barra superior** (workspaces, ventana activa, reloj, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones) , **dashboard** SUPER+D (reloj, espacios, calendario, sistema, tiempo de pantalla, música) , **lanzador de apps** SUPER+R, **OSD** de volumen/brillo/Bloq Mayús y **notificaciones** con centro de control SUPER+N , **pantalla de bloqueo** (hyprlock de respaldo) y selectores de **wallpapers**, **portapapeles** y **capturas**, en QML |
+| `quickshell` | **Barra superior** (workspaces, ventana activa, reloj, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones) , **dashboard** SUPER+D (reloj, espacios, calendario, sistema, tiempo de pantalla, música) , **lanzador de apps** SUPER+R, **OSD** de volumen/brillo/Bloq Mayús y **notificaciones** con centro de control SUPER+N , **pantalla de bloqueo** (hyprlock de respaldo) y selectores de **wallpapers**, **portapapeles**, **capturas** y **Wi-Fi/Bluetooth** SUPER+K, en QML |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide y fastfetch |
 | `gtk` | adw-gtk3 con colores Ayu e iconos Papirus-Ayu |
 | `btop` · `nvim` · `vscode` · `firefox` · `vesktop` · `spicetify` | Apps con el tema Ayu |
@@ -132,6 +132,7 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SUPER+SHIFT+W` | Selector de wallpapers |
 | `SUPER+CTRL+W` | Wallpaper al azar |
 | `SUPER+SHIFT+V` | Historial del portapapeles |
+| `SUPER+K` | Wi-Fi y Bluetooth (también: clic en la red de la barra, clic derecho en los botones del centro de control) |
 | `SUPER+SHIFT+B` | Buds: cambiar de modo (ANC → transparencia → apagado) |
 
 #### Capturas y grabación
@@ -225,6 +226,8 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `qs ipc call wallpapers toggle` | Selector de wallpapers |
 | `qs ipc call portapapeles toggle` | Historial del portapapeles |
 | `qs ipc call portapapeles copiarId 204` | Copiar la entrada 204 de cliphist |
+| `qs ipc call conexiones toggle` / `wifi` / `bluetooth` | Panel de Wi-Fi y Bluetooth (en esa pestaña) |
+| `qs ipc call conexiones estado` | Resumen: tarjeta Wi-Fi, redes vistas, Bluetooth, dispositivos |
 | `qs ipc call menu capturas` · `concentracion` · `cerrar` | Menús |
 | `qs ipc call notificaciones toggle` | Centro de control |
 | `qs ipc call notificaciones noMolestar` · `noMolestarSi` · `noMolestarNo` | No molestar: alternar / activar / desactivar |

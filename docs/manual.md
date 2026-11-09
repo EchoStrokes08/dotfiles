@@ -75,6 +75,7 @@ Regla para recordar los atajos de ventanas:
 | `SUPER+D` | Dashboard |
 | `SUPER+N` | Centro de control |
 | `SUPER+SHIFT+V` | Portapapeles |
+| `SUPER+K` | Wi-Fi y Bluetooth |
 | `PRINT` | Captura de una región |
 | `SUPER+L` | Bloquear |
 | `ALT+F4` | Menú de apagado |
@@ -217,7 +218,7 @@ Los gestos siguen a los dedos: si sueltas a medias, se cancelan.
 | Reloj | Dashboard | Al pasar el ratón: la fecha |
 | Volumen | Silenciar | Rueda = volumen |
 | Brillo | — | Rueda = brillo |
-| Red | Abre nmtui | |
+| Red | Panel Wi-Fi/Bluetooth | Derecho = nmtui |
 | Energía | Cambiar modo | |
 | CPU / RAM | Abre btop | |
 | Buds | Cambiar modo | Derecho = ANC / apagado · central = Buds Manager |
@@ -229,7 +230,13 @@ pantalla de hoy y la música que suena. En el calendario, flechas o rueda cambia
 vuelve a hoy.
 
 **Centro de control** (`SUPER+N`): botones rápidos (Wi-Fi, Bluetooth…), volumen, brillo, música y el historial
-de notificaciones.
+de notificaciones. Clic derecho en Wi-Fi o Bluetooth abre su lista.
+
+**Wi-Fi y Bluetooth** (`SUPER+K`): dos pestañas (`Tab` cambia). Mientras está abierto busca redes y dispositivos.
+- `Enter` o clic: conectar / desconectar. Si la red tiene candado y no está guardada, pide la contraseña en la
+  misma fila (el ojo la muestra). Si falla, lo dice en rojo ("Contraseña incorrecta"…).
+- Bluetooth: clic en un dispositivo **nuevo** lo empareja, lo marca de confianza y lo conecta.
+- `Supr`, clic derecho o la papelera: olvidar la red / el dispositivo. `Espacio`: encender / apagar la radio.
 
 **Notificaciones**: clic = acción principal; `×` = cerrar; con el ratón encima no desaparecen.
 `SUPER+SHIFT+N` activa No molestar.
