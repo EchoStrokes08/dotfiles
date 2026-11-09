@@ -124,6 +124,8 @@ Referencia completa. `SUPER` es la tecla Windows. Los atajos viven en `hypr/.con
 | `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
 | `SUPER+SHIFT+N` | No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
+| `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
+| `SUPER+SHIFT+C` | Selector de color: clic en un píxel → hex copiado |
 | `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
 | `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
 | `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |

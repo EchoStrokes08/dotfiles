@@ -64,6 +64,7 @@ hl.window_rule({
     name   = "dialogos-flotantes",
     match  = { title = "^(Open File|Save As|Save File|Abrir archivo|Guardar como|Guardar archivo|File Operation Progress|Progreso de la operación con archivos|Rename.*|Renombrar.*)$" },
     float  = true,
+    size   = "(monitor_w*0.75) (monitor_h*0.8)",   -- que nunca se salga de la pantalla
     center = true,
 })
 
@@ -72,6 +73,7 @@ hl.window_rule({
     name   = "polkit-portal-flotante",
     match  = { class = "^(hyprpolkitagent|xdg-desktop-portal-gtk|org.freedesktop.impl.portal.desktop.kde)$" },
     float  = true,
+    max_size = "(monitor_w*0.9) (monitor_h*0.9)",
     center = true,
 })
 

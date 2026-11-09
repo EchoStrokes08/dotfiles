@@ -267,6 +267,9 @@ Los replays van a `~/Videos/Replays`.
 | **Concentración** | `SUPER+SHIFT+F` | Temporizador de 25, 50 o 90 min con No molestar; WhatsApp, Discord, Roblox y Steam se esconden y vuelven al terminar. Cuenta atrás en la barra (clic = +10 min o terminar) |
 | **Energía** | `SUPER+SHIFT+P` | Ahorro → equilibrado → rendimiento |
 | **No molestar** | `SUPER+SHIFT+N` | Las notificaciones se guardan sin aparecer |
+| **Luz nocturna** | `SUPER+ALT+N` | Pantalla cálida (menos luz azul). Se enciende sola a las 20:30 y se apaga a las 7:00 (horario en `~/.config/hypr/hyprsunset.conf`); el atajo la cambia a mano hasta el siguiente cambio de horario |
+
+**Selector de color**: `SUPER+SHIFT+C` congela la pantalla con una lupa; haz clic en cualquier píxel y su color en hex (p. ej. `#f29718`) queda copiado. `Esc` cancela.
 
 ## 14. Sonido, brillo y audífonos
 
@@ -279,13 +282,13 @@ Los replays van a `~/Videos/Replays`.
 ## 15. Bloqueo, inactividad y apagado
 
 - `SUPER+L` bloquea. Se desbloquea con tu contraseña.
-- `ALT+F4` abre el menú de apagar / reiniciar / cerrar sesión.
-- `SUPER+M` sale de Hyprland **sin preguntar**: cuidado.
-- Si no tocas el equipo: a los 29,5 min baja el brillo, a los 30 se bloquea, a los 30,5 se apaga la pantalla y a
 - La contraseña se comprueba sola al escribir el último carácter, sin Enter. La pantalla aprende la longitud
   en cada desbloqueo correcto (la primera vez, o tras cambiar de contraseña, usa Enter). Si la nueva es más
   larga, fallará una vez a la longitud vieja: escríbela entera + Enter y ya queda aprendida.
   `sudo` en la terminal hace lo mismo y comparte la longitud aprendida (función en `~/.zshrc`).
+- `ALT+F4` abre el menú de apagar / reiniciar / cerrar sesión.
+- `SUPER+M` sale de Hyprland **sin preguntar**: cuidado.
+- Si no tocas el equipo: a los 29,5 min baja el brillo, a los 30 se bloquea, a los 30,5 se apaga la pantalla y a
   la hora se suspende.
 
 ## 16. Cambiar la configuración

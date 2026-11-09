@@ -87,6 +87,9 @@ u.atajos({
     -- Modo de energía: ahorro → equilibrado → rendimiento (con notificación)
     { mod .. " + SHIFT + P", exec("~/.config/hypr/scripts/modo-energia.sh") },
 
+    -- Luz nocturna (hyprsunset; horario automático en hyprsunset.conf) y selector de color (hyprpicker)
+    { mod .. " + ALT + N",   exec("~/.config/hypr/scripts/luz-nocturna.sh") },
+    { mod .. " + SHIFT + C", exec("~/.config/hypr/scripts/selector-color.sh") },
     -- Modo concentración: temporizador, No molestar y apps que distraen escondidas
     { mod .. " + SHIFT + F", exec("qs ipc call menu concentracion") },
 
