@@ -48,6 +48,7 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | `btop` · `nvim` · `vscode` · `firefox` · `vesktop` · `spicetify` | Apps con el tema Ayu |
 | `wallpapers` | Mis fondos, en `~/Imágenes/wallpapers` |
 | `instalar/` | Listas de paquetes y scripts de instalación (no es un paquete de stow) |
+| `respaldo/` | Copias de seguridad automáticas al disco externo (restic; se instala con su `instalar.sh`) |
 
 Buds Manager (para controlar los Redmi Buds desde Linux) vive en su propio repo,
 [Buds-Manager](https://github.com/EchoStrokes08/Buds-Manager), y el instalador lo clona.
@@ -328,6 +329,18 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 `eq-curve` · `gesture` · `cycle` · `spatial` · `commute` · `find` · `backup` · `restore` · `hold on|off|status` ·
 `auto` · `exposicion` · `dormir 30|off` · `mic` · `atajos`. Detalle de cada uno: `buds <comando> --help`.
 `buds-manager` abre la app.
+
+### Copias de seguridad (`respaldo`)
+
+Cifradas con restic en el disco externo TOSHIBA EXT (`OSCAR/hyprland`). Automáticas al conectarlo; aviso si pasan
+7 días sin copia. Instalar en un equipo nuevo: `~/dotfiles/respaldo/instalar.sh [UUID] [carpeta]`.
+
+| Comando | Qué hace |
+|---|---|
+| `respaldo estado` · `ahora` · `lista` | Última copia y espacio · copiar ya · ver copias |
+| `respaldo montar` | Explorar las copias en `/mnt/respaldo` (Ctrl+C cierra) |
+| `respaldo comprobar` | Verificar que se pueden leer enteras |
+| `sudo cat /etc/respaldo/clave` | La contraseña (apúntala fuera del portátil) |
 
 ### Cuando no tocas el equipo
 

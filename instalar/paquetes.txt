@@ -17,6 +17,7 @@ cliphist
 code
 discord
 duf
+earlyoom
 efibootmgr
 exfatprogs
 eza
@@ -75,6 +76,7 @@ noto-fonts-cjk
 noto-fonts-emoji
 npm
 ntfs-3g
+ntfsprogs
 nwg-look
 opencode
 openssh
@@ -94,6 +96,7 @@ qt6-wayland
 quickshell
 radeontop
 reflector
+restic
 ripgrep
 scrcpy
 sddm
@@ -107,6 +110,7 @@ stow
 sudo
 swaync
 swayosd
+systembus-notify
 tealdeer
 terminus-font
 thunar

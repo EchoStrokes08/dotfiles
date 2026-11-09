@@ -1,0 +1,11 @@
+# Copia de seguridad (restic → disco externo). La lanzan respaldo.timer (cada hora) y la regla udev
+# al conectar el disco. El script decide si hace falta copiar (última > 20 h) o solo recordar.
+[Unit]
+Description=Copia de seguridad en el disco externo
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/respaldo
+Nice=19
+IOSchedulingClass=idle

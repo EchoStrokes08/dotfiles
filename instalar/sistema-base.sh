@@ -7,6 +7,7 @@
 #   5. Limpieza   paccache semanal, quitar tlp (choca con power-profiles-daemon)
 #   6. Apps por defecto  imágenes→imv, PDF→zathura, video→mpv
 #   7. Hub USB    no dejar que se duerma el hub del teclado+ratón (se desconectaba solo)
+#   8. earlyoom   si se acaba la RAM, cierra UNA app (pestañas/apps web primero) en vez de congelarse
 #
 # Uso (SIN sudo; lo pide él):  ~/dotfiles/instalar/sistema-base.sh [--simular]
 # Idempotente: si algo ya está hecho, lo salta.
@@ -164,6 +165,25 @@ for d in /sys/bus/usb/devices/*; do
     [ "$(cat "$d/idVendor" 2>/dev/null):$(cat "$d/idProduct" 2>/dev/null)" = "214b:7250" ] || continue
     run sudo sh -c "echo on > $d/power/control" && ok "hub $(basename "$d"): encendido ya, sin reiniciar"
 done
+
+# ── 8. earlyoom ─────────────────────────────────────────────────────────
+# Sin esto, al llenarse RAM + zram el equipo se congela minutos. systemd-oomd NO sirve aquí: mata
+# cgroups enteros, y Firefox/kitty/Quickshell comparten el de la sesión de Hyprland (cerraría todo).
+# Comillas: systemd parte la línea por espacios y no las entiende → regex sin comillas ni espacios.
+paso "earlyoom (sin congelarse si se acaba la RAM)"
+run sudo pacman -S --needed --noconfirm earlyoom systembus-notify >/dev/null && ok "earlyoom + systembus-notify"
+escribir /etc/default/earlyoom <<'CONF'
+# earlyoom: si la RAM y la swap (zram) se acaban, cierra UN proceso antes de que el equipo se congele.
+# (systemd-oomd no sirve aquí: mata grupos enteros y tus apps comparten grupo con Hyprland.)
+#   -m 5 -s 10   actuar cuando quede <5 % de RAM libre Y <10 % de swap libre
+#   -n           avisar con una notificación (necesita systembus-notify en la sesión: autostart.lua)
+#   --avoid      nunca estos (la sesión entera depende de ellos)
+#   --prefer     primero estos (pestañas del navegador y apps web: se recargan sin perder nada)
+# OJO: systemd parte esta línea por espacios y NO entiende comillas → expresiones sin comillas ni espacios
+# (por eso "Isolated Web Co" se escribe Isolated.Web.Co). Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+EARLYOOM_ARGS="-m 5 -s 10 -r 3600 -n --avoid (^|/)(init|systemd|sddm|Hyprland|Xwayland|qs|kitty|zsh|pipewire|pipewire-pulse|wireplumber|hypridle|dbus-daemon|dbus-broker)$ --prefer (^|/)(Isolated.Web.Co|Web.Content|QtWebEngineProc|electron|code-oss|vesktop|zapzap|java)$"
+CONF
+run sudo systemctl enable --quiet earlyoom && run sudo systemctl restart earlyoom && ok "earlyoom activo"
 
 paso "Listo"
 echo "  Comprueba:"

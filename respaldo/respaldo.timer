@@ -1,0 +1,9 @@
+[Unit]
+Description=Revisar cada hora si toca copia de seguridad (o recordarla)
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target

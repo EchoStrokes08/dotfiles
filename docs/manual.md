@@ -25,6 +25,7 @@ La lista completa de atajos y comandos está en el [README](../README.md#todos-l
 15. [Bloqueo, inactividad y apagado](#15-bloqueo-inactividad-y-apagado)
 16. [Cambiar la configuración](#16-cambiar-la-configuración)
 17. [Si algo falla](#17-si-algo-falla)
+18. [Copias de seguridad y memoria](#18-copias-de-seguridad-y-memoria)
 
 ---
 
@@ -373,3 +374,43 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | Prefieres huecos aunque haya una sola ventana | Comenta las 4 líneas de *smart gaps* en `apariencia.lua` |
 | Un gesto se siente lento o brusco | Añade `scale = 1.5` (o lo que te guste) a ese gesto en `entrada.lua` |
 | Reinstalar todo en otro equipo | `bash <(curl -fsSL https://raw.githubusercontent.com/EchoStrokes08/dotfiles/main/instalar.sh)` |
+
+## 18. Copias de seguridad y memoria
+
+**Copias de seguridad.** Van al disco externo **TOSHIBA EXT**, carpeta `OSCAR/hyprland`, **cifradas** (en Windows
+solo se ven archivos ilegibles: no los toques ni los borres). Lo demás del disco no se toca.
+
+- **Son automáticas**: conecta el disco y, si la última copia tiene más de 20 h, empieza sola. Sale un aviso
+  «Copiando… no desconectes» y otro «Copia de seguridad hecha» al terminar. Solo copia lo que cambió (segundos).
+- Si pasan **7 días** sin copia, un aviso te lo recuerda una vez al día.
+- Se guardan 7 copias diarias, 4 semanales y 12 mensuales; las más viejas se borran solas.
+- **Qué se copia**: Documents, Projects, proyectos, Imágenes, Pictures, `~/.config`, `~/.local/share`
+  (sin Steam ni cachés), llaves SSH/GPG, dotfiles y del sistema: `/etc` entero (incluye las contraseñas Wi-Fi),
+  `/usr/local` y las listas de paquetes y servicios. Qué se excluye: `/etc/respaldo/excluir`.
+- **La contraseña** está en `/etc/respaldo/clave` (`sudo cat /etc/respaldo/clave`). Apúntala **fuera** del
+  portátil: si se pierde el portátil, sin ella el disco no sirve de nada.
+
+| Comando | Qué hace |
+|---|---|
+| `respaldo estado` | Cuándo fue la última copia, cuántas hay y espacio libre |
+| `respaldo ahora` | Copiar ya (aunque haya una reciente) |
+| `respaldo lista` | Todas las copias con su fecha |
+| `respaldo montar` | Abre las copias como carpetas en `/mnt/respaldo/snapshots/<fecha>/…`: copia de ahí lo que necesites; `Ctrl+C` cierra |
+| `respaldo comprobar` | Lee todas las copias para asegurar que no hay nada dañado (tarda; una vez al mes) |
+
+**Recuperar un archivo**: `respaldo montar` en una terminal, y en otra (o en Thunar) ve a
+`/mnt/respaldo/snapshots/latest/home/oscar/…` y cópialo. Para algo de hace poco (horas) es más rápido snapper:
+`snapper -c home list` y `/home/.snapshots/N/snapshot/oscar/…`.
+
+**En otro equipo** (portátil nuevo, perdido o roto): instala `restic`, conecta el disco y
+`restic -r "/ruta/al/disco/OSCAR/hyprland" mount /mnt` (te pide la contraseña). Para dejarlo todo como antes:
+primero `instalar.sh` de los dotfiles, luego copiar de vuelta las carpetas.
+
+**Si el disco no se monta** (pasa si se desconectó de Windows sin «Quitar hardware de forma segura»): el kernel
+lo marca como «sucio». `sudo ntfsfix -d /dev/sdX1` (mira cuál con `lsblk -f`) quita la marca. Mejor aún: en
+Windows, apaga el «Inicio rápido» y expúlsalo siempre antes de desconectarlo.
+
+**Memoria llena.** Si la RAM y la swap se acaban, en vez de congelarse el equipo, **earlyoom** cierra UNA app y
+avisa. Elige primero pestañas del navegador y apps web (WhatsApp, Discord, VS Code); nunca Hyprland, la barra,
+kitty ni el audio. Si te cierra algo, es que tenías demasiado abierto. Configuración: `/etc/default/earlyoom`
+(gestionado desde `instalar/sistema-base.sh`).

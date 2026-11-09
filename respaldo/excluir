@@ -1,0 +1,24 @@
+# Qué NO se copia (un patrón por línea; sin / al principio = cualquier carpeta con ese nombre).
+# Se instala en /etc/respaldo/excluir. Además se salta toda carpeta con un CACHEDIR.TAG.
+/home/*/.local/share/Steam
+/home/*/.local/share/Trash
+/home/*/.local/share/claude
+/home/*/.local/share/flatpak
+/home/*/.config/discord
+Cache
+cache
+cache2
+Code Cache
+GPUCache
+CachedData
+CacheStorage
+ScriptCache
+DawnCache
+DawnGraphiteCache
+DawnWebGPUCache
+GrShaderCache
+ShaderCache
+Crashpad
+crashes
+*.sock
+/etc/pacman.d/gnupg/S.*
