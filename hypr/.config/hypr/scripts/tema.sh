@@ -6,7 +6,7 @@
 #
 #   tema.sh ayu | wallpaper     -> elige el modo            tema.sh alternar  -> cambia de modo
 #   tema.sh claro | oscuro      -> elige la variante        tema.sh variante  -> cambia de variante
-#   tema.sh auto on|off|estado  -> claro de día y oscuro de noche (horario en modulos/tema.lua)
+#   tema.sh auto on|off|estado  -> claro de día y oscuro de noche (horario en modulos/tema.lua). De serie: off
 #   tema.sh automatico <claro|oscuro>  -> lo llama Hyprland al llegar la hora (no a mano)
 #   tema.sh aplicar [img]       -> vuelve a generar con lo actual (lo usa wallpaper.sh)
 #   tema.sh estado              -> "ayu oscuro auto"
@@ -17,7 +17,7 @@ OUT="$HOME/.local/state/tema"
 mkdir -p "$OUT"
 modo=$(cat "$OUT/modo" 2>/dev/null || echo ayu)
 variante=$(cat "$OUT/variante" 2>/dev/null || echo oscuro)
-auto=$(cat "$OUT/auto" 2>/dev/null || echo on)
+auto=$(cat "$OUT/auto" 2>/dev/null || echo off)   # apagado salvo que lo enciendas: tema.sh auto on
 
 wallpaper_actual() {
     if [ -e "$OUT/wallpaper" ]; then readlink -f "$OUT/wallpaper"

@@ -572,9 +572,9 @@ así que el Bloq Mayús ya no puede quedar activado en un teclado y no en el otr
 `SUPER+CTRL+T` cambia entre claro y oscuro. Es independiente de `SUPER+SHIFT+T` (Ayu o colores del
 wallpaper): las cuatro combinaciones funcionan.
 
-Por defecto es **automático**: a las 6:30 pasa a claro y a las 18:00 a oscuro. Si lo cambias a mano se
-respeta hasta el siguiente cambio de hora. `tema.sh auto off` lo apaga y `tema.sh auto on` lo vuelve a
-encender; las horas están al principio de `modulos/tema.lua`.
+El escritorio es **siempre oscuro** salvo que lo cambies tú. Si algún día quieres que cambie solo
+(claro a las 6:30, oscuro a las 18:00), `tema.sh auto on`; las horas están al principio de
+`modulos/tema.lua`.
 
 Cambian con el tema: Hyprland, toda la interfaz de Quickshell, kitty, btop, las apps GTK y lo que
 pregunta al sistema (Firefox y las webs con modo oscuro automático). No cambian solos: nvim, VS Code,
@@ -696,7 +696,7 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
 | `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
 | `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |
-| `SUPER+CTRL+T` | Tema claro ↔ oscuro (solo: claro 6:30–18:00, oscuro de noche) |
+| `SUPER+CTRL+T` | Tema claro ↔ oscuro |
 | `SUPER+ALT+S` | Filtro de pantalla: ninguno / grises / papel / colores vivos / invertido |
 | `SUPER+ALT+E` | Sonido de las bocinas: perfil música / voz / sin efectos (EasyEffects) |
 | `SUPER+SHIFT+W` | Selector de wallpapers |

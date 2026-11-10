@@ -37,7 +37,7 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | Paquete (stow) | Qué configura |
 |---|---|
 | `hypr` | Hyprland en Lua, partido en módulos (`modulos/`), scripts, filtros de pantalla (`shaders/`), hyprlock, hypridle y los temas de arranque (`temas-arranque/`: SDDM, GRUB y Plymouth) |
-| `tema` | Paletas Ayu (oscura y clara) y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper; `SUPER+CTRL+T` entre claro y oscuro (automático: claro de día, oscuro de noche) |
+| `tema` | Paletas Ayu (oscura y clara) y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper; `SUPER+CTRL+T` entre claro y oscuro (oscuro siempre, salvo que actives el horario con `tema.sh auto on`) |
 | `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (los scripts vuelven a fuzzel si Quickshell no responde) |
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
 | `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones), **dashboard** SUPER+D (reloj, clima, calendario con Google Calendar, sistema, tiempo de pantalla semanal, música con letra), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús, y **widgets de escritorio** (reloj, clima, frase del día y lo próximo, solo con el workspace vacío) |
@@ -141,7 +141,7 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
 | `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
 | `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |
-| `SUPER+CTRL+T` | Tema claro ↔ oscuro (solo: claro 6:30–18:00, oscuro de noche) |
+| `SUPER+CTRL+T` | Tema claro ↔ oscuro |
 | `SUPER+ALT+S` | Filtro de pantalla: ninguno / grises / papel / colores vivos / invertido |
 | `SUPER+ALT+E` | Sonido de las bocinas: perfil música / voz / sin efectos (EasyEffects) |
 | `SUPER+SHIFT+W` | Selector de wallpapers |
@@ -256,7 +256,7 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Teclado | Mantener una tecla repite a los 300 ms, 40 veces/s (`entrada.lua`) |
 | Touchpad | Tocar = clic; al hundirlo, 1 dedo = clic, 2 = derecho, 3 = central; se ignora mientras escribes |
 | Cursor | Se esconde al teclear y tras 5 s quieto; vuelve al mover el ratón |
-| Tema por hora | A las 6:30 pasa a claro y a las 18:00 a oscuro (`modulos/tema.lua`). Si lo cambias a mano, se respeta hasta el siguiente cambio de hora. Apagarlo: `tema.sh auto off` |
+| Tema por hora | Apagado: siempre oscuro. Con `tema.sh auto on`, a las 6:30 pasa a claro y a las 18:00 a oscuro (`modulos/tema.lua`) |
 | Wallpapers | Cambian con transición (awww): a mano, el nuevo crece desde el cursor; en la rotación de cada 10 min, un barrido; con batería, un fundido corto |
 | Escritorio | Con el workspace vacío aparecen reloj, clima, frase del día y lo próximo (eventos y recordatorios); al abrir una ventana se van (`Escritorio.qml`) |
 | Animaciones por tipo | Diálogos se despliegan (gnomed), PiP entra por la derecha, la barra baja, las notificaciones entran de lado, los scratchpads se esconden el doble de rápido de lo que entran (`animaciones.lua`, final de `reglas.lua`) |

@@ -1,7 +1,7 @@
 -- Tema de colores y wallpapers (Nivel 4: theming dinámico)
 --   SUPER+SHIFT+T  alterna entre colores Ayu y colores sacados del wallpaper
 --   SUPER+CTRL+T   alterna entre tema claro y oscuro
---   Automático: claro de día y oscuro de noche (horas aquí abajo). Apagarlo: tema.sh auto off
+--   Automático (APAGADO de serie): claro de día y oscuro de noche. Encenderlo: tema.sh auto on
 --   Menú de wallpapers (SUPER+SHIFT+W) también tiene la opción.
 -- Scripts: ~/.config/hypr/scripts/tema.sh y wallpaper.sh · plantillas: ~/.config/tema/
 local p   = require("modulos.programas")
@@ -34,7 +34,7 @@ end
 -- Solo se actúa al CRUZAR una hora: "ultimo_auto" guarda lo último que tocaba. Así, si cambias
 -- el tema a mano, se respeta hasta el siguiente cambio de horario (igual que la luz nocturna).
 local function revisar_hora()
-    if leer("auto") == "off" then return end
+    if leer("auto") ~= "on" then return end   -- apagado salvo que lo enciendas (tema.sh auto on)
     local t = os.date("*t")
     local minutos = t.hour * 60 + t.min
     local toca = (minutos >= CLARO_DESDE and minutos < OSCURO_DESDE) and "claro" or "oscuro"
