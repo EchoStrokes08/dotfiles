@@ -25,6 +25,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systembus-notify")                               -- pasa a notificaciones los avisos del sistema (earlyoom)
     hl.exec_cmd("kdeconnect-indicator")                           -- KDE Connect: móvil (icono en la bandeja)
     hl.exec_cmd("~/.config/hypr/scripts/sonido.sh restaurar")    -- EasyEffects: último perfil de sonido de las bocinas
+    hl.exec_cmd("~/.config/hypr/scripts/lugar.sh vigilar")       -- reglas por lugar: al cambiar de Wi-Fi (~/.config/lugares.conf)
     hl.exec_cmd("udiskie")                                        -- monta USB solos y avisa (~/.config/udiskie)
     hl.exec_cmd("~/.config/hypr/scripts/replay.sh start")        -- replay de 30 s en RAM
 end)

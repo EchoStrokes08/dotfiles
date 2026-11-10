@@ -5,6 +5,11 @@
 //   :fuego · :sigma · :≤                                   emojis y símbolos → Enter los escribe
 //   /apuntes   (solo «/» = recientes)                      archivos de tu carpeta personal → Enter los abre
 //   recordar 20m entregar el taller · recordar 18:30 …     recordatorio (ver Recordatorios.qml)
+//   v texto   ventanas abiertas → ir a ella          n texto   buscar en tus notas → abrir en esa línea
+//   c texto   historial del portapapeles → copiar    t texto   pestañas abiertas de Firefox
+//   p nombre  contraseñas (Bitwarden/pass) → escribirla donde esté el cursor
+//   ia pregunta   asistente local (ollama)           nota texto   apuntar una línea en notas.md
+//   (v, n, c, t y p los resuelve ~/.config/hypr/scripts/buscar.py)
 // Teclas: ↑↓ / Tab moverse · Enter elegir · Esc o clic fuera cierra.
 // Las apps que más abres suben (contador en ~/.local/state/quickshell/lanzador.json).
 import QtQuick
@@ -103,6 +108,14 @@ PanelWindow {
         { n: "Portapapeles",            d: "Historial · SUPER+SHIFT+V",                    i: 0xF0147, k: "clipboard historial",  c: "qs ipc call portapapeles toggle" },
         { n: "Buscar el móvil",         d: "Hacer sonar el móvil (KDE Connect)",           i: 0xF011C, k: "telefono celular kdeconnect", c: scripts + "movil.sh sonar" },
         { n: "KDE Connect",             d: "Emparejar el móvil, enviar archivos",           i: 0xF011C, k: "movil telefono celular android", c: scripts + "movil.sh app" },
+        { n: "Sesiones de trabajo",     d: "Universidad, programar, descanso · SUPER+ALT+Enter", i: 0xF0E1B, k: "sesion contexto universidad programar", c: "hyprctl dispatch 'sesion.menu() or hl.dsp.no_op()'" },
+        { n: "Asistente (IA)",          d: "Resumir, corregir, explicar o traducir lo seleccionado · SUPER+ALT+A", i: 0xF06A9, k: "ia inteligencia resumir corregir explicar ollama", c: scripts + "ia.sh" },
+        { n: "Nota rápida",             d: "Apuntar una línea en notas.md · SUPER+SHIFT+O", i: 0xF039A, k: "notas apuntar anotar",  c: "qs ipc call nota abrir" },
+        { n: "Móvil",                   d: "Sonar, enviar lo copiado o un archivo · SUPER+ALT+M", i: 0xF011C, k: "telefono celular enviar", c: scripts + "movil.sh menu" },
+        { n: "Resumen del día",         d: "Clima, eventos, recordatorios y actualizaciones", i: 0xF05A8, k: "manana hoy agenda",    c: "qs ipc call resumen mostrar" },
+        { n: "Actualizar el sistema",   d: "yay -Syu en una terminal",                     i: 0xF03D6, k: "update paquetes pacman yay", c: scripts + "actualizaciones.sh instalar" },
+        { n: "Filtro de pantalla",      d: "Grises, papel, vivo, invertido · SUPER+ALT+S", i: 0xF03D8, k: "shader grises sepia",   c: "qs ipc call menu shaders" },
+        { n: "Sonido de las bocinas",   d: "Perfil música / voz / sin efectos · SUPER+ALT+E", i: 0xF057E, k: "audio ecualizador easyeffects", c: scripts + "sonido.sh menu" },
         { n: "Copia de seguridad ahora", d: "Con el disco TOSHIBA conectado",              i: 0xF0E26, k: "respaldo backup",      c: "kitty -e sh -c 'respaldo ahora; read -p \"Enter para cerrar\" x'" }
     ]
     function puntajeAccion(a, q) {
@@ -189,6 +202,22 @@ PanelWindow {
             onStreamFinished: ventana.archivos = this.text.split("\n").filter(l => l).map(r => r.replace(/\/$/, ""))
         }
     }
+    // Búsquedas que resuelve un script (buscar.py): ventanas, notas, portapapeles, pestañas y contraseñas
+    readonly property var externosTipos: ({ v: ["ventanas", "Ventanas abiertas", 0xF05AF], n: ["notas", "Buscar en tus notas", 0xF039A],
+                                            c: ["portapapeles", "Historial del portapapeles", 0xF0147], t: ["pestanas", "Pestañas de Firefox", 0xF0239],
+                                            p: ["claves", "Contraseñas", 0xF030B] })
+    property var externos: []
+    property string externosDe: ""       // texto para el que valen los resultados
+    Process {
+        id: buscaExterno
+        property string para: ""
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { ventana.externos = JSON.parse(this.text); } catch (e) { ventana.externos = []; }
+                ventana.externosDe = buscaExterno.para;
+            }
+        }
+    }
     FileView { id: recientes; path: Quickshell.env("HOME") + "/.local/share/recently-used.xbel" }
     function listaRecientes() {
         const res = [], re = /<bookmark href="file:\/\/([^"]+)"[^>]*modified="([^"]+)"/g;
@@ -205,6 +234,11 @@ PanelWindow {
                 const expr = t.replace(/^=\s*/, "").replace(/\s+a\s+(\S+)\s*$/i, " to -$1").replace(/\s+en\s+(\S+)\s*$/i, " to -$1");
                 calc.running = false; ventana.calcEntrada = t;
                 calc.command = ["qalc", "-t", expr]; calc.running = true;
+            } else if (ventana.modo === "externo") {
+                const m = t.match(/^(\w+)\s+(.*)$/);
+                buscaExterno.running = false; buscaExterno.para = t;
+                buscaExterno.command = [Quickshell.env("HOME") + "/.config/hypr/scripts/buscar.py", ventana.externosTipos[m[1].toLowerCase()][0], m[2]];
+                buscaExterno.running = true;
             } else if (ventana.modo === "archivos" && t.length > 2) {
                 buscaArchivos.running = false;
                 buscaArchivos.command = ["fd", "-i", "--max-results", "40", "--exclude", ".cache", "--", t.slice(1).trim(), Quickshell.env("HOME")];
@@ -219,6 +253,10 @@ PanelWindow {
     readonly property string modo: {
         const t = buscador.text;
         if (/^(recordar|rec)\s/i.test(t)) return "recordar";
+        if (/^ia\s+\S/i.test(t)) return "ia";
+        if (/^nota\s+\S/i.test(t)) return "nota";
+        const pe = t.match(/^(\w+)\s/);
+        if (pe && externosTipos[pe[1].toLowerCase()]) return "externo";
         if (t.startsWith(":")) return "emoji";
         if (t.startsWith("/")) return "archivos";
         const p = t.match(/^(\w+)\s+\S/);
@@ -226,7 +264,7 @@ PanelWindow {
         if (t.startsWith("=") || /^[\d(.\-√π]/.test(t.trim()) && /[\d)]/.test(t)) return "calc";
         return "apps";
     }
-    onModoChanged: { calcResultado = ""; archivos = []; }
+    onModoChanged: { calcResultado = ""; archivos = []; externos = []; }
     Connections { target: buscador; function onTextChanged() { espera.restart(); } }
 
     // Cada resultado: { nombre, detalle, icono (nombre de icono de app) | glifo (código) | texto (emoji), accion() }
@@ -239,6 +277,25 @@ PanelWindow {
                                           Quickshell.execDetached(["notify-send", "-a", "Recordatorio", "-u", "low",
                                               "Te lo recuerdo " + Recordatorios.cuandoTexto(r.cuando), r.texto]); } }]
                      : [{ nombre: "¿Cuándo?", detalle: "Ej.: recordar 20m beber agua · recordar 18:30 llamar · recordar mañana 7:00 examen", glifo: 0xF0020, accion: null }];
+        }
+        if (modo === "ia") {
+            const pregunta = t.replace(/^ia\s+/i, "");
+            return [{ nombre: pregunta, detalle: "Preguntar al asistente local (sin internet)", glifo: 0xF06A9,
+                      accion: () => Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/ia.sh", "preguntar", pregunta]) }];
+        }
+        if (modo === "nota") {
+            const nota = t.replace(/^nota\s+/i, "");
+            return [{ nombre: nota, detalle: "Apuntarlo en ~/Documents/notas.md", glifo: 0xF039A,
+                      accion: () => Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/nota.sh", nota]) }];
+        }
+        if (modo === "externo") {
+            const tipo = externosTipos[t.match(/^(\w+)/)[1].toLowerCase()];
+            if (externosDe !== t && externos.length === 0)
+                return [{ nombre: tipo[1], detalle: "Buscando…", glifo: tipo[2], accion: null }];
+            if (externos.length === 0)
+                return [{ nombre: "Sin resultados", detalle: tipo[1], glifo: tipo[2], accion: null }];
+            return externos.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo,
+                                        accion: x.cmd && x.cmd.length ? () => Quickshell.execDetached(x.cmd) : null }));
         }
         if (modo === "emoji")
             return buscarEmojis(t.slice(1)).map(x => ({ nombre: x.n, detalle: "Enter: escribirlo (y queda copiado)", texto: x.e,
@@ -332,7 +389,7 @@ PanelWindow {
                     anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
                     spacing: 10
                     Text {   // el icono cambia según el modo
-                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020 })[ventana.modo])
+                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A })[ventana.modo] ?? 0xF0349)
                         color: Paleta.naranja
                         font { family: Paleta.fuente; pixelSize: 15 }
                     }
@@ -459,7 +516,7 @@ PanelWindow {
 
             Text {
                 Layout.alignment: Qt.AlignHCenter
-                text: "↵ elegir  ·  ↑↓ moverse  ·  =calc  g/yt/w web  :emoji  /archivos  recordar  ·  esc"
+                text: "=calc  g/yt/w web  :emoji  /archivos  recordar  ·  v ventanas  n notas  c copiado  t pestañas  p claves  ·  ia …  nota …"
                 color: Qt.alpha(Paleta.gris, 0.8)
                 font { family: Paleta.fuente; pixelSize: 10 }
             }

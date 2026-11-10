@@ -322,6 +322,27 @@ else
     ok "keyd activo (emergencia: Retroceso+Esc+Enter)"
 fi
 
+# ── 16. IA local, Syncthing y Tailscale ─────────────────────────────────
+paso "Asistente local (ollama), Syncthing y Tailscale"
+run sudo pacman -S --needed --noconfirm ollama syncthing tailscale >/dev/null
+run sudo systemctl enable --now --quiet ollama tailscaled
+run systemctl --user enable --now --quiet syncthing.service
+MODELO=$(cat "$HOME/.config/ia/modelo" 2>/dev/null || echo gemma3:4b)
+if ollama list 2>/dev/null | grep -q "^$MODELO"; then ok "modelo $MODELO ya descargado"
+else run ollama pull "$MODELO" && ok "modelo $MODELO descargado"; fi
+# Cortafuegos: Syncthing solo desde la red local; Tailscale solo por su interfaz (tus propios equipos)
+if sudo ufw status | grep -q 22000; then
+    ok "puertos de Syncthing ya abiertos"
+else
+    for r in 192.168.0.0/16 10.0.0.0/8 172.16.0.0/12; do
+        run sudo ufw allow from "$r" to any port 22000 comment 'Syncthing (solo red local)' >/dev/null
+        run sudo ufw allow from "$r" to any port 21027 proto udp comment 'Syncthing descubrimiento (solo red local)' >/dev/null
+    done
+    run sudo ufw allow in on tailscale0 comment 'Tailscale (solo tus dispositivos)' >/dev/null
+    ok "Syncthing (22000, 21027) desde la red local y Tailscale por tailscale0"
+fi
+echo "    Falta iniciar sesión tú:  sudo tailscale up --ssh   ·  Syncthing: http://127.0.0.1:8384"
+
 paso "Listo"
 echo "  Comprueba:"
 echo "    swapon --show          → /dev/zram0"

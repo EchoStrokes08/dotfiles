@@ -166,8 +166,23 @@ RowLayout {
         icono: derecha.g(0xF011C)
         texto: carga >= 0 ? carga + "%" : ""
         color: cargando ? Paleta.verde : carga >= 0 && carga <= 15 ? Paleta.rojo : Paleta.texto
-        ayuda: nombre + (cargando ? " · cargando" : "") + "\nClic: KDE Connect · clic derecho: hacer sonar"
-        onClic: (b) => derecha.ejecutar("~/.config/hypr/scripts/movil.sh " + (b === Qt.RightButton ? "sonar" : "app"))
+        ayuda: nombre + (cargando ? " · cargando" : "") + "\nClic: menú del móvil (SUPER+ALT+M) · clic derecho: hacer sonar"
+        onClic: (b) => derecha.ejecutar("~/.config/hypr/scripts/movil.sh " + (b === Qt.RightButton ? "sonar" : "menu"))
+    }
+
+    // ── Actualizaciones pendientes: solo aparece si hay algo (Actualizaciones.qml, cada 3 h) ──
+    Modulo {
+        visible: Actualizaciones.total > 0 || Actualizaciones.noticias > 0
+        gestorAyuda: ayuda
+        icono: derecha.g(0xF03D6)
+        texto: Actualizaciones.total > 0 ? String(Actualizaciones.total) : "!"
+        color: Actualizaciones.noticias > 0 ? Paleta.rojo : Actualizaciones.vulnerables > 0 ? Paleta.amarillo : Paleta.texto
+        ayuda: `${Actualizaciones.repos} de los repos · ${Actualizaciones.aur} del AUR`
+               + (Actualizaciones.noticias > 0 ? `\n${Actualizaciones.noticias} noticia(s) de Arch sin leer (se muestran antes de actualizar)` : "")
+               + (Actualizaciones.vulnerables > 0 ? `\n${Actualizaciones.vulnerables} con arreglos de seguridad` : "")
+               + (Actualizaciones.lista ? "\n" + Actualizaciones.lista : "")
+               + "\nClic: actualizar · clic derecho: volver a comprobar"
+        onClic: (b) => b === Qt.RightButton ? Actualizaciones.refrescar() : derecha.ejecutar("~/.config/hypr/scripts/actualizaciones.sh instalar")
     }
 
     // ── Redmi Buds: izquierdo · derecho · estuche ────────────────────────

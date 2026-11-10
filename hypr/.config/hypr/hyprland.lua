@@ -21,6 +21,7 @@
 --   layouts.lua     atajos que se adaptan al layout (dwindle, master, scrolling)
 --   scratchpads.lua terminal, música y notas que aparecen y se esconden con una tecla
 --   modo_juego.lua  SUPER+SHIFT+G o automático con Roblox: sin efectos ni notificaciones
+--   sesiones.lua    sesiones de trabajo: un atajo abre todo un contexto (SUPER+ALT+Return)
 --   tema.lua        colores Ayu o del wallpaper (SUPER+SHIFT+T), claro/oscuro (SUPER+CTRL+T, automático por hora) y rotación de fondos
 --   shaders.lua     filtros de pantalla: grises, papel, vivo, invertido (SUPER+ALT+S)
 --
@@ -44,5 +45,6 @@ require("modulos.bateria")         -- sin cargador: sin blur ni sombras (lo avis
 require("modulos.concentracion")   -- SUPER+SHIFT+F (temporizador en Quickshell)
 require("modulos.scratchpads")     -- SUPER+Return / Y / O: terminal, música y notas que aparecen y desaparecen
 require("modulos.layouts")         -- SUPER+plus/minus/Z/X: hacen lo equivalente en dwindle, master y scrolling
+require("modulos.sesiones")        -- SUPER+ALT+Return: universidad / programar / descanso, cada app en su workspace
 require("modulos.shaders")         -- SUPER+ALT+S: filtros de pantalla (grises, papel, vivo, invertido)
 require("modulos.tema")

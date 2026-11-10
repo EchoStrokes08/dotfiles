@@ -89,6 +89,14 @@ u.atajos({
     { mod .. " + ALT + D", exec("~/.config/hypr/scripts/dictado.sh") },     -- pulsa, habla, vuelve a pulsar
     { mod .. " + ALT + T", exec("~/.config/hypr/scripts/traducir.sh") },    -- otro idioma → español; español → inglés
 
+    -- Asistente local (ollama) sobre el texto seleccionado: resumir, corregir, explicar, traducir, preguntar
+    { mod .. " + ALT + A",   exec("~/.config/hypr/scripts/ia.sh") },
+    -- Notas rápidas: una línea con fecha a ~/Documents/notas.md, sin abrir el editor / la selección
+    { mod .. " + SHIFT + O", exec("qs ipc call nota abrir") },
+    { mod .. " + ALT + O",   exec("~/.config/hypr/scripts/nota.sh seleccion") },
+    -- Móvil (KDE Connect): sonar, enviar lo copiado o un archivo, ver sus archivos
+    { mod .. " + ALT + M",   exec("~/.config/hypr/scripts/movil.sh menu") },
+
     -- Wallpapers: menú con miniaturas / uno al azar
     { mod .. " + SHIFT + W",  exec("~/.config/hypr/scripts/wallpaper.sh") },
     { mod .. " + CTRL + W",   exec("~/.config/hypr/scripts/wallpaper.sh aleatorio") },

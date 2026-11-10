@@ -90,10 +90,12 @@ npm
 ntfs-3g
 ntfsprogs
 nwg-look
+ollama
 opencode
 openssh
 pacman-contrib
 papirus-icon-theme
+pass
 pavucontrol
 pipewire
 pipewire-alsa
@@ -104,12 +106,14 @@ poppler
 power-profiles-daemon
 python-gobject
 python-icalendar
+python-lz4
 python-openai-whisper
 python-recurring-ical-events
 qt5-wayland
 qt6-wayland
 quickshell
 radeontop
+rbw
 reflector
 restic
 ripgrep
@@ -128,7 +132,9 @@ stow
 sudo
 swaync
 swayosd
+syncthing
 systembus-notify
+tailscale
 tealdeer
 terminus-font
 tesseract-data-eng

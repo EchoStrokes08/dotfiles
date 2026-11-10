@@ -40,7 +40,7 @@ hl.window_rule({
 -- Blur detrás de la tarjeta del dashboard de Quickshell (el resto de la capa es transparente → ignore_alpha)
 hl.layer_rule({
     name         = "quickshell-blur",
-    match        = { namespace = "quickshell-(dashboard|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista)" },
+    match        = { namespace = "quickshell-(dashboard|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|ia|nota|resumen)" },
     blur         = true,
     ignore_alpha = 0.3,
 })
@@ -135,7 +135,7 @@ hl.layer_rule({ name = "anim-notificaciones", match = { namespace = "^quickshell
 hl.layer_rule({ name = "anim-escritorio",     match = { namespace = "^quickshell-escritorio$" },     animation = "fade" })
 hl.layer_rule({
     name    = "anim-quickshell-propias",
-    match   = { namespace = "^quickshell-(dashboard|lanzador|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|osd)$" },
+    match   = { namespace = "^quickshell-(dashboard|lanzador|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|osd|ia|nota|resumen)$" },
     no_anim = true,
 })
 hl.layer_rule({ name = "anim-seleccion", match = { namespace = "^(selection|hyprpicker)$" }, no_anim = true })
@@ -149,4 +149,13 @@ hl.window_rule({
     opaque = true,
     max_size = "(monitor_w*0.92) (monitor_h*0.9)",
     animation = "popin 92%",
+})
+
+-- Terminal de actualizar (clic en el módulo de actualizaciones de la barra): flotante y centrada
+hl.window_rule({
+    name   = "kitty-actualizar",
+    match  = { class = "^kitty-actualizar$" },
+    float  = true,
+    size   = "900 520",
+    center = true,
 })

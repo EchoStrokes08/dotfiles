@@ -29,6 +29,7 @@ La lista completa de atajos y comandos está en el [README](../README.md#todos-l
 19. [Texto, voz, recordatorios y tiempo de pantalla](#19-texto-voz-recordatorios-y-tiempo-de-pantalla)
 20. [El móvil (KDE Connect)](#20-el-móvil-kde-connect)
 21. [Teclado con capas, tema claro, filtros, sonido y escritorio](#21-teclado-con-capas-tema-claro-filtros-sonido-y-escritorio)
+22. [Asistente, sesiones, notas, buscador y automatizaciones](#22-asistente-sesiones-notas-buscador-y-automatizaciones)
 
 Apéndice A. [Todos los atajos](#apéndice-a-todos-los-atajos)
 
@@ -617,6 +618,70 @@ tardó y si falló. `Ctrl+R` otra vez cambia el filtro: todo el historial → es
 
 ---
 
+## 22. Asistente, sesiones, notas, buscador y automatizaciones
+
+### Asistente local (IA)
+
+Funciona sin internet con ollama y el modelo `gemma3:4b` (unos 4 GB de RAM mientras responde; se
+descarga de la memoria a los 10 minutos sin usarlo). Responde a unas 10 palabras por segundo.
+
+- **Sobre un texto**: selecciónalo (o cópialo) y pulsa `SUPER+ALT+A`. Elige resumir, corregir
+  ortografía, redactar mejor, explicar (sirve para errores de terminal) o traducir.
+- **Pregunta suelta**: `SUPER+R` y escribe `ia cómo se calcula una máscara de subred`.
+- En el panel: escribe otra pregunta sobre el mismo texto y `Enter`; con el campo vacío, `Enter` copia
+  la respuesta y cierra; `Ctrl+Enter` la escribe donde estabas (útil tras «corregir»).
+
+Es un modelo pequeño: redacta y resume bien, pero se equivoca con datos y cálculos. Compruébalo.
+Otro modelo: `ollama pull qwen3:4b` y escribe su nombre en `~/.config/ia/modelo`.
+
+### Sesiones de trabajo
+
+`SUPER+ALT+Enter` abre el menú: **Universidad**, **Programar** y **Descanso**. Cada una abre sus apps
+en su workspace; lo que ya estaba abierto no se duplica. Las sesiones de ejemplo son una suposición:
+cámbialas en `~/.config/hypr/modulos/sesiones.lua` (qué apps, qué direcciones abre Firefox, en qué
+workspace). La «clase» de una ventana se ve con `SUPER+I`.
+
+### Notas rápidas
+
+`SUPER+SHIFT+O`, escribe y `Enter`: se añade una línea con fecha y hora al final de
+`~/Documents/notas.md` (el mismo archivo de `SUPER+O`). `SUPER+ALT+O` guarda lo que tengas
+seleccionado. En el lanzador: `nota comprar cable`.
+
+### Buscador universal
+
+En el lanzador (`SUPER+R`), una letra y un espacio cambian dónde se busca: `v` ventanas, `n` dentro de
+tus notas, `c` portapapeles, `t` pestañas de Firefox y `p` contraseñas.
+
+Las contraseñas necesitan un gestor. La primera vez, `p algo` + `Enter` abre la guía: Bitwarden
+(recomendado; también en el móvil) o `pass` (todo local). Después, `p gmail` + `Enter` escribe la
+contraseña donde esté el cursor, sin pasar por el portapapeles.
+
+### Móvil, Syncthing y Tailscale
+
+- **Móvil** (`SUPER+ALT+M`, o clic en su batería en la barra): hacerlo sonar, enviarle lo copiado o un
+  archivo, ver sus archivos. Antes hay que emparejarlo en la app KDE Connect.
+- **Syncthing** (carpetas sincronizadas sin nube): abre http://127.0.0.1:8384, instala Syncthing en
+  el móvil, escanea el código QR de «Acciones → Mostrar ID» y comparte una carpeta.
+- **Tailscale** (entrar al portátil desde fuera): `sudo tailscale up --ssh` y abre el enlace que
+  muestra para iniciar sesión; instala la app en el móvil con la misma cuenta. Desde otro equipo
+  tuyo: `ssh oscar@orion`.
+
+Los puertos de Syncthing y la interfaz de Tailscale se abren en el cortafuegos con el paso 16 de
+`~/dotfiles/instalar/sistema-base.sh`. Sin eso Syncthing funciona igual, pero más lento (por relés).
+
+### Automatizaciones
+
+- **Resumen del día**: aparece solo la primera vez que usas el equipo cada día. A mano: «Resumen del
+  día» en el lanzador.
+- **Actualizaciones**: un paquete con el número en la barra cuando hay pendientes. Rojo = hay
+  noticias de Arch sin leer (se muestran antes de actualizar). Clic = actualizar.
+- **Pausas**: aviso tras 50 minutos seguidos. Cambiar el tiempo: `minutos` en `Pausas.qml`.
+- **Lugares**: `~/.config/lugares.conf` dice qué hacer al conectarte a cada Wi-Fi (energía, volumen de
+  las bocinas, No molestar). De serie: en casa no cambia nada y en cualquier otra red las bocinas se
+  silencian. Añade la línea de tu universidad con el nombre exacto de su Wi-Fi.
+
+---
+
 ## Apéndice A. Todos los atajos
 
 <!-- atajos:inicio — NO editar a mano: sale del README con docs/actualizar-atajos.py -->
@@ -661,6 +726,16 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+clic derecho` (arrastrar) | Redimensionar la ventana |
 | `SUPER+SHIFT+R`, luego flechas | Modo redimensionar (mantener = repetir); `Esc` o `Enter` salen |
 | `SUPER+I` | Inspector: class, título, workspace, tamaño y pid de la ventana; copia la class |
+
+#### Productividad
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+ALT+Enter` | Sesiones de trabajo: universidad / programar / descanso, cada app en su workspace (`modulos/sesiones.lua`) |
+| `SUPER+ALT+A` | Asistente local (IA) sobre el texto seleccionado: resumir, corregir, redactar mejor, explicar, traducir o preguntar |
+| `SUPER+SHIFT+O` | Nota rápida: una línea con fecha a `~/Documents/notas.md` |
+| `SUPER+ALT+O` | Guardar en las notas el texto seleccionado |
+| `SUPER+ALT+M` | Móvil: hacerlo sonar, enviarle lo copiado o un archivo, ver sus archivos |
 
 #### Workspaces y monitores
 
@@ -791,6 +866,13 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 
 En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
 `Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
+| `v texto` | Ventanas abiertas en cualquier workspace → ir a ella |
+| `n texto` | Buscar dentro de tus notas (`~/Documents/*.md`) → abrir nvim en esa línea |
+| `c texto` | Historial del portapapeles → copiarlo otra vez |
+| `t texto` | Pestañas abiertas de Firefox → abrir esa dirección (para saltar a la pestaña ya abierta, en Firefox escribe `%` en la barra) |
+| `p nombre` | Contraseñas (Bitwarden o pass) → la escribe donde esté el cursor. Primera vez: `claves.sh configurar` |
+| `ia pregunta` | Preguntar al asistente local |
+| `nota texto` | Apuntar una línea en `notas.md` |
 
 ### Atajos que se adaptan al layout (`modulos/layouts.lua`)
 

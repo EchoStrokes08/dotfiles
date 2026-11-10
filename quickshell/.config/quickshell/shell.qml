@@ -26,10 +26,15 @@ ShellRoot {
     Conexiones { id: conexiones }
     Chuleta { id: chuleta }
     Vista { id: vista }
+    IA { id: ia }
+    NotaRapida { id: nota }
+    Resumen { id: resumen }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
     readonly property int recordatoriosPendientes: Recordatorios.lista.length   // arranca Recordatorios.qml
     readonly property bool hayAudifonos: Audifonos.hayAudifonos                 // arranca Audifonos.qml
+    readonly property int porActualizar: Actualizaciones.total                   // arranca Actualizaciones.qml
+    readonly property int minutosSeguidos: Pausas.seguidos                       // arranca Pausas.qml
     readonly property bool climaListo: Clima.listo && Eventos.lista.length >= 0  // arranca Clima.qml y Eventos.qml
 
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
@@ -71,8 +76,8 @@ ShellRoot {
     // Lanzador de apps (SUPER+R):  qs ipc call lanzador toggle
     IpcHandler {
         target: "lanzador"
-        function toggle(): void { dashboard.abierto = false; lanzador.abierto = !lanzador.abierto; }
-        function buscar(texto: string): void { dashboard.abierto = false; lanzador.abrirCon(texto); }
+        function toggle(): void { const a = lanzador.abierto; cerrarTodo(); lanzador.abierto = !a; }
+        function buscar(texto: string): void { cerrarTodo(); lanzador.abrirCon(texto); }
         function lanzar(texto: string): void { lanzador.lanzarPrimero(texto); }
     }
 
@@ -91,7 +96,7 @@ ShellRoot {
     function cerrarTodo() { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             conexiones.abierto = false; chuleta.abierto = false;
-                            vista.abierto = false; }
+                            vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }
     IpcHandler {
         target: "wallpapers"
         function toggle(): void { const a = wallpapers.abierto; cerrarTodo(); wallpapers.abierto = !a; }
@@ -104,6 +109,27 @@ ShellRoot {
     IpcHandler {
         target: "menu"
         function cerrar(): void { menu.abierto = false; }
+        // Menú con las opciones que diga quien llama (scripts y módulos Lua), por scripts/menu.sh:
+        //   menu.sh "Título" '[{"icono":983324,"texto":"…","cmd":"…"}]'
+        // Llega en base64: «qs ipc call» parte los argumentos por las comas.
+        function json(titulo: string, opcionesB64: string): void {
+            cerrarTodo();
+            try { menu.abrirCon(titulo, JSON.parse(Qt.atob(opcionesB64))); }   // Qt.atob ya devuelve el texto en UTF-8
+            catch (e) { console.warn("menu json:", e); }
+        }
+        // Asistente local sobre lo seleccionado (SUPER+ALT+A → scripts/ia.sh)
+        function ia(): void {
+            cerrarTodo();
+            const c = "~/.config/hypr/scripts/ia.sh ";
+            menu.abrirCon("Asistente · sobre el texto seleccionado", [
+                { icono: 0xF0284, texto: "Resumir",                    cmd: c + "resumir" },
+                { icono: 0xF0E1E, texto: "Corregir ortografía",        cmd: c + "corregir" },
+                { icono: 0xF03EB, texto: "Redactar mejor",             cmd: c + "mejorar" },
+                { icono: 0xF02D7, texto: "Explicar (texto o error)",   cmd: c + "explicar" },
+                { icono: 0xF05CA, texto: "Traducir",                   cmd: c + "traducir" },
+                { icono: 0xF06A9, texto: "Preguntar sobre el texto…",  cmd: c + "preguntar" }
+            ]);
+        }
         // Modo concentración (SUPER+SHIFT+F): opciones según haya sesión o no
         function concentracion(): void {
             cerrarTodo();
@@ -210,6 +236,31 @@ ShellRoot {
             return `monitor ${m?.name} ${m?.width}x${m?.height} @${m?.x},${m?.y} escala ${m?.scale} · ` +
                    Hyprland.toplevels.values.slice(0, 3).map(t => `${t.address} ws${t.workspace?.id} at=${t.lastIpcObject?.at} size=${t.lastIpcObject?.size}`).join(" | ");
         }
+    }
+
+    // Asistente local, nota rápida, resumen del día, actualizaciones y pausas
+    IpcHandler {
+        target: "ia"
+        function abrir(accion: string, pregunta: string): void { cerrarTodo(); ia.abrirCon(accion, pregunta); }
+        function estado(): string { return `${ia.accion} pensando=${ia.pensando} caracteres=${ia.respuesta.length} error=${ia.error}`; }
+    }
+    IpcHandler {
+        target: "nota"
+        function abrir(): void { const a = nota.abierto; cerrarTodo(); nota.abierto = !a; }
+    }
+    IpcHandler {
+        target: "resumen"
+        function mostrar(): void { cerrarTodo(); resumen.mostrar(); }
+    }
+    IpcHandler {
+        target: "actualizaciones"
+        function refrescar(): void { Actualizaciones.refrescar(); }
+        function estado(): string { return `repos=${Actualizaciones.repos} aur=${Actualizaciones.aur} noticias=${Actualizaciones.noticias} vulnerables=${Actualizaciones.vulnerables}`; }
+        function simular(n: int): void { Actualizaciones.repos = n; Actualizaciones.listo = true; }   // para ver el módulo de la barra
+    }
+    IpcHandler {
+        target: "pausas"
+        function estado(): string { return `${Pausas.seguidos} min seguidos de ${Pausas.minutos}`; }
     }
 
     // Chuleta de atajos (SUPER+H): qs ipc call chuleta toggle

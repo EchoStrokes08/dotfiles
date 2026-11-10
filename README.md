@@ -40,9 +40,10 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | `tema` | Paletas Ayu (oscura y clara) y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper; `SUPER+CTRL+T` entre claro y oscuro (oscuro siempre, salvo que actives el horario con `tema.sh auto on`) |
 | `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (los scripts vuelven a fuzzel si Quickshell no responde) |
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
-| `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones), **dashboard** SUPER+D (reloj, clima, calendario con Google Calendar, sistema, tiempo de pantalla semanal, música con letra), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús, y **widgets de escritorio** (reloj, clima, frase del día y lo próximo, solo con el workspace vacío) |
+| `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones), **dashboard** SUPER+D (reloj, clima, calendario con Google Calendar, sistema, tiempo de pantalla semanal, música con letra), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús, **widgets de escritorio** (reloj, clima, frase del día y lo próximo, solo con el workspace vacío), **asistente de IA local** SUPER+ALT+A, **nota rápida** SUPER+SHIFT+O, **resumen del día** y aviso de **actualizaciones** en la barra |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide, atuin (historial) y fastfetch |
 | `yazi` | Gestor de archivos en la terminal (SUPER+SHIFT+E o `y`), con el acento de la paleta |
+| `lugares` | Reglas por lugar: qué cambia al conectarte a cada Wi-Fi (`~/.config/lugares.conf`) |
 | `satty` | Editor de capturas (flechas, texto, difuminar) con la paleta Ayu |
 | `easyeffects` | Perfiles de sonido para las bocinas del portátil (música y voz) |
 | `keyd/` | Capas de teclado: Bloq Mayús = Esc / Ctrl / flechas en HJKL (va a `/etc/keyd`, no es de stow) |
@@ -106,6 +107,16 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+clic derecho` (arrastrar) | Redimensionar la ventana |
 | `SUPER+SHIFT+R`, luego flechas | Modo redimensionar (mantener = repetir); `Esc` o `Enter` salen |
 | `SUPER+I` | Inspector: class, título, workspace, tamaño y pid de la ventana; copia la class |
+
+#### Productividad
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+ALT+Enter` | Sesiones de trabajo: universidad / programar / descanso, cada app en su workspace (`modulos/sesiones.lua`) |
+| `SUPER+ALT+A` | Asistente local (IA) sobre el texto seleccionado: resumir, corregir, redactar mejor, explicar, traducir o preguntar |
+| `SUPER+SHIFT+O` | Nota rápida: una línea con fecha a `~/Documents/notas.md` |
+| `SUPER+ALT+O` | Guardar en las notas el texto seleccionado |
+| `SUPER+ALT+M` | Móvil: hacerlo sonar, enviarle lo copiado o un archivo, ver sus archivos |
 
 #### Workspaces y monitores
 
@@ -236,6 +247,13 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 
 En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
 `Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
+| `v texto` | Ventanas abiertas en cualquier workspace → ir a ella |
+| `n texto` | Buscar dentro de tus notas (`~/Documents/*.md`) → abrir nvim en esa línea |
+| `c texto` | Historial del portapapeles → copiarlo otra vez |
+| `t texto` | Pestañas abiertas de Firefox → abrir esa dirección (para saltar a la pestaña ya abierta, en Firefox escribe `%` en la barra) |
+| `p nombre` | Contraseñas (Bitwarden o pass) → la escribe donde esté el cursor. Primera vez: `claves.sh configurar` |
+| `ia pregunta` | Preguntar al asistente local |
+| `nota texto` | Apuntar una línea en `notas.md` |
 
 ### Atajos que se adaptan al layout (`modulos/layouts.lua`)
 
@@ -262,6 +280,11 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Animaciones por tipo | Diálogos se despliegan (gnomed), PiP entra por la derecha, la barra baja, las notificaciones entran de lado, los scratchpads se esconden el doble de rápido de lo que entran (`animaciones.lua`, final de `reglas.lua`) |
 | Sonido | El perfil de EasyEffects solo actúa en las bocinas; con audífonos (Bluetooth o cable) se salta solo (`sonido.sh`, `Audifonos.qml`) |
 | Capturas | El aviso de cada captura trae el botón **Anotar** (abre satty) |
+| Resumen del día | La primera vez que usas el equipo cada día (desde las 5:00): clima, eventos, recordatorios, batería y actualizaciones (`Resumen.qml`) |
+| Actualizaciones | Cada 3 h se comprueba sin tocar el sistema; si hay, aparece un paquete con el número en la barra (rojo = hay noticias de Arch que leer antes). Clic = actualizar |
+| Pausas | Tras 50 min seguidos de uso (sin una pausa de 3 min), aviso para descansar la vista. No avisa con No molestar (`Pausas.qml`) |
+| Lugares | Al cambiar de Wi-Fi se aplica su regla de `~/.config/lugares.conf` (energía, volumen de las bocinas, No molestar). En una red desconocida, las bocinas se silencian |
+| Sincronización | Syncthing corre de fondo (panel: http://127.0.0.1:8384) y Tailscale deja entrar al portátil desde tus otros equipos |
 | Cargador | Al desenchufar: perfil «ahorro» y sin blur ni sombras. Al enchufar: vuelve el perfil anterior y la apariencia normal (`Cargador.qml` + `modulos/bateria.lua`; respeta el modo juego) |
 | Disco (SSD) | smartd lo vigila y avisa en el escritorio si aparecen errores o pasa de 75 °C (`/etc/smartd.conf`) |
 | Firmware | `fwupd-refresh.timer` busca actualizaciones de BIOS/SSD; instalarlas: `fwupdmgr update` |
@@ -302,6 +325,9 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 |---|---|
 | `qs ipc call dashboard toggle` · `abrir` · `cerrar` | Dashboard |
 | `qs ipc call dashboard irA 3` | Ir al workspace 3 |
+| `qs ipc call ia abrir <accion> "pregunta"` · `estado` | Panel del asistente (lo normal es usar `ia.sh`) |
+| `qs ipc call nota abrir` · `resumen mostrar` | Nota rápida / resumen del día |
+| `qs ipc call actualizaciones refrescar` · `estado` · `pausas estado` | Volver a comprobar actualizaciones / minutos seguidos de uso |
 | `qs ipc call escritorio toggle` · `estado` | Esconder / mostrar los widgets de escritorio |
 | `qs ipc call menu shaders` · `sonido <perfil>` | Menús de filtro de pantalla y de sonido |
 | `qs ipc call lanzador toggle` | Lanzador de apps |
@@ -349,6 +375,14 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `tema.sh ayu` · `wallpaper` · `alternar` · `estado` | Colores fijos Ayu / del wallpaper / cambiar / ver modo, variante y si es automático |
 | `tema.sh claro` · `oscuro` · `variante` | Tema claro / oscuro / cambiar |
 | `tema.sh auto on` · `off` · `estado` | Claro de día y oscuro de noche, sí/no |
+| `ia.sh` · `resumir` · `corregir` · `mejorar` · `explicar` · `traducir` · `preguntar [texto]` | Asistente local sobre la selección. Modelo en `~/.config/ia/modelo` |
+| `nota.sh "texto"` · `seleccion` | Apuntar una línea / la selección en `notas.md` |
+| `claves.sh configurar` | Guía para dejar listo el gestor de contraseñas (Bitwarden con `rbw`, o `pass`) |
+| `lugar.sh estado` · `aplicar` | Red y lugar actuales / aplicar su regla ahora |
+| `actualizaciones.sh` · `instalar` | Pendientes en JSON / actualizar en una terminal |
+| `movil.sh menu` · `portapapeles` · `elegir` · `navegar` | Menú del móvil / enviar lo copiado / enviar archivo / ver sus archivos |
+| `menu.sh "Título" '[…json…]'` | Abrir el menú de Quickshell con tus propias opciones |
+| `buscar.py <tipo> <texto>` | El buscador del lanzador (ventanas, notas, portapapeles, pestanas, claves) |
 | `sonido.sh Portatil` · `Voz` · `off` · `menu` · `estado` | Perfil de sonido de las bocinas (EasyEffects) |
 | `tema.sh aplicar [imagen]` | Regenerar la paleta en el modo actual |
 | `wallpaper.sh` · `aleatorio` · `poner <ruta>` | Selector / uno al azar / poner ese |
