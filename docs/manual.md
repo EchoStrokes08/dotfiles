@@ -623,7 +623,10 @@ tardó y si falló. `Ctrl+R` otra vez cambia el filtro: todo el historial → es
 ### Asistente local (IA)
 
 Funciona sin internet con ollama y el modelo `gemma3:4b` (unos 4 GB de RAM mientras responde; se
-descarga de la memoria a los 10 minutos sin usarlo). Responde a unas 10 palabras por segundo.
+descarga de la memoria a los 10 minutos sin usarlo). Responde a unas 8 palabras por segundo.
+Lee hasta 32 000 caracteres de texto (unas 10 páginas) con un contexto de 16 384 tokens; un texto
+tan largo tarda 3-4 minutos en empezar a responder, porque corre solo en la CPU. Ambos límites
+están al principio de `ia.py`.
 
 - **Sobre un texto**: selecciónalo (o cópialo) y pulsa `SUPER+ALT+A`. Elige resumir, corregir
   ortografía, redactar mejor, explicar (sirve para errores de terminal) o traducir.

@@ -31,7 +31,11 @@ ACCIONES = {
 
 accion = sys.argv[1] if len(sys.argv) > 1 else "preguntar"
 pregunta = " ".join(sys.argv[2:]).strip()
-texto = "" if sys.stdin.isatty() else sys.stdin.read().strip()[:12000]
+# Límites medidos en este equipo (solo CPU: ~43 tokens/s leyendo, ~8 tokens/s escribiendo):
+# 32 000 caracteres ≈ 8 000 tokens ≈ 3-4 min de lectura; caben en un contexto de 16 384 con sitio para la respuesta.
+MAX_CARACTERES = 32000
+CONTEXTO = 16384
+texto = "" if sys.stdin.isatty() else sys.stdin.read().strip()[:MAX_CARACTERES]
 
 if accion in ACCIONES:
     if not texto:
@@ -42,10 +46,10 @@ else:
         sys.exit("Escribe una pregunta.")
     mensaje = pregunta + (f"\n\nTexto al que me refiero:\n\n{texto}" if texto else "")
 
-cuerpo = json.dumps({"model": MODELO, "stream": True, "keep_alive": "10m",
+cuerpo = json.dumps({"model": MODELO, "stream": True, "keep_alive": "10m", "options": {"num_ctx": CONTEXTO},
                      "messages": [{"role": "system", "content": SISTEMA}, {"role": "user", "content": mensaje}]}).encode()
 try:
-    with urllib.request.urlopen(urllib.request.Request(URL, cuerpo, {"Content-Type": "application/json"}), timeout=300) as r:
+    with urllib.request.urlopen(urllib.request.Request(URL, cuerpo, {"Content-Type": "application/json"}), timeout=900) as r:
         for linea in r:
             trozo = json.loads(linea).get("message", {}).get("content", "")
             if trozo:

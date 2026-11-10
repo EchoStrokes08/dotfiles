@@ -4,3 +4,6 @@
 
 # Caché de Python
 __pycache__/
+
+# Estado generado por el tema (matugen); stow lo deja dentro del repo
+gtk/.local/state/
