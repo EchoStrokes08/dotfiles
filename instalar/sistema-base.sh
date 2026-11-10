@@ -14,6 +14,7 @@
 #  12. DNS       cifrado (DNS-over-TLS, Quad9 + Cloudflare); `dns-cifrado off` para Wi-Fi con portal
 #  13. Mirrors   reflector: servidores de paquetes rápidos cerca de Colombia (antes salía uno de Suecia)
 #  14. KDE Connect  puertos 1714-1764 abiertos SOLO para la red local (el móvil)
+#  17. Hibernación  swapfile de 16 GB en el subvolumen @swap (zram no sirve para hibernar)
 #
 # Uso (SIN sudo; lo pide él):  ~/dotfiles/instalar/sistema-base.sh [--simular]
 # Idempotente: si algo ya está hecho, lo salta.
@@ -343,9 +344,42 @@ else
 fi
 echo "    Falta iniciar sesión tú:  sudo tailscale up --ssh   ·  Syncthing: http://127.0.0.1:8384"
 
+# ── 17. Hibernación ─────────────────────────────────────────────────────
+# zram no sirve para hibernar (vive en la RAM). Swapfile de 16 GB en su propio subvolumen @swap, para
+# que los snapshots de / no lo incluyan. No hace falta resume= en GRUB: el initramfs usa el hook
+# `systemd` y systemd anota dónde quedó la imagen en una variable EFI (HibernateLocation).
+paso "Hibernación (swapfile en @swap)"
+RAIZ=$(findmnt -no UUID /)
+if [ "$(findmnt -no FSTYPE /)" != btrfs ]; then
+    aviso "la raíz no es btrfs: hibernación sin configurar"
+elif swapon --show=NAME --noheadings | grep -qx /swap/swapfile; then
+    ok "swapfile ya activo"
+else
+    if ! grep -q '/@swap' /etc/fstab; then
+        T=$(mktemp -d)
+        run sudo mount -o subvolid=5 "UUID=$RAIZ" "$T"
+        [ -d "$T/@swap" ] || run sudo btrfs subvolume create "$T/@swap" >/dev/null
+        run sudo umount "$T"; rmdir "$T"
+        run sudo mkdir -p /swap
+        if [ "$SIMULAR" = 0 ]; then
+            printf '\n# Hibernación: swapfile en su propio subvolumen (fuera de los snapshots). Prioridad baja: zram va primero.\nUUID=%s\t/swap\tbtrfs\trw,noatime,ssd,discard=async,space_cache=v2,subvol=/@swap\t0 0\n/swap/swapfile\tnone\tswap\tdefaults,pri=1\t0 0\n' "$RAIZ" \
+                | sudo tee -a /etc/fstab >/dev/null
+        fi
+        run sudo systemctl daemon-reload
+    fi
+    findmnt /swap >/dev/null || run sudo mount /swap
+    [ -f /swap/swapfile ] || run sudo btrfs filesystem mkswapfile --size 16g --uuid clear /swap/swapfile >/dev/null
+    run sudo swapon -p 1 /swap/swapfile && ok "swapfile de 16 GB activo (probar: systemctl hibernate)"
+fi
+# Para «suspender y, a las 2 h, hibernar» (systemctl suspend-then-hibernate)
+escribir /etc/systemd/sleep.conf.d/hibernar.conf <<'EOT'
+[Sleep]
+HibernateDelaySec=2h
+EOT
+
 paso "Listo"
 echo "  Comprueba:"
-echo "    swapon --show          → /dev/zram0"
+echo "    swapon --show          → /dev/zram0 y /swap/swapfile"
 echo "    sudo ufw status        → Status: active"
 echo "    snapper list           → tu primer snapshot"
 echo "    fwupdmgr refresh && fwupdmgr get-updates   → firmware disponible"

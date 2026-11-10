@@ -492,6 +492,11 @@ kitty ni el audio. Si te cierra algo, es que tenías demasiado abierto. Configur
 **Arranque**: unos 20 s. De ellos ~9 s son de la BIOS antes de Linux: si quieres arañarlos, entra en la BIOS
 (F2 al encender) y activa *Fast Boot* (o *Quick Boot*).
 
+**Hibernación.** `systemctl hibernate` guarda la sesión en el disco (`/swap/swapfile`, 16 GB) y apaga del
+todo: no gasta batería y al encender vuelve todo como estaba. `systemctl suspend-then-hibernate` suspende
+y, a las 2 h, hiberna solo (el plazo está en `/etc/systemd/sleep.conf.d/hibernar.conf`). La suspensión
+normal (tapa, 1 h de inactividad, «Suspender» del lanzador) sigue igual.
+
 ## 19. Texto, voz, recordatorios y tiempo de pantalla
 
 **Dictar** (`SUPER+ALT+D`): pulsa, habla, vuelve a pulsar. El texto se escribe donde esté el cursor (y queda
