@@ -1,0 +1,10 @@
+/* Paleta Ayu Light (modo "ayu", variante clara). La leen waybar y swaync. */
+@define-color fondo     #f8f9fa;
+@define-color texto     #5c6166;
+@define-color naranja   #fa8d3e;
+@define-color amarillo  #f2ae49;
+@define-color azul      #399ee6;
+@define-color verde     #86b300;
+@define-color rojo      #e65050;
+@define-color seleccion #d8e3ee;
+@define-color gris      #8a9199;

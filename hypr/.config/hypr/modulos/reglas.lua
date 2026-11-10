@@ -110,3 +110,43 @@ hl.window_rule({
 --   1 terminal · 2 navegador · 9 chats   (Spotify vive en su scratchpad: SUPER+Y)
 hl.window_rule({ name = "ws-navegador", match = { initial_class = "^firefox$" },                              workspace = "2" })
 hl.window_rule({ name = "ws-chats",     match = { initial_class = "^(com.rtosta.zapzap|discord|vesktop)$" }, workspace = "9" })
+
+-- ---------- Animaciones por tipo (explicado al final de animaciones.lua) ----------
+-- Estilos de ventana: "popin N%", "slide [left|right|top|bottom]", "gnomed"
+hl.window_rule({
+    name  = "anim-dialogos",
+    match = { class = "^(hyprpolkitagent|xdg-desktop-portal-gtk|org.freedesktop.impl.portal.desktop.kde|zenity|org.pulseaudio.pavucontrol)$" },
+    animation = "gnomed",
+})
+hl.window_rule({
+    name  = "anim-dialogos-titulo",
+    match = { title = "^(Open File|Save As|Save File|Abrir archivo|Guardar como|Guardar archivo|File Operation Progress|Progreso de la operación con archivos|Rename.*|Renombrar.*|Library|Biblioteca)$" },
+    animation = "gnomed",
+})
+hl.window_rule({
+    name  = "anim-pip",
+    match = { class = "^firefox$", title = "^(Picture-in-Picture|Imagen en imagen)$" },
+    animation = "slide right",
+})
+
+-- Capas (layers). Estilos: "slide [lado]", "popin N%", "fade"
+hl.layer_rule({ name = "anim-barra",          match = { namespace = "^quickshell-barra$" },          animation = "slide top" })
+hl.layer_rule({ name = "anim-notificaciones", match = { namespace = "^quickshell-notificaciones$" }, animation = "slide right" })
+hl.layer_rule({ name = "anim-escritorio",     match = { namespace = "^quickshell-escritorio$" },     animation = "fade" })
+hl.layer_rule({
+    name    = "anim-quickshell-propias",
+    match   = { namespace = "^quickshell-(dashboard|lanzador|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|osd)$" },
+    no_anim = true,
+})
+hl.layer_rule({ name = "anim-seleccion", match = { namespace = "^(selection|hyprpicker)$" }, no_anim = true })
+
+-- Editor de capturas (satty, SUPER+SHIFT+A): flotante y centrado, sin transparencia
+hl.window_rule({
+    name   = "satty-flotante",
+    match  = { class = "^com.gabm.satty$" },
+    float  = true,
+    center = true,
+    opaque = true,
+    max_size = "(monitor_w*0.92) (monitor_h*0.9)",
+    animation = "popin 92%",
+})

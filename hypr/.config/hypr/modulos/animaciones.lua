@@ -37,6 +37,8 @@ local animaciones = {
     { "workspacesIn",  3.5,  "ayuDeslizar",  "slidefade 20%" },
     { "workspacesOut", 3.5,  "ayuDeslizar",  "slidefade 20%" },
     { "specialWorkspace", 3, "ayuAsomar",    "slidefadevert 25%" },  -- scratchpad (SUPER+S) sube desde abajo
+    { "specialWorkspaceIn",  3,   "ayuAsomar", "slidefadevert 25%" },  -- entra asomándose (se pasa un 4 % y vuelve)…
+    { "specialWorkspaceOut", 1.6, "quick",     "slidefadevert 12%" },  -- …y se va el doble de rápido: esconder no debe hacerte esperar
     { "zoomFactor",    7,    "quick"                     },
 }
 
@@ -46,3 +48,12 @@ for _, a in ipairs(animaciones) do
     if es_spring then spec.spring = curva else spec.bezier = curva end
     hl.animation(spec)
 end
+
+-- ---------- Animaciones por TIPO de ventana o capa ----------
+-- Lo de arriba son las animaciones generales. El ESTILO se puede cambiar por ventana o por capa con
+-- una regla (campo "animation"); están al final de reglas.lua:
+--   · diálogos, contraseña de admin, selector de archivos → "gnomed" (se despliegan en vertical)
+--   · Picture-in-Picture → entra deslizando desde la derecha
+--   · barra → baja desde arriba · notificaciones → entran desde la derecha
+--   · paneles de Quickshell → sin animación de Hyprland (ya se animan ellos en QML; dos a la vez se ve lento)
+--   · selección de región para capturas → sin animación (aparece al instante y no sale en la captura)

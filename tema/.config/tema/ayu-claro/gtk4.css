@@ -1,0 +1,43 @@
+/* Ayu Light para apps GTK4 / libadwaita (Nautilus, ajustes de GNOME, etc.).
+ * libadwaita 1.6+ usa variables CSS en :root. Paleta: ~/.config/waybar/ayu.css
+ */
+:root {
+  --accent-bg-color: #fa8d3e;
+  --accent-fg-color: #ffffff;
+  --accent-color: #fa8d3e;
+
+  --destructive-bg-color: #e65050;
+  --destructive-fg-color: #ffffff;
+  --destructive-color: #e65050;
+  --success-bg-color: #86b300;
+  --success-fg-color: #ffffff;
+  --success-color: #86b300;
+  --warning-bg-color: #f2ae49;
+  --warning-fg-color: #ffffff;
+  --warning-color: #f2ae49;
+  --error-bg-color: #e65050;
+  --error-fg-color: #ffffff;
+  --error-color: #e65050;
+
+  --window-bg-color: #f8f9fa;
+  --window-fg-color: #5c6166;
+  --view-bg-color: #ffffff;
+  --view-fg-color: #5c6166;
+  --headerbar-bg-color: #eef0f2;
+  --headerbar-fg-color: #5c6166;
+  --headerbar-border-color: #d8e3ee;
+  --headerbar-backdrop-color: #f8f9fa;
+  --sidebar-bg-color: #ffffff;
+  --sidebar-fg-color: #5c6166;
+  --sidebar-backdrop-color: #ffffff;
+  --secondary-sidebar-bg-color: #f8f9fa;
+  --secondary-sidebar-fg-color: #5c6166;
+  --card-bg-color: #eef0f2;
+  --card-fg-color: #5c6166;
+  --dialog-bg-color: #eef0f2;
+  --dialog-fg-color: #5c6166;
+  --popover-bg-color: #eef0f2;
+  --popover-fg-color: #5c6166;
+  --thumbnail-bg-color: #eef0f2;
+  --thumbnail-fg-color: #5c6166;
+}

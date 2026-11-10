@@ -3,6 +3,9 @@
 adw-gtk-theme
 amd-ucode
 android-tools
+arch-audit
+atuin
+awww
 baobab
 base
 base-devel
@@ -13,12 +16,14 @@ bluez-utils
 brightnessctl
 btop
 btrfs-progs
+calf
 cava
 cliphist
 code
 discord
 duf
 earlyoom
+easyeffects
 efibootmgr
 exfatprogs
 eza
@@ -51,9 +56,11 @@ hyprpolkitagent
 hyprshot
 hyprsunset
 imv
+informant
 inotify-tools
 jq
 kdeconnect
+keyd
 kitty
 lib32-gamemode
 lib32-vulkan-radeon
@@ -63,6 +70,8 @@ libva-utils
 linux
 linux-firmware
 linux-headers
+linux-lts
+lsp-plugins-lv2
 man-db
 man-pages
 matugen
@@ -104,6 +113,8 @@ radeontop
 reflector
 restic
 ripgrep
+rsync
+satty
 scrcpy
 sddm
 slurp

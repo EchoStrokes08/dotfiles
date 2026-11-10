@@ -28,6 +28,7 @@ La lista completa de atajos y comandos está en el [README](../README.md#todos-l
 18. [Copias de seguridad, memoria y salud del equipo](#18-copias-de-seguridad-memoria-y-salud-del-equipo)
 19. [Texto, voz, recordatorios y tiempo de pantalla](#19-texto-voz-recordatorios-y-tiempo-de-pantalla)
 20. [El móvil (KDE Connect)](#20-el-móvil-kde-connect)
+21. [Teclado con capas, tema claro, filtros, sonido y escritorio](#21-teclado-con-capas-tema-claro-filtros-sonido-y-escritorio)
 
 Apéndice A. [Todos los atajos](#apéndice-a-todos-los-atajos)
 
@@ -545,6 +546,77 @@ mando o ratón, y hacerlo sonar cuando no lo encuentras.
 archivo: icono de la bandeja → *Enviar archivo*, o `~/.config/hypr/scripts/movil.sh enviar archivo.pdf`. En el
 lanzador: *Buscar el móvil*.
 
+## 21. Teclado con capas, tema claro, filtros, sonido y escritorio
+
+### Bloq Mayús reconvertida (keyd)
+
+La tecla Bloq Mayús está en el mejor sitio del teclado y casi no se usa. Ahora hace tres cosas:
+
+- **Un toque** = `Esc` (cerrar menús, salir de modos en nvim).
+- **Mantenida** = `Ctrl`: `Bloq Mayús+C` copia, `+T` abre pestaña, `+W` la cierra.
+- **Mantenida + `H` `J` `K` `L`** = flechas ← ↓ ↑ →, y **`Y` `U` `I` `O`** = Inicio, Av Pág, Re Pág, Fin.
+  Con Shift además selecciona texto. Sirve en cualquier app, sin mover la mano a las flechas.
+
+Las mayúsculas fijas siguen existiendo: `Shift+Bloq Mayús`.
+
+keyd trabaja por debajo de Hyprland (también en la TTY y el login) y junta los dos teclados en uno,
+así que el Bloq Mayús ya no puede quedar activado en un teclado y no en el otro.
+
+- Cambiar las capas: edita `~/dotfiles/keyd/default.conf`, cópialo con
+  `sudo install -m644 ~/dotfiles/keyd/default.conf /etc/keyd/default.conf` y `sudo keyd reload`.
+- Si el teclado hace algo raro: **Retroceso + Esc + Enter** a la vez apaga keyd.
+- Quitarlo del todo: `sudo systemctl disable --now keyd`.
+
+### Tema claro y oscuro
+
+`SUPER+CTRL+T` cambia entre claro y oscuro. Es independiente de `SUPER+SHIFT+T` (Ayu o colores del
+wallpaper): las cuatro combinaciones funcionan.
+
+Por defecto es **automático**: a las 6:30 pasa a claro y a las 18:00 a oscuro. Si lo cambias a mano se
+respeta hasta el siguiente cambio de hora. `tema.sh auto off` lo apaga y `tema.sh auto on` lo vuelve a
+encender; las horas están al principio de `modulos/tema.lua`.
+
+Cambian con el tema: Hyprland, toda la interfaz de Quickshell, kitty, btop, las apps GTK y lo que
+pregunta al sistema (Firefox y las webs con modo oscuro automático). No cambian solos: nvim, VS Code,
+Discord y Spotify, que tienen su tema Ayu oscuro fijo.
+
+### Filtros de pantalla
+
+`SUPER+ALT+S` abre el menú: **grises** (leer sin distracciones), **papel** (sepia de poco contraste,
+lectura larga), **colores vivos** (juegos y vídeo) e **invertido** (un PDF blanco pasa a oscuro sin
+cambiar los tonos). El filtro elegido se mantiene hasta que eliges «Ninguno», también tras reiniciar.
+No aparecen en capturas ni grabaciones. Los filtros son archivos GLSL en `~/.config/hypr/shaders/`.
+
+### Sonido de las bocinas
+
+`SUPER+ALT+E`: **Música** (más cuerpo, menos sonido «a caja», más brillo y graves realzados), **Voz**
+(clases, vídeos y llamadas: se entiende mejor y a volumen parejo) o **Sin efectos** (cierra
+EasyEffects). Con audífonos los efectos se saltan solos. Para afinar un perfil de oído, abre
+«Easy Effects» desde el lanzador, ajusta y guarda el perfil con el mismo nombre.
+
+### Wallpapers con transición y widgets de escritorio
+
+Los fondos cambian con una transición (awww): al elegir uno, el nuevo crece desde donde está el
+cursor; la rotación automática entra con un barrido; con batería es un fundido corto.
+
+En un workspace vacío aparecen sobre el fondo el reloj, la fecha, el clima, una frase del día y, a la
+derecha, tus próximos eventos y recordatorios. Al abrir una ventana se desvanecen.
+`qs ipc call escritorio toggle` los esconde.
+
+### Anotar capturas
+
+`SUPER+SHIFT+A` captura una región y abre el editor (satty). También puedes pulsar **Anotar** en el
+aviso de cualquier captura. Dentro: flecha, línea, recuadro, texto, números (para pasos 1-2-3),
+resaltador, difuminar y recortar. `Enter` copia, guarda (`…_anotada.png`) y sale; `Ctrl+Z` deshace.
+
+### Historial de la terminal (atuin)
+
+`Ctrl+R` abre el buscador: escribe cualquier parte del comando. Muestra cuándo lo corriste, cuánto
+tardó y si falló. `Ctrl+R` otra vez cambia el filtro: todo el historial → esta sesión → esta carpeta.
+`Enter` lo ejecuta, `Tab` lo deja en la línea para editarlo. Todo queda en este equipo.
+
+---
+
 ## Apéndice A. Todos los atajos
 
 <!-- atajos:inicio — NO editar a mano: sale del README con docs/actualizar-atajos.py -->
@@ -624,6 +696,9 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
 | `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
 | `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |
+| `SUPER+CTRL+T` | Tema claro ↔ oscuro (solo: claro 6:30–18:00, oscuro de noche) |
+| `SUPER+ALT+S` | Filtro de pantalla: ninguno / grises / papel / colores vivos / invertido |
+| `SUPER+ALT+E` | Sonido de las bocinas: perfil música / voz / sin efectos (EasyEffects) |
 | `SUPER+SHIFT+W` | Selector de wallpapers |
 | `SUPER+CTRL+W` | Wallpaper al azar |
 | `SUPER+SHIFT+V` | Historial del portapapeles |
@@ -637,11 +712,23 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 |---|---|
 | `PRINT` | Captura de una región → `~/Imágenes/screenshots` + portapapeles |
 | `SUPER+PRINT` | Captura de toda la pantalla |
-| `SHIFT+PRINT` | Menú: región, pantalla, ventana activa o pantalla en 5 s |
+| `SHIFT+PRINT` | Menú: región, pantalla, ventana activa, pantalla en 5 s o región y anotar |
+| `SUPER+SHIFT+A` | Capturar una región y anotarla (satty): flechas, texto, números, resaltar, difuminar. `Enter` copia, guarda y sale |
 | `SUPER+SHIFT+PRINT` | Guardar los últimos 30 s de pantalla y audio en `~/Videos/Replays` |
 | `SUPER+ALT+PRINT` | Encender / apagar el replay |
 | `SUPER+ALT+R` | Grabar pantalla: menú región / pantalla / con audio / GIF; otra vez = parar → `~/Videos/Grabaciones` |
 | `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR): seleccionas una zona y su texto queda copiado |
+
+#### Teclado con capas (keyd: funciona en todas las apps, la TTY y el login)
+
+| Atajo | Acción |
+|---|---|
+| `Bloq Mayús` (un toque) | Esc |
+| `Bloq Mayús` mantenida + tecla | Ctrl + tecla (`Bloq Mayús+C` = copiar) |
+| `Bloq Mayús+H` `J` `K` `L` | Flechas ← ↓ ↑ → (con Shift, selecciona) |
+| `Bloq Mayús+Y` `U` `I` `O` | Inicio · Av Pág · Re Pág · Fin |
+| `Shift+Bloq Mayús` | Bloq Mayús de verdad (MAYÚSCULAS) |
+| `Retroceso+Esc+Enter` | Emergencia: apaga keyd (el teclado vuelve a ser el normal) |
 
 #### Texto y voz
 

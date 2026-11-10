@@ -36,13 +36,16 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 
 | Paquete (stow) | Qué configura |
 |---|---|
-| `hypr` | Hyprland en Lua, partido en módulos (`modulos/`), scripts, hyprlock, hypridle, hyprpaper y los temas de arranque (`temas-arranque/`: SDDM, GRUB y Plymouth) |
-| `tema` | Paleta Ayu y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper |
+| `hypr` | Hyprland en Lua, partido en módulos (`modulos/`), scripts, filtros de pantalla (`shaders/`), hyprlock, hypridle y los temas de arranque (`temas-arranque/`: SDDM, GRUB y Plymouth) |
+| `tema` | Paletas Ayu (oscura y clara) y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper; `SUPER+CTRL+T` entre claro y oscuro (automático: claro de día, oscuro de noche) |
 | `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (los scripts vuelven a fuzzel si Quickshell no responde) |
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
-| `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones), **dashboard** SUPER+D (reloj, clima, calendario con Google Calendar, sistema, tiempo de pantalla semanal, música con letra), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús |
-| `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide y fastfetch |
+| `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones), **dashboard** SUPER+D (reloj, clima, calendario con Google Calendar, sistema, tiempo de pantalla semanal, música con letra), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús, y **widgets de escritorio** (reloj, clima, frase del día y lo próximo, solo con el workspace vacío) |
+| `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide, atuin (historial) y fastfetch |
 | `yazi` | Gestor de archivos en la terminal (SUPER+SHIFT+E o `y`), con el acento de la paleta |
+| `satty` | Editor de capturas (flechas, texto, difuminar) con la paleta Ayu |
+| `easyeffects` | Perfiles de sonido para las bocinas del portátil (música y voz) |
+| `keyd/` | Capas de teclado: Bloq Mayús = Esc / Ctrl / flechas en HJKL (va a `/etc/keyd`, no es de stow) |
 | `udiskie` | Monta solos los USB y discos externos, con aviso |
 | `gtk` | adw-gtk3 con colores Ayu e iconos Papirus-Ayu |
 | `btop` · `nvim` · `vscode` · `firefox` · `vesktop` · `spicetify` | Apps con el tema Ayu |
@@ -138,6 +141,9 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
 | `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
 | `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |
+| `SUPER+CTRL+T` | Tema claro ↔ oscuro (solo: claro 6:30–18:00, oscuro de noche) |
+| `SUPER+ALT+S` | Filtro de pantalla: ninguno / grises / papel / colores vivos / invertido |
+| `SUPER+ALT+E` | Sonido de las bocinas: perfil música / voz / sin efectos (EasyEffects) |
 | `SUPER+SHIFT+W` | Selector de wallpapers |
 | `SUPER+CTRL+W` | Wallpaper al azar |
 | `SUPER+SHIFT+V` | Historial del portapapeles |
@@ -151,11 +157,23 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 |---|---|
 | `PRINT` | Captura de una región → `~/Imágenes/screenshots` + portapapeles |
 | `SUPER+PRINT` | Captura de toda la pantalla |
-| `SHIFT+PRINT` | Menú: región, pantalla, ventana activa o pantalla en 5 s |
+| `SHIFT+PRINT` | Menú: región, pantalla, ventana activa, pantalla en 5 s o región y anotar |
+| `SUPER+SHIFT+A` | Capturar una región y anotarla (satty): flechas, texto, números, resaltar, difuminar. `Enter` copia, guarda y sale |
 | `SUPER+SHIFT+PRINT` | Guardar los últimos 30 s de pantalla y audio en `~/Videos/Replays` |
 | `SUPER+ALT+PRINT` | Encender / apagar el replay |
 | `SUPER+ALT+R` | Grabar pantalla: menú región / pantalla / con audio / GIF; otra vez = parar → `~/Videos/Grabaciones` |
 | `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR): seleccionas una zona y su texto queda copiado |
+
+#### Teclado con capas (keyd: funciona en todas las apps, la TTY y el login)
+
+| Atajo | Acción |
+|---|---|
+| `Bloq Mayús` (un toque) | Esc |
+| `Bloq Mayús` mantenida + tecla | Ctrl + tecla (`Bloq Mayús+C` = copiar) |
+| `Bloq Mayús+H` `J` `K` `L` | Flechas ← ↓ ↑ → (con Shift, selecciona) |
+| `Bloq Mayús+Y` `U` `I` `O` | Inicio · Av Pág · Re Pág · Fin |
+| `Shift+Bloq Mayús` | Bloq Mayús de verdad (MAYÚSCULAS) |
+| `Retroceso+Esc+Enter` | Emergencia: apaga keyd (el teclado vuelve a ser el normal) |
 
 #### Texto y voz
 
@@ -238,6 +256,12 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Teclado | Mantener una tecla repite a los 300 ms, 40 veces/s (`entrada.lua`) |
 | Touchpad | Tocar = clic; al hundirlo, 1 dedo = clic, 2 = derecho, 3 = central; se ignora mientras escribes |
 | Cursor | Se esconde al teclear y tras 5 s quieto; vuelve al mover el ratón |
+| Tema por hora | A las 6:30 pasa a claro y a las 18:00 a oscuro (`modulos/tema.lua`). Si lo cambias a mano, se respeta hasta el siguiente cambio de hora. Apagarlo: `tema.sh auto off` |
+| Wallpapers | Cambian con transición (awww): a mano, el nuevo crece desde el cursor; en la rotación de cada 10 min, un barrido; con batería, un fundido corto |
+| Escritorio | Con el workspace vacío aparecen reloj, clima, frase del día y lo próximo (eventos y recordatorios); al abrir una ventana se van (`Escritorio.qml`) |
+| Animaciones por tipo | Diálogos se despliegan (gnomed), PiP entra por la derecha, la barra baja, las notificaciones entran de lado, los scratchpads se esconden el doble de rápido de lo que entran (`animaciones.lua`, final de `reglas.lua`) |
+| Sonido | El perfil de EasyEffects solo actúa en las bocinas; con audífonos (Bluetooth o cable) se salta solo (`sonido.sh`, `Audifonos.qml`) |
+| Capturas | El aviso de cada captura trae el botón **Anotar** (abre satty) |
 | Cargador | Al desenchufar: perfil «ahorro» y sin blur ni sombras. Al enchufar: vuelve el perfil anterior y la apariencia normal (`Cargador.qml` + `modulos/bateria.lua`; respeta el modo juego) |
 | Disco (SSD) | smartd lo vigila y avisa en el escritorio si aparecen errores o pasa de 75 °C (`/etc/smartd.conf`) |
 | Firmware | `fwupd-refresh.timer` busca actualizaciones de BIOS/SSD; instalarlas: `fwupdmgr update` |
@@ -278,6 +302,8 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 |---|---|
 | `qs ipc call dashboard toggle` · `abrir` · `cerrar` | Dashboard |
 | `qs ipc call dashboard irA 3` | Ir al workspace 3 |
+| `qs ipc call escritorio toggle` · `estado` | Esconder / mostrar los widgets de escritorio |
+| `qs ipc call menu shaders` · `sonido <perfil>` | Menús de filtro de pantalla y de sonido |
 | `qs ipc call lanzador toggle` | Lanzador de apps |
 | `qs ipc call lanzador buscar fire` | Abrir el lanzador con un texto ya escrito |
 | `qs ipc call lanzador lanzar btop` | Abrir directamente el primer resultado |
@@ -320,10 +346,14 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 
 | Comando | Qué hace |
 |---|---|
-| `tema.sh ayu` · `wallpaper` · `alternar` · `estado` | Colores fijos Ayu / del wallpaper / cambiar / ver el modo |
+| `tema.sh ayu` · `wallpaper` · `alternar` · `estado` | Colores fijos Ayu / del wallpaper / cambiar / ver modo, variante y si es automático |
+| `tema.sh claro` · `oscuro` · `variante` | Tema claro / oscuro / cambiar |
+| `tema.sh auto on` · `off` · `estado` | Claro de día y oscuro de noche, sí/no |
+| `sonido.sh Portatil` · `Voz` · `off` · `menu` · `estado` | Perfil de sonido de las bocinas (EasyEffects) |
 | `tema.sh aplicar [imagen]` | Regenerar la paleta en el modo actual |
 | `wallpaper.sh` · `aleatorio` · `poner <ruta>` | Selector / uno al azar / poner ese |
-| `capturas.sh` · `region` · `pantalla` · `ventana` · `temporizador` | Menú / captura directa |
+| `capturas.sh` · `region` · `pantalla` · `ventana` · `temporizador` · `anotar` | Menú / captura directa / región al editor |
+| `capturas.sh editar <archivo>` | Abrir una captura ya hecha en el editor (satty) |
 | `replay.sh start` · `save` · `toggle` | Replay: arrancar / guardar 30 s / encender-apagar |
 | `conmutadores.sh todos` | Estado de Wi-Fi, Bluetooth, replay y rendimiento |
 | `conmutadores.sh wifi on` · `off` · `estado` | Igual para `bluetooth`, `replay`, `rendimiento`, `conservacion` (batería hasta ~80 %), `luz` |
@@ -368,7 +398,9 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `dns-cifrado off` · `on` · `estado` | Apagar el DNS cifrado para una Wi-Fi con página de acceso / volver a encenderlo |
 | `y [carpeta]` | yazi; al salir con `q` la terminal se queda en la carpeta donde estabas (`Q` no cambia) |
 | `zplug-actualizar` | Actualizar los plugins de zsh |
-| `Ctrl+R` · `Ctrl+T` · `Alt+C` | Buscar en el historial / archivos / carpetas (fzf) |
+| `Ctrl+R` | Historial con atuin: busca por texto; `Ctrl+R` otra vez cambia el filtro (todo → esta sesión → esta carpeta); `Enter` ejecuta, `Tab` lo deja para editar |
+| `atuin stats` | Tus comandos más usados |
+| `Ctrl+T` · `Alt+C` | Buscar archivos / carpetas (fzf) |
 | `Tab` | Completar con menú y vista previa (fzf-tab) |
 | `↑` / `↓` | Buscar en el historial lo que ya escribiste |
 | `→` o `Ctrl+Espacio` | Aceptar la sugerencia gris |

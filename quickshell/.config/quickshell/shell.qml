@@ -43,6 +43,22 @@ ShellRoot {
         }
     }
 
+    // Widgets de escritorio (reloj, frase, lo próximo): solo con el workspace vacío. Uno por pantalla.
+    PersistentProperties { id: escritorioCfg; reloadableId: "escritorio"; property bool activado: true }
+    Variants {
+        model: Quickshell.screens
+        Escritorio {
+            required property var modelData
+            screen: modelData
+            activado: escritorioCfg.activado
+        }
+    }
+    IpcHandler {
+        target: "escritorio"
+        function toggle(): void { escritorioCfg.activado = !escritorioCfg.activado; }
+        function estado(): string { return escritorioCfg.activado ? "visible" : "oculto"; }
+    }
+
     IpcHandler {
         target: "dashboard"
         function toggle(): void { dashboard.abierto = !dashboard.abierto; }
@@ -123,6 +139,29 @@ ShellRoot {
                 { icono: 0xF0D78, texto: "Región como GIF",       cmd: c + "gif" }
             ]);
         }
+        // Filtros de pantalla (SUPER+ALT+S → modulos/shaders.lua)
+        function shaders(): void {
+            cerrarTodo();
+            const h = n => `hyprctl dispatch 'shader.poner("${n}") or hl.dsp.no_op()'`;
+            menu.abrirCon("Filtro de pantalla", [
+                { icono: 0xF0156, texto: "Ninguno",              cmd: h("") },
+                { icono: 0xF0E4D, texto: "Escala de grises",     cmd: h("grises") },
+                { icono: 0xF00BA, texto: "Papel (sepia)",        cmd: h("papel") },
+                { icono: 0xF03D8, texto: "Colores vivos",        cmd: h("vivo") },
+                { icono: 0xF0594, texto: "Invertido",            cmd: h("invertido") }
+            ]);
+        }
+        // Mejora de sonido (SUPER+ALT+E → scripts/sonido.sh, EasyEffects)
+        function sonido(actual: string): void {
+            cerrarTodo();
+            const c = "~/.config/hypr/scripts/sonido.sh ";
+            const m = (n, t) => (actual === n ? "● " : "") + t;
+            menu.abrirCon("Sonido de las bocinas", [
+                { icono: 0xF075A, texto: m("Portatil", "Música (más cuerpo y brillo)"), cmd: c + "Portatil" },
+                { icono: 0xF036C, texto: m("Voz", "Voz (clases, vídeos, llamadas)"),    cmd: c + "Voz" },
+                { icono: 0xF0581, texto: m("off", "Sin efectos"),                       cmd: c + "off" }
+            ]);
+        }
         function capturas(): void {
             cerrarTodo();
             const c = "~/.config/hypr/scripts/capturas.sh ";
@@ -131,6 +170,7 @@ ShellRoot {
                 { icono: 0xF0E51, texto: "Pantalla completa", cmd: c + "pantalla" },
                 { icono: 0xF10AC, texto: "Ventana activa",    cmd: c + "ventana" },
                 { icono: 0xF051B, texto: "Pantalla en 5 s",   cmd: c + "temporizador" },
+                { icono: 0xF03EB, texto: "Región y anotar",   cmd: c + "anotar" },
                 { icono: 0xF0EF1, texto: "Copiar texto (OCR)", cmd: "~/.config/hypr/scripts/ocr.sh" }
             ]);
         }

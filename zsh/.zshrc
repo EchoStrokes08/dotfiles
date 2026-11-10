@@ -66,7 +66,13 @@ export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always --line-range :200 {}'"
 export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
 export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons --color=always {}'"
-source <(fzf --zsh)            # Ctrl+R historial · Ctrl+T archivos · Alt+C carpetas
+source <(fzf --zsh)            # Ctrl+T archivos · Alt+C carpetas (Ctrl+R lo toma atuin, abajo)
+
+# atuin: Ctrl+R pasa a ser un buscador del historial con contexto (carpeta, cuándo, cuánto tardó, si falló).
+# Dentro: Ctrl+R cambia el filtro (global → esta sesión → esta carpeta), Enter ejecuta, Tab lo deja para editar.
+# ↑/↓ siguen siendo la búsqueda por lo ya escrito (--disable-up-arrow). Config: ~/.config/atuin/config.toml
+# Va DESPUÉS de fzf para quedarse con Ctrl+R. Estadísticas: atuin stats
+(( $+commands[atuin] )) && eval "$(atuin init zsh --disable-up-arrow)"
 
 eval "$(zoxide init zsh --cmd cd)"   # cd aprende tus carpetas: "cd dot" → ~/dotfiles; cdi = menú
 

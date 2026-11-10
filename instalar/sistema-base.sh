@@ -308,6 +308,20 @@ else
     ok "puertos 1714-1764 abiertos para 192.168/16, 10/8 y 172.16/12"
 fi
 
+# ── 15. keyd (capas de teclado) ─────────────────────────────────────────
+# Bloq Mayús = Esc (toque) / Ctrl (mantenida) / flechas en HJKL. Config: ~/dotfiles/keyd/default.conf
+paso "keyd: Bloq Mayús como Esc, Ctrl y flechas"
+DOT="$(cd "$(dirname "$0")/.." && pwd)"
+run sudo pacman -S --needed --noconfirm keyd >/dev/null
+if cmp -s "$DOT/keyd/default.conf" /etc/keyd/default.conf 2>/dev/null && systemctl is-enabled --quiet keyd 2>/dev/null; then
+    ok "ya estaba bien"
+else
+    run sudo install -Dm644 "$DOT/keyd/default.conf" /etc/keyd/default.conf
+    run sudo systemctl enable --now --quiet keyd
+    run sudo keyd reload
+    ok "keyd activo (emergencia: Retroceso+Esc+Enter)"
+fi
+
 paso "Listo"
 echo "  Comprueba:"
 echo "    swapon --show          → /dev/zram0"

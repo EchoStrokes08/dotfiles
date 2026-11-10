@@ -79,7 +79,9 @@ u.atajos({
     { "PRINT",            exec([[mkdir -p ~/Imágenes/screenshots && grim -g "$(slurp)" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
     { mod .. " + PRINT",  exec([[mkdir -p ~/Imágenes/screenshots && grim - - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy]]) },
 
-    { "SHIFT + PRINT",    exec("~/.config/hypr/scripts/capturas.sh") },  -- menú: región, pantalla, ventana, 5 s, OCR
+    { "SHIFT + PRINT",    exec("~/.config/hypr/scripts/capturas.sh") },  -- menú: región, pantalla, ventana, 5 s, anotar, OCR
+    { mod .. " + SHIFT + A", exec("~/.config/hypr/scripts/capturas.sh anotar") },  -- región → editor (satty): flechas, texto, difuminar
+    { mod .. " + ALT + E",   exec("~/.config/hypr/scripts/sonido.sh menu") },      -- mejora de sonido (EasyEffects): perfiles
     { mod .. " + ALT + R", exec("~/.config/hypr/scripts/grabar.sh") },     -- grabar pantalla: menú / parar
     { mod .. " + SHIFT + X", exec("~/.config/hypr/scripts/ocr.sh") },      -- OCR: el texto de una zona, al portapapeles
 

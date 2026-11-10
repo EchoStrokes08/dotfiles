@@ -15,6 +15,11 @@ Singleton {
     readonly property bool hayAudifonos: Pipewire.nodes.values.some(n => n.isSink && !n.isStream && a.esAudifono(n))
     property bool sonabaEnAudifonos: false      // se actualiza cada 2 s mientras están
 
+    // Mejora de sonido (EasyEffects, scripts/sonido.sh): los perfiles son para las bocinas. Al cambiar
+    // la salida se le avisa y él decide si aplica los efectos (bocinas) o los salta (audífonos).
+    readonly property string salida: Pipewire.defaultAudioSink?.name ?? ""
+    onSalidaChanged: Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/sonido.sh", "salida"])
+
     Timer {
         interval: 2000; running: a.hayAudifonos; repeat: true; triggeredOnStart: true
         onTriggered: a.sonabaEnAudifonos = a.esAudifono(Pipewire.defaultAudioSink) && Mpris.players.values.some(p => p.isPlaying)

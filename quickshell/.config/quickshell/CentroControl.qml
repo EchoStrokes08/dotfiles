@@ -69,7 +69,7 @@ PanelWindow {
     // solo apps que SUENAN (Stream/Output); las que graban (p. ej. el replay) son Stream/Input
     readonly property var apps: Pipewire.nodes.values.filter(n => n.isStream && n.audio && n.properties["media.class"] === "Stream/Output/Audio")
     // dispositivos de salida (altavoces, Buds, HDMI…) y el micrófono por defecto
-    readonly property var salidas: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream && n.audio)
+    readonly property var salidas: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream && n.audio && n.name !== "easyeffects_sink")   // el sink virtual de EasyEffects no es una salida que elegir
     readonly property var entrada: Pipewire.defaultAudioSource
     PwObjectTracker { objects: [ventana.salida, ventana.entrada, ...ventana.apps] }
     function iconoSalida(n) {

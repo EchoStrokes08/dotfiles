@@ -1,0 +1,20 @@
+# satty: editor de capturas (lo abre ~/.config/hypr/scripts/capturas.sh).
+# Herramientas: flecha, línea, recuadro, elipse, texto, números (pasos 1-2-3), pincel, resaltador, difuminar, recortar.
+[general]
+early-exit = true                 # tras copiar o guardar, se cierra
+initial-tool = "arrow"            # arranca con la flecha (lo más usado)
+copy-command = "wl-copy"
+annotation-size-factor = 1.2
+primary-highlighter = "block"
+disable-notifications = false
+actions-on-enter = ["save-to-clipboard", "save-to-file"]   # Enter: copia, guarda y sale
+actions-on-escape = ["exit"]
+corner-roundness = 6
+
+[font]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+# Colores de la barra: los de Ayu (el primero es el que sale elegido)
+[color-palette]
+palette = ["#ff3333", "#f19618", "#e6c446", "#b8cc52", "#36a3d9", "#ffffff", "#0e1419"]

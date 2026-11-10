@@ -1,0 +1,25 @@
+# atuin: historial de la terminal en una base de datos (~/.local/share/atuin/history.db).
+# Todo queda en este equipo: la sincronización está apagada.
+auto_sync = false
+update_check = false
+
+style = "compact"          # una línea por comando
+inline_height = 18         # no ocupa toda la pantalla
+invert = true              # buscador arriba, como fzf
+show_preview = true        # los comandos largos se ven enteros abajo
+show_help = false
+enter_accept = true        # Enter ejecuta; Tab lo deja en la línea para editarlo
+keymap_mode = "emacs"
+filter_mode = "global"
+workspaces = true          # dentro de un repo git, el filtro "workspace" = solo ese repo
+search_mode = "fuzzy"
+
+store_failed = true        # también guarda los que fallaron (se marcan en rojo)
+secrets_filter = true      # no guarda comandos con tokens o claves conocidas (AWS, GitHub…)
+history_filter = [
+    "^ ",                                              # empieza con espacio = no guardar (como en zsh)
+    "(?i)(password|passwd|token|secret|clave)=",       # variables con secretos
+]
+
+[stats]
+common_subcommands = ["git", "yay", "pacman", "systemctl", "hyprctl", "qs", "sudo"]
