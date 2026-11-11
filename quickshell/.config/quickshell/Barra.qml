@@ -46,14 +46,14 @@ PanelWindow {
             Text {
                 id: etiquetaPerfil
                 anchors.centerIn: parent
-                text: EstadoEscritorio.privacidad ? "privacidad" : EstadoEscritorio.perfil
+                text: Reunion.activa ? "Reunión " + Reunion.cuenta : EstadoEscritorio.privacidad ? "privacidad" : EstadoEscritorio.perfil
                 color: Paleta.naranja
                 font { family: Paleta.fuente; pixelSize: 11; bold: true }
             }
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
-                onClicked: Quickshell.execDetached(["qs", "ipc", "call", "centroEscritorio", "toggle"])
+                onClicked: Quickshell.execDetached(Reunion.activa ? ["qs", "ipc", "call", "mesa", "abrir", "reunion"] : ["qs", "ipc", "call", "centroEscritorio", "toggle"])
             }
         }
 

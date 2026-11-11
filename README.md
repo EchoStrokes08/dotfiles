@@ -7,6 +7,9 @@ cambiar solos según el wallpaper, gracias a matugen.
 **¿Primera vez usándolo?** Lee el [manual de uso](docs/manual.md): explica cómo se maneja el escritorio
 día a día. Abajo está la referencia completa de atajos y comandos.
 
+**Mesa de trabajo:** `SUPER+ALT+ESPACIO` abre ventanas con vista previa, aparcado, plantillas, reuniones
+y rutinas. `SUPER+CTRL+V` va directamente a los textos reutilizables. [Guía y capturas](docs/mesa-de-trabajo.md).
+
 **Centro del escritorio:** `SUPER+CTRL+ESPACIO` abre perfiles, privacidad, checkpoints y diagnóstico.
 Lee la [guía del escritorio avanzado](docs/escritorio-avanzado.md).
 
@@ -152,6 +155,8 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `ALT+F4` | Menú de apagado (wlogout) |
 | `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
+| `SUPER+ALT+ESPACIO` | Mesa de trabajo: ventanas, aparcado, plantillas, reuniones y rutinas |
+| `SUPER+CTRL+V` | Biblioteca de plantillas de texto con fecha y hora |
 | `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
 | `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |

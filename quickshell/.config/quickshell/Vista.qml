@@ -121,14 +121,14 @@ Superpuesta {
                                         clip: true
                                         ScreencopyView {
                                             anchors { fill: parent; margins: 1 }
-                                            captureSource: vista.abierto ? ventanita.modelData.wayland : null
+                                            captureSource: vista.abierto && !EstadoEscritorio.privacidad ? ventanita.modelData.wayland : null
                                             live: true
                                         }
                                         Text {   // si aún no hay imagen: el título
                                             anchors.centerIn: parent
                                             width: parent.width - 8
-                                            visible: !ventanita.modelData.wayland
-                                            text: ventanita.ipc?.class ?? ""
+                                            visible: EstadoEscritorio.privacidad || !ventanita.modelData.wayland
+                                            text: EstadoEscritorio.privacidad ? "Contenido oculto" : ventanita.ipc?.class ?? ""
                                             elide: Text.ElideRight
                                             horizontalAlignment: Text.AlignHCenter
                                             color: Paleta.gris

@@ -4,6 +4,9 @@ Cómo se usa este escritorio en el día a día: qué es cada cosa, cómo moverse
 La lista completa de atajos y comandos está en el [README](../README.md#todos-los-comandos); este manual explica
 **cuándo y para qué** usar cada uno.
 
+**Mesa de trabajo:** `SUPER+ALT+ESPACIO`; textos reutilizables con `SUPER+CTRL+V`.
+[Ventanas, plantillas, reuniones y rutinas](mesa-de-trabajo.md).
+
 **Nuevo centro del escritorio:** `SUPER+CTRL+ESPACIO`. [Perfiles, privacidad, checkpoints y diagnóstico](escritorio-avanzado.md).
 
 > `SUPER` es la tecla Windows. Casi todo se hace con ella.
@@ -776,6 +779,8 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `ALT+F4` | Menú de apagado (wlogout) |
 | `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
+| `SUPER+ALT+ESPACIO` | Mesa de trabajo: ventanas, aparcado, plantillas, reuniones y rutinas |
+| `SUPER+CTRL+V` | Biblioteca de plantillas de texto con fecha y hora |
 | `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
 | `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |

@@ -42,8 +42,8 @@ function M.resolver(e)
     end
     return {
         config = c, juego = juego,
-        no_molestar = juego or e.presentacion == true or e.concentracion == true or e.privacidad == true,
-        pausar_replay = e.bateria == true or e.privacidad == true or perfil == "minimo",
+        no_molestar = juego or e.presentacion == true or e.concentracion == true or e.privacidad == true or e.reunion == true,
+        pausar_replay = e.bateria == true or e.privacidad == true or perfil == "minimo" or e.reunion == true,
     }
 end
 return M

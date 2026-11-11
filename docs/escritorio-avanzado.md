@@ -6,6 +6,9 @@ buscando «Centro del escritorio» en el lanzador.
 
 ![Centro del escritorio](screenshots/centro-escritorio.png)
 
+**Ampliación:** la [mesa de trabajo](mesa-de-trabajo.md) añade navegación de ventanas, aparcado,
+plantillas, reuniones temporizadas y rutinas.
+
 ## Empezar a usarlo
 
 1. Elige **Lectura** para ventanas opacas o **Cristal** para tu apariencia habitual.
@@ -126,7 +129,7 @@ python3 -m unittest discover -s tests -v
 hyprctl configerrors
 ```
 
-El motor tiene pruebas de 384 combinaciones. Las regresiones verifican identidad de ventanas,
+El motor inicial cubría 384 combinaciones; con reunión cubre 768. Las regresiones verifican identidad de ventanas,
 rechazo de datos inválidos, deshacer, dependencias ausentes, privacidad del replay y confirmación
 del bloqueo. GitHub Actions comprueba políticas, regresiones y sintaxis Lua/shell/Python.
 La simulación del instalador devuelve ahora 0 sin avisos y rechaza pasos desconocidos.

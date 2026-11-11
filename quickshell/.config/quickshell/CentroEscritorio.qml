@@ -109,7 +109,7 @@ Superpuesta {
             Accion { text: "Guardar checkpoint"; onClicked: centro.ejecutar(["checkpoint", "guardar"]) }
             Accion { text: "Restaurar espacios"; ayuda: "Devuelve las ventanas existentes a los espacios guardados; crea una opción para deshacer."; onClicked: centro.ejecutar(["checkpoint", "restaurar"]) }
             Accion { text: "Deshacer restauración"; ayuda: "Recupera los espacios anteriores a la última restauración."; onClicked: centro.ejecutar(["checkpoint", "deshacer"]) }
-            Accion { text: EstadoEscritorio.privacidad ? "Privacidad: sí" : "Privacidad: no"; destacado: EstadoEscritorio.privacidad; onClicked: centro.ejecutar(["privacidad"]) }
+            Accion { text: Reunion.activa ? "Privacidad: reunión" : EstadoEscritorio.privacidad ? "Privacidad: sí" : "Privacidad: no"; enabled: !Reunion.activa && !accion.running; destacado: EstadoEscritorio.privacidad; onClicked: centro.ejecutar(["privacidad"]) }
             Accion { text: "Juego automático"; onClicked: centro.ejecutar(["juego", "automatico"]) }
             Accion { text: "Diagnóstico"; onClicked: centro.ejecutar(["diagnostico"]) }
             Accion { text: "Replay automático"; ayuda: "Graba con cargador; pausa con batería, privacidad o perfil mínimo."; onClicked: centro.ejecutar(["replay", "auto"]) }
@@ -137,6 +137,7 @@ Superpuesta {
                 }
             }
         }
+        Accion { text: "Abrir mesa de trabajo → ventanas, plantillas, reuniones y rutinas"; onClicked: Quickshell.execDetached(["qs", "ipc", "call", "mesa", "abrir", "ventanas"]) }
         Text {
             Layout.fillWidth: true
             text: "Privacidad pausa el replay y oculta títulos en la barra. Los checkpoints duran esta sesión; no reabren aplicaciones."

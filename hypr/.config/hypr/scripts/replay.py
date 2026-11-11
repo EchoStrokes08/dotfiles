@@ -95,7 +95,7 @@ def main():
         preferencia = modo.read_text().strip() if modo.exists() else 'auto'
         deseado = preferencia == 'si' or (preferencia == 'auto' and e.get('pausar_replay') == 'false')
         # Privacidad siempre gana, incluso sobre el encendido manual.
-        deseado = deseado and e.get('privacidad') != 'true'
+        deseado = deseado and e.get('privacidad_activa', e.get('privacidad')) != 'true'
         if dato and not deseado:
             os.kill(dato['pid'], signal.SIGINT)
             for _ in range(30):

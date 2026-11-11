@@ -8,13 +8,13 @@ Singleton {
     id: estado
     property var datos: ({})
     readonly property string perfil: datos.perfil || "cristal"
-    readonly property bool privacidad: datos.privacidad === "true"
+    readonly property bool privacidad: datos.privacidad_activa === "true" || datos.privacidad === "true"
     readonly property string motivos: [
         datos.juego_activo === "true" ? "juego" : "",
         datos.bateria === "true" ? "batería" : "",
         datos.concentracion === "true" ? "concentración" : "",
         datos.presentacion === "true" ? "presentación" : "",
-        privacidad ? "privacidad" : ""
+        datos.reunion === "true" ? "reunión" : privacidad ? "privacidad" : ""
     ].filter(x => x !== "").join(" · ") || "Sin automatizaciones activas"
     FileView {
         path: Quickshell.env("XDG_RUNTIME_DIR") + "/hypr-escritorio-" + Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") + ".state"

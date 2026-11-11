@@ -3,15 +3,15 @@ local motor = require('modulos.politicas')
 local casos = 0
 for perfil in pairs(motor.perfiles) do
     for _, juego in ipairs({'si', 'no', 'automatico'}) do
-        for mascara = 0, 31 do
+        for mascara = 0, 63 do
             local e = {perfil=perfil, juego=juego, juego_auto=mascara & 1 ~= 0,
                 bateria=mascara & 2 ~= 0, presentacion=mascara & 4 ~= 0,
-                concentracion=mascara & 8 ~= 0, privacidad=mascara & 16 ~= 0}
+                concentracion=mascara & 8 ~= 0, privacidad=mascara & 16 ~= 0, reunion=mascara & 32 ~= 0}
             local r = motor.resolver(e)
             local g = juego == 'si' or (juego == 'automatico' and e.juego_auto)
             assert(r.juego == g)
-            assert(r.no_molestar == (g or e.presentacion or e.concentracion or e.privacidad))
-            assert(r.pausar_replay == (e.bateria or e.privacidad or perfil == 'minimo'))
+            assert(r.no_molestar == (g or e.presentacion or e.concentracion or e.privacidad or e.reunion))
+            assert(r.pausar_replay == (e.bateria or e.privacidad or perfil == 'minimo' or e.reunion))
             if e.bateria or g or perfil == 'minimo' or perfil == 'rendimiento' then
                 assert(not r.config.decoration.blur.enabled)
                 assert(not r.config.decoration.shadow.enabled)

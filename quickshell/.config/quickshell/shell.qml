@@ -29,6 +29,7 @@ ShellRoot {
     IA { id: ia }
     NotaRapida { id: nota }
     CentroEscritorio { id: centroEscritorio }
+    Mesa { id: mesa }
     Resumen { id: resumen }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
@@ -102,9 +103,16 @@ ShellRoot {
         function cerrar(): void { centroEscritorio.abierto = false; }
     }
 
+    IpcHandler {
+        target: "mesa"
+        function abrir(que: string): void { cerrarTodo(); mesa.abrir(que); }
+        function cerrar(): void { mesa.abierto = false; }
+        function estado(): string { return JSON.stringify({abierto:mesa.abierto, pagina:mesa.pagina, reunion:Reunion.activa, ventanas:mesa.ventanas.length, plantillas:mesa.plantillas.length}); }
+    }
+
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
-    function cerrarTodo() { centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
+    function cerrarTodo() { mesa.abierto = false; centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             conexiones.abierto = false; chuleta.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }

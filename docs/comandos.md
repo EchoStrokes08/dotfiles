@@ -312,3 +312,14 @@ CLI en `~/.local/bin/buds` (repo aparte). Ayuda completa: `buds --help` o `buds 
 El perfil de la barra también es un botón. Dentro del centro, Alt+1…4 selecciona perfil.
 Consulta la [guía completa](escritorio-avanzado.md) para checkpoints, deshacer, automatizaciones
 combinadas y comandos de diagnóstico.
+
+
+### Mesa de trabajo
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+ALT+ESPACIO` | Buscar, previsualizar, mover y aparcar ventanas |
+| `SUPER+CTRL+V` | Biblioteca de plantillas de texto |
+| `Ctrl+1…4`, dentro de la mesa | Ventanas / plantillas / reunión / rutinas |
+
+Consulta la [guía de la mesa](mesa-de-trabajo.md) para las reuniones, micrófono, rutinas y comandos.
