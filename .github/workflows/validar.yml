@@ -1,0 +1,25 @@
+name: Validar configuración
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  configuracion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lua
+        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: Motor de políticas
+        run: lua5.4 tests/test_politicas.lua
+      - name: Regresiones de checkpoints, replay y bloqueo
+        run: python3 -m unittest discover -s tests -v
+      - name: Sintaxis
+        run: |
+          find hypr -name '*.lua' -print0 | xargs -0 -n1 luac5.4 -p
+          find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 -n1 bash -n
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          for p in Path('.').rglob('*.py'):
+              ast.parse(p.read_text(), filename=str(p))
+          PY

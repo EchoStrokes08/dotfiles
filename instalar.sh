@@ -33,6 +33,13 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+if [ -n "$SOLO" ]; then
+    case " $SOLO " in
+        ' repos '|' paquetes '|' aur '|' flatpak '|' dotfiles '|' tema '|' buds '|' sistema '|' base '|' arranque '|' apps ') ;;
+        *) echo "Paso desconocido: $SOLO"; exit 2 ;;
+    esac
+fi
+
 # ── Utilidades ──────────────────────────────────────────────────────────
 B=$'\e[1m'; NAR=$'\e[38;2;241;150;24m'; VER=$'\e[38;2;184;204;82m'; ROJ=$'\e[38;2;255;51;51m'; R=$'\e[0m'
 AVISOS=()
@@ -245,3 +252,6 @@ if [ ${#AVISOS[@]} -eq 0 ]; then ok "Todo en orden"
 else printf '%s  Revisa:%s\n' "$ROJ" "$R"; printf '   - %s\n' "${AVISOS[@]}"; fi
 [ -d "$RESPALDO" ] && echo "  Archivos apartados: $RESPALDO"
 [ "$SIMULAR" = 0 ] && echo "  Registro: $LOG" && echo "  Reinicia para entrar a Hyprland con todo listo."
+
+# El resultado representa los avisos acumulados, también en simulación.
+[ ${#AVISOS[@]} -eq 0 ]

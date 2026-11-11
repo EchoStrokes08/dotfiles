@@ -14,7 +14,7 @@ estado() {
     case "$1" in
         wifi)        [ "$(nmcli radio wifi)" = enabled ] ;;
         bluetooth)   bluetoothctl show 2>/dev/null | grep -q 'Powered: yes' ;;
-        replay)      pgrep -f '^gpu-screen-recorder' >/dev/null ;;
+        replay)      [ "$(~/.config/hypr/scripts/replay.sh estado)" = grabando ] ;;
         rendimiento) [ "$(powerprofilesctl get)" = performance ] ;;
         conservacion) [ "$(cat "$CONSERV" 2>/dev/null)" = 1 ] ;;
         luz)         t=$(hyprctl hyprsunset temperature 2>/dev/null | tr -dc '0-9'); [ -n "$t" ] && [ "$t" -lt 6000 ] ;;

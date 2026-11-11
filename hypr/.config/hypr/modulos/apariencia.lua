@@ -1,11 +1,12 @@
 -- Look and feel: https://wiki.hypr.land/configuring/core/config-options/
 local c = require("modulos.colores")
+local base = require("modulos.politicas").base
 
 hl.config({
     general = {
-        gaps_in     = 3.5,  -- espacio entre ventanas
-        gaps_out    = 7.5,  -- espacio entre las ventanas y el borde de la pantalla
-        border_size = 4,
+        gaps_in     = base.general.gaps_in,  -- espacio entre ventanas
+        gaps_out    = base.general.gaps_out,  -- espacio entre las ventanas y el borde de la pantalla
+        border_size = base.general.border_size,
 
         col = {
             -- borde activo: degradado naranja → azul a 135°
@@ -19,11 +20,11 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 3,  -- radio de las esquinas
+        rounding       = base.decoration.rounding,  -- radio de las esquinas
         rounding_power = 3,
 
-        active_opacity     = 0.80,
-        inactive_opacity   = 0.70,
+        active_opacity     = base.decoration.active_opacity,
+        inactive_opacity   = base.decoration.inactive_opacity,
         fullscreen_opacity = 1.0,  -- en pantalla completa nada es transparente
 
         shadow = {
@@ -41,7 +42,7 @@ hl.config({
         },
     },
 
-    animations = { enabled = true },
+    animations = { enabled = base.animations.enabled },
 
     -- Layouts: dwindle (el actual), master y scrolling. Se cambia con general.layout
     dwindle   = { preserve_split = true },

@@ -11,6 +11,7 @@ PanelWindow {
     property bool abierto: false
     property bool mostrar: false
     property string espacio: "superpuesta"     // namespace: quickshell-<espacio> (para el blur)
+    property real opacidadTarjeta: 0.90
     property real anchoTarjeta: 560
     property real alturaRelativa: 0.14         // dónde empieza la tarjeta (fracción del alto)
     default property alias contenido: caja.data
@@ -50,7 +51,7 @@ PanelWindow {
         Behavior on opacity { NumberAnimation { duration: 180 } }
         Behavior on scale   { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
         radius: 16
-        color: Qt.alpha(Paleta.fondo, 0.90)
+        color: Qt.alpha(Paleta.fondo, v.opacidadTarjeta)
         border { width: 1; color: Qt.alpha(Paleta.naranja, 0.35) }
         MouseArea { anchors.fill: parent }
 

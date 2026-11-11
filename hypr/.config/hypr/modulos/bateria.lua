@@ -22,20 +22,13 @@ local function con_cargador()
 end
 
 local function ahorro()
-    hl.config({
-        decoration = {
-            shadow = { enabled = false },
-            blur   = { enabled = false },
-        },
-    })
+    require("modulos.escritorio").motivo("bateria", true)
 end
 
 local function normal()
-    -- El modo juego también apaga cosas: si está activo, no tocar (al salir de él se recarga todo)
-    if modo_juego and modo_juego.activo() then return end
-    hl.exec_cmd("hyprctl reload")   -- vuelve a leer apariencia.lua y animaciones.lua tal cual
+    require("modulos.escritorio").motivo("bateria", false)
 end
 
 _G.bateria = { ahorro = ahorro, normal = normal, con_cargador = con_cargador }
 
-if not con_cargador() then ahorro() end
+if con_cargador() then normal() else ahorro() end

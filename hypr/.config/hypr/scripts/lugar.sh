@@ -40,8 +40,8 @@ aplicar() {
         else wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$volumen%"; fi
     fi
     case "$nm" in
-        si) qs ipc call notificaciones noMolestarSi >/dev/null 2>&1 ;;
-        no) qs ipc call notificaciones noMolestarNo >/dev/null 2>&1 ;;
+        si) qs ipc call notificaciones motivo lugar true >/dev/null 2>&1 ;;
+        no) qs ipc call notificaciones motivo lugar false >/dev/null 2>&1 ;;
     esac
     qs ipc call barra refrescar todo >/dev/null 2>&1
     qs ipc call osd mensaje "Estás en: ${lugar:-$ssid}" f034e >/dev/null 2>&1

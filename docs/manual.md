@@ -4,6 +4,8 @@ Cómo se usa este escritorio en el día a día: qué es cada cosa, cómo moverse
 La lista completa de atajos y comandos está en el [README](../README.md#todos-los-comandos); este manual explica
 **cuándo y para qué** usar cada uno.
 
+**Nuevo centro del escritorio:** `SUPER+CTRL+ESPACIO`. [Perfiles, privacidad, checkpoints y diagnóstico](escritorio-avanzado.md).
+
 > `SUPER` es la tecla Windows. Casi todo se hace con ella.
 
 ## Índice
@@ -320,7 +322,8 @@ usado cada app hoy.
 | `SUPER+ALT+PRINT` | Encender / apagar esa grabación continua (replay) |
 
 Las capturas van a `~/Imágenes/screenshots` y además al portapapeles (se pueden pegar directamente).
-Los replays van a `~/Videos/Replays`.
+Los replays van a `~/Videos/Replays`. El modo automático pausa con batería, privacidad o perfil Mínimo.
+El centro del escritorio permite volver a automático después de alternarlo manualmente.
 
 **Grabar la pantalla** (`SUPER+ALT+R`): menú con *Región*, *Pantalla completa*, *con audio* (lo que suena en el
 equipo) y *Región como GIF*. Mientras graba hay un **punto rojo con el tiempo** en la barra; para terminar,
@@ -772,7 +775,9 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+M` | Salir de Hyprland (sin confirmar) |
 | `ALT+F4` | Menú de apagado (wlogout) |
 | `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
-| `SUPER+SHIFT+N` | No molestar |
+| `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
+| `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
+| `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
 | `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
 | `SUPER+SHIFT+C` | Selector de color: clic en un píxel → hex copiado |

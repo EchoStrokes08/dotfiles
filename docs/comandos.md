@@ -175,7 +175,9 @@ Todos en `~/.config/hypr/scripts/`.
 | `wallpaper.sh aleatorio` | Wallpaper al azar |
 | `capturas.sh` | Menú de capturas |
 | `capturas.sh region\|pantalla\|ventana\|temporizador` | Captura directa |
-| `replay.sh start` | Arranca el replay en segundo plano (lo hace el autostart) |
+| `replay.sh start` | Encendido manual del replay; privacidad impide grabar |
+| `replay.sh auto` | Automático: con cargador y sin privacidad ni perfil Mínimo |
+| `replay.sh stop` · `estado` | Apagado manual / consultar estado |
 | `replay.sh save` | Guarda los últimos 30 s |
 | `replay.sh toggle` | Enciende/apaga el replay |
 | `modo-energia.sh` | Pasa al siguiente modo de energía |
@@ -302,3 +304,11 @@ CLI en `~/.local/bin/buds` (repo aparte). Ayuda completa: `buds --help` o `buds 
 | `~/.config/hypr/temas-arranque/instalar.sh` | Temas de SDDM y GRUB |
 | `sudo ~/.config/hypr/temas-arranque/instalar-plymouth-osd.sh` | Plymouth con el tema Ayu Glass |
 | `cd ~/dotfiles && stow <paquete>` | Enlazar un paquete de configuración (`hypr`, `quickshell`, `zsh`…) |
+
+
+### Centro del escritorio
+
+`SUPER+CTRL+ESPACIO` abre el centro; `SUPER+CTRL+P` alterna privacidad.
+El perfil de la barra también es un botón. Dentro del centro, Alt+1…4 selecciona perfil.
+Consulta la [guía completa](escritorio-avanzado.md) para checkpoints, deshacer, automatizaciones
+combinadas y comandos de diagnóstico.

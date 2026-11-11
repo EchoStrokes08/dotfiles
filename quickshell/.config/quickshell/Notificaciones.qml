@@ -20,8 +20,20 @@ Singleton {
         id: persistente
         reloadableId: "notificaciones"
         property bool noMolestar: false
+        property string motivosJson: "{}"
     }
-    property alias noMolestar: persistente.noMolestar
+    property alias manual: persistente.noMolestar
+    property bool automatico: false
+    readonly property bool porAutomatizacion: automatico || Object.values(JSON.parse(persistente.motivosJson || "{}")).some(x => x)
+    readonly property bool noMolestar: manual || porAutomatizacion
+    function motivo(nombre, activo) {
+        const nuevos = JSON.parse(persistente.motivosJson || "{}");
+        if (activo) nuevos[nombre] = true;
+        else delete nuevos[nombre];
+        persistente.motivosJson = JSON.stringify(nuevos);
+    }
+    Component.onCompleted: Qt.callLater(() => Quickshell.execDetached([
+        "hyprctl", "dispatch", "escritorio.sincronizar() or hl.dsp.no_op()"]));
 
     NotificationServer {
         id: servidor
@@ -62,7 +74,7 @@ Singleton {
         emergentes = [];
     }
 
-    function alternarNoMolestar() { noMolestar = !noMolestar; }
+    function alternarNoMolestar() { manual = !manual; }
 
     function haceCuanto(n) {
         const t = horas[n.id];

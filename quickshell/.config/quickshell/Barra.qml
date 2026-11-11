@@ -38,6 +38,25 @@ PanelWindow {
 
         BarraEspacios { id: espaciosBarra; monitor: barra.monitor }
 
+        Rectangle {
+            implicitWidth: etiquetaPerfil.implicitWidth + 16
+            implicitHeight: 24
+            radius: 7
+            color: Qt.alpha(Paleta.naranja, 0.12)
+            Text {
+                id: etiquetaPerfil
+                anchors.centerIn: parent
+                text: EstadoEscritorio.privacidad ? "privacidad" : EstadoEscritorio.perfil
+                color: Paleta.naranja
+                font { family: Paleta.fuente; pixelSize: 11; bold: true }
+            }
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: Quickshell.execDetached(["qs", "ipc", "call", "centroEscritorio", "toggle"])
+            }
+        }
+
         // Ventana activa: icono + título (se funde al cambiar)
         RowLayout {
             id: ventanaActiva
@@ -47,10 +66,10 @@ PanelWindow {
                 return e ? Quickshell.iconPath(e.icon, true) : "";
             }
             spacing: 8
-            visible: actual !== null && actual.title !== "" && hueco > 60
+            visible: !EstadoEscritorio.privacidad && actual !== null && actual.title !== "" && hueco > 60
             // El título cede espacio: nunca debe llegar a donde va el reloj (si no, la bandeja lo tapa).
             // Hueco = desde aquí hasta el lado derecho, menos el reloj y márgenes; tope 340 px.
-            readonly property real hueco: derecha.x - izquierda.x - espaciosBarra.width - 10 - centro.implicitWidth - 24
+            readonly property real hueco: derecha.x - izquierda.x - espaciosBarra.width - etiquetaPerfil.implicitWidth - 36 - centro.implicitWidth - 24
             Layout.maximumWidth: Math.max(0, Math.min(340, hueco))
 
             IconImage {

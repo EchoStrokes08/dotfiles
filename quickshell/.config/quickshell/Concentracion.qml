@@ -37,7 +37,6 @@ Singleton {
         p.fin = Date.now() + min * 60000;
         p.activo = true;
         restante = min * 60;
-        Notificaciones.noMolestar = true;
         Hyprland.dispatch("concentracion.empezar() or hl.dsp.no_op()");
         sh(`qs ipc call osd mensaje "Concentración: ${min} min" f04fe`);
     }
@@ -50,7 +49,6 @@ Singleton {
         if (!p.activo) return;
         p.activo = false;
         Hyprland.dispatch("concentracion.terminar() or hl.dsp.no_op()");
-        Notificaciones.noMolestar = false;
         if (completada) {
             const hoy = new Date().toDateString();
             if (p.dia !== hoy) { p.dia = hoy; p.sesionesHoy = 0; }

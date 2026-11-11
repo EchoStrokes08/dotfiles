@@ -101,6 +101,7 @@ PanelWindow {
         { n: "Capturas",                d: "Menú de capturas · SHIFT+PRINT",               i: 0xF0E51, k: "screenshot",           c: scripts + "capturas.sh" },
         { n: "Selector de color",       d: "Copiar el color de un píxel · SUPER+SHIFT+C",  i: 0xF0266, k: "color picker hex",     c: scripts + "selector-color.sh" },
         { n: "Luz nocturna",            d: "Pantalla cálida sí/no · SUPER+ALT+N",          i: 0xF0594, k: "noche sunset",         c: scripts + "luz-nocturna.sh" },
+        { n: "Centro del escritorio", d: "Perfiles, privacidad, checkpoints y diagnóstico · SUPER+CTRL+ESPACIO", i: 0xF03D8, k: "perfil sistema avanzado checkpoint diagnostico", c: "qs ipc call centroEscritorio toggle" },
         { n: "Modo juego",              d: "Sin efectos ni notificaciones · SUPER+SHIFT+G", i: 0xF0297, k: "game",                c: "hyprctl dispatch 'modo_juego.alternar() or hl.dsp.no_op()'" },
         { n: "Concentración",           d: "Temporizador con No molestar · SUPER+SHIFT+F", i: 0xF04FE, k: "pomodoro foco",        c: "qs ipc call menu concentracion" },
         { n: "Cambiar colores",         d: "Ayu ↔ colores del wallpaper · SUPER+SHIFT+T",  i: 0xF03D8, k: "tema paleta",          c: scripts + "tema.sh alternar" },

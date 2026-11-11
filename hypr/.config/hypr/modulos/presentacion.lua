@@ -56,7 +56,7 @@ hl.bind(p.mainMod .. " + ALT + P", function() pantalla.menu() end)
 
 hl.on("monitor.added", function(m)
     if not m or m.name == INTERNA then return end
-    hl.exec_cmd("qs ipc call notificaciones noMolestarSi")
+    require("modulos.escritorio").motivo("presentacion", true)
     -- un instante para que el monitor termine de aparecer antes de enseñar el menú
     hl.exec_cmd("sleep 1; qs ipc call menu pantalla " .. m.name)
 end)
@@ -64,5 +64,10 @@ end)
 hl.on("monitor.removed", function(m)
     if not m or m.name == INTERNA then return end
     interna_encendida()   -- por si estaba en «solo la externa»: nunca quedarse sin pantalla
-    hl.exec_cmd("qs ipc call notificaciones noMolestarNo; qs ipc call osd mensaje 'Pantalla externa desconectada' f0379")
+    local quedan = false
+    for _, otra in ipairs(hl.get_monitors()) do
+        if otra.name ~= INTERNA and otra.name ~= m.name then quedan = true end
+    end
+    require("modulos.escritorio").motivo("presentacion", quedan)
+    hl.exec_cmd("qs ipc call osd mensaje 'Pantalla externa desconectada' f0379")
 end)

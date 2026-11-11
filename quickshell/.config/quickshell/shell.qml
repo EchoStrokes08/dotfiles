@@ -28,6 +28,7 @@ ShellRoot {
     Vista { id: vista }
     IA { id: ia }
     NotaRapida { id: nota }
+    CentroEscritorio { id: centroEscritorio }
     Resumen { id: resumen }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
@@ -86,14 +87,24 @@ ShellRoot {
         target: "notificaciones"
         function toggle(): void { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = !centro.abierto; }
         function noMolestar(): void { Notificaciones.alternarNoMolestar(); }
-        function noMolestarSi(): void { Notificaciones.noMolestar = true; }
-        function noMolestarNo(): void { Notificaciones.noMolestar = false; }
+        function noMolestarSi(): void { Notificaciones.manual = true; }
+        function noMolestarNo(): void { Notificaciones.manual = false; }
+        function motivo(nombre: string, activo: bool): void { Notificaciones.motivo(nombre, activo); }
+        function automatico(activo: bool): void { Notificaciones.automatico = activo; }
+        function estado(): string { return Notificaciones.noMolestar ? "activo" : "inactivo"; }
         function borrar(): void { Notificaciones.borrarTodo(); }
+    }
+
+    IpcHandler {
+        target: "centroEscritorio"
+        function estado(): string { return JSON.stringify(EstadoEscritorio.datos); }
+        function toggle(): void { const a = centroEscritorio.abierto; cerrarTodo(); centroEscritorio.abierto = !a; }
+        function cerrar(): void { centroEscritorio.abierto = false; }
     }
 
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
-    function cerrarTodo() { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
+    function cerrarTodo() { centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             conexiones.abierto = false; chuleta.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }

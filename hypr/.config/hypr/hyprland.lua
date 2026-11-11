@@ -39,6 +39,7 @@ require("modulos.sistema")
 require("modulos.reglas")
 require("modulos.atajos")
 require("modulos.submaps")
+require("modulos.escritorio")       -- perfiles y política compartida, sin conflictos entre modos
 require("modulos.modo_juego")
 require("modulos.presentacion")    -- proyector/TV: menú duplicar/extender + No molestar (SUPER+ALT+P)
 require("modulos.bateria")         -- sin cargador: sin blur ni sombras (lo avisa Quickshell, Cargador.qml)

@@ -44,9 +44,11 @@ local function esconder(w)
 end
 
 local function empezar()
+    if activo() then return end
     os.execute("mkdir -p '" .. DIR .. "'")
     io.open(ACTIVO, "w"):close()
     for _, w in ipairs(hl.get_windows()) do esconder(w) end
+    require("modulos.escritorio").motivo("concentracion", true)
 end
 
 local function terminar()
@@ -60,6 +62,7 @@ local function terminar()
         end
         f:close()
     end
+    require("modulos.escritorio").motivo("concentracion", false)
     os.remove(ACTIVO)
     os.remove(ORIGEN)
     -- devolver cada una a su workspace (si se abrió durante la sesión, al 1)

@@ -1,6 +1,7 @@
 # Ruta de Hyprland: de tu escritorio actual a desarrollo avanzado
 
 Preparada el **11 de noviembre de 2026** para este repositorio y este equipo.
+Implementación posterior: [centro del escritorio y perfiles coordinados](escritorio-avanzado.md).
 Base: [revisión del sistema](revision-sistema-2026-11-11.md).
 Uso diario: [manual](manual.md). Referencia: [comandos](comandos.md) y [README](../README.md).
 

@@ -268,18 +268,18 @@ PanelWindow {
                 }
                 Text {
                     Layout.fillWidth: true
-                    text: "No molestar"
+                    text: Notificaciones.porAutomatizacion ? "No molestar · automático" : "No molestar"
                     color: Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 13; bold: true }
                 }
                 Rectangle {   // interruptor
                     implicitWidth: 42; implicitHeight: 22; radius: 11
-                    color: Notificaciones.noMolestar ? Paleta.naranja : Qt.alpha(Paleta.texto, 0.15)
+                    color: Notificaciones.manual ? Paleta.naranja : Qt.alpha(Paleta.texto, 0.15)
                     Behavior on color { ColorAnimation { duration: 150 } }
                     Rectangle {
                         width: 16; height: 16; radius: 8
                         anchors.verticalCenter: parent.verticalCenter
-                        x: Notificaciones.noMolestar ? parent.width - width - 3 : 3
+                        x: Notificaciones.manual ? parent.width - width - 3 : 3
                         Behavior on x { NumberAnimation { duration: 150 } }
                         color: Paleta.texto
                     }

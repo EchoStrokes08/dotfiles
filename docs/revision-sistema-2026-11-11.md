@@ -3,6 +3,9 @@
 Fecha: **11 de noviembre de 2026**. Repositorio: `EchoStrokes08/dotfiles`.
 Continuación práctica: [ruta de Hyprland](ruta-hyprland.md).
 
+**Evolución posterior:** [escritorio avanzado](escritorio-avanzado.md) implementa mejoras de bloqueo,
+modos y replay. Este informe conserva el estado observado antes de esos cambios.
+
 ## Alcance y conclusión
 
 El escritorio tiene una arquitectura avanzada: configuración Lua modular, shell propia en QML,

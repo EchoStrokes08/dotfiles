@@ -7,6 +7,9 @@ cambiar solos según el wallpaper, gracias a matugen.
 **¿Primera vez usándolo?** Lee el [manual de uso](docs/manual.md): explica cómo se maneja el escritorio
 día a día. Abajo está la referencia completa de atajos y comandos.
 
+**Centro del escritorio:** `SUPER+CTRL+ESPACIO` abre perfiles, privacidad, checkpoints y diagnóstico.
+Lee la [guía del escritorio avanzado](docs/escritorio-avanzado.md).
+
 **Para avanzar desde este escritorio:** [ruta de Hyprland](docs/ruta-hyprland.md), con prácticas,
 proyectos y criterios de dominio. Parte de la [revisión del sistema del 11 de noviembre de 2026](docs/revision-sistema-2026-11-11.md).
 
@@ -148,7 +151,9 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+M` | Salir de Hyprland (sin confirmar) |
 | `ALT+F4` | Menú de apagado (wlogout) |
 | `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
-| `SUPER+SHIFT+N` | No molestar |
+| `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
+| `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
+| `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
 | `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
 | `SUPER+SHIFT+C` | Selector de color: clic en un píxel → hex copiado |
@@ -349,12 +354,11 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `qs ipc call conexiones estado` | Resumen: tarjeta Wi-Fi, redes vistas, Bluetooth, dispositivos |
 | `qs ipc call menu capturas` · `concentracion` · `cerrar` | Menús |
 | `qs ipc call notificaciones toggle` | Centro de control |
-| `qs ipc call notificaciones noMolestar` · `noMolestarSi` · `noMolestarNo` | No molestar: alternar / activar / desactivar |
+| `qs ipc call notificaciones noMolestar` · `noMolestarSi` · `noMolestarNo` | No molestar manual: alternar / activar / desactivar; no cancela motivos automáticos |
 | `qs ipc call notificaciones borrar` | Borrar todas las notificaciones |
 | `qs ipc call concentracion empezar 25` | Empezar una sesión de 25 min |
 | `qs ipc call concentracion sumar 10` · `terminar` · `estado` | Añadir tiempo / terminar / ver lo que queda |
 | `qs ipc call bloqueo bloquear` | Bloquear con la pantalla de Quickshell |
-| `qs ipc call bloqueo probar` | Bloquear 12 s y soltar solo (para ver el diseño) |
 | `qs ipc call bloqueo estado` | `libre`, `bloqueando` o `bloqueado` |
 | `qs ipc call osd brillo` · `bloqMayus` · `media` | Mostrar en el OSD el brillo / Bloq Mayús / la canción |
 | `qs ipc call osd mensaje "Hola" f04fe` | Aviso libre en el OSD (icono = código Nerd Font en hex) |
@@ -391,7 +395,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `wallpaper.sh` · `aleatorio` · `poner <ruta>` | Selector / uno al azar / poner ese |
 | `capturas.sh` · `region` · `pantalla` · `ventana` · `temporizador` · `anotar` | Menú / captura directa / región al editor |
 | `capturas.sh editar <archivo>` | Abrir una captura ya hecha en el editor (satty) |
-| `replay.sh start` · `save` · `toggle` | Replay: arrancar / guardar 30 s / encender-apagar |
+| `replay.sh auto` · `start` · `stop` · `save` · `toggle` · `estado` | Replay: automático / encendido manual / apagado manual / guardar 30 s / alternar / consultar |
 | `conmutadores.sh todos` | Estado de Wi-Fi, Bluetooth, replay y rendimiento |
 | `conmutadores.sh wifi on` · `off` · `estado` | Igual para `bluetooth`, `replay`, `rendimiento`, `conservacion` (batería hasta ~80 %), `luz` |
 | `dns-cifrado.sh on` · `off` · `estado` | DNS cifrado (alias `dns-cifrado` en zsh) |

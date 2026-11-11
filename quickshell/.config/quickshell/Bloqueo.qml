@@ -1,7 +1,6 @@
 // Bloqueo: la pantalla de bloqueo propia (sustituye a hyprlock, que queda de respaldo).
 //
 //   qs ipc call bloqueo bloquear   → bloquea (lo usa hypridle: lock_cmd, SUPER+L, antes de suspender)
-//   qs ipc call bloqueo probar     → bloquea 12 s y se desbloquea solo (para ver el diseño sin riesgo)
 //
 // La contraseña la comprueba PAM con /etc/pam.d/hyprlock, igual que hyprlock.
 //
@@ -117,13 +116,9 @@ Scope {
         PantallaBloqueo { estado: bloqueo }
     }
 
-    // Modo prueba: se desbloquea solo a los 12 s (la contraseña también funciona)
-    Timer { id: prueba; interval: 12000; onTriggered: bloqueo.desbloquear() }
-
     IpcHandler {
         target: "bloqueo"
         function bloquear(): void { bloqueo.bloquear(); }
-        function probar(): void { bloqueo.bloquear(); prueba.restart(); }
         function estado(): string { return sesion.locked ? (sesion.secure ? "bloqueado" : "bloqueando") : "libre"; }
     }
 }
