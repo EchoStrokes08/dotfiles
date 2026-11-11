@@ -7,6 +7,9 @@ cambiar solos según el wallpaper, gracias a matugen.
 **¿Primera vez usándolo?** Lee el [manual de uso](docs/manual.md): explica cómo se maneja el escritorio
 día a día. Abajo está la referencia completa de atajos y comandos.
 
+**Para avanzar desde este escritorio:** [ruta de Hyprland](docs/ruta-hyprland.md), con prácticas,
+proyectos y criterios de dominio. Parte de la [revisión del sistema del 11 de noviembre de 2026](docs/revision-sistema-2026-11-11.md).
+
 ## Instalar en un Arch nuevo
 
 Solo necesitas un Arch recién instalado, con internet y un usuario con sudo. Luego, **un solo comando**:
