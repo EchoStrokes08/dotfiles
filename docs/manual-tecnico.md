@@ -291,6 +291,8 @@ El aspecto de cristal es común: `FondoPanel.qml` (sombra, degradado, luces radi
 filo de luz) es el fondo de `Superpuesta`, el dashboard, el lanzador, el centro de control, el OSD
 y las notificaciones emergentes. `FondoBoton.qml` es el fondo de todos los botones,
 `TarjetaPanel.qml` agrupa secciones dentro de un panel e `Interruptor.qml` es el conmutador sí/no.
+La barra superior es transparente (42 px) con tres islas `IslaBarra.qml`: espacios y perfil (más
+la ventana activa si cabe), reloj y estado. `DivisorBarra.qml` separa los grupos de módulos.
 Las tarjetas son algo translúcidas (opacidad ≤ 0,86): la regla `quickshell-blur` de
 `hypr/modulos/reglas.lua` difumina lo que hay detrás. El velo queda por debajo de 0,3 de opacidad
 para que el blur actúe solo bajo la tarjeta. `EstiloPanel.efectos` quita sombras y luces en los
@@ -799,6 +801,7 @@ antes de usarlos. Restaurar su código no restaura bibliotecas personales ni arc
 cd ~/dotfiles
 python3 -m unittest discover -s tests -v
 lua tests/test_politicas.lua
+lua tests/test_sesiones.lua
 ./instalar.sh --simular
 hyprctl configerrors
 ```
@@ -811,8 +814,9 @@ funcional. Las pruebas de ventanas, procesos y acciones externas usan simulació
 | Suite | Responsabilidad principal |
 |---|---|
 | `test_politicas.lua` | Combinación de perfiles y motivos |
+| `test_sesiones.lua` | Apps elegidas en Mesa frente a las de serie de cada sesión |
 | `test_escritorio.py` | Checkpoints, replay, identidad y confirmación de bloqueo |
-| `test_mesa.py` | Plantillas, aparcado, reuniones, supervisor y rutinas |
+| `test_mesa.py` | Plantillas, aparcado, reuniones, supervisor, rutinas y apps de cada sesión |
 | `test_flujo.py` | Proyectos, planes, selecciones y límites |
 | `test_brujula.py` | Contexto, línea, sesión, índice, sugerencias, cifrado y bloques programados |
 | `test_salud.py` | Señales de salud y actualización |

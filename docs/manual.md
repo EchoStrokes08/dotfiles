@@ -706,9 +706,10 @@ Otro modelo: `ollama pull qwen3:4b` y escribe su nombre en `~/.config/ia/modelo`
 ### Sesiones de trabajo
 
 `SUPER+ALT+Enter` abre el menú: **Universidad**, **Programar** y **Descanso**. Cada una abre sus apps
-en su workspace; lo que ya estaba abierto no se duplica. Las sesiones de ejemplo son una suposición:
-cámbialas en `~/.config/hypr/modulos/sesiones.lua` (qué apps, qué direcciones abre Firefox, en qué
-workspace). La «clase» de una ventana se ve con `SUPER+I`.
+en su workspace; lo que ya estaba abierto no se duplica. Para elegir qué apps abre cada una
+y en qué espacio, usa Mesa → Rutinas → **Apps** (ver «Rutinas para empezar con menos pasos»). Las de
+serie están en `~/.config/hypr/modulos/sesiones.lua` (ahí también se cambian las direcciones que abre
+Firefox). La «clase» de una ventana se ve con `SUPER+I`.
 
 ### Notas rápidas
 
@@ -928,9 +929,16 @@ revisa la caducidad para no conservar indefinidamente el motivo si el supervisor
 | Programar | Sesión programar, perfil Cristal y 50 min de concentración |
 | Descansar | Sesión descanso, perfil Cristal y fin de la concentración actual |
 
+**Elegir las apps de cada modo.** Cada tarjeta muestra las apps que abrirá y su espacio. Pulsa
+**Apps** para cambiarlas: busca entre las aplicaciones instaladas y pulsa una (o Enter) para añadirla,
+ajusta el espacio con ‹ › y quítala con ×. **Guardar** la deja para la próxima vez; **Restaurar de
+serie** vuelve a las de `modulos/sesiones.lua`. Sin apps, el modo solo cambia apariencia y
+concentración. También se abre directamente con `qs ipc call mesa apps estudiar` (o `programar`,
+`descansar`). Lo elegido se guarda en `~/.local/state/mesa-trabajo/sesiones/` y vale también para el
+menú de `SUPER+ALT+Enter`.
+
 Antes de cambiar nada se guarda un checkpoint de los espacios de las ventanas normales. Las
-aplicaciones y sus espacios son los configurados en `modulos/sesiones.lua`; siguen dependiendo de
-que estén instaladas. No se cierran apps ni se recuperan documentos. Restaurar el checkpoint desde
+aplicaciones siguen dependiendo de que estén instaladas. No se cierran apps ni se recuperan documentos. Restaurar el checkpoint desde
 el centro devuelve las ventanas registradas que sigan abiertas; no revierte todo el perfil ni
 elimina las aplicaciones nuevas de la rutina.
 
@@ -1319,6 +1327,41 @@ antes de restaurar configuración o sistema.
 sobre selecciones de SUPER+ALT+A: además de redactar respuestas, consulta la agenda, la actividad,
 los archivos y el móvil, y propone acciones concretas del escritorio.
 
+### Sistema e internet
+
+El agente también puede leer archivos, crear o editar documentos con copia de respaldo, ejecutar
+programas Linux y manejar un navegador visible con **Playwright + Chromium**. El modelo sigue en
+Ollama; las búsquedas y páginas usan internet. El navegador tiene un perfil independiente y persistente
+en `~/.local/share/brujula/navegador/perfil`: no usa las sesiones de tu Firefox habitual.
+
+Para instalarlo, pulsa **Instalar navegador** en Super+O y confirma la propuesta. También puedes
+ejecutar `~/.config/hypr/scripts/agente-navegador-instalar.sh` desde una terminal. Instala dependencias
+en un entorno Python de tu usuario, descarga Chromium y prueba que arranque antes de marcarlo listo.
+Requiere internet; no pide sudo. Si faltan bibliotecas del sistema, el instalador mostrará el error.
+Vuelve a abrir el panel después de instalarlo. `--simular` muestra el plan sin descargar nada.
+
+Prueba «Busca en internet las noticias de hoy», «Lee https://example.com», «Lee mi archivo
+~/Documents/apuntes.txt» o «Crea ~/Documents/resumen.txt con los puntos principales».
+
+`~/.config/ia/permisos.json` selecciona `{"modo":"autonomo"}`. En este modo se ejecutan consultas
+simples, navegación por URL, sesiones, concentración, recordatorios y ediciones de documentos
+personales. Las ediciones conservan el original en `~/.local/state/brujula/agente/respaldos/`.
+Los comandos generales, borrados, instalaciones, configuración, envíos y acciones del navegador
+mediante clics, teclas o formularios requieren confirmación: pueden cambiar el sistema o datos de una
+cuenta. Revisa el comando, directorio y contenido antes de aceptar. Otros valores de `modo` hacen
+que toda acción de cambio necesite confirmación. Las consultas y aperturas siguen disponibles.
+
+Los comandos se ejecutan sin shell y sin entrada interactiva, con límite de 90 segundos, y muestran
+el código de salida al modelo. Los comandos que necesitan contraseña deben abrirse en una terminal;
+el agente no obtiene privilegios de administrador automáticamente. El control de otras aplicaciones
+depende de las utilidades disponibles en tu sesión (por ejemplo `hyprctl` o `wtype`); no incluye visión
+general de la pantalla ni garantiza poder manejar cualquier aplicación.
+
+El navegador devuelve texto y selectores de la página para las siguientes acciones, conserva sesiones
+y no acepta descargas automáticas. El panel se comunica con él por un socket Unix privado, sin abrir
+puertos TCP de control. Pide «Cierra el navegador del agente» para terminarlo. Cerrar el panel no cierra
+el navegador. El agente puede equivocarse con páginas complejas; comprueba siempre el resultado.
+
 ### Primer uso
 
 1. Comprueba que Ollama esté activo y los modelos estén descargados; el procedimiento está en el
@@ -1326,8 +1369,8 @@ los archivos y el móvil, y propone acciones concretas del escritorio.
 2. Abre el panel y espera la preparación del modelo. Si escribes durante la carga, el panel conserva
    una pregunta pendiente y la envía al terminar. En CPU puede tardar bastante la primera vez.
 3. Prueba `¿Qué tengo mañana?` o `¿Cómo está el equipo?`. Verás los pasos y la respuesta progresiva.
-4. Para actuar, pide algo concreto: `Concentración de 50 minutos`. Revisa la propuesta y pulsa
-   **Sí, hazlo** o **No**. Las solicitudes de cambio necesitan confirmación en este panel.
+4. Para actuar, pide algo concreto: `Concentración de 50 minutos`. En modo autónomo empieza
+   directamente; para acciones que necesitan aprobación, revisa la propuesta y pulsa **Sí, hazlo** o **No**.
 5. Si pregunta por varias acciones, revisa cada propuesta por separado. Escribir otra petición
    descarta la acción que estaba pendiente. Nueva o Ctrl+L inicia otra conversación.
 6. A la izquierda está el **historial**: tus conversaciones agrupadas en Hoy, Ayer, Últimos 7 días y
@@ -1346,6 +1389,9 @@ los archivos y el móvil, y propone acciones concretas del escritorio.
 | Responder desde el móvil | `Contéstale a María que llego a las 3` |
 
 ### Consultas, aperturas y confirmaciones
+
+Esta tabla describe el modo de confirmación. En modo autónomo, las excepciones para documentos,
+sesiones, concentración y recordatorios se describen en «Sistema e internet».
 
 | Sin confirmación adicional en el agente | Con propuesta y confirmación |
 |---|---|
