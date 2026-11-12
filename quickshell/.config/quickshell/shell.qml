@@ -34,6 +34,7 @@ ShellRoot {
     Resumen { id: resumen }
     Brujula { id: brujula }
     Movil { id: movil }
+    Agente { id: agente }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
     readonly property int recordatoriosPendientes: Recordatorios.lista.length   // arranca Recordatorios.qml
@@ -123,6 +124,14 @@ ShellRoot {
         function estado(): string { return JSON.stringify({ abierto: brujula.abierto, pagina: brujula.pagina, aviso: brujula.aviso }); }
     }
 
+    // Agente (SUPER+O): le hablas al escritorio; consulta, abre y propone acciones (scripts/agente.py)
+    IpcHandler {
+        target: "agente"
+        function toggle(): void { const a = agente.abierto; cerrarTodo(); agente.abierto = !a; }
+        function preguntar(texto: string): void { cerrarTodo(); agente.abrirYPreguntar(texto); }
+        function estado(): string { return JSON.stringify({ abierto: agente.abierto, pensando: agente.pensando, listo: agente.listo, mensajes: agente.mensajes.length }); }
+    }
+
     // Móvil (SUPER+ALT+M): avisos con respuesta, acciones, música y funciones de KDE Connect
     IpcHandler {
         target: "movil"
@@ -141,7 +150,7 @@ ShellRoot {
 
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
-    function cerrarTodo() { movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
+    function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             conexiones.abierto = false; chuleta.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }

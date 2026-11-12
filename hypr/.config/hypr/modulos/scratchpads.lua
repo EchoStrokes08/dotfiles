@@ -5,7 +5,7 @@
 --
 --   SUPER+Return  terminal flotante
 --   SUPER+Y       música (Spotify)
---   SUPER+O       notas (nvim en ~/Documents/notas.md)
+--   SUPER+CTRL+SHIFT+O notas (nvim en ~/Documents/notas.md)
 --   SUPER+SHIFT+E archivos (yazi; SUPER+E sigue abriendo Thunar)
 --   SUPER+S       "magic" (el de siempre, para lo que quieras: SUPER+SHIFT+S manda la ventana)
 local p   = require("modulos.programas")
@@ -18,7 +18,7 @@ local scratchpads = {
       comando = p.terminal .. " --class scratch-terminal" },
     { nombre = "musica",   tecla = "Y",      clase = "spotify",
       comando = p.spotify },
-    { nombre = "notas",    tecla = "O",      clase = "scratch-notas",
+    { nombre = "notas",    tecla = "CTRL + SHIFT + O",      clase = "scratch-notas",
       comando = "mkdir -p ~/Documents && " .. p.terminal .. " --class scratch-notas -e nvim " .. NOTAS },
     { nombre = "archivos", tecla = "SHIFT + E", clase = "scratch-archivos",
       comando = p.terminal .. " --class scratch-archivos -e yazi" },

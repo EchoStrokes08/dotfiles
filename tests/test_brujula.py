@@ -250,7 +250,9 @@ class Sugerencias(Base):
         (state / "mesa-trabajo").mkdir()
         (state / "mesa-trabajo/proyectos.json").write_text(json.dumps({"ultimo": "p1", "proyectos": [
             {"id": "p1", "nombre": "Taller de redes", "siguiente": "Configurar las VLAN"}]}))
+        import salud
         with patch.object(sugerencias, "STATE", state), patch.object(sugerencias, "HOME", self.root), \
+                patch.object(salud, "todo", lambda: {"comprobaciones": []}), \
                 patch.object(b, "config", lambda: {"reglas": [], "sugerencias": {"distracciones": ["discord"]}, "linea": {}, "sesion": {}}):
             d = sugerencias.calcular()
         ids = [s["id"] for s in d["sugerencias"]]

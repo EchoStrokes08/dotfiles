@@ -3,6 +3,7 @@
 # (y queda también en el portapapeles). Whisper en local (dictado.py): tu voz no sale del equipo.
 #   dictado.sh            empezar / terminar
 #   dictado.sh cancelar   terminar sin escribir nada
+#   dictado.sh texto      igual, pero al terminar IMPRIME el texto (lo usa el agente, SUPER+O) en vez de escribirlo
 # Si el micrófono estaba silenciado, lo activa solo mientras graba y luego lo deja como estaba.
 RUN=${XDG_RUNTIME_DIR:-/tmp}
 PID=$RUN/dictado.pid; WAV=$RUN/dictado.wav; MUDO=$RUN/dictado.mudo
@@ -27,6 +28,7 @@ if [ -f "$PID" ] && kill -0 "$(cat "$PID")" 2>/dev/null; then
     if [ -z "$texto" ] || [[ "$texto" == $'\0'* ]]; then
         notify-send -a Dictado "No entendí nada" "${texto#?}"; exit 1
     fi
+    if [ "$1" = texto ]; then printf '%s' "$texto"; exit 0; fi   # para el agente: solo devolverlo
     printf '%s' "$texto" | wl-copy
     printf '%s ' "$texto" | wtype -          # escribe como si fuera el teclado
     exit 0
@@ -42,6 +44,6 @@ fi
 rm -f "$WAV"
 pw-record --rate 16000 --channels 1 "$WAV" & echo $! > "$PID"
 barra
-avisar "Escuchando… (SUPER+ALT+D para terminar)" f036c
+[ "$1" = texto ] || avisar "Escuchando… (SUPER+ALT+D para terminar)" f036c
 # Seguridad: si olvidas pararlo, se para solo a los 2 minutos
-( sleep 120; [ -f "$PID" ] && [ "$(cat "$PID")" = "$!" ] && "$0" ) >/dev/null 2>&1 &
+( sleep 120; [ -f "$PID" ] && [ "$(cat "$PID")" = "$!" ] && "$0" ${1:+"$1"} ) >/dev/null 2>&1 &

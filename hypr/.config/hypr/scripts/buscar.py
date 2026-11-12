@@ -9,7 +9,7 @@ Tipos (prefijo en el lanzador):
     claves (p)         gestor de contraseñas (rbw = Bitwarden, o pass) → escribir la clave o el usuario
     documentos (d)     DENTRO de tus PDF, Word y apuntes (índice de indice.py) → abrirlo
     historial (h)      páginas que visitaste en Firefox → abrirla
-    atajos (a)         atajos de teclado del README → verlos en la chuleta
+    atajos (a)         atajos de teclado del manual de usuario → verlos en la chuleta
     linea (l)          tu línea de tiempo: dónde viste algo y cuándo → abrir ese día en Brújula
     ajustes (s)        cada opción del escritorio (perfiles, tema, energía, reglas, móvil…) → aplicarla ya
     todo (b)           todo lo anterior a la vez (también lo usa el lanzador al escribir 3+ letras)
@@ -178,7 +178,8 @@ def atajos(q):
         return []
     res = []
     try:
-        texto = (HOME / "dotfiles/README.md").read_text()
+        texto = (HOME / "dotfiles/docs/manual.md").read_text()
+        texto = texto.split("<!-- atajos:inicio -->", 1)[-1].split("<!-- atajos:fin -->", 1)[0]
     except OSError:
         return []
     for m in re.finditer(r"^\|\s*`([^`]+)`\s*\|\s*(.+?)\s*\|\s*$", texto, re.M):

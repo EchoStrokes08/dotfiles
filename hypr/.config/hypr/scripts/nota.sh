@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Notas rápidas: añade una línea con fecha y hora al final de ~/Documents/notas.md
-# (el mismo archivo del scratchpad SUPER+O).
+# (el mismo archivo del scratchpad SUPER+CTRL+SHIFT+O).
 #   nota.sh "comprar cable HDMI"   -> la guarda          (SUPER+SHIFT+O abre el cuadro para escribirla)
 #   nota.sh seleccion              -> guarda el texto que tengas seleccionado (SUPER+ALT+O)
 #   En el lanzador:  nota comprar cable HDMI

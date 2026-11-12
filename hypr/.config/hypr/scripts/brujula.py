@@ -946,8 +946,12 @@ def vigilar():
             proxima_foto = ahora + 60
         if ahora >= proximo_indice:   # índice de documentos para la búsqueda universal (muy baja prioridad)
             indice = Path(__file__).with_name("indice.py")
-            if indice.exists():
-                lanzar(["nice", "-n", "19", "ionice", "-c", "3", sys.executable, "-I", str(indice)])
+            memoria = Path(__file__).with_name("memoria.py")
+            if indice.exists():   # primero el índice de palabras; luego la memoria por significado (más lenta)
+                orden = shlex.join(["nice", "-n", "19", "ionice", "-c", "3", sys.executable, "-I", str(indice)])
+                if memoria.exists():
+                    orden += " && " + shlex.join(["nice", "-n", "19", "ionice", "-c", "3", sys.executable, str(memoria), "indexar"])
+                lanzar(["sh", "-c", orden])
             proximo_indice = ahora + 1800
         if ahora >= proxima_limpieza:
             Linea.limpiar(cfg["linea"])

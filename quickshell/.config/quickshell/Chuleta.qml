@@ -1,6 +1,6 @@
 // Chuleta de atajos (SUPER+H): todos los atajos, agrupados y con buscador.
-// NO tiene una lista propia: lee las tablas del README de los dotfiles (desde "### Atajos de teclado"
-// hasta "### Comportamiento automático"). Así, al documentar un atajo nuevo en el README, aparece aquí solo.
+// NO tiene una lista propia: lee las tablas del manual de usuario (desde "### Atajos de teclado"
+// hasta "### Comportamiento automático"). Así, al documentar un atajo nuevo en el manual, aparece aquí solo.
 //   escribe para filtrar (busca en tecla y descripción, sin tildes) · Esc cierra
 import QtQuick
 import QtQuick.Layouts
@@ -23,7 +23,7 @@ Superpuesta {
 
     FileView {
         id: readme
-        path: Quickshell.env("HOME") + "/dotfiles/README.md"
+        path: Quickshell.env("HOME") + "/dotfiles/docs/manual.md"
         onLoaded: ch.leer(text())
     }
 
@@ -176,7 +176,7 @@ Superpuesta {
         }
         Text {
             Layout.alignment: Qt.AlignHCenter
-            text: "escribe para buscar   ·   rueda para desplazar   ·   esc cerrar   ·   sale del README de ~/dotfiles"
+            text: "escribe para buscar   ·   rueda para desplazar   ·   esc cerrar   ·   sale del manual de usuario"
             color: Qt.alpha(Paleta.gris, 0.8)
             font { family: Paleta.fuente; pixelSize: 10 }
         }

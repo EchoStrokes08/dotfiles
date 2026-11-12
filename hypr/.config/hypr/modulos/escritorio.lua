@@ -99,6 +99,8 @@ _G.escritorio = M
 hl.bind(p.mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd("~/.config/hypr/scripts/escritorio.py menu"))
 -- Brújula: hoy, línea de tiempo, contexto automático y sesión anterior (scripts/brujula.py)
 hl.bind(p.mainMod .. " + CTRL + B", hl.dsp.exec_cmd("qs ipc call brujula toggle"))
+-- Agente: le hablas al escritorio (SUPER+O = «oye»)
+hl.bind(p.mainMod .. " + O", hl.dsp.exec_cmd("qs ipc call agente toggle"))
 -- Reabrir la última ventana cerrada, en su espacio y (si flotaba) con su tamaño y posición
 hl.bind(p.mainMod .. " + SHIFT + Z", hl.dsp.exec_cmd("~/.config/hypr/scripts/brujula.py reabrir"))
 hl.bind(p.mainMod .. " + CTRL + P", M.privacidad)

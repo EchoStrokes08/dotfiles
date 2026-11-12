@@ -1,5 +1,5 @@
 // Nota rápida (SUPER+SHIFT+O): un cuadro de una línea. Enter la guarda con fecha y hora al final de
-// ~/Documents/notas.md (el archivo del scratchpad SUPER+O) y se cierra. Esc cancela.
+// ~/Documents/notas.md (el archivo del scratchpad SUPER+CTRL+SHIFT+O) y se cierra. Esc cancela.
 //   qs ipc call nota abrir          También: «nota …» en el lanzador y SUPER+ALT+O (guarda la selección)
 import QtQuick
 import QtQuick.Layouts
