@@ -54,12 +54,11 @@ PanelWindow {
     // ── La tarjeta ──────────────────────────────────────────────────────
     Rectangle {
         id: tarjeta
-        width: 820
-        height: contenido.implicitHeight + 48
+        width: 880
+        height: contenido.implicitHeight + 52
         anchors.horizontalCenter: parent.horizontalCenter
-        radius: 18
-        color: Qt.alpha(Paleta.fondo, 0.86)
-        border { width: 1; color: Qt.alpha(Paleta.naranja, 0.35) }
+        color: "transparent"
+        FondoPanel { anchors.fill: parent; radio: 26; opacidad: .84 }
 
         // Entrada: baja 40 px y aparece; salida: al revés
         y: ventana.abierto ? 40 : 4
@@ -76,8 +75,8 @@ PanelWindow {
 
         ColumnLayout {
             id: contenido
-            anchors { fill: parent; margins: 24 }
-            spacing: 18
+            anchors { fill: parent; margins: 26 }
+            spacing: 14
 
             // ── Reloj y saludo ──
             RowLayout {
@@ -86,19 +85,22 @@ PanelWindow {
                     spacing: -4
                     Text {
                         text: Qt.formatTime(reloj.date, "HH:mm")
-                        color: Paleta.naranja
-                        font { family: Paleta.fuente; pixelSize: 58; bold: true }
+                        color: Qt.lighter(Paleta.naranja, 1.05)
+                        font { family: Paleta.fuente; pixelSize: 62; bold: true; letterSpacing: -1 }
                     }
                     Text {
                         text: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd, d 'de' MMMM")
-                        color: Paleta.texto
-                        font { family: Paleta.fuente; pixelSize: 14 }
+                        color: Qt.alpha(Paleta.texto, .85)
+                        font { family: Paleta.fuente; pixelSize: 14; letterSpacing: .3 }
                     }
                 }
                 Item { Layout.fillWidth: true }
                 // ── Clima (Clima.qml, Open-Meteo) ──
-                RowLayout {
+                TarjetaPanel {
                     visible: Clima.listo
+                    acento: Paleta.amarillo
+                    relleno: 12
+                RowLayout {
                     spacing: 12
                     Text {
                         text: Clima.icono(Clima.codigo, Clima.deDia)
@@ -131,6 +133,7 @@ PanelWindow {
                         }
                     }
                 }
+                }
                 Item { Layout.fillWidth: true }
                 ColumnLayout {
                     Layout.alignment: Qt.AlignTop
@@ -156,16 +159,14 @@ PanelWindow {
                 onElegido: ventana.abierto = false
             }
 
-            Separador {}
-
             // ── Calendario | anillos | tiempo de pantalla ──
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 20
-                ColumnLayout {
-                    Layout.alignment: Qt.AlignTop
-                    Layout.maximumWidth: 230
-                    spacing: 10
+                spacing: 12
+                TarjetaPanel {
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: 262
+                    acento: Paleta.naranja
                     Calendario { }
                     // ── Próximo: eventos de Google Calendar + recordatorios ──
                     ColumnLayout {
@@ -205,9 +206,12 @@ PanelWindow {
                         }
                     }
                 }
-                Rectangle { Layout.fillHeight: true; width: 1; color: Qt.alpha(Paleta.texto, 0.08) }
+                TarjetaPanel {
+                    Layout.fillHeight: true
+                    acento: Paleta.azul
+                    Item { Layout.fillHeight: true }
                 GridLayout {
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.alignment: Qt.AlignHCenter
                     columns: 2
                     columnSpacing: 18
                     rowSpacing: 14
@@ -232,23 +236,27 @@ PanelWindow {
                         texto: Math.round(ventana.carga * 100) + "%"
                     }
                 }
-                Rectangle { Layout.fillHeight: true; width: 1; color: Qt.alpha(Paleta.texto, 0.08) }
+                    Item { Layout.fillHeight: true }
+                }
+                TarjetaPanel {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    acento: Paleta.morado
                 Tiempo {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                 }
+                    Item { Layout.fillHeight: true }
+                }
             }
 
-            Separador {}
-
             // ── Música ──
-            Musica { Layout.fillWidth: true; mostrarLetras: true }
+            TarjetaPanel {
+                Layout.fillWidth: true
+                acento: Paleta.verde
+                Musica { Layout.fillWidth: true; mostrarLetras: true }
+            }
         }
     }
 
-    component Separador: Rectangle {
-        Layout.fillWidth: true
-        height: 1
-        color: Qt.alpha(Paleta.texto, 0.08)
-    }
 }

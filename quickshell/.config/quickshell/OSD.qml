@@ -8,6 +8,7 @@
 //   qs ipc call osd media                       muestra la canción actual
 //   qs ipc call osd mensaje "Texto" "icono"     aviso libre (icono = código Nerd Font en hex, p. ej. f0297)
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -116,10 +117,10 @@ Scope {
         visible: osd.activo || animSalida.running
         color: "transparent"
         anchors.bottom: true
-        margins.bottom: 70
+        margins.bottom: 40
         exclusionMode: ExclusionMode.Ignore
-        implicitWidth: pastilla.width + 20
-        implicitHeight: pastilla.height + 20
+        implicitWidth: pastilla.width + 90      // sitio para la sombra
+        implicitHeight: pastilla.height + 80
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "quickshell-osd"
         mask: Region {}                       // los clics atraviesan el OSD
@@ -127,11 +128,10 @@ Scope {
         Rectangle {
             id: pastilla
             anchors.centerIn: parent
-            width: fila.implicitWidth + 40
-            height: 56
-            radius: 16
-            color: Qt.alpha(Paleta.fondo, 0.88)
-            border { width: 1; color: Qt.alpha(Paleta.naranja, 0.35) }
+            width: fila.implicitWidth + 36
+            height: 60
+            color: "transparent"
+            FondoPanel { anchors.fill: parent; radio: 30; opacidad: .86; acento: osd.apagado ? Paleta.gris : Paleta.naranja }
 
             opacity: osd.activo ? 1 : 0
             scale: osd.activo ? 1 : 0.92
@@ -144,24 +144,45 @@ Scope {
                 anchors.centerIn: parent
                 spacing: 14
 
-                Text {
-                    text: osd.icono
-                    color: osd.apagado ? Paleta.gris : Paleta.naranja
-                    font { family: Paleta.fuente; pixelSize: 22 }
+                Rectangle {
+                    implicitWidth: 40; implicitHeight: 40; radius: 20
+                    gradient: Gradient {
+                        GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Qt.lighter(Paleta.naranja, 1.15), .38) }
+                        GradientStop { position: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.naranja, .12) }
+                    }
+                    border { width: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.naranja, .45) }
+                    Text {
+                        anchors.centerIn: parent
+                        text: osd.icono
+                        color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.naranja, 1.2)
+                        font { family: Paleta.fuente; pixelSize: 19 }
+                    }
                 }
 
                 // Barra (volumen / brillo)
                 Rectangle {
                     visible: osd.valor >= 0
-                    implicitWidth: 220
-                    implicitHeight: 8
-                    radius: 4
-                    color: Qt.alpha(Paleta.texto, 0.12)
+                    implicitWidth: 230
+                    implicitHeight: 10
+                    radius: 5
+                    color: Qt.alpha(Paleta.texto, 0.10)
+                    border { width: 1; color: Qt.alpha(Paleta.texto, .05) }
+                    RectangularShadow {
+                        width: barraOsd.width; height: parent.height
+                        visible: EstiloPanel.efectos && !osd.apagado
+                        radius: 5; blur: 14; spread: -1
+                        color: Qt.alpha(Paleta.naranja, .45)
+                    }
                     Rectangle {
+                        id: barraOsd
                         height: parent.height
-                        radius: 4
-                        width: parent.width * Math.max(0, Math.min(1, osd.valor))
-                        color: osd.apagado ? Paleta.gris : Paleta.naranja
+                        radius: 5
+                        width: Math.max(height, parent.width * Math.max(0, Math.min(1, osd.valor)))
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.naranja, .55) }
+                            GradientStop { position: 1; color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.naranja, 1.12) }
+                        }
                         Behavior on width { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
                     }
                 }

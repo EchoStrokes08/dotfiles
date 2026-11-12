@@ -2,7 +2,9 @@
 //   · consulta y abre sin preguntar; lo que CAMBIA algo te lo propone y espera tu «Sí»
 //   · «qué leí / dónde vi / qué hice…» busca en tu memoria (scripts/memoria.py) y cita las fuentes
 //   · micrófono: habla en vez de escribir (dictado local con Whisper)
-// Teclas: Enter enviar · Ctrl+L nueva conversación · Ctrl+Espacio micrófono · S / N en una confirmación · Esc cerrar
+//   · historial a la izquierda: tus conversaciones guardadas; clic = retomarla donde la dejaste
+// Teclas: Enter enviar · Ctrl+L nueva conversación · Ctrl+↑/↓ conversación anterior/siguiente · Ctrl+Espacio micrófono
+//         S / N en una confirmación · Esc cerrar
 //   qs ipc call agente toggle · qs ipc call agente preguntar "¿qué tengo mañana?"
 pragma ComponentBehavior: Bound
 import QtQuick
@@ -14,9 +16,10 @@ import Quickshell.Io
 Superpuesta {
     id: ag
     espacio: "agente"
-    anchoTarjeta: Math.min(860, (screen?.width ?? 1280) - 40)
+    anchoTarjeta: Math.min(1120, (screen?.width ?? 1280) - 40)
     alturaRelativa: 0.06
     opacidadTarjeta: 0.96
+    acentoPanel: Paleta.morado
 
     readonly property string scripts: Quickshell.env("HOME") + "/.config/hypr/scripts/"
     property var mensajes: []             // {rol: tu|asistente|paso|fuentes|confirmar|error, texto, lista, resuelto}
@@ -25,6 +28,9 @@ Superpuesta {
     property real calentadoEn: 0
     property bool escuchando: false
     property string pendienteTexto: ""    // lo que mandaste mientras el modelo despertaba
+    property var historial: []            // [{id, titulo, actualizada, n}] más reciente primero
+    property string idActual: ""
+    readonly property bool privado: EstadoEscritorio.privacidad
 
     function g(hex) { return String.fromCodePoint(parseInt(hex, 16)); }
     function agregar(m) { mensajes = [...mensajes, m]; Qt.callLater(() => lista.positionViewAtEnd()); }
@@ -53,12 +59,68 @@ Superpuesta {
     }
     readonly property bool hayConfirmacion: mensajes.some(m => m.rol === "confirmar" && !m.resuelto)
 
+    // ── historial ────────────────────────────────────────────────────────
+    function refrescarHistorial() { pHistorial.running = true; }
+    function nuevaConversacion() {
+        if (proceso.running) return;
+        mensajes = []; idActual = "";
+        pOrden.command = [scripts + "agente.py", "nueva"]; pOrden.running = true;
+        entrada.forceActiveFocus();
+    }
+    function abrirConversacion(id) {
+        if (proceso.running || !id || (id === idActual && mensajes.length)) return;
+        pCargar.command = [scripts + "agente.py", "abrir", id]; pCargar.running = true;
+    }
+    function borrarConversacion(id) {
+        if (proceso.running) return;
+        if (id === idActual) { mensajes = []; idActual = ""; }
+        historial = historial.filter(c => c.id !== id);          // respuesta inmediata
+        pOrden.command = [scripts + "agente.py", "borrar", id]; pOrden.running = true;
+    }
+    function moverConversacion(paso) {
+        if (!historial.length) return;
+        const i = historial.findIndex(c => c.id === idActual);
+        const j = Math.max(0, Math.min(historial.length - 1, (i < 0 ? -1 : i) + paso));
+        abrirConversacion(historial[j].id);
+    }
+    function cargarVista(d) {
+        idActual = d.id || "";
+        mensajes = (d.vista || []).map(v => v.rol === "asistente" ? Object.assign({}, v, { cerrado: true }) : v);
+        Qt.callLater(() => lista.positionViewAtEnd());
+    }
+    // «Hoy», «Ayer», «Últimos 7 días», «Anteriores»
+    function grupoDe(ts) {
+        const d = new Date(ts * 1000), hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+        const dias = Math.floor((hoy - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+        return dias <= 0 ? "Hoy" : dias === 1 ? "Ayer" : dias < 7 ? "Últimos 7 días" : "Anteriores";
+    }
+    function cuandoFue(ts) {
+        const d = new Date(ts * 1000), g = grupoDe(ts);
+        return g === "Hoy" ? Qt.formatTime(d, "HH:mm") : g === "Ayer" ? "ayer " + Qt.formatTime(d, "HH:mm")
+             : d.toLocaleDateString(Qt.locale("es_ES"), g === "Anteriores" ? "d MMM" : "dddd");
+    }
+
     onAbriendose: {
         Qt.callLater(() => entrada.forceActiveFocus());
+        refrescarHistorial();
+        if (mensajes.length === 0 && !proceso.running) { pCargar.command = [scripts + "agente.py", "actual"]; pCargar.running = true; }
         if (Date.now() - calentadoEn > 15 * 60 * 1000 && !calentador.running) { listo = false; calentador.running = true; }
     }
 
     // ── procesos ─────────────────────────────────────────────────────────
+    Process {
+        id: pHistorial
+        command: [ag.scripts + "agente.py", "historial"]
+        stdout: StdioCollector { onStreamFinished: { try { ag.historial = JSON.parse(text).lista || []; } catch (e) {} } }
+    }
+    Process {
+        id: pCargar
+        stdout: StdioCollector { onStreamFinished: { try { ag.cargarVista(JSON.parse(text)); } catch (e) {} } }
+    }
+    Process {
+        id: pOrden
+        onExited: ag.refrescarHistorial()
+    }
     Process {
         id: calentador
         command: [ag.scripts + "agente.py", "precalentar"]
@@ -80,7 +142,7 @@ Superpuesta {
                     else ag.agregar({ rol: "fuentes", lista: e.lista });
                 } else if (e.t === "confirmar") ag.agregar({ rol: "confirmar", texto: e.descripcion });
                 else if (e.t === "error") ag.agregar({ rol: "error", texto: e.mensaje });
-                else if (e.t === "fin") { ag.pensando = false; ag.listo = true; ag.calentadoEn = Date.now();
+                else if (e.t === "fin") { ag.pensando = false; ag.listo = true; ag.calentadoEn = Date.now(); ag.refrescarHistorial();
                                           if (u && u.rol === "asistente") ag.reemplazarUltimo(Object.assign({}, u, { cerrado: true })); }
             }
         }
@@ -101,17 +163,18 @@ Superpuesta {
         id: bt
         property bool destacado: false
         property color acento: Paleta.naranja
-        implicitHeight: 32
-        leftPadding: 12; rightPadding: 12
-        background: Rectangle {
-            radius: 9
-            color: Qt.alpha(bt.acento, bt.destacado ? (bt.hovered ? .34 : .22) : (bt.hovered ? .14 : .06))
-            border { width: 1; color: Qt.alpha(bt.acento, bt.destacado || bt.activeFocus ? .7 : .2) }
-        }
-        contentItem: Text { text: bt.text; color: bt.enabled ? Paleta.texto : Paleta.gris; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
+        implicitHeight: 34
+        leftPadding: 14; rightPadding: 14
+        hoverEnabled: true
+        scale: down ? .96 : 1
+        Behavior on scale { NumberAnimation { duration: EstiloPanel.breve; easing.type: Easing.OutCubic } }
+        background: FondoBoton { tinte: bt.acento; destacado: bt.destacado; encima: bt.hovered; pulsado: bt.down; foco: bt.activeFocus; radio: 10 }
+        contentItem: Text { text: bt.text; color: !bt.enabled ? Paleta.gris : bt.destacado || bt.hovered ? Paleta.texto : Qt.tint(Paleta.texto, Qt.alpha(Paleta.fondo, .2)); horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
     }
 
-    Shortcut { sequence: "Ctrl+L"; enabled: ag.abierto; onActivated: { Quickshell.execDetached([ag.scripts + "agente.py", "nueva"]); ag.mensajes = []; } }
+    Shortcut { sequence: "Ctrl+L"; enabled: ag.abierto; onActivated: ag.nuevaConversacion() }
+    Shortcut { sequence: "Ctrl+Up"; enabled: ag.abierto; onActivated: ag.moverConversacion(-1) }
+    Shortcut { sequence: "Ctrl+Down"; enabled: ag.abierto; onActivated: ag.moverConversacion(1) }
     Shortcut { sequence: "Ctrl+Space"; enabled: ag.abierto; onActivated: ag.alternarMicro() }
     Shortcut { sequence: "S"; enabled: ag.abierto && ag.hayConfirmacion && !entrada.activeFocus && !proceso.running; onActivated: ag.responder(true) }
     Shortcut { sequence: "N"; enabled: ag.abierto && ag.hayConfirmacion && !entrada.activeFocus && !proceso.running; onActivated: ag.responder(false) }
@@ -152,90 +215,236 @@ Superpuesta {
                 }
             }
             Item { Layout.fillWidth: true }
-            Boton { text: "Nueva"; acento: Paleta.gris; onClicked: { Quickshell.execDetached([ag.scripts + "agente.py", "nueva"]); ag.mensajes = []; entrada.forceActiveFocus(); } }
-            Boton { text: "Esc"; implicitWidth: 52; onClicked: ag.abierto = false }
+            Boton { text: "󰅖"; Accessible.name: "Cerrar"; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; onClicked: ag.abierto = false; background: FondoBoton { tinte: Paleta.rojo; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
         }
 
-        // ── conversación ─────────────────────────────────────────────────
-        Item {
-            Layout.fillWidth: true; implicitHeight: 440
-            ListView {
-                id: lista
-                anchors.fill: parent; clip: true; spacing: 10
-                boundsBehavior: Flickable.StopAtBounds
-                model: ag.mensajes
-                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
-                delegate: Item {
-                    id: msj
-                    required property var modelData
-                    required property int index
-                    width: ListView.view.width - 12
-                    implicitHeight: contenido.implicitHeight
-                    opacity: 0
-                    Component.onCompleted: entra.start()
-                    NumberAnimation { id: entra; target: msj; property: "opacity"; to: 1; duration: 200 }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 14
+            // ── historial de conversaciones ──────────────────────────────
+            Rectangle {
+                id: lateral
+                Layout.preferredWidth: 264
+                Layout.fillHeight: true
+                radius: 16
+                gradient: Gradient {
+                    GradientStop { position: 0; color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(Paleta.morado, .5)), .06) }
+                    GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .02) }
+                }
+                border { width: 1; color: Qt.alpha(Paleta.texto, .075) }
 
-                    Loader {
-                        id: contenido
-                        width: parent.width
-                        sourceComponent: ({ tu: burbujaTu, asistente: burbujaAsistente, paso: paso, fuentes: fuentes, confirmar: confirmar, error: error })[msj.modelData.rol] ?? paso
-                        property var m: msj.modelData
+                ColumnLayout {
+                    anchors { fill: parent; margins: 10 }
+                    spacing: 8
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 4; Layout.topMargin: 2
+                        Text { text: "CONVERSACIONES"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
+                        Rectangle {
+                            visible: ag.historial.length > 0
+                            implicitWidth: Math.max(20, cuentaHist.implicitWidth + 12); implicitHeight: 18; radius: 9
+                            color: Qt.alpha(Paleta.morado, .2)
+                            Text { id: cuentaHist; anchors.centerIn: parent; text: ag.historial.length; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
+                        }
+                        Item { Layout.fillWidth: true }
+                    }
+                    Boton {
+                        Layout.fillWidth: true
+                        implicitHeight: 38
+                        text: ag.g("f0415") + "  Nueva conversación   ⌃L"
+                        acento: Paleta.morado
+                        destacado: ag.mensajes.length === 0
+                        enabled: !proceso.running
+                        onClicked: ag.nuevaConversacion()
+                    }
+
+                    ListView {
+                        id: listaHist
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+                        spacing: 2
+                        boundsBehavior: Flickable.StopAtBounds
+                        model: ag.historial
+                        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+                        delegate: Item {
+                            id: conv
+                            required property var modelData
+                            required property int index
+                            readonly property string grupo: ag.grupoDe(modelData.actualizada)
+                            readonly property bool cabecera: index === 0 || ag.grupoDe(ag.historial[index - 1]?.actualizada ?? 0) !== grupo
+                            readonly property bool actual: modelData.id === ag.idActual
+                            width: ListView.view.width - 6
+                            height: 52 + (cabecera ? 26 : 0)
+
+                            Text {
+                                visible: conv.cabecera
+                                anchors { left: parent.left; leftMargin: 8; top: parent.top; topMargin: conv.index === 0 ? 4 : 10 }
+                                text: conv.grupo
+                                color: Qt.alpha(Paleta.texto, .55)
+                                font { family: Paleta.fuente; pixelSize: 10; bold: true }
+                            }
+                            Rectangle {
+                                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+                                height: 50; radius: 12
+                                gradient: Gradient {
+                                    orientation: Gradient.Horizontal
+                                    GradientStop { position: 0; color: conv.actual ? Qt.alpha(Paleta.morado, .26) : Qt.alpha(Paleta.texto, zonaConv.containsMouse ? .07 : 0) }
+                                    GradientStop { position: 1; color: conv.actual ? Qt.alpha(Paleta.morado, .07) : Qt.alpha(Paleta.texto, zonaConv.containsMouse ? .03 : 0) }
+                                }
+                                border { width: conv.actual ? 1 : 0; color: Qt.alpha(Paleta.morado, .4) }
+                                Rectangle {
+                                    visible: conv.actual
+                                    width: 3; height: parent.height - 20; radius: 2
+                                    anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
+                                    color: Paleta.morado
+                                }
+                                ColumnLayout {
+                                    anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; leftMargin: 14; rightMargin: borrarConv.visible ? 36 : 10 }
+                                    spacing: 2
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: ag.privado ? ag.g("f033e") + "  Conversación" : conv.modelData.titulo
+                                        elide: Text.ElideRight
+                                        color: conv.actual ? Paleta.texto : Qt.alpha(Paleta.texto, .85)
+                                        font { family: Paleta.fuente; pixelSize: 12; bold: conv.actual }
+                                    }
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: ag.cuandoFue(conv.modelData.actualizada) + " · " + conv.modelData.n + (conv.modelData.n === 1 ? " mensaje" : " mensajes")
+                                        elide: Text.ElideRight
+                                        color: Paleta.gris
+                                        font { family: Paleta.fuente; pixelSize: 10 }
+                                    }
+                                }
+                                MouseArea {
+                                    id: zonaConv
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: ag.abrirConversacion(conv.modelData.id)
+                                }
+                                // Borrar (aparece al pasar el ratón)
+                                Rectangle {
+                                    id: borrarConv
+                                    visible: zonaConv.containsMouse || zonaBorrarConv.containsMouse
+                                    anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                                    width: 26; height: 26; radius: 13
+                                    color: zonaBorrarConv.containsMouse ? Qt.alpha(Paleta.rojo, .25) : Qt.alpha(Paleta.texto, .06)
+                                    Text { anchors.centerIn: parent; text: ag.g("f0a7a"); color: zonaBorrarConv.containsMouse ? Paleta.rojo : Paleta.gris; font { family: Paleta.fuente; pixelSize: 13 } }
+                                    MouseArea { id: zonaBorrarConv; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.borrarConversacion(conv.modelData.id) }
+                                    ToolTip.visible: zonaBorrarConv.containsMouse; ToolTip.delay: 400; ToolTip.text: "Borrar del historial"
+                                }
+                            }
+                        }
+                        // vacío
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            width: parent.width - 24
+                            visible: ag.historial.length === 0
+                            spacing: 6
+                            Text { Layout.alignment: Qt.AlignHCenter; text: ag.g("f0b79"); color: Qt.alpha(Paleta.morado, .6); font { family: Paleta.fuente; pixelSize: 28 } }
+                            Text { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap; text: "Aquí aparecerán tus conversaciones para retomarlas cuando quieras"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
+                        }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 4
+                        visible: ag.historial.length > 1
+                        text: "⌃↑ ⌃↓ moverse entre ellas"
+                        color: Qt.alpha(Paleta.gris, .8)
+                        font { family: Paleta.fuente; pixelSize: 9 }
                     }
                 }
             }
-            // vacío: ideas para empezar
+
             ColumnLayout {
-                anchors.centerIn: parent; width: parent.width - 60; spacing: 14
-                visible: ag.mensajes.length === 0
-                Text { Layout.alignment: Qt.AlignHCenter; text: "Pregúntame o pídeme algo, como se lo dirías a alguien"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 13 } }
-                Flow {
-                    Layout.fillWidth: true; spacing: 8
-                    Repeater {
-                        model: ["¿Qué tengo mañana?", "¿Qué estuve leyendo sobre el método de dos fases?", "Prepárame para estudiar",
-                                "¿Cómo está el equipo?", "¿Qué hice ayer por la tarde?", "Ponme concentración de 50 minutos",
-                                "¿Tengo mensajes en el móvil?", "Busca mis apuntes de redes"]
-                        Rectangle {
-                            required property string modelData
-                            implicitHeight: 34; implicitWidth: sug.implicitWidth + 26; radius: 17
-                            color: Qt.alpha(Paleta.morado, zs.containsMouse ? .2 : .08); border { width: 1; color: Qt.alpha(Paleta.morado, .3) }
-                            Text { id: sug; anchors.centerIn: parent; text: parent.modelData; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
-                            MouseArea { id: zs; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.enviar(parent.modelData) }
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+                spacing: 12
+                // ── conversación ─────────────────────────────────────────────────
+                Item {
+                    Layout.fillWidth: true; implicitHeight: 440
+                    ListView {
+                        id: lista
+                        anchors.fill: parent; clip: true; spacing: 10
+                        boundsBehavior: Flickable.StopAtBounds
+                        model: ag.mensajes
+                        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+                        delegate: Item {
+                            id: msj
+                            required property var modelData
+                            required property int index
+                            width: ListView.view.width - 12
+                            implicitHeight: contenido.implicitHeight
+                            opacity: 0
+                            Component.onCompleted: entra.start()
+                            NumberAnimation { id: entra; target: msj; property: "opacity"; to: 1; duration: 200 }
+
+                            Loader {
+                                id: contenido
+                                width: parent.width
+                                sourceComponent: ({ tu: burbujaTu, asistente: burbujaAsistente, paso: paso, fuentes: fuentes, confirmar: confirmar, error: error })[msj.modelData.rol] ?? paso
+                                property var m: msj.modelData
+                            }
+                        }
+                    }
+                    // vacío: ideas para empezar
+                    ColumnLayout {
+                        anchors.centerIn: parent; width: parent.width - 60; spacing: 14
+                        visible: ag.mensajes.length === 0
+                        Text { Layout.alignment: Qt.AlignHCenter; text: "Pregúntame o pídeme algo, como se lo dirías a alguien"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 13 } }
+                        Flow {
+                            Layout.fillWidth: true; spacing: 8
+                            Repeater {
+                                model: ["¿Qué tengo mañana?", "¿Qué estuve leyendo sobre el método de dos fases?", "Prepárame para estudiar",
+                                        "¿Cómo está el equipo?", "¿Qué hice ayer por la tarde?", "Ponme concentración de 50 minutos",
+                                        "¿Tengo mensajes en el móvil?", "Busca mis apuntes de redes"]
+                                Rectangle {
+                                    required property string modelData
+                                    implicitHeight: 34; implicitWidth: sug.implicitWidth + 26; radius: 17
+                                    color: Qt.alpha(Paleta.morado, zs.containsMouse ? .2 : .08); border { width: 1; color: Qt.alpha(Paleta.morado, .3) }
+                                    Text { id: sug; anchors.centerIn: parent; text: parent.modelData; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
+                                    MouseArea { id: zs; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.enviar(parent.modelData) }
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        // ── entrada ──────────────────────────────────────────────────────
-        RowLayout {
-            Layout.fillWidth: true; spacing: 8
-            Rectangle {
-                Layout.fillWidth: true; implicitHeight: 46; radius: 23
-                color: Qt.alpha(Paleta.texto, .05)
-                border { width: 1; color: Qt.alpha(Paleta.morado, entrada.activeFocus ? .6 : .15) }
-                TextField {
-                    id: entrada
-                    anchors { fill: parent; leftMargin: 18; rightMargin: 12 }
-                    placeholderText: ag.hayConfirmacion ? "Responde arriba (S / N) o escribe otra cosa…" : "Escribe aquí… (Enter para enviar)"
-                    color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14 }
-                    background: null
-                    Keys.onReturnPressed: ag.enviar(text)
-                    Keys.onEnterPressed: ag.enviar(text)
+                // ── entrada ──────────────────────────────────────────────────────
+                RowLayout {
+                    Layout.fillWidth: true; spacing: 8
+                    Rectangle {
+                        Layout.fillWidth: true; implicitHeight: 46; radius: 23
+                        color: Qt.alpha(Paleta.texto, .05)
+                        border { width: 1; color: Qt.alpha(Paleta.morado, entrada.activeFocus ? .6 : .15) }
+                        TextField {
+                            id: entrada
+                            anchors { fill: parent; leftMargin: 18; rightMargin: 12 }
+                            placeholderText: ag.hayConfirmacion ? "Responde arriba (S / N) o escribe otra cosa…" : "Escribe aquí… (Enter para enviar)"
+                            color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14 }
+                            background: null
+                            Keys.onReturnPressed: ag.enviar(text)
+                            Keys.onEnterPressed: ag.enviar(text)
+                        }
+                    }
+                    Rectangle {
+                        implicitWidth: 46; implicitHeight: 46; radius: 23
+                        color: ag.escuchando ? Qt.alpha(Paleta.rojo, .35) : Qt.alpha(Paleta.texto, zm.containsMouse ? .1 : .05)
+                        border { width: 1; color: Qt.alpha(ag.escuchando ? Paleta.rojo : Paleta.morado, .4) }
+                        Text { anchors.centerIn: parent; text: ag.g(ag.escuchando ? "f036d" : "f036c"); color: ag.escuchando ? Paleta.rojo : Paleta.texto; font { family: Paleta.fuente; pixelSize: 18 } }
+                        SequentialAnimation on scale { running: ag.escuchando; loops: Animation.Infinite; NumberAnimation { to: 1.08; duration: 500 } NumberAnimation { to: 1; duration: 500 } }
+                        MouseArea { id: zm; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.alternarMicro() }
+                    }
+                    Rectangle {
+                        implicitWidth: 46; implicitHeight: 46; radius: 23
+                        color: Qt.alpha(Paleta.morado, entrada.text.trim() && !ag.pensando ? (ze.containsMouse ? .5 : .35) : .08)
+                        Text { anchors.centerIn: parent; text: ag.g("f048a"); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 18 } }
+                        MouseArea { id: ze; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.enviar(entrada.text) }
+                    }
                 }
-            }
-            Rectangle {
-                implicitWidth: 46; implicitHeight: 46; radius: 23
-                color: ag.escuchando ? Qt.alpha(Paleta.rojo, .35) : Qt.alpha(Paleta.texto, zm.containsMouse ? .1 : .05)
-                border { width: 1; color: Qt.alpha(ag.escuchando ? Paleta.rojo : Paleta.morado, .4) }
-                Text { anchors.centerIn: parent; text: ag.g(ag.escuchando ? "f036d" : "f036c"); color: ag.escuchando ? Paleta.rojo : Paleta.texto; font { family: Paleta.fuente; pixelSize: 18 } }
-                SequentialAnimation on scale { running: ag.escuchando; loops: Animation.Infinite; NumberAnimation { to: 1.08; duration: 500 } NumberAnimation { to: 1; duration: 500 } }
-                MouseArea { id: zm; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.alternarMicro() }
-            }
-            Rectangle {
-                implicitWidth: 46; implicitHeight: 46; radius: 23
-                color: Qt.alpha(Paleta.morado, entrada.text.trim() && !ag.pensando ? (ze.containsMouse ? .5 : .35) : .08)
-                Text { anchors.centerIn: parent; text: ag.g("f048a"); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 18 } }
-                MouseArea { id: ze; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.enviar(entrada.text) }
             }
         }
     }

@@ -17,6 +17,7 @@
 // Teclas: ↑↓ / Tab moverse · Enter elegir · Esc o clic fuera cierra.
 // Las apps que más abres suben (contador en ~/.local/state/quickshell/lanzador.json).
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -404,8 +405,8 @@ PanelWindow {
     // ── La tarjeta ──────────────────────────────────────────────────────
     Rectangle {
         id: tarjeta
-        width: 600
-        height: columna.implicitHeight + 28
+        width: 640
+        height: columna.implicitHeight + 32
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height * 0.16 + (ventana.abierto ? 0 : -12)
         opacity: ventana.abierto ? 1 : 0
@@ -413,38 +414,49 @@ PanelWindow {
         Behavior on y       { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
         Behavior on opacity { NumberAnimation { duration: 180 } }
         Behavior on scale   { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
-        radius: 16
-        color: Qt.alpha(Paleta.fondo, 0.90)
-        border { width: 1; color: Qt.alpha(Paleta.naranja, 0.35) }
+        color: "transparent"
+        FondoPanel { anchors.fill: parent; radio: 24; opacidad: .86 }
         MouseArea { anchors.fill: parent }
 
         ColumnLayout {
             id: columna
-            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 14 }
+            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 16 }
             spacing: 10
 
             // Campo de búsqueda
             Rectangle {
                 Layout.fillWidth: true
-                implicitHeight: 44
-                radius: 11
-                color: Qt.alpha(Paleta.texto, 0.06)
-                border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.naranja, 0.5) : "transparent" }
+                implicitHeight: 54
+                radius: 16
+                gradient: Gradient {
+                    GradientStop { position: 0; color: Qt.alpha(Paleta.fondo, .55) }
+                    GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .045) }
+                }
+                border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.naranja, 0.45) : Qt.alpha(Paleta.texto, .1) }
 
                 RowLayout {
-                    anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
-                    spacing: 10
+                    anchors { fill: parent; leftMargin: 10; rightMargin: 14 }
+                    spacing: 12
+                    Rectangle {   // pastilla del modo
+                        implicitWidth: 36; implicitHeight: 36; radius: 12
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: Qt.alpha(Qt.lighter(Paleta.naranja, 1.15), .38) }
+                            GradientStop { position: 1; color: Qt.alpha(Paleta.naranja, .12) }
+                        }
+                        border { width: 1; color: Qt.alpha(Paleta.naranja, .45) }
                     Text {   // el icono cambia según el modo
+                        anchors.centerIn: parent
                         text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A })[ventana.modo] ?? 0xF0349)
-                        color: Paleta.naranja
-                        font { family: Paleta.fuente; pixelSize: 15 }
+                        color: Qt.lighter(Paleta.naranja, 1.2)
+                        font { family: Paleta.fuente; pixelSize: 17 }
+                    }
                     }
                     TextInput {
                         id: buscador
                         Layout.fillWidth: true
                         color: Paleta.texto
                         selectionColor: Qt.alpha(Paleta.naranja, 0.4)
-                        font { family: Paleta.fuente; pixelSize: 16 }
+                        font { family: Paleta.fuente; pixelSize: 17 }
                         clip: true
                         onTextChanged: lista.currentIndex = 0
 
@@ -464,10 +476,12 @@ PanelWindow {
                         Keys.onTabPressed: lista.incrementCurrentIndex()
                         Keys.onBacktabPressed: lista.decrementCurrentIndex()
                     }
-                    Text {
-                        text: ventana.resultados.length
-                        color: Paleta.gris
-                        font { family: Paleta.fuente; pixelSize: 11 }
+                    Rectangle {
+                        visible: ventana.resultados.length > 0
+                        implicitWidth: numResultados.implicitWidth + 16; implicitHeight: 22; radius: 11
+                        color: Qt.alpha(Paleta.texto, .07)
+                        border { width: 1; color: Qt.alpha(Paleta.texto, .08) }
+                        Text { id: numResultados; anchors.centerIn: parent; text: ventana.resultados.length; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
                     }
                 }
             }
@@ -476,7 +490,7 @@ PanelWindow {
             ListView {
                 id: lista
                 Layout.fillWidth: true
-                implicitHeight: Math.min(contentHeight, 7 * 52 + 26)
+                implicitHeight: Math.min(contentHeight, 7 * 56 + 26)
                 clip: true
                 model: ventana.resultados
                 boundsBehavior: Flickable.StopAtBounds
@@ -492,7 +506,7 @@ PanelWindow {
                     readonly property bool cabecera: !!modelData.grupo && (index === 0 || ventana.resultados[index - 1]?.grupo !== modelData.grupo)
                     readonly property bool actual: lista.currentIndex === index
                     width: lista.width
-                    height: 52 + (cabecera ? 26 : 0)
+                    height: 56 + (cabecera ? 26 : 0)
 
                     Text {
                         visible: fila.cabecera
@@ -501,28 +515,47 @@ PanelWindow {
                         color: Paleta.gris
                         font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.5 }
                     }
-                    Rectangle {
-                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                        height: 52; radius: 10
-                        color: Qt.alpha(Paleta.naranja, fila.actual ? 0.13 : 0)
-                        Behavior on color { ColorAnimation { duration: 120 } }
+                    Item {
+                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2 }
+                        height: 52
+                        opacity: fila.actual ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: 120 } }
+                        RectangularShadow {
+                            anchors.fill: parent
+                            visible: EstiloPanel.efectos
+                            radius: 14; offset.y: 4; blur: 18; spread: -8
+                            color: Qt.alpha(Paleta.naranja, .4)
+                        }
                         Rectangle {
-                            visible: fila.actual
-                            width: 3; height: parent.height - 18
-                            anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
+                            anchors.fill: parent
+                            radius: 14
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0; color: Qt.alpha(Paleta.naranja, .26) }
+                                GradientStop { position: 1; color: Qt.alpha(Paleta.naranja, .07) }
+                            }
+                            border { width: 1; color: Qt.alpha(Paleta.naranja, .35) }
+                        }
+                        Rectangle {
+                            width: 3; height: parent.height - 20
+                            anchors { left: parent.left; leftMargin: 5; verticalCenter: parent.verticalCenter }
                             radius: 2
                             color: Paleta.naranja
                         }
                     }
 
                     RowLayout {
-                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; leftMargin: 16; rightMargin: 12 }
+                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2; leftMargin: 14; rightMargin: 12 }
                         height: 52
                         spacing: 12
-                        Item {
-                            implicitWidth: 30; implicitHeight: 30
+                        Rectangle {   // baldosa del icono
+                            implicitWidth: 38; implicitHeight: 38; radius: 12
+                            color: Qt.alpha(fila.actual ? Paleta.naranja : Paleta.texto, fila.actual ? .14 : .05)
+                            border { width: 1; color: Qt.alpha(fila.actual ? Paleta.naranja : Paleta.texto, fila.actual ? .3 : .06) }
+                            Behavior on color { ColorAnimation { duration: 120 } }
                             IconImage {
-                                anchors.fill: parent
+                                anchors.centerIn: parent
+                                width: 28; height: 28
                                 visible: !!fila.modelData.icono
                                 source: fila.modelData.icono ? Quickshell.iconPath(fila.modelData.icono, "application-x-executable") : ""
                                 asynchronous: true
@@ -531,8 +564,8 @@ PanelWindow {
                                 anchors.centerIn: parent
                                 visible: !fila.modelData.icono
                                 text: fila.modelData.texto ?? (fila.modelData.glifo ? ventana.g(fila.modelData.glifo) : "")
-                                color: Paleta.naranja
-                                font { family: fila.modelData.texto ? "Noto Color Emoji" : Paleta.fuente; pixelSize: fila.modelData.texto ? 22 : 20 }
+                                color: fila.actual ? Qt.lighter(Paleta.naranja, 1.2) : Paleta.naranja
+                                font { family: fila.modelData.texto ? "Noto Color Emoji" : Paleta.fuente; pixelSize: fila.modelData.texto ? 22 : 19 }
                             }
                         }
                         ColumnLayout {
@@ -542,7 +575,7 @@ PanelWindow {
                             Text {
                                 Layout.fillWidth: true
                                 text: fila.modelData.nombre
-                                color: lista.currentIndex === fila.index ? Paleta.naranja : Paleta.texto
+                                color: Paleta.texto
                                 elide: Text.ElideRight
                                 font { family: Paleta.fuente; pixelSize: 14; bold: true }
                             }

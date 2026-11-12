@@ -8,9 +8,9 @@ PanelWindow {
     visible: Notificaciones.emergentes.length > 0
     color: "transparent"
     anchors { top: true; right: true }
-    margins { top: 8; right: 8 }
-    implicitWidth: 400
-    implicitHeight: columna.implicitHeight
+    // margen interior para que quepa la sombra de las tarjetas
+    implicitWidth: 400 + 36
+    implicitHeight: columna.implicitHeight + 40
     exclusionMode: ExclusionMode.Normal     // respeta la barra (aparece debajo)
     exclusiveZone: 0
     WlrLayershell.layer: WlrLayer.Overlay
@@ -18,8 +18,9 @@ PanelWindow {
 
     Column {
         id: columna
-        width: parent.width
-        spacing: 8
+        x: 18; y: 8
+        width: parent.width - 36
+        spacing: 12
 
         Repeater {
             model: Notificaciones.emergentes

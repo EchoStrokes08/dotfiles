@@ -8,6 +8,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -108,31 +109,13 @@ Superpuesta {
         id: bt
         property bool destacado: false
         property color acento: Paleta.naranja
-        implicitHeight: 34
+        implicitHeight: 36
         leftPadding: 14; rightPadding: 14
-        background: Rectangle {
-            radius: 9
-            color: Qt.alpha(bt.acento, bt.destacado ? (bt.hovered ? .32 : .22) : (bt.hovered ? .14 : .06))
-            border { width: 1; color: Qt.alpha(bt.acento, bt.activeFocus || bt.destacado ? .7 : .2) }
-            Behavior on color { ColorAnimation { duration: 140 } }
-        }
-        contentItem: Text { text: bt.text; color: bt.enabled ? Paleta.texto : Paleta.gris; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
-    }
-    component Interruptor: Rectangle {
-        id: sw
-        property bool activo: false
-        property color acento: Paleta.verde
-        signal alternado()
-        implicitWidth: 40; implicitHeight: 22; radius: 11
-        color: activo ? Qt.alpha(acento, .55) : Qt.alpha(Paleta.texto, .12)
-        Behavior on color { ColorAnimation { duration: 180 } }
-        Rectangle {
-            width: 16; height: 16; radius: 8; y: 3
-            x: sw.activo ? sw.width - width - 3 : 3
-            color: sw.activo ? Paleta.texto : Paleta.gris
-            Behavior on x { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        }
-        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: sw.alternado() }
+        hoverEnabled: true
+        scale: down ? .96 : 1
+        Behavior on scale { NumberAnimation { duration: EstiloPanel.breve; easing.type: Easing.OutCubic } }
+        background: FondoBoton { tinte: bt.acento; destacado: bt.destacado; encima: bt.hovered; pulsado: bt.down; foco: bt.activeFocus; radio: 10 }
+        contentItem: Text { text: bt.text; color: !bt.enabled ? Paleta.gris : bt.destacado || bt.hovered ? Paleta.texto : Qt.tint(Paleta.texto, Qt.alpha(Paleta.fondo, .2)); horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
     }
     component Medalla: Rectangle {
         id: md
@@ -140,9 +123,12 @@ Superpuesta {
         property color acento: Paleta.naranja
         property real lado: 38
         implicitWidth: lado; implicitHeight: lado; radius: lado / 3.2
-        color: Qt.alpha(acento, .16)
-        border { width: 1; color: Qt.alpha(acento, .35) }
-        Text { anchors.centerIn: parent; text: br.g(md.glifo); color: md.acento; font { family: Paleta.fuente; pixelSize: md.lado * .47 } }
+        gradient: Gradient {
+            GradientStop { position: 0; color: Qt.alpha(Qt.lighter(md.acento, 1.15), .30) }
+            GradientStop { position: 1; color: Qt.alpha(md.acento, .10) }
+        }
+        border { width: 1; color: Qt.alpha(md.acento, .45) }
+        Text { anchors.centerIn: parent; text: br.g(md.glifo); color: Qt.lighter(md.acento, 1.15); font { family: Paleta.fuente; pixelSize: md.lado * .47 } }
     }
     component Etiqueta: Text { color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
     component Cifra: Rectangle {
@@ -151,9 +137,14 @@ Superpuesta {
         property string valor: ""
         property string glifo: "f0954"
         property color acento: Paleta.azul
-        Layout.fillWidth: true; implicitHeight: 64; radius: 12
-        color: Qt.alpha(Paleta.texto, .035)
-        border { width: 1; color: Qt.alpha(Paleta.texto, .06) }
+        Layout.fillWidth: true; implicitHeight: 66; radius: 14
+        gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0; color: Qt.alpha(cf.acento, .10) }
+            GradientStop { position: .6; color: Qt.alpha(Paleta.texto, .035) }
+            GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .025) }
+        }
+        border { width: 1; color: Qt.alpha(Paleta.texto, .075) }
         RowLayout {
             anchors { fill: parent; margins: 12 } spacing: 12
             Medalla { glifo: cf.glifo; acento: cf.acento; lado: 36 }
@@ -192,11 +183,18 @@ Superpuesta {
         RowLayout {
             Layout.fillWidth: true; spacing: 14
             Rectangle {
-                implicitWidth: 46; implicitHeight: 46; radius: 14
+                implicitWidth: 52; implicitHeight: 52; radius: 17
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Qt.alpha(Paleta.naranja, .35) }
-                    GradientStop { position: 1; color: Qt.alpha(Paleta.morado, .25) }
+                    GradientStop { position: 0; color: Qt.alpha(Paleta.naranja, .45) }
+                    GradientStop { position: 1; color: Qt.alpha(Paleta.morado, .32) }
+                }
+                border { width: 1; color: Qt.alpha(Paleta.naranja, .5) }
+                RectangularShadow {
+                    anchors.fill: parent; z: -1
+                    visible: EstiloPanel.efectos
+                    radius: parent.radius; offset.y: 6; blur: 24; spread: -6
+                    color: Qt.alpha(Paleta.naranja, .45)
                 }
                 Text {
                     id: aguja
@@ -211,7 +209,7 @@ Superpuesta {
                 Etiqueta { text: "BRÚJULA"; color: Paleta.naranja }
                 Text {
                     Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto
-                    font { family: Paleta.fuente; pixelSize: 22; bold: true }
+                    font { family: Paleta.fuente; pixelSize: 24; bold: true }
                     text: ["Tu día, de un vistazo", "Lo que tuviste delante", "El escritorio se adapta solo", "Sigue donde lo dejaste", "Tu equipo, en forma"][br.pagina]
                 }
             }
@@ -230,25 +228,44 @@ Superpuesta {
                     }
                 }
             }
-            Boton { text: "Esc"; onClicked: br.abierto = false; implicitWidth: 52 }
+            Boton { text: "󰅖"; Accessible.name: "Cerrar"; onClicked: br.abierto = false; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; acento: Paleta.rojo; background: FondoBoton { tinte: Paleta.rojo; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
         }
 
         // ── pestañas (con indicador que se desliza) ──────────────────────
         Item {
             id: pestanas
-            Layout.fillWidth: true; implicitHeight: 40
+            Layout.fillWidth: true; implicitHeight: 46
             focus: true
             Keys.onTabPressed: br.pagina = (br.pagina + 1) % 5
-            Rectangle { anchors.fill: parent; radius: 12; color: Qt.alpha(Paleta.texto, .04) }
             Rectangle {
+                anchors.fill: parent; radius: 15
+                gradient: Gradient {
+                    GradientStop { position: 0; color: Qt.alpha(Paleta.fondo, .45) }
+                    GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .03) }
+                }
+                border { width: 1; color: Qt.alpha(Paleta.texto, .07) }
+            }
+            Item {
                 id: indicador
-                y: 4; height: parent.height - 8; width: (parent.width - 8) / 5; radius: 9
-                x: 4 + br.pagina * width
-                color: Qt.alpha(Paleta.naranja, .2); border { width: 1; color: Qt.alpha(Paleta.naranja, .55) }
-                Behavior on x { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+                y: 5; height: parent.height - 10; width: (parent.width - 10) / 5
+                x: 5 + br.pagina * width
+                Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutBack; easing.overshoot: .8 } }
+                RectangularShadow {
+                    anchors.fill: parent; visible: EstiloPanel.efectos
+                    radius: 11; offset.y: 4; blur: 18; spread: -6
+                    color: Qt.alpha(Paleta.naranja, .45)
+                }
+                Rectangle {
+                    anchors.fill: parent; radius: 11
+                    gradient: Gradient {
+                        GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Qt.lighter(Paleta.naranja, 1.1), .40)) }
+                        GradientStop { position: 1; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.naranja, .20)) }
+                    }
+                    border { width: 1; color: Qt.alpha(Paleta.naranja, .55) }
+                }
             }
             Row {
-                anchors { fill: parent; margins: 4 }
+                anchors { fill: parent; margins: 5 }
                 Repeater {
                     model: [["f05a8", "Hoy"], ["f0954", "Línea de tiempo"], ["f0493", "Contexto"], ["f099b", "Sesión"], ["f05e0", "Salud"]]
                     Item {

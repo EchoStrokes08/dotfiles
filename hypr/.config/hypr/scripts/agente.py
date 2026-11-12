@@ -6,8 +6,14 @@ móvil, bloquear, actualizar…) lo PROPONE y solo se hace si dices que sí en e
 
     agente.py turno "texto"          un mensaje tuyo → eventos JSON, uno por línea (el panel los pinta en vivo)
     agente.py confirmar si|no        respuesta a la acción propuesta → sigue la conversación
-    agente.py nueva                  empezar de cero
+    agente.py nueva                  empezar otra conversación (la anterior queda en el historial)
     agente.py precalentar            carga el modelo y sus instrucciones (el panel lo hace al abrirse)
+    agente.py historial              conversaciones guardadas → {"actual", "lista": [{id, titulo, actualizada, n}]}
+    agente.py actual                 la conversación en curso → {id, titulo, vista}
+    agente.py abrir ID               retomar una conversación del historial → {id, titulo, vista}
+    agente.py borrar ID              quitarla del historial
+Historial: ~/.local/state/brujula/agente/conversaciones/ID.json guarda lo que se vio en el panel («vista»)
+y los últimos mensajes del modelo, para poder seguir donde lo dejaste. Se guardan las últimas 100.
 Eventos: {"t":"herramienta","nombre","resumen"} · {"t":"confirmar","descripcion"} · {"t":"texto","d"}
          {"t":"fuentes","lista"} · {"t":"error","mensaje"} · {"t":"fin"}
 Modelo: ~/.config/ia/agente (de serie qwen3:4b-instruct: necesita «tools» y NO la variante que razona).
@@ -29,7 +35,10 @@ import brujula as b  # noqa: E402
 
 HOME = Path.home()
 OLLAMA = "http://127.0.0.1:11434/api/chat"
-CONV = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "brujula-agente" / "conversacion.json"
+DIR = b.ESTADO / "agente"          # historial de conversaciones (privado: 0700)
+MAX_CONVERSACIONES = 100
+MAX_VISTA = 400
+VISTA = []   # lo que el panel ve en esta orden; guardar() lo añade a la conversación
 MAX_PASOS = 6
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 
@@ -43,6 +52,22 @@ def modelo():
 
 def emitir(**ev):
     print(json.dumps(ev, ensure_ascii=False), flush=True)
+    anotar(ev)
+
+
+def anotar(ev):
+    """Copia para el historial lo que el panel pinta (mismas reglas que Agente.qml)."""
+    t = ev.get("t")
+    if t == "herramienta":
+        VISTA.append({"rol": "paso", "texto": ev["resumen"]})
+    elif t == "fuentes":
+        if VISTA and VISTA[-1]["rol"] == "fuentes":
+            VISTA.pop()
+        VISTA.append({"rol": "fuentes", "lista": list(ev["lista"])})
+    elif t == "confirmar":
+        VISTA.append({"rol": "confirmar", "texto": ev["descripcion"]})
+    elif t == "error":
+        VISTA.append({"rol": "error", "texto": ev["mensaje"]})
 
 
 def sh(args, timeout=10):
@@ -334,17 +359,128 @@ def instrucciones():
 
 
 # ══ conversación ═════════════════════════════════════════════════════════
-def cargar():
-    d = b.leer_json(CONV, {})
-    return d if isinstance(d.get("mensajes"), list) else {"mensajes": [], "pendiente": None}
+def _archivo(ident):
+    return DIR / "conversaciones" / f"{ident}.json"
+
+
+def _valido(ident):
+    return bool(re.fullmatch(r"\d{8}-\d{6}(-\d+)?", ident or ""))
+
+
+def id_actual():
+    try:
+        ident = (DIR / "actual").read_text().strip()
+    except OSError:
+        return ""
+    return ident if _valido(ident) and _archivo(ident).exists() else ""
+
+
+def _poner_actual(ident):
+    DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if ident:
+        (DIR / "actual").write_text(ident)
+    else:
+        (DIR / "actual").unlink(missing_ok=True)
+
+
+def _nuevo_id():
+    base = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    ident, n = base, 1
+    while _archivo(ident).exists():
+        n += 1
+        ident = f"{base}-{n}"
+    return ident
+
+
+def cargar(ident=None):
+    ident = id_actual() if ident is None else ident
+    d = b.leer_json(_archivo(ident), {}) if _valido(ident) else {}
+    if not isinstance(d.get("mensajes"), list):
+        d = {"id": "", "mensajes": []}
+    d.setdefault("pendiente", None)
+    d.setdefault("vista", [])
+    return d
 
 
 def guardar(d):
-    CONV.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     d["mensajes"] = d["mensajes"][-24:]
     while d["mensajes"] and d["mensajes"][0].get("role") == "tool":   # no empezar a medias
         d["mensajes"].pop(0)
-    b.atomico(CONV, d)
+    d["vista"] = (d["vista"] + VISTA)[-MAX_VISTA:]
+    VISTA.clear()
+    if not d.get("id"):
+        d["id"], d["creada"] = _nuevo_id(), time.time()
+    if not d.get("titulo"):
+        primero = next((v["texto"] for v in d["vista"] if v.get("rol") == "tu"), "")
+        d["titulo"] = re.sub(r"\s+", " ", primero).strip()[:80]
+    d["actualizada"] = time.time()
+    DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    b.atomico(_archivo(d["id"]), d)
+    _poner_actual(d["id"])
+    podar()
+
+
+def podar():
+    viejas = sorted((DIR / "conversaciones").glob("*.json"), key=lambda f: f.stat().st_mtime, reverse=True)
+    for f in viejas[MAX_CONVERSACIONES:]:
+        f.unlink(missing_ok=True)
+
+
+def descartar_pendiente(d):
+    """Una propuesta sin responder no se arrastra: al escribir otra cosa o cambiar de conversación cuenta como «no»."""
+    if not d.get("pendiente"):
+        return
+    d["mensajes"].append({"role": "tool", "tool_name": d["pendiente"]["nombre"], "content": "El usuario no lo confirmó."})
+    d["pendiente"] = None
+    resolver(d, "no")
+
+
+def resolver(d, respuesta):
+    for v in reversed(d["vista"] + VISTA):
+        if v.get("rol") == "confirmar" and not v.get("resuelto"):
+            v["resuelto"] = respuesta
+            return
+
+
+def para_panel(d):
+    return {"id": d.get("id", ""), "titulo": d.get("titulo", ""), "vista": d.get("vista", [])}
+
+
+def historial():
+    lista = []
+    for f in (DIR / "conversaciones").glob("*.json"):
+        d = b.leer_json(f, {})
+        if _valido(d.get("id")) and d.get("vista"):
+            lista.append({"id": d["id"], "titulo": d.get("titulo") or "Conversación", "actualizada": d.get("actualizada", 0),
+                          "n": sum(1 for v in d["vista"] if v.get("rol") == "tu")})
+    lista.sort(key=lambda x: x["actualizada"], reverse=True)
+    return {"actual": id_actual(), "lista": lista}
+
+
+def abrir(ident):
+    if not _valido(ident) or not _archivo(ident).exists():
+        return {"id": "", "titulo": "", "vista": [], "error": "Esa conversación ya no existe."}
+    previa = cargar()
+    if previa.get("id") and previa["id"] != ident and previa.get("pendiente"):
+        descartar_pendiente(previa)
+        guardar(previa)
+    _poner_actual(ident)
+    return para_panel(cargar(ident))
+
+
+def nueva():
+    d = cargar()
+    if d.get("id") and d.get("pendiente"):
+        descartar_pendiente(d)
+        guardar(d)
+    _poner_actual("")
+
+
+def borrar(ident):
+    if _valido(ident):
+        _archivo(ident).unlink(missing_ok=True)
+        if id_actual() == "" and (DIR / "actual").exists():
+            _poner_actual("")
 
 
 def chat(mensajes, emitir_texto=True, predecir=None):
@@ -375,6 +511,8 @@ def avanzar(d):
     """Bucle del agente: modelo → herramientas → modelo… hasta responder o necesitar confirmación."""
     for _ in range(MAX_PASOS):
         texto, llamadas = chat(d["mensajes"])
+        if texto.strip():
+            VISTA.append({"rol": "asistente", "texto": texto.strip()})
         d["mensajes"].append({"role": "assistant", "content": texto, **({"tool_calls": llamadas} if llamadas else {})})
         if not llamadas:
             guardar(d)
@@ -402,8 +540,8 @@ def avanzar(d):
                     continue
                 # parar aquí: el resto de llamadas de este paso se hará después de la respuesta del usuario
                 d["pendiente"] = {"nombre": nombre, "args": args, "descripcion": descripcion, "resto": llamadas[i + 1:]}
-                guardar(d)
                 emitir(t="confirmar", descripcion=descripcion)
+                guardar(d)
                 return
             else:
                 d["mensajes"].append({"role": "tool", "tool_name": nombre, "content": "Herramienta desconocida."})
@@ -419,9 +557,8 @@ MEMORIA = re.compile(r"\b(le[ií]|leyendo|le[ií]do|vi|viendo|visto|estuve|estab
 
 def turno(texto):
     d = cargar()
-    if d.get("pendiente"):   # escribir algo nuevo = no a lo pendiente
-        d["mensajes"].append({"role": "tool", "tool_name": d["pendiente"]["nombre"], "content": "El usuario no lo confirmó."})
-        d["pendiente"] = None
+    descartar_pendiente(d)   # escribir algo nuevo = no a lo pendiente
+    VISTA.append({"rol": "tu", "texto": texto[:4000], "hora": time.time()})
     ahora = dt.datetime.now()
     d["mensajes"].append({"role": "user", "content": f"[{DIAS[ahora.weekday()]} {ahora:%d/%m/%Y %H:%M}] {texto[:4000]}"})
     if MEMORIA.search(texto):
@@ -439,6 +576,7 @@ def confirmar(si):
         emitir(t="error", mensaje="No hay nada pendiente de confirmar.")
         return
     d["pendiente"] = None
+    resolver(d, "si" if si else "no")
     if si:
         try:
             _, hacer = ACCIONES[p["nombre"]](**p["args"])
@@ -462,8 +600,8 @@ def confirmar(si):
                 continue
             d["pendiente"] = {"nombre": nombre, "args": args, "descripcion": descripcion,
                               "resto": p["resto"][p["resto"].index(ll) + 1:]}
-            guardar(d)
             emitir(t="confirmar", descripcion=descripcion)
+            guardar(d)
             return
         if nombre in CONSULTAS:
             try:
@@ -481,13 +619,27 @@ def main():
         elif orden == "confirmar":
             confirmar(len(sys.argv) > 2 and sys.argv[2] == "si")
         elif orden == "nueva":
-            CONV.unlink(missing_ok=True)
+            nueva()
+        elif orden == "historial":
+            print(json.dumps(historial(), ensure_ascii=False))
+            return
+        elif orden == "actual":
+            print(json.dumps(para_panel(cargar()), ensure_ascii=False))
+            return
+        elif orden == "abrir" and len(sys.argv) > 2:
+            print(json.dumps(abrir(sys.argv[2]), ensure_ascii=False))
+            return
+        elif orden == "borrar" and len(sys.argv) > 2:
+            borrar(sys.argv[2])
         elif orden == "precalentar":
             chat([{"role": "user", "content": "hola"}], emitir_texto=False, predecir=1)
         else:
             sys.exit(__doc__)
     except OSError as e:
         emitir(t="error", mensaje=f"No pude hablar con ollama ({e}). ¿Está activo y descargado el modelo «{modelo()}»?")
+        if any(v["rol"] == "tu" for v in VISTA):   # que tu pregunta no se pierda del historial
+            d = cargar()
+            guardar(d)
     emitir(t="fin")
 
 

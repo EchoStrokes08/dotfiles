@@ -287,6 +287,15 @@ No se debe usar una captura o una prueba simulada como evidencia de bloqueo fís
 `NavegacionPanel` y `EstadoPanel` comparten foco, estados y navegación. `panelCuidado: true` y
 `acentoPanel` activan el estilo del panel. La interfaz usa Adwaita Sans e iconos de la Nerd Font.
 
+El aspecto de cristal es común: `FondoPanel.qml` (sombra, degradado, luces radiales del acento y
+filo de luz) es el fondo de `Superpuesta`, el dashboard, el lanzador, el centro de control, el OSD
+y las notificaciones emergentes. `FondoBoton.qml` es el fondo de todos los botones,
+`TarjetaPanel.qml` agrupa secciones dentro de un panel e `Interruptor.qml` es el conmutador sí/no.
+Las tarjetas son algo translúcidas (opacidad ≤ 0,86): la regla `quickshell-blur` de
+`hypr/modulos/reglas.lua` difumina lo que hay detrás. El velo queda por debajo de 0,3 de opacidad
+para que el blur actúe solo bajo la tarjeta. `EstiloPanel.efectos` quita sombras y luces en los
+mismos casos que las animaciones.
+
 Aperturas y cambios de pestaña duran hasta 220 ms; color y pulsación, 140 ms. Se desactivan por
 batería, juego, Mínimo y Rendimiento. `EstadoEscritorio.qml` observa un archivo con FileView:
 no requiere sondeo periódico. Otros datos de sistema sí usan timers o procesos externos.
@@ -360,7 +369,8 @@ flowchart LR
 ```
 
 **Protocolo:** `agente.py turno`, `confirmar si|no`, `nueva` y `precalentar` emiten eventos JSONL
-`herramienta`, `texto`, `fuentes`, `confirmar`, `error` y `fin`. El panel muestra respuesta progresiva,
+`herramienta`, `texto`, `fuentes`, `confirmar`, `error` y `fin`. El historial usa `historial`,
+`actual`, `abrir ID` (lo vuelve actual) y `borrar ID`, que imprimen un único JSON. El panel muestra respuesta progresiva,
 fuentes pulsables y propuestas. El backend limita el bucle a seis pasos y conserva hasta 24 mensajes;
 recorta texto de usuario a 4 000 y resultados de herramientas a 6 000 caracteres.
 
@@ -419,11 +429,14 @@ vectores de dimensiones diferentes.
 
 La base reside en `$XDG_CACHE_HOME/brujula/memoria.db` (o `~/.cache/brujula/memoria.db`), con tablas
 `fuentes`, `trozos` y `trozos_fts`, modo WAL y directorio privado. Conserva texto, títulos, referencias,
-fechas y vectores: **no está cifrada por esta función**. No debe publicarse. La conversación está en
-`$XDG_RUNTIME_DIR/brujula-agente/conversacion.json`; el fallback del código es `/tmp` si falta runtime.
-Usa runtime normal de la sesión para su ciclo de vida y permisos previstos.
+fechas y vectores: **no está cifrada por esta función**. No debe publicarse. Las conversaciones están en
+`~/.local/state/brujula/agente/conversaciones/ID.json` (directorio 700, archivos 600, sin cifrar).
+Cada una guarda `vista` (lo que pintó el panel, hasta 400 entradas), los últimos 24 mensajes del
+modelo, la propuesta pendiente, el título (primera pregunta) y fechas. `actual` apunta a la que está
+en curso. Se conservan las 100 más recientes.
 
-`agente.py nueva` elimina conversación, no la base. Privacidad oculta la línea directa, pero no
+`agente.py nueva` empieza otra conversación sin borrar la anterior; `borrar ID` la elimina. Ninguno
+toca la base. Privacidad oculta la línea directa, pero no
 revoca por sí sola las consultas a memoria ni borra material anterior. El índice elimina fuentes
 que dejan de enumerarse al completar la actualización; no equivale a borrado seguro del SQLite.
 
@@ -454,7 +467,7 @@ y cada 3 h. El resumen diario empieza desde las 5:00 y las sugerencias de Brúju
 | `$XDG_STATE_HOME/mesa-trabajo/` o `~/.local/state/mesa-trabajo/` | Proyectos y plantillas persistentes; JSON atómico y permisos 600 |
 | `~/.local/state/brujula/` | Línea, sesión, reglas activas, cierres y registro de actualizaciones; directorio privado |
 | `$XDG_CACHE_HOME/brujula/memoria.db` o `~/.cache/brujula/memoria.db` | Fragmentos, fuentes y vectores de la memoria semántica; persistentes, sin cifrado propio |
-| `$XDG_RUNTIME_DIR/brujula-agente/conversacion.json` | Conversación y propuesta pendiente; `agente.py nueva` la elimina |
+| `~/.local/state/brujula/agente/` | Historial del agente: conversaciones, propuesta pendiente y la actual; `agente.py borrar ID` quita una |
 | `~/.config/ia/agente`, `~/.config/ia/embeddings` | Modelo del agente y override opcional de embeddings |
 | `~/.cache/brujula/documentos.db` | Texto documental derivado en SQLite FTS5 |
 | `$XDG_RUNTIME_DIR/hypr-escritorio-<instancia>.state` | Perfil, juego y motivos; sobrevive a reload, no a nuevo login |
@@ -607,6 +620,7 @@ qs ipc call agente estado
 ~/.config/hypr/scripts/memoria.py estado
 ~/.config/hypr/scripts/memoria.py buscar "apuntes de redes"
 ~/.config/hypr/scripts/agente.py nueva
+~/.config/hypr/scripts/agente.py historial
 qs ipc call centroEscritorio estado
 qs ipc call mesa abrir ventanas
 qs ipc call mesa abrir plantillas
@@ -802,7 +816,7 @@ funcional. Las pruebas de ventanas, procesos y acciones externas usan simulació
 | `test_flujo.py` | Proyectos, planes, selecciones y límites |
 | `test_brujula.py` | Contexto, línea, sesión, índice, sugerencias, cifrado y bloques programados |
 | `test_salud.py` | Señales de salud y actualización |
-| `test_agente.py` | Consultas, confirmación/rechazo, búsqueda obligatoria de memoria, fechas, caché e indexación híbrida con modelo simulado |
+| `test_agente.py` | Consultas, confirmación/rechazo, búsqueda obligatoria de memoria, historial de conversaciones, fechas, caché e indexación híbrida con modelo simulado |
 | `test_movil.py` | Operaciones de integración móvil |
 
 Para cambiar un atajo: modifica el módulo responsable y el apéndice A del manual de usuario.

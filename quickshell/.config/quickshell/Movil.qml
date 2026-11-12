@@ -19,6 +19,7 @@ Superpuesta {
     anchoTarjeta: Math.min(900, (screen?.width ?? 1280) - 40)
     alturaRelativa: 0.07
     opacidadTarjeta: 0.96
+    acentoPanel: Paleta.verde
 
     readonly property string script: Quickshell.env("HOME") + "/.config/hypr/scripts/movil.py"
     property var d: null
@@ -76,25 +77,13 @@ Superpuesta {
         id: bt
         property bool destacado: false
         property color acento: Paleta.naranja
-        implicitHeight: 32
-        leftPadding: 12; rightPadding: 12
-        background: Rectangle {
-            radius: 9
-            color: Qt.alpha(bt.acento, bt.destacado ? (bt.hovered ? .34 : .22) : (bt.hovered ? .14 : .06))
-            border { width: 1; color: Qt.alpha(bt.acento, bt.destacado || bt.activeFocus ? .7 : .2) }
-        }
-        contentItem: Text { text: bt.text; color: bt.enabled ? Paleta.texto : Paleta.gris; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
-    }
-    component Interruptor: Rectangle {
-        id: sw
-        property bool activo: false
-        signal alternado()
-        implicitWidth: 38; implicitHeight: 21; radius: 11
-        color: activo ? Qt.alpha(Paleta.verde, .55) : Qt.alpha(Paleta.texto, .12)
-        Behavior on color { ColorAnimation { duration: 180 } }
-        Rectangle { width: 15; height: 15; radius: 8; y: 3; x: sw.activo ? sw.width - width - 3 : 3; color: sw.activo ? Paleta.texto : Paleta.gris
-            Behavior on x { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } } }
-        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: sw.alternado() }
+        implicitHeight: 34
+        leftPadding: 14; rightPadding: 14
+        hoverEnabled: true
+        scale: down ? .96 : 1
+        Behavior on scale { NumberAnimation { duration: EstiloPanel.breve; easing.type: Easing.OutCubic } }
+        background: FondoBoton { tinte: bt.acento; destacado: bt.destacado; encima: bt.hovered; pulsado: bt.down; foco: bt.activeFocus; radio: 10 }
+        contentItem: Text { text: bt.text; color: !bt.enabled ? Paleta.gris : bt.destacado || bt.hovered ? Paleta.texto : Qt.tint(Paleta.texto, Qt.alpha(Paleta.fondo, .2)); horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
     }
     component Etiqueta: Text { color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
     component Accion: Rectangle {
@@ -158,7 +147,7 @@ Superpuesta {
                 texto: (mv.d?.bateria ?? 0) + "%"
                 etiqueta: mv.d?.cargando ? "carga" : ""
             }
-            Boton { text: "Esc"; implicitWidth: 52; onClicked: mv.abierto = false }
+            Boton { text: "󰅖"; Accessible.name: "Cerrar"; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; onClicked: mv.abierto = false; background: FondoBoton { tinte: Paleta.rojo; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
         }
 
         // ── responder (a una notificación del PC con respuesta en línea, o del móvil) ──

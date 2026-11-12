@@ -11,7 +11,7 @@ PanelWindow {
     id: v
     property bool panelCuidado: false
     property color acentoPanel: Paleta.naranja
-    property real margenPanel: panelCuidado ? 22 : 14
+    property real margenPanel: panelCuidado ? 24 : 18
     property bool abierto: false
     property bool mostrar: false
     property string espacio: "superpuesta"     // namespace: quickshell-<espacio> (para el blur)
@@ -39,8 +39,9 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
+        // < 0.3 de opacidad: así el blur de Hyprland (ignore_alpha 0.3) solo actúa bajo la tarjeta
         color: "black"
-        opacity: v.abierto ? (v.panelCuidado ? 0.48 : 0.25) : 0
+        opacity: v.abierto ? 0.28 : 0
         Behavior on opacity { NumberAnimation { duration: EstiloPanel.entrada } }
         MouseArea { anchors.fill: parent; onClicked: v.abierto = false }
     }
@@ -50,22 +51,19 @@ PanelWindow {
         width: v.anchoTarjeta
         height: Math.min(caja.childrenRect.height + v.margenPanel * 2, v.height - 32)
         anchors.horizontalCenter: parent.horizontalCenter
-        y: Math.max(12, Math.min(parent.height * v.alturaRelativa, parent.height - height - 16)) + (v.abierto ? 0 : 10)
+        y: Math.max(12, Math.min(parent.height * v.alturaRelativa, parent.height - height - 16)) + (v.abierto ? 0 : 14)
         opacity: v.abierto ? 1 : 0
-        scale: v.abierto ? 1 : 0.98
+        scale: v.abierto ? 1 : 0.965
         Behavior on y       { NumberAnimation { duration: EstiloPanel.entrada; easing.type: Easing.OutCubic } }
         Behavior on opacity { NumberAnimation { duration: EstiloPanel.entrada } }
         Behavior on scale   { NumberAnimation { duration: EstiloPanel.entrada; easing.type: Easing.OutCubic } }
-        radius: v.panelCuidado ? 22 : 16
-        color: Qt.alpha(Paleta.fondo, v.opacidadTarjeta)
-        gradient: v.panelCuidado ? fondoPanel : null
-        Gradient {
-            id: fondoPanel
-            GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(v.acentoPanel, .055)) }
-            GradientStop { position: .48; color: Paleta.fondo }
-            GradientStop { position: 1; color: EstiloPanel.superficie }
+        color: "transparent"
+        FondoPanel {
+            anchors.fill: parent
+            acento: v.acentoPanel
+            radio: v.panelCuidado ? 24 : 20
+            opacidad: Math.min(v.opacidadTarjeta, .86)
         }
-        border { width: 1; color: v.panelCuidado ? Qt.alpha(v.acentoPanel, .25) : Qt.alpha(Paleta.naranja, .35) }
         MouseArea { anchors.fill: parent }
 
         Flickable {

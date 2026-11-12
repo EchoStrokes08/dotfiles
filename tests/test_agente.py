@@ -64,10 +64,11 @@ class Memoria(unittest.TestCase):
 class Agente(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.p = [patch.object(agente, "CONV", Path(self.tmp.name) / "c.json")]
+        self.p = [patch.object(agente, "DIR", Path(self.tmp.name) / "agente")]
         for x in self.p:
             x.start()
         agente.FUENTES.clear()
+        agente.VISTA.clear()
 
     def tearDown(self):
         for x in reversed(self.p):
@@ -114,6 +115,53 @@ class Agente(unittest.TestCase):
             self.correr(agente.turno, "¿Qué estuve leyendo sobre redes?")
             self.correr(agente.turno, "¿qué hora es?")
         self.assertEqual(buscadas, ["¿Qué estuve leyendo sobre redes?"])
+
+    def test_historial_guarda_y_retoma_conversaciones(self):
+        with patch.object(agente, "chat", lambda m, **k: ("Mañana tienes clase.", [])):
+            self.correr(agente.turno, "¿Qué tengo mañana?")
+        primera = agente.id_actual()
+        d = agente.cargar()
+        self.assertEqual(d["titulo"], "¿Qué tengo mañana?")
+        self.assertEqual([v["rol"] for v in d["vista"]], ["tu", "asistente"])
+        self.assertEqual(d["vista"][1]["texto"], "Mañana tienes clase.")
+
+        self.correr(agente.nueva)                       # «Nueva» no borra: la anterior queda en el historial
+        self.assertEqual(agente.id_actual(), "")
+        self.assertEqual(agente.cargar()["mensajes"], [])
+        with patch.object(agente, "chat", lambda m, **k: ("Todo bien.", [])), \
+                patch.object(agente.dt, "datetime", wraps=dt.datetime) as reloj:
+            reloj.now.return_value = dt.datetime.now() + dt.timedelta(seconds=5)
+            self.correr(agente.turno, "¿Cómo está el equipo?")
+        segunda = agente.id_actual()
+        self.assertNotEqual(primera, segunda)
+        h = agente.historial()
+        self.assertEqual(h["actual"], segunda)
+        self.assertEqual({x["titulo"] for x in h["lista"]}, {"¿Qué tengo mañana?", "¿Cómo está el equipo?"})
+
+        vuelta = agente.abrir(primera)                  # retomar: el modelo recuerda lo anterior
+        self.assertEqual(vuelta["vista"][0]["texto"], "¿Qué tengo mañana?")
+        self.assertEqual(agente.id_actual(), primera)
+        vistos = []
+        with patch.object(agente, "chat", lambda m, **k: vistos.append(list(m)) or ("Sí.", [])):
+            self.correr(agente.turno, "¿y pasado?")
+        self.assertIn("¿Qué tengo mañana?", vistos[0][0]["content"])
+
+        agente.borrar(primera)
+        self.assertEqual([x["id"] for x in agente.historial()["lista"]], [segunda])
+        self.assertEqual(agente.id_actual(), "")
+        self.assertIn("error", agente.abrir("../../etc/passwd"))
+
+    def test_cambiar_de_conversacion_descarta_lo_pendiente(self):
+        respuestas = iter([("", [{"function": {"name": "concentracion", "arguments": {"minutos": 50}}}])])
+        with patch.object(agente, "chat", lambda m, **k: next(respuestas)):
+            self.correr(agente.turno, "concentración")
+        d = agente.cargar()
+        self.assertTrue(d["pendiente"])
+        self.assertEqual(d["vista"][-1]["rol"], "confirmar")
+        self.correr(agente.nueva)
+        d = agente.cargar(d["id"])
+        self.assertIsNone(d["pendiente"])
+        self.assertEqual(d["vista"][-1]["resuelto"], "no")
 
     def test_fechas(self):
         hoy = dt.date.today()

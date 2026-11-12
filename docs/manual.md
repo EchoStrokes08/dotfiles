@@ -1330,6 +1330,10 @@ los archivos y el móvil, y propone acciones concretas del escritorio.
    **Sí, hazlo** o **No**. Las solicitudes de cambio necesitan confirmación en este panel.
 5. Si pregunta por varias acciones, revisa cada propuesta por separado. Escribir otra petición
    descarta la acción que estaba pendiente. Nueva o Ctrl+L inicia otra conversación.
+6. A la izquierda está el **historial**: tus conversaciones agrupadas en Hoy, Ayer, Últimos 7 días y
+   Anteriores. Pulsa una para verla entera y seguir donde la dejaste; el agente recuerda lo que se
+   habló. La papelera que aparece al pasar el ratón la quita del historial. Al reabrir el panel ves la
+   última conversación.
 
 | Quiero | Ejemplo |
 |---|---|
@@ -1364,7 +1368,8 @@ comprueba el resultado en el panel o servicio correspondiente.
 | Ctrl+Espacio o botón de micrófono | Empezar dictado; volver a pulsar para terminar y enviar |
 | Sí / No | Resolver la propuesta visible |
 | S / N | Confirmar o rechazar cuando el campo de escritura no tiene el foco |
-| Ctrl+L o Nueva | Empezar otra conversación |
+| Ctrl+L o Nueva conversación | Empezar otra conversación (la anterior queda en el historial) |
+| Ctrl+↑ / Ctrl+↓ | Ir a la conversación anterior o siguiente del historial |
 | Escape | Cerrar el panel |
 
 El micrófono usa Whisper local mediante `dictado.sh texto`: devuelve la transcripción al agente
@@ -1401,8 +1406,11 @@ La primera pasada puede tardar bastante; las siguientes procesan fuentes que cam
 
 Los modelos deben descargarse antes de trabajar sin internet. La velocidad depende del equipo,
 el tamaño de la conversación y la disponibilidad de memoria; no hay un tiempo fijo de respuesta.
-El agente conserva conversación y propuesta en runtime. **Nueva** borra esa conversación del backend;
-no borra la memoria indexada, la línea, el historial de Firefox ni los documentos originales.
+El agente guarda tus últimas 100 conversaciones en `~/.local/state/brujula/agente/` (privado, solo tu
+usuario). **Nueva** empieza otra sin borrar la anterior; para quitar una, usa su papelera. Una propuesta
+sin responder se descarta al cambiar de conversación. Con la privacidad activa, el historial oculta los
+títulos. Borrar conversaciones no borra la memoria indexada, la línea, el historial de Firefox ni los
+documentos originales.
 
 Activar privacidad no elimina datos ya indexados ni bloquea por sí solo las búsquedas de memoria.
 El agente puede usar información personal recuperada al preparar una respuesta: revisa qué compartes
