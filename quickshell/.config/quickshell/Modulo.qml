@@ -48,7 +48,7 @@ Item {
             alto: modulo.height
             text: modulo.texto
             color: modulo.colorTexto
-            font { pixelSize: 13; weight: Font.DemiBold }
+            font { pixelSize: 13; weight: Font.DemiBold; features: { "tnum": 1 } }
         }
     }
 

@@ -28,6 +28,13 @@ Item {
         }
         border { width: 1; color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(isla.acento, .4)), .12) }
     }
+    // bisel interior
+    Rectangle {
+        anchors { fill: parent; margins: 1.5 }
+        radius: height / 2
+        color: "transparent"
+        border { width: 1; color: Qt.alpha(Paleta.texto, .03) }
+    }
     // filo de luz superior
     Rectangle {
         x: isla.height * .6; y: 1

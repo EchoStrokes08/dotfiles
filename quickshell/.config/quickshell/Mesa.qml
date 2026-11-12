@@ -223,7 +223,8 @@ Superpuesta {
                     font { family: EstiloPanel.fuente; pixelSize: 12; bold: true }
                     lineHeight: 1.5
                 }
-                Text { text: "Ctrl+1…4 · pestañas\nEsc · cerrar"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10 } lineHeight: 1.6 }
+                PieAtajos { atajos: [["Ctrl 1…4", "pestañas"]] }
+                PieAtajos { atajos: [["Esc", "cerrar"]] }
             }
             ColumnLayout {
                 Layout.fillWidth: true

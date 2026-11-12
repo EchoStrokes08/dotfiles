@@ -8,6 +8,7 @@
 //   qs ipc call agente toggle · qs ipc call agente preguntar "¿qué tengo mañana?"
 pragma ComponentBehavior: Bound
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
@@ -31,9 +32,11 @@ Superpuesta {
     property var modelos: ["auto"]
     property string modeloElegido: "auto"
     property string esfuerzo: "bajo"
+    function tituloModelo(id) { return nombreModelo(id).split(" · ")[0]; }
+    function notaModelo(id) { const p = nombreModelo(id).split(" · "); return p.length > 1 ? p[1].charAt(0).toUpperCase() + p[1].slice(1) : ""; }
     function nombreModelo(id) {
         const n = { "auto": "Auto · el mejor disponible", "local": "Local · privado, lento",
-                    "openai/gpt-oss-120b": "GPT-OSS 120B · el más listo", "qwen/qwen3.8-27b": "Qwen 3.8 27B",
+                    "openai/gpt-oss-120b": "GPT-OSS 120B · el más listo", "qwen/qwen3.8-27b": "Qwen 3.8 27B · equilibrado",
                     "openai/gpt-oss-20b": "GPT-OSS 20B · el más rápido" };
         return n[id] || id;
     }
@@ -287,40 +290,101 @@ Superpuesta {
             // ── modelo y esfuerzo ──
             ComboBox {
                 id: selModelo
-                implicitWidth: 215; implicitHeight: 34
+                implicitWidth: 190; implicitHeight: 36
                 enabled: !ag.pensando
+                opacity: enabled ? 1 : .5
                 model: ag.modelos
                 currentIndex: ag.modelos.indexOf(ag.modeloElegido)
-                displayText: ag.nombreModelo(ag.modeloElegido)
                 onActivated: (i) => ag.elegir("modelo", ag.modelos[i])
-                font { family: Paleta.fuente; pixelSize: 12 }
-                palette { text: Paleta.texto; buttonText: Paleta.texto; button: EstiloPanel.elevada; base: EstiloPanel.superficie; window: EstiloPanel.superficie; windowText: Paleta.texto; highlight: Qt.alpha(Paleta.morado, .3); highlightedText: Paleta.texto }
-                background: Rectangle { radius: 10; color: EstiloPanel.superficie; border { width: selModelo.activeFocus ? 2 : 1; color: selModelo.activeFocus ? Paleta.morado : EstiloPanel.borde } }
+                background: Rectangle {
+                    radius: 18
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0; color: Qt.alpha(Paleta.morado, selModelo.hovered || selModelo.popup.visible ? .22 : .14) }
+                        GradientStop { position: 1; color: Qt.alpha(Paleta.morado, .04) }
+                    }
+                    border { width: selModelo.activeFocus || selModelo.popup.visible ? 2 : 1; color: Qt.alpha(Paleta.morado, selModelo.popup.visible ? .7 : .4) }
+                }
+                contentItem: RowLayout {
+                    spacing: 8
+                    Text { Layout.leftMargin: 13; text: ag.modeloElegido === "local" ? ag.g("f0322") : ag.modeloElegido === "auto" ? "✦" : ag.g("f06a9"); color: Paleta.morado; font { family: Paleta.mono; pixelSize: 14 } }
+                    Text { Layout.fillWidth: true; Layout.rightMargin: 26; text: ag.tituloModelo(ag.modeloElegido); elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
+                }
+                indicator: Text {
+                    x: selModelo.width - width - 13; anchors.verticalCenter: parent.verticalCenter
+                    text: selModelo.popup.visible ? "▴" : "▾"; color: Paleta.morado
+                    font { family: Paleta.fuente; pixelSize: 13 }
+                }
+                popup: Popup {
+                    y: selModelo.height + 6
+                    width: 300
+                    padding: 6
+                    implicitHeight: listaModelos.contentHeight + 12
+                    background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: Qt.alpha(Paleta.morado, .3) } }
+                    contentItem: ListView {
+                        id: listaModelos
+                        implicitHeight: contentHeight
+                        spacing: 3
+                        interactive: false
+                        model: selModelo.popup.visible ? selModelo.delegateModel : null
+                        currentIndex: selModelo.highlightedIndex
+                    }
+                }
                 delegate: ItemDelegate {
+                    id: opcionModelo
                     required property var modelData
                     required property int index
-                    width: selModelo.width
-                    text: ag.nombreModelo(modelData)
+                    readonly property bool elegido: modelData === ag.modeloElegido
+                    width: 288
+                    padding: 9
                     highlighted: selModelo.highlightedIndex === index
-                    font { family: Paleta.fuente; pixelSize: 12; bold: modelData === ag.modeloElegido }
+                    background: Rectangle {
+                        radius: 11
+                        color: Qt.alpha(Paleta.morado, opcionModelo.elegido ? .2 : opcionModelo.highlighted ? .1 : 0)
+                        border { width: opcionModelo.elegido ? 1 : 0; color: Qt.alpha(Paleta.morado, .45) }
+                    }
+                    contentItem: RowLayout {
+                        spacing: 11
+                        Text { text: opcionModelo.modelData === "local" ? ag.g("f0322") : opcionModelo.modelData === "auto" ? "✦" : ag.g("f06a9"); color: opcionModelo.elegido ? Paleta.morado : EstiloPanel.tenue; font { family: Paleta.mono; pixelSize: 16 } }
+                        ColumnLayout {
+                            Layout.fillWidth: true; spacing: 1
+                            Text { text: ag.tituloModelo(opcionModelo.modelData); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
+                            Text { Layout.fillWidth: true; visible: text !== ""; text: ag.notaModelo(opcionModelo.modelData); elide: Text.ElideRight; color: Qt.alpha(Paleta.texto, .6); font { family: Paleta.fuente; pixelSize: 11 } }
+                        }
+                        Text { visible: opcionModelo.elegido; text: "✓"; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
+                    }
                 }
                 ToolTip.visible: hovered && !popup.visible; ToolTip.delay: 500
                 ToolTip.text: "Modelo del asistente. Si se agota su límite gratuito, usa los demás de respaldo."
             }
-            Row {
-                spacing: 4
-                Repeater {
-                    model: [["bajo", "Rápido"], ["medio", "Medio"], ["alto", "A fondo"]]
-                    Boton {
-                        required property var modelData
-                        text: modelData[1]
-                        implicitHeight: 34; leftPadding: 10; rightPadding: 10
-                        acento: Paleta.morado
-                        destacado: ag.esfuerzo === modelData[0]
-                        enabled: !ag.pensando && ag.modeloElegido !== "local"
-                        onClicked: ag.elegir("esfuerzo", modelData[0])
-                        ToolTip.visible: hovered; ToolTip.delay: 500
-                        ToolTip.text: "Esfuerzo: cuánto razona antes de responder. «A fondo» es más listo pero más lento."
+            // esfuerzo: control segmentado
+            Rectangle {
+                implicitWidth: filaEsfuerzo.implicitWidth + 6; implicitHeight: 36; radius: 18
+                opacity: ag.modeloElegido === "local" ? .45 : 1
+                gradient: Gradient {
+                    GradientStop { position: 0; color: Qt.alpha(Paleta.fondo, .45) }
+                    GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .04) }
+                }
+                border { width: 1; color: Qt.alpha(Paleta.texto, .08) }
+                Row {
+                    id: filaEsfuerzo
+                    anchors.centerIn: parent
+                    spacing: 2
+                    Repeater {
+                        model: [["bajo", "Rápido"], ["medio", "Medio"], ["alto", "A fondo"]]
+                        Boton {
+                            id: btEsfuerzo
+                            required property var modelData
+                            text: modelData[1]
+                            implicitHeight: 30; leftPadding: 12; rightPadding: 12
+                            acento: Paleta.morado
+                            destacado: ag.esfuerzo === modelData[0]
+                            enabled: !ag.pensando && ag.modeloElegido !== "local"
+                            onClicked: ag.elegir("esfuerzo", modelData[0])
+                            background: FondoBoton { visible: btEsfuerzo.destacado || btEsfuerzo.hovered; tinte: Paleta.morado; destacado: btEsfuerzo.destacado; encima: btEsfuerzo.hovered; pulsado: btEsfuerzo.down; foco: btEsfuerzo.activeFocus; radio: 15 }
+                            ToolTip.visible: hovered; ToolTip.delay: 500
+                            ToolTip.text: "Esfuerzo: cuánto razona antes de responder. «A fondo» es más listo pero más lento."
+                        }
                     }
                 }
             }
@@ -616,7 +680,18 @@ Superpuesta {
                     ColumnLayout {
                         anchors.centerIn: parent; width: parent.width - 60; spacing: 14
                         visible: ag.mensajes.length === 0
-                        Text { Layout.alignment: Qt.AlignHCenter; text: "Pregúntame o pídeme algo, como se lo dirías a alguien"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 13 } }
+                        Rectangle {   // emblema
+                            Layout.alignment: Qt.AlignHCenter
+                            implicitWidth: 64; implicitHeight: 64; radius: 32
+                            gradient: Gradient {
+                                GradientStop { position: 0; color: Qt.alpha(Paleta.morado, .32) }
+                                GradientStop { position: 1; color: Qt.alpha(Paleta.azul, .1) }
+                            }
+                            border { width: 1; color: Qt.alpha(Paleta.morado, .4) }
+                            RectangularShadow { anchors.fill: parent; z: -1; visible: EstiloPanel.efectos; radius: 32; blur: 40; spread: -6; color: Qt.alpha(Paleta.morado, .35) }
+                            Text { anchors.centerIn: parent; text: "✦"; color: Qt.lighter(Paleta.morado, 1.2); font.pixelSize: 28 }
+                        }
+                        Text { Layout.alignment: Qt.AlignHCenter; text: "Pregúntame o pídeme algo, como se lo dirías a alguien"; color: Qt.alpha(Paleta.texto, .65); font { family: Paleta.fuente; pixelSize: 15 } }
                         Flow {
                             Layout.fillWidth: true; spacing: 8
                             Repeater {
@@ -625,9 +700,10 @@ Superpuesta {
                                         "¿Tengo mensajes en el móvil?", "Busca mis apuntes de redes"]
                                 Rectangle {
                                     required property string modelData
-                                    implicitHeight: 34; implicitWidth: sug.implicitWidth + 26; radius: 17
-                                    color: Qt.alpha(Paleta.morado, zs.containsMouse ? .2 : .08); border { width: 1; color: Qt.alpha(Paleta.morado, .3) }
-                                    Text { id: sug; anchors.centerIn: parent; text: parent.modelData; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
+                                    implicitHeight: 36; implicitWidth: sug.implicitWidth + 30; radius: 18
+                                    color: Qt.alpha(Paleta.morado, zs.containsMouse ? .2 : .07); border { width: 1; color: Qt.alpha(Paleta.morado, zs.containsMouse ? .5 : .22) }
+                                    Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+                                    Text { id: sug; anchors.centerIn: parent; text: parent.modelData; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13 } }
                                     MouseArea { id: zs; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.enviar(parent.modelData) }
                                 }
                             }
@@ -639,21 +715,35 @@ Superpuesta {
                 RowLayout {
                     Layout.fillWidth: true; spacing: 8
                     Rectangle {
-                        Layout.fillWidth: true; implicitHeight: 46; radius: 23
-                        color: Qt.alpha(Paleta.texto, .05)
-                        border { width: 1; color: Qt.alpha(Paleta.morado, entrada.activeFocus ? .6 : .15) }
+                        Layout.fillWidth: true; implicitHeight: 50; radius: 25
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: Qt.alpha(Paleta.fondo, entrada.activeFocus ? .6 : .45) }
+                            GradientStop { position: 1; color: Qt.alpha(Paleta.texto, entrada.activeFocus ? .07 : .045) }
+                        }
+                        border { width: entrada.activeFocus ? 1.5 : 1; color: Qt.alpha(Paleta.morado, entrada.activeFocus ? .7 : .18) }
+                        Behavior on border.color { ColorAnimation { duration: EstiloPanel.breve } }
+                        RectangularShadow {   // brillo al escribir
+                            anchors.fill: parent; z: -1
+                            visible: EstiloPanel.efectos
+                            opacity: entrada.activeFocus ? 1 : 0
+                            radius: 25; blur: 22; spread: -4
+                            color: Qt.alpha(Paleta.morado, .32)
+                            Behavior on opacity { NumberAnimation { duration: EstiloPanel.entrada } }
+                        }
                         TextField {
                             id: entrada
                             anchors { fill: parent; leftMargin: 18; rightMargin: 12 }
                             placeholderText: ag.hayConfirmacion ? "Responde arriba (S / N) o escribe otra cosa…" : "Escribe aquí… (Enter para enviar)"
-                            color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14 }
+                            color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 15 }
+                            placeholderTextColor: Qt.alpha(Paleta.texto, .4)
+                            selectionColor: Qt.alpha(Paleta.morado, .4)
                             background: null
                             Keys.onReturnPressed: ag.enviar(text)
                             Keys.onEnterPressed: ag.enviar(text)
                         }
                     }
                     Rectangle {
-                        implicitWidth: 46; implicitHeight: 46; radius: 23
+                        implicitWidth: 50; implicitHeight: 50; radius: 25
                         color: ag.escuchando ? Qt.alpha(Paleta.rojo, .35) : Qt.alpha(Paleta.texto, zm.containsMouse ? .1 : .05)
                         border { width: 1; color: Qt.alpha(ag.escuchando ? Paleta.rojo : Paleta.morado, .4) }
                         Text { anchors.centerIn: parent; text: ag.g(ag.escuchando ? "f036d" : "f036c"); color: ag.escuchando ? Paleta.rojo : Paleta.texto; font { family: Paleta.fuente; pixelSize: 18 } }
@@ -661,9 +751,23 @@ Superpuesta {
                         MouseArea { id: zm; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.alternarMicro() }
                     }
                     Rectangle {
-                        implicitWidth: 46; implicitHeight: 46; radius: 23
-                        color: Qt.alpha(Paleta.morado, entrada.text.trim() && !ag.pensando ? (ze.containsMouse ? .5 : .35) : .08)
-                        Text { anchors.centerIn: parent; text: ag.g("f048a"); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 18 } }
+                        id: enviarBtn
+                        readonly property bool listo: entrada.text.trim() !== "" && !ag.pensando
+                        implicitWidth: 50; implicitHeight: 50; radius: 25
+                        scale: ze.pressed ? .94 : 1
+                        Behavior on scale { NumberAnimation { duration: EstiloPanel.breve } }
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: enviarBtn.listo ? Qt.lighter(Paleta.morado, ze.containsMouse ? 1.1 : 1) : Qt.alpha(Paleta.texto, .07) }
+                            GradientStop { position: 1; color: enviarBtn.listo ? Qt.tint(Paleta.morado, Qt.alpha(Paleta.azul, .45)) : Qt.alpha(Paleta.texto, .04) }
+                        }
+                        border { width: 1; color: Qt.alpha(enviarBtn.listo ? "white" : Paleta.texto, enviarBtn.listo ? .25 : .1) }
+                        RectangularShadow {
+                            anchors.fill: parent; z: -1
+                            visible: EstiloPanel.efectos && enviarBtn.listo
+                            radius: 25; offset.y: 4; blur: 18; spread: -4
+                            color: Qt.alpha(Paleta.morado, .55)
+                        }
+                        Text { anchors.centerIn: parent; text: ag.g("f048a"); color: enviarBtn.listo ? Paleta.fondo : Qt.alpha(Paleta.texto, .45); font { family: Paleta.fuente; pixelSize: 19 } }
                         MouseArea { id: ze; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.enviar(entrada.text) }
                     }
                 }
@@ -679,37 +783,64 @@ Superpuesta {
             Rectangle {
                 id: bt
                 anchors.right: parent.right
-                width: Math.min(parent.width * .75, tt.implicitWidth + 28); implicitHeight: tt.implicitHeight + 18; radius: 16
-                color: Qt.alpha(Paleta.naranja, .16); border { width: 1; color: Qt.alpha(Paleta.naranja, .3) }
-                Text { id: tt; anchors { fill: parent; margins: 9; leftMargin: 14; rightMargin: 14 } wrapMode: Text.Wrap; text: parent.parent.parent.m.texto; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13 } }
+                width: Math.min(parent.width * .72, tt.implicitWidth + 36); implicitHeight: tt.implicitHeight + 22
+                radius: 18; bottomRightRadius: 6   // «cola» hacia el lado de quien habla
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0; color: Qt.alpha(Paleta.naranja, .24) }
+                    GradientStop { position: 1; color: Qt.alpha(Qt.tint(Paleta.naranja, Qt.alpha(Paleta.morado, .35)), .16) }
+                }
+                border { width: 1; color: Qt.alpha(Qt.lighter(Paleta.naranja, 1.2), .32) }
+                Text { id: tt; anchors { fill: parent; topMargin: 11; bottomMargin: 11; leftMargin: 18; rightMargin: 18 } wrapMode: Text.Wrap; text: parent.parent.parent.m.texto; color: Paleta.texto; lineHeight: 1.15; font { family: Paleta.fuente; pixelSize: 14 } }
             }
         }
     }
     Component {
         id: burbujaAsistente
         RowLayout {
-            spacing: 10
-            Text { text: "✦"; color: Paleta.morado; font.pixelSize: 15; Layout.alignment: Qt.AlignTop; Layout.topMargin: 2 }
+            spacing: 12
+            Rectangle {   // avatar del asistente
+                Layout.alignment: Qt.AlignTop
+                implicitWidth: 28; implicitHeight: 28; radius: 14
+                gradient: Gradient {
+                    GradientStop { position: 0; color: Qt.alpha(Paleta.morado, .38) }
+                    GradientStop { position: 1; color: Qt.alpha(Paleta.azul, .16) }
+                }
+                border { width: 1; color: Qt.alpha(Paleta.morado, .45) }
+                Text { anchors.centerIn: parent; text: "✦"; color: Qt.lighter(Paleta.morado, 1.15); font.pixelSize: 13 }
+            }
             Text {
-                Layout.fillWidth: true; wrapMode: Text.Wrap; textFormat: Text.MarkdownText
-                text: parent.parent.m.texto; color: Paleta.texto; lineHeight: 1.2
-                font { family: Paleta.fuente; pixelSize: 13 }
+                Layout.fillWidth: true; Layout.topMargin: 3
+                wrapMode: Text.Wrap; textFormat: Text.MarkdownText
+                text: parent.parent.m.texto; color: Paleta.texto; lineHeight: 1.35
+                linkColor: Qt.lighter(Paleta.azul, 1.3)   // el azul por defecto (#0000ff) no se lee sobre oscuro
+                font { family: Paleta.fuente; pixelSize: 14 }
                 onLinkActivated: (url) => Qt.openUrlExternally(url)
+                HoverHandler { cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor }
             }
         }
     }
     Component {
         id: paso
-        RowLayout {
-            spacing: 8
-            Rectangle { implicitWidth: 6; implicitHeight: 6; radius: 3; color: Paleta.azul; Layout.leftMargin: 26 }
-            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: parent.parent.m.texto; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; italic: true } }
+        Item {
+            implicitHeight: 28
+            Rectangle {   // pastilla discreta: qué está haciendo
+                x: 40
+                width: Math.min(parent.width - 40, filaPaso.implicitWidth + 22); height: 26; radius: 13
+                color: Qt.alpha(Paleta.azul, .07); border { width: 1; color: Qt.alpha(Paleta.azul, .16) }
+                RowLayout {
+                    id: filaPaso
+                    anchors { fill: parent; leftMargin: 11; rightMargin: 11 } spacing: 7
+                    Rectangle { implicitWidth: 6; implicitHeight: 6; radius: 3; color: Paleta.azul }
+                    Text { Layout.fillWidth: true; elide: Text.ElideRight; text: parent.parent.parent.parent.m.texto; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                }
+            }
         }
     }
     Component {
         id: fuentes
         Flow {
-            spacing: 6; leftPadding: 26
+            spacing: 6; leftPadding: 40
             Repeater {
                 model: parent.parent.m.lista ?? []
                 Rectangle {
@@ -757,6 +888,6 @@ Superpuesta {
     }
     Component {
         id: error
-        Text { wrapMode: Text.Wrap; leftPadding: 26; text: "⚠ " + parent.m.texto; color: Paleta.rojo; font { family: Paleta.fuente; pixelSize: 12 } }
+        Text { wrapMode: Text.Wrap; leftPadding: 40; text: "⚠ " + parent.m.texto; color: Paleta.rojo; font { family: Paleta.fuente; pixelSize: 12 } }
     }
 }

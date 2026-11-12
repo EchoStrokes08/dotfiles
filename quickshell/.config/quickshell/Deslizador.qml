@@ -91,6 +91,6 @@ RowLayout {
         horizontalAlignment: Text.AlignRight
         text: Math.round(raiz.valor * 100) + "%"
         color: raiz.apagado ? Paleta.gris : Paleta.texto
-        font { family: Paleta.fuente; pixelSize: 11; bold: true }
+        font { family: Paleta.fuente; pixelSize: 11; bold: true; features: { "tnum": 1 } }   // cifras de igual ancho
     }
 }

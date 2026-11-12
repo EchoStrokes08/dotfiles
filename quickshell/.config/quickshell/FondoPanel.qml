@@ -80,6 +80,13 @@ Item {
         }
     }
 
+    // Bisel interior: un segundo filo, más tenue, 1 px hacia dentro (cristal grueso)
+    Rectangle {
+        anchors { fill: parent; margins: 1.5 }
+        radius: f.radio - 1.5
+        color: "transparent"
+        border { width: 1; color: Qt.alpha(Paleta.texto, .035) }
+    }
     // Filo de luz superior
     Rectangle {
         x: f.radio * .8; y: 1

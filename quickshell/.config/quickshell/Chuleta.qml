@@ -133,22 +133,11 @@ Superpuesta {
                                         required property var modelData
                                         width: parent.width
                                         spacing: 8
-                                        Rectangle {
+                                        Tecla {
                                             id: chip
-                                            width: Math.min(textoTecla.implicitWidth, parent.width * 0.42) + 12
-                                            height: textoTecla.height + 6
-                                            radius: 5
-                                            color: Qt.alpha(Paleta.texto, 0.08)
-                                            Text {
-                                                id: textoTecla
-                                                anchors.centerIn: parent
-                                                width: Math.min(implicitWidth, parent.parent.width * 0.42)
-                                                text: modelData.tecla
-                                                wrapMode: Text.WordWrap
-                                                horizontalAlignment: Text.AlignHCenter
-                                                color: Paleta.amarillo
-                                                font { family: Paleta.fuente; pixelSize: 10; bold: true }
-                                            }
+                                            texto: modelData.tecla
+                                            tinte: Paleta.amarillo
+                                            anchoMax: parent.width * 0.42
                                         }
                                         Text {
                                             width: parent.width - chip.width - 8
@@ -174,11 +163,9 @@ Superpuesta {
             color: Paleta.gris
             font { family: Paleta.fuente; pixelSize: 12; italic: true }
         }
-        Text {
+        PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            text: "escribe para buscar   ·   rueda para desplazar   ·   esc cerrar   ·   sale del manual de usuario"
-            color: Qt.alpha(Paleta.gris, 0.8)
-            font { family: Paleta.fuente; pixelSize: 10 }
+            atajos: [["", "escribe para buscar"], ["rueda", "desplazar"], ["Esc", "cerrar"], ["", "sale del manual de usuario"]]
         }
     }
 }

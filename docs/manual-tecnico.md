@@ -285,7 +285,12 @@ No se debe usar una captura o una prueba simulada como evidencia de bloqueo fís
 `Superpuesta.qml` limita la altura y permite desplazamiento; mantiene visible el control enfocado.
 `EstiloPanel.qml` define tipografía y superficies; `BotonPanel`, `CampoPanel`, `EncabezadoPanel`,
 `NavegacionPanel` y `EstadoPanel` comparten foco, estados y navegación. `panelCuidado: true` y
-`acentoPanel` activan el estilo del panel. La interfaz usa Adwaita Sans e iconos de la Nerd Font.
+`acentoPanel` activan el estilo del panel. La interfaz usa Adwaita Sans (`Paleta.fuente`); la
+Nerd Font monoespaciada (`Paleta.mono`) queda para iconos, código y teclas. `Tecla.qml` dibuja una
+tecla con relieve y `PieAtajos.qml` la fila de atajos al pie de los paneles. Las cifras que cambian
+(reloj, porcentajes, tiempos) usan la variante tabular (`tnum`) para no moverse.
+Al editar los QML a mano conviene escribir en el mismo archivo: reemplazarlo (`sed -i`) hace que
+Quickshell deje de vigilarlo hasta la siguiente recarga.
 
 El aspecto de cristal es común: `FondoPanel.qml` (sombra, degradado, luces radiales del acento y
 filo de luz) es el fondo de `Superpuesta`, el dashboard, el lanzador, el centro de control, el OSD
@@ -373,10 +378,10 @@ flowchart LR
 **Protocolo:** `agente.py turno`, `confirmar si|no`, `nueva` y `precalentar` emiten eventos JSONL
 `herramienta`, `texto`, `fuentes`, `confirmar`, `error` y `fin`. El historial usa `historial`,
 `actual`, `abrir ID` (lo vuelve actual) y `borrar ID`, que imprimen un único JSON. El panel muestra respuesta progresiva,
-fuentes pulsables y propuestas. El backend limita el bucle a seis pasos y conserva hasta 24 mensajes;
+fuentes pulsables y propuestas. El backend limita el bucle a doce pasos y conserva hasta 24 mensajes;
 recorta texto de usuario a 4 000 y resultados de herramientas a 6 000 caracteres.
 
-El modelo configurado en `~/.config/ia/agente` es `qwen3:4b-instruct`; necesita soporte de tools.
+El modelo local configurado en `~/.config/ia/agente` es `qwen3:4b-instruct`; necesita soporte de tools.
 Usa contexto de 8 192, temperatura 0,3 y keep_alive de 20 min. Las instrucciones son estables para
 aprovechar caché; fecha/hora acompañan cada mensaje. El panel prepara el modelo y conserva una
 petición pendiente mientras calienta; no es una certificación de que el modelo esté disponible.
@@ -388,6 +393,29 @@ acciones de sistema pasan por propuesta. Se guarda nombre, argumentos y descripc
 se prepara de nuevo la operación. Escribir otra petición cancela la propuesta anterior. Los wrappers
 de algunas acciones no verifican exhaustivamente su resultado: «Hecho» indica una solicitud enviada,
 no evidencia suficiente de entrega de un mensaje, suspensión o aplicación del ajuste.
+
+**Modelos en la nube:** con `~/.config/ia/nube.json` (`activo` y una lista de `proveedores` con
+`nombre`, `url`, `modelo` y `clave`) el agente usa una API compatible con OpenAI (Groq) antes que
+Ollama. Cada clave es un archivo en `~/.local/share/brujula/claves/` (fuera del repositorio, 0600).
+`chat()` prueba los proveedores en orden y, ante un 429, pasa al siguiente sin esperar; si todos
+están limitados espera al que antes se libere (≤ 15 s) y, si nada responde, usa el modelo local.
+Con la privacidad activa o el modelo «local» elegido no sale nada a la red. Para respetar el cupo
+gratuito (8 000 tokens por minuto y petición) solo los dos últimos resultados de herramientas van
+casi enteros (3 000 caracteres) y los anteriores se recortan a 400. `opciones` y
+`elegir modelo|esfuerzo|permisos VALOR` alimentan los selectores del panel; modelo y esfuerzo se
+guardan en `~/.local/state/brujula/agente/eleccion.json`. `borrar-todo` vacía el historial.
+
+**Navegador del agente:** `agente_navegador.py` mantiene un Chromium (Playwright) con ventana de
+clase `agente-navegador`, que la regla de `modulos/scratchpads.lua` envía al scratchpad oculto
+`special:agente`. `buscar` usa DuckDuckGo HTML y devuelve título, enlace y resumen de cada
+resultado; el agente añade el texto del primero. Se cierra tras 10 min sin uso; `mostrar` (botón
+«Navegador») alterna el scratchpad. Hay un máximo de dos búsquedas por turno.
+
+**Permisos:** `~/.config/ia/permisos.json` guarda el nivel: `cauteloso`, `equilibrado` (antes
+`autonomo`), `amplio` o `total`. `requiere_confirmacion()` aplica el nivel; las reglas de comandos
+y rutas están en `agente_sistema.py` (`es_admin`, `es_peligroso`, `ruta_sensible`). Las órdenes de
+administrador se confirman siempre. Si en el turno entró texto de internet, «amplio» se comporta
+como «equilibrado» y no se leen rutas sensibles (salvo en «total»).
 
 `dictado.sh texto` implementa la entrada de voz: al terminar devuelve la transcripción a stdout;
 no la escribe ni la copia como el flujo general. Comparte el mecanismo de grabación con el dictado

@@ -495,39 +495,11 @@ Superpuesta {
             }
 
             // ── pie: atajos ────────────────────────────────────────────────────
-            Row {
+            PieAtajos {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 18
-                Repeater {
-                    model: [
-                        ["Enter", "ir"], ["← →", "elegir"], ["↑ ↓", "otro espacio"], ["1-9", "espacio"],
-                        ["Ctrl 1-9", "mover"], ["Supr", "cerrar"], ["arrastrar", "mover"], ["Esc", "salir"]
-                    ]
-                    Row {
-                        id: atajo
-                        required property var modelData
-                        spacing: 6
-                        Rectangle {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: tecla.implicitWidth + 12; height: 19; radius: 5
-                            color: Qt.alpha(Paleta.texto, .07)
-                            border { width: 1; color: Qt.alpha(Paleta.texto, .1) }
-                            Text {
-                                id: tecla
-                                anchors.centerIn: parent
-                                text: atajo.modelData[0]
-                                color: Paleta.texto
-                                font { family: Paleta.fuente; pixelSize: 10 }
-                            }
-                        }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: atajo.modelData[1]
-                            color: EstiloPanel.tenue
-                            font { family: EstiloPanel.fuente; pixelSize: 11 }
-                        }
-                    }
-                }
+                atajos: [["Enter", "ir"], ["← →", "elegir"], ["↑ ↓", "otro espacio"], ["1-9", "espacio"],
+                         ["Ctrl 1-9", "mover"], ["Supr", "cerrar"], ["arrastrar", "mover"], ["Esc", "salir"]]
             }
         }
     }

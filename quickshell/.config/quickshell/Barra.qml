@@ -166,7 +166,7 @@ PanelWindow {
                     ? reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd d 'de' MMMM") + "  ·  " + Qt.formatTime(reloj.date, "HH:mm")
                     : Qt.formatTime(reloj.date, "HH:mm")
                 color: Qt.lighter(Paleta.naranja, 1.08)
-                font { family: Paleta.fuente; pixelSize: 13; weight: Font.Bold; letterSpacing: .4 }
+                font { family: Paleta.fuente; pixelSize: 13; weight: Font.Bold; letterSpacing: .4; features: { "tnum": 1 } }   // cifras de igual ancho: la hora no baila
             }
         }
         MouseArea {

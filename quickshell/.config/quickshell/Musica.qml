@@ -150,7 +150,7 @@ RowLayout {
             visible: (musica.jugador?.lengthSupported ?? false) && musica.jugador.length > 0
             Text {
                 text: musica.mmss(musica.jugador?.position ?? 0)
-                color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 }
+                color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; features: { "tnum": 1 } }
             }
             Rectangle {
                 Layout.fillWidth: true
@@ -165,7 +165,7 @@ RowLayout {
             }
             Text {
                 text: musica.mmss(musica.jugador?.length ?? 0)
-                color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 }
+                color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; features: { "tnum": 1 } }
             }
         }
     }

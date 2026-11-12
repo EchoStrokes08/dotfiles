@@ -192,7 +192,7 @@ Scope {
                     horizontalAlignment: Text.AlignRight
                     text: Math.round(osd.valor * 100) + "%"
                     color: Paleta.texto
-                    font { family: Paleta.fuente; pixelSize: 14; bold: true }
+                    font { family: Paleta.fuente; pixelSize: 14; bold: true; features: { "tnum": 1 } }
                 }
 
                 // Mensaje (Bloq Mayús, micro, música, avisos)

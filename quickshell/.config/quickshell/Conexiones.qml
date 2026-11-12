@@ -334,14 +334,10 @@ Superpuesta {
             color: Paleta.gris
             font { family: Paleta.fuente; pixelSize: 12; italic: true }
         }
-        Text {
+        PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            Layout.maximumWidth: parent.width
-            wrapMode: Text.WordWrap
-            horizontalAlignment: Text.AlignHCenter
-            text: "tab pestaña  ·  ↵ conectar  ·  supr olvidar  ·  espacio on/off  ·  esc"
-            color: Qt.alpha(Paleta.gris, 0.8)
-            font { family: Paleta.fuente; pixelSize: 10 }
+            spacing: 10
+            atajos: [["Tab", "pestaña"], ["↵", "conectar"], ["Supr", "olvidar"], ["␣", "on/off"]]
         }
     }
 }

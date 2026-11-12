@@ -20,7 +20,8 @@ Singleton {
     property color seleccion: "#243340"
     property color gris:      "#5c6773"
     readonly property color morado: "#d2a6ff"   // el del ✦ del prompt (no está en la paleta)
-    readonly property string fuente: "JetBrainsMono Nerd Font"
+    readonly property string fuente: "Adwaita Sans"            // texto de la interfaz
+    readonly property string mono: "JetBrainsMono Nerd Font"   // código, atajos y cifras alineadas
 
     FileView {
         path: Quickshell.env("HOME") + "/.local/state/tema/colores.css"

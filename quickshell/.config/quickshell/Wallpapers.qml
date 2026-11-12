@@ -158,11 +158,9 @@ Superpuesta {
             }
         }
 
-        Text {
+        PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            text: "↵ poner   ·   flechas moverse   ·   esc cerrar"
-            color: Qt.alpha(Paleta.gris, 0.8)
-            font { family: Paleta.fuente; pixelSize: 10 }
+            atajos: [["↵", "poner"], ["← →", "moverse"], ["Esc", "cerrar"]]
         }
     }
 }

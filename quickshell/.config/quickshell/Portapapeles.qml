@@ -174,11 +174,9 @@ Superpuesta {
             color: Paleta.gris
             font { family: Paleta.fuente; pixelSize: 12; italic: true }
         }
-        Text {
+        PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            text: "↵ copiar   ·   supr borrar   ·   esc cerrar"
-            color: Qt.alpha(Paleta.gris, 0.8)
-            font { family: Paleta.fuente; pixelSize: 10 }
+            atajos: [["↵", "copiar"], ["Supr", "borrar"], ["Esc", "cerrar"]]
         }
     }
 }
