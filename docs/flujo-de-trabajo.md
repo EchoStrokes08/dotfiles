@@ -119,3 +119,5 @@ hyprctl configerrors
 Los archivos anteriores a esta ampliación están en
 `~/.local/state/hypr-avanzado/flujo-20261111-190454/`, con su manifiesto. La biblioteca de proyectos
 se conserva por separado del código. Consulta también la [mesa de trabajo](mesa-de-trabajo.md).
+
+Diseño visual y capturas actualizadas: [interfaz del escritorio](interfaz-escritorio.md).

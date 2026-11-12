@@ -13,6 +13,8 @@ Superpuesta {
     anchoTarjeta: Math.min(960, (screen?.width ?? 1280) - 48)
     alturaRelativa: 0.06
     opacidadTarjeta: 1
+    panelCuidado: true
+    acentoPanel: Paleta.azul
     property int pagina: 0
     property var plantillas: []
     property string seleccion: ""
@@ -60,7 +62,9 @@ Superpuesta {
         if (ws) args.push("--workspace", String(ws));
         ejecutar(args, accion === "enfocar");
     }
+    NumberAnimation { id: entradaPagina; target: cuerpo; property: "opacity"; from: .65; to: 1; duration: EstiloPanel.entrada; easing.type: Easing.OutCubic }
     onPaginaChanged: {
+        if (abierto) entradaPagina.restart();
         filtro.text = "";
         if (pagina < 2 && abierto) Qt.callLater(() => filtro.forceActiveFocus());
     }
@@ -92,21 +96,11 @@ Superpuesta {
             if (codigo === 0 && mesa.cerrarAlCompletar) mesa.abierto = false;
         }
     }
-    component Boton: Button {
-        id: b
+    component Boton: BotonPanel {
         property bool acento: false
-        Layout.fillWidth: true
-        Layout.minimumWidth: 0
-        Layout.preferredWidth: 1
-        implicitHeight: 36
+        destacado: acento
+        tinte: Paleta.azul
         enabled: !operacion.running
-        background: Rectangle {
-            radius: 8
-            color: Qt.alpha(Paleta.naranja, b.acento ? 0.24 : b.hovered ? 0.14 : 0.06)
-            border.width: 1
-            border.color: Qt.alpha(Paleta.naranja, b.activeFocus || b.acento ? 0.7 : 0.18)
-        }
-        contentItem: Text { text: b.text; color: b.enabled ? Paleta.texto : Paleta.gris; elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; font { family: Paleta.fuente; pixelSize: 12; bold: b.acento } }
     }
     Repeater {
         model: 4
@@ -117,61 +111,50 @@ Superpuesta {
         }
     }
     ColumnLayout {
+        id: cuerpo
         width: parent.width
         spacing: 16
-        Item {
-            Layout.fillWidth: true
-            implicitHeight: 55
-            Column {
-                width: Math.max(0, parent.width - 110)
-                spacing: 4
-                Text { width: parent.width; text: "MESA DE TRABAJO"; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 3 } }
-                Text { width: parent.width; text: "Menos pasos. Más fluidez."; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 25; bold: true } }
-            }
-            Boton { id: cerrar; anchors { right: parent.right; verticalCenter: parent.verticalCenter } width: 82; text: "Cerrar"; onClicked: mesa.abierto = false }
+        EncabezadoPanel {
+            seccion: "MESA DE TRABAJO"
+            titulo: ["Todo en su sitio", "Ideas que puedes reutilizar", "Tu momento de presentar", "Encuentra tu ritmo"][mesa.pagina]
+            simbolo: "󰕰"
+            tinte: Paleta.azul
+            onCerrar: mesa.abierto = false
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 408
+            Layout.preferredHeight: Math.min(408, (screen?.height ?? 720) - 245)
             spacing: 20
             ColumnLayout {
-                Layout.preferredWidth: 155
+                Layout.preferredWidth: 174
                 Layout.fillHeight: true
                 spacing: 8
-                Repeater {
-                    model: mesa.paginas
-                    Boton {
-                        required property string modelData
-                        required property int index
-                        text: modelData
-                        acento: mesa.pagina === index
-                        onClicked: { mesa.pagina = index; filtro.text = ""; }
-                    }
+                NavegacionPanel {
+                    vertical: true
+                    tinte: Paleta.azul
+                    actual: mesa.pagina
+                    opciones: [{texto:"Ventanas",icono:"󰕰"},{texto:"Plantillas",icono:"󰈙"},{texto:"Reunión",icono:"󰍫"},{texto:"Rutinas",icono:"󰌌"}]
+                    onElegir: indice => { mesa.pagina = indice; filtro.text = ""; }
                 }
-                Boton { text: "Proyectos y acciones →"; onClicked: Quickshell.execDetached(["qs","ipc","call","flujo","abrir","continuidad"]) }
+                Boton { text: "Proyectos →"; simbolo: "󰃖"; onClicked: Quickshell.execDetached(["qs","ipc","call","flujo","abrir","continuidad"]) }
                 Item { Layout.fillHeight: true }
                 Text {
                     Layout.fillWidth: true
                     text: Reunion.activa ? "EN REUNIÓN\n" + Reunion.cuenta : "TU ESPACIO\n" + EstadoEscritorio.perfil
-                    color: Reunion.activa ? Paleta.verde : Paleta.gris
-                    font { family: Paleta.fuente; pixelSize: 12; bold: true }
+                    color: Reunion.activa ? Paleta.verde : EstiloPanel.tenue
+                    font { family: EstiloPanel.fuente; pixelSize: 12; bold: true }
                     lineHeight: 1.5
                 }
-                Text { text: "Ctrl+1…4 · pestañas\nEsc · cerrar"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 } lineHeight: 1.6 }
+                Text { text: "Ctrl+1…4 · pestañas\nEsc · cerrar"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10 } lineHeight: 1.6 }
             }
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 spacing: 10
-                TextField {
+                CampoPanel {
                     id: filtro
                     visible: mesa.pagina < 2
-                    Layout.fillWidth: true
-                    implicitHeight: 38
-                    placeholderText: mesa.pagina === 0 ? "Buscar ventanas por aplicación o título…" : "Buscar en tus plantillas…"
-                    color: Paleta.texto
-                    font { family: Paleta.fuente; pixelSize: 13 }
-                    background: Rectangle { radius: 8; color: Qt.alpha(Paleta.texto, .045); border.width: 1; border.color: filtro.activeFocus ? Paleta.naranja : Qt.alpha(Paleta.gris,.3) }
+                    placeholderText: mesa.pagina === 0 ? "Buscar aplicación o ventana…" : "Buscar en tus plantillas…"
                     onTextChanged: { listaVentanas.currentIndex = 0; mesa.seleccion = ""; }
                     Keys.onDownPressed: { if (mesa.pagina === 1) { listaPlantillas.currentIndex = Math.min(mesa.textos.length-1, listaPlantillas.currentIndex+1); mesa.cargar(mesa.textos[listaPlantillas.currentIndex]); return; } listaVentanas.currentIndex = Math.min(mesa.ventanas.length-1,listaVentanas.currentIndex+1); mesa.seleccion = mesa.ventanas[listaVentanas.currentIndex]?.address || ""; }
                     Keys.onUpPressed: { if (mesa.pagina === 1) { listaPlantillas.currentIndex = Math.max(0, listaPlantillas.currentIndex-1); mesa.cargar(mesa.textos[listaPlantillas.currentIndex]); return; } listaVentanas.currentIndex = Math.max(0,listaVentanas.currentIndex-1); mesa.seleccion = mesa.ventanas[listaVentanas.currentIndex]?.address || ""; }
@@ -193,21 +176,23 @@ Superpuesta {
                                 required property var modelData
                                 required property int index
                                 width: ListView.view.width; height: 55; radius: 8
-                                color: Qt.alpha(Paleta.naranja, mesa.elegida?.address === modelData.address ? .16 : .035)
+                                color: mesa.elegida?.address === modelData.address ? Qt.alpha(Paleta.azul,.14) : ventanaMouse.containsMouse ? EstiloPanel.elevada : EstiloPanel.superficie
+                                border { width: 1; color: mesa.elegida?.address === modelData.address ? Qt.alpha(Paleta.azul,.45) : EstiloPanel.borde }
+                                Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
                                 Column {
-                                    anchors { fill: parent; margins: 9 } spacing: 3
-                                    Text { width: parent.width; text: (fila.modelData.lastIpcObject?.class || "Aplicación") + (fila.modelData.workspace?.name === "special:aparcadas" ? " · aparcada" : " · espacio " + (fila.modelData.workspace?.id || "")); color: Paleta.naranja; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
-                                    Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Título oculto por privacidad" : fila.modelData.title; color: Paleta.texto; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 11 } }
+                                    anchors { fill: parent; margins: 10 } spacing: 3
+                                    Text { width: parent.width; text: (fila.modelData.lastIpcObject?.class || "Aplicación") + (fila.modelData.workspace?.name === "special:aparcadas" ? " · aparcada" : " · espacio " + (fila.modelData.workspace?.id || "")); color: Paleta.naranja; elide: Text.ElideRight; font { family: EstiloPanel.fuente; pixelSize: 11; bold: true } }
+                                    Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Título oculto por privacidad" : fila.modelData.title; color: Paleta.texto; elide: Text.ElideRight; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                                 }
-                                MouseArea { anchors.fill: parent; onClicked: { mesa.seleccion = fila.modelData.address; listaVentanas.currentIndex = fila.index; } onDoubleClicked: mesa.accionVentana("enfocar") }
+                                MouseArea { id: ventanaMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: { mesa.seleccion = fila.modelData.address; listaVentanas.currentIndex = fila.index; } onDoubleClicked: mesa.accionVentana("enfocar") }
                             }
-                            Label { anchors.centerIn: parent; visible: mesa.ventanas.length === 0; text: "No hay ventanas que coincidan"; color: Paleta.gris }
+                            Label { anchors.centerIn: parent; visible: mesa.ventanas.length === 0; text: "No hay ventanas que coincidan"; color: EstiloPanel.tenue }
                         }
                         Rectangle {
                             Layout.preferredWidth: 195; Layout.fillHeight: true
                             radius: 10; color: Qt.alpha(Paleta.texto,.04); clip: true
                             ScreencopyView { anchors.fill: parent; captureSource: mesa.abierto && mesa.pagina === 0 && !EstadoEscritorio.privacidad ? mesa.elegida?.wayland ?? null : null; live: true }
-                            Text { anchors.centerIn: parent; width: parent.width-20; visible: EstadoEscritorio.privacidad || !mesa.elegida?.wayland; text: EstadoEscritorio.privacidad ? "Vista previa oculta\nPrivacidad activa" : "Selecciona una ventana"; color: Paleta.gris; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap; font { family: Paleta.fuente; pixelSize: 12 } }
+                            Text { anchors.centerIn: parent; width: parent.width-20; visible: EstadoEscritorio.privacidad || !mesa.elegida?.wayland; text: EstadoEscritorio.privacidad ? "Vista previa oculta\nPrivacidad activa" : "Selecciona una ventana"; color: EstiloPanel.tenue; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 12 } }
                         }
                     }
                     RowLayout {
@@ -216,7 +201,7 @@ Superpuesta {
                         Boton { text: mesa.elegida?.workspace?.name === "special:aparcadas" ? "Recuperar" : "Aparcar"; enabled: mesa.elegida !== null && !operacion.running; onClicked: mesa.accionVentana("aparcar") }
                         Boton { text: "Flotante / mosaico"; enabled: mesa.elegida !== null && !operacion.running; onClicked: mesa.accionVentana("flotante") }
                     }
-                    Text { text: "MOVER AL ESPACIO"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; letterSpacing: 1 } }
+                    Text { text: "MOVER AL ESPACIO"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10; letterSpacing: 1 } }
                     RowLayout {
                         Layout.fillWidth: true
                         Repeater { model: 10; Boton { required property int index; text: String(index+1); enabled: mesa.elegida !== null && !operacion.running; onClicked: mesa.accionVentana("mover", index+1) } }
@@ -239,12 +224,12 @@ Superpuesta {
                     }
                     ColumnLayout {
                         Layout.fillWidth: true; Layout.fillHeight: true; spacing: 8
-                        TextField { id: titulo; Layout.fillWidth: true; placeholderText: "Nombre de la plantilla"; color: Paleta.texto; font.family: Paleta.fuente; onTextEdited: mesa.cambios = true; background: Rectangle { color: Qt.alpha(Paleta.texto,.05); radius: 7 } }
+                        CampoPanel { id: titulo; placeholderText: "Nombre de la plantilla"; onTextEdited: mesa.cambios = true }
                         ScrollView {
                             Layout.fillWidth: true; Layout.fillHeight: true; clip: true
-                            TextArea { id: texto; placeholderText: "Escribe un texto reutilizable…"; color: Paleta.texto; wrapMode: TextEdit.Wrap; font { family: Paleta.fuente; pixelSize: 12 } onTextChanged: if (!mesa.cargando) mesa.cambios = true; background: Rectangle { color: Qt.alpha(Paleta.texto,.035); radius: 7 } }
+                            TextArea { id: texto; padding: 12; placeholderTextColor: EstiloPanel.tenue; selectionColor: Qt.alpha(Paleta.azul,.35); placeholderText: "Escribe un texto reutilizable…"; color: Paleta.texto; wrapMode: TextEdit.Wrap; font { family: EstiloPanel.fuente; pixelSize: 12 } onTextChanged: if (!mesa.cargando) mesa.cambios = true; background: Rectangle { color: Qt.alpha(Paleta.texto,.035); radius: 7 } }
                         }
-                        Text { text: "{{fecha}} · {{hora}} · {{usuario}}"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 } }
+                        Text { text: "{{fecha}} · {{hora}} · {{usuario}}"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10 } }
                         RowLayout {
                             Layout.fillWidth: true
                             Boton { text: mesa.cambios ? "Guardar cambios" : "Guardar"; acento: true; onClicked: mesa.ejecutar(["plantilla","guardar","--id=" + mesa.plantillaId,"--titulo=" + titulo.text,"--texto=" + texto.text]) }
@@ -260,9 +245,30 @@ Superpuesta {
                 ColumnLayout {
                     visible: mesa.pagina === 2
                     Layout.fillWidth: true; Layout.fillHeight: true; spacing: 15
-                    Text { text: Reunion.activa ? "Estás en reunión" : "Presenta con tranquilidad"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 23; bold: true } }
-                    Text { text: Reunion.activa ? Reunion.cuenta : mesa.duracion + ":00"; color: Reunion.activa ? Paleta.verde : Paleta.naranja; font { family: Paleta.fuente; pixelSize: 54; bold: true } }
-                    Text { Layout.fillWidth: true; text: "Pausa el replay, oculta títulos y vistas previas, activa No molestar e impide la suspensión por inactividad durante el tiempo elegido."; color: Paleta.gris; wrapMode: Text.Wrap; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Rectangle {
+                        Layout.fillWidth: true; implicitHeight: 119; radius: 14
+                        color: Qt.alpha(Reunion.activa ? Paleta.verde : Paleta.azul,.075)
+                        border { width: 1; color: Qt.alpha(Reunion.activa ? Paleta.verde : Paleta.azul,.22) }
+                        RowLayout {
+                            anchors { fill: parent; margins: 16; bottomMargin: 22 }
+                            ColumnLayout {
+                                Layout.fillWidth: true; spacing: 6
+                                Text { text: Reunion.activa ? "ESTÁS EN REUNIÓN" : "PRESENTA CON TRANQUILIDAD"; color: Reunion.activa ? Paleta.verde : Paleta.azul; font { family: EstiloPanel.fuente; pixelSize: 10; weight: Font.Bold; letterSpacing: 1.5 } }
+                                Text { text: "Un espacio sin interrupciones"; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 18; weight: Font.DemiBold } }
+                                Text { text: "Privacidad · No molestar · Replay en pausa"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
+                            }
+                            Text { text: Reunion.activa ? Reunion.cuenta : mesa.duracion + ":00"; color: Reunion.activa ? Paleta.verde : Paleta.azul; font { family: Paleta.fuente; pixelSize: 43; weight: Font.Light } }
+                        }
+                        Rectangle {
+                            anchors { bottom: parent.bottom; left: parent.left; right: parent.right; margins: 12 }
+                            height: 3; radius: 2; color: Qt.alpha(Paleta.azul,.13)
+                            Rectangle {
+                                width: parent.width * (Reunion.activa ? Math.min(1, Reunion.restante / Math.max(1, Number(Reunion.datos.minutos || 30) * 60)) : 1)
+                                height: 3; radius: 2; color: Reunion.activa ? Paleta.verde : Paleta.azul
+                            }
+                        }
+                    }
+                    Text { Layout.fillWidth: true; text: "Pausa el replay, oculta títulos y vistas previas, activa No molestar e impide la suspensión por inactividad durante el tiempo elegido."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 12 } }
                     RowLayout {
                         Layout.fillWidth: true
                         Repeater { model: [15,30,60,90]; Boton { required property int modelData; text: modelData + " min"; acento: mesa.duracion === modelData; enabled: !Reunion.activa; onClicked: mesa.duracion = modelData } }
@@ -273,14 +279,14 @@ Superpuesta {
                         Boton { text: "Silenciar micrófono"; onClicked: mesa.ejecutar(["microfono","silenciar"]) }
                         Boton { text: "Activar micrófono"; onClicked: mesa.ejecutar(["microfono","activar"]) }
                     }
-                    Text { Layout.fillWidth: true; text: "Al terminar se retira solo el motivo reunión. Tus otros modos y el estado del micrófono se conservan."; color: Paleta.gris; wrapMode: Text.Wrap; font { family: Paleta.fuente; pixelSize: 10 } }
+                    Text { Layout.fillWidth: true; text: "Al terminar se retira solo el motivo reunión. Tus otros modos y el estado del micrófono se conservan."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 10 } }
                     Item { Layout.fillHeight: true }
                 }
                 ColumnLayout {
                     visible: mesa.pagina === 3
                     Layout.fillWidth: true; Layout.fillHeight: true; spacing: 12
-                    Text { text: "Prepara tu siguiente momento"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 23; bold: true } }
-                    Text { Layout.fillWidth: true; text: "Guarda primero la distribución actual y prepara tus aplicaciones, apariencia y concentración en una acción."; color: Paleta.gris; wrapMode: Text.Wrap; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Text { text: "Prepara tu siguiente momento"; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 23; bold: true } }
+                    Text { Layout.fillWidth: true; text: "Guarda primero la distribución actual y prepara tus aplicaciones, apariencia y concentración en una acción."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 12 } }
                     Repeater {
                         model: [
                             {id:"estudiar", titulo:"Estudiar · 25 minutos", detalle:"Sesión universidad + Lectura + concentración"},
@@ -294,24 +300,23 @@ Superpuesta {
                             activeFocusOnTab: true
                             Keys.onReturnPressed: mesa.ejecutar(["rutina",modelData.id],true)
                             Keys.onSpacePressed: mesa.ejecutar(["rutina",modelData.id],true)
-                            color: Qt.alpha(Paleta.naranja, zona.containsMouse || activeFocus ? .16 : .06)
-                            border { width: 1; color: Qt.alpha(Paleta.naranja,.18) }
-                            Column { anchors { fill: parent; margins: 12 } spacing: 5
-                                Text { text: rutina.modelData.titulo; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
-                                Text { text: rutina.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
+                            color: Qt.alpha(rutina.modelData.id === "estudiar" ? Paleta.azul : rutina.modelData.id === "programar" ? Paleta.morado : Paleta.verde, zona.containsMouse || activeFocus ? .18 : .07)
+                            Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+                            border { width: activeFocus ? 2 : 1; color: Qt.alpha(Paleta.azul,.25) }
+                            Text { anchors { left: parent.left; leftMargin: 15; verticalCenter: parent.verticalCenter } text: rutina.modelData.id === "estudiar" ? "󰑴" : rutina.modelData.id === "programar" ? "󰅩" : "󰒲"; color: rutina.modelData.id === "estudiar" ? Paleta.azul : rutina.modelData.id === "programar" ? Paleta.morado : Paleta.verde; font { family: Paleta.fuente; pixelSize: 25 } }
+                            Text { anchors { right: parent.right; rightMargin: 16; verticalCenter: parent.verticalCenter } text: "↗"; color: EstiloPanel.tenue; font.pixelSize: 20 }
+                            Column { anchors { fill: parent; margins: 12; leftMargin: 58; rightMargin: 35 } spacing: 5
+                                Text { text: rutina.modelData.titulo; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 14; bold: true } }
+                                Text { text: rutina.modelData.detalle; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                             }
                             MouseArea { id: zona; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; enabled: !operacion.running; onClicked: mesa.ejecutar(["rutina",rutina.modelData.id],true) }
                         }
                     }
-                    Text { Layout.fillWidth: true; text: "Puedes devolver las ventanas a sus espacios anteriores desde el checkpoint del centro del escritorio. No se cierran aplicaciones."; color: Paleta.gris; wrapMode: Text.Wrap; font { family: Paleta.fuente; pixelSize: 10 } }
+                    Text { Layout.fillWidth: true; text: "Puedes devolver las ventanas a sus espacios anteriores desde el checkpoint del centro del escritorio. No se cierran aplicaciones."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 10 } }
                     Item { Layout.fillHeight: true }
                 }
             }
         }
-        Rectangle {
-            Layout.fillWidth: true; implicitHeight: 42; radius: 8
-            color: Qt.alpha(mesa.error ? Paleta.rojo : Paleta.verde,.07)
-            Text { anchors { fill: parent; margins: 10 } text: mesa.error || mesa.mensaje; color: mesa.error ? Paleta.rojo : Paleta.gris; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter; font { family: Paleta.fuente; pixelSize: 11 } }
-        }
+        EstadoPanel { mensaje: mesa.mensaje; error: mesa.error; ocupado: operacion.running }
     }
 }

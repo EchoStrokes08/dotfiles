@@ -12,7 +12,10 @@ import Quickshell.Services.UPower
 Superpuesta {
     id: r
     espacio: "resumen"
-    anchoTarjeta: 500
+    anchoTarjeta: Math.min(540, (screen?.width ?? 1280) - 40)
+    panelCuidado: true
+    opacidadTarjeta: 1
+    acentoPanel: Paleta.azul
     alturaRelativa: 0.15
 
     SystemClock { id: reloj; precision: SystemClock.Minutes }
@@ -69,9 +72,9 @@ Superpuesta {
             Layout.fillWidth: true
             spacing: 1
             Text { Layout.fillWidth: true; text: titulo; color: Paleta.texto; elide: Text.ElideRight
-                   font { family: Paleta.fuente; pixelSize: 13; bold: true } }
-            Text { Layout.fillWidth: true; visible: detalle !== ""; text: detalle; color: Qt.alpha(Paleta.texto, 0.65); wrapMode: Text.WordWrap
-                   font { family: Paleta.fuente; pixelSize: 11 } }
+                   font { family: EstiloPanel.fuente; pixelSize: 13; bold: true } }
+            Text { Layout.fillWidth: true; visible: detalle !== ""; text: detalle; color: EstiloPanel.tenue; wrapMode: Text.WordWrap
+                   font { family: EstiloPanel.fuente; pixelSize: 11 } }
         }
     }
 
@@ -91,27 +94,29 @@ Superpuesta {
                 readonly property int h: reloj.date.getHours()
                 text: (h < 12 ? "Buenos días" : h < 20 ? "Buenas tardes" : "Buenas noches") + ", " + Quickshell.env("USER")
                 color: Paleta.texto
-                font { family: Paleta.fuente; pixelSize: 20; bold: true }
+                font { family: EstiloPanel.fuente; pixelSize: 27; weight: Font.DemiBold }
             }
             Text {
                 text: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd, d 'de' MMMM")
                 color: Paleta.naranja
-                font { family: Paleta.fuente; pixelSize: 12; capitalization: Font.Capitalize }
+                font { family: EstiloPanel.fuente; pixelSize: 12; capitalization: Font.Capitalize }
             }
         }
         Rectangle {
             visible: Continuidad.ultimo !== null
             Layout.fillWidth: true; implicitHeight: 66; radius: 10
-            color: Qt.alpha(Paleta.naranja, .12)
+            color: zonaContinuar.containsMouse || activeFocus ? Qt.alpha(Paleta.azul,.19) : Qt.alpha(Paleta.azul,.09)
+            border { width: activeFocus ? 2 : 1; color: Qt.alpha(Paleta.azul,.3) }
+            Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
             activeFocusOnTab: true
             function continuar() { r.abierto=false; Quickshell.execDetached(["qs","ipc","call","flujo","abrir","continuidad"]); }
             Keys.onReturnPressed: continuar()
             Column {
                 anchors { fill: parent; margins: 10 } spacing: 5
-                Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Proyecto disponible para continuar" : "Continuar · " + (Continuidad.ultimo?.nombre || ""); elide: Text.ElideRight; color: Paleta.naranja; font { family:Paleta.fuente; pixelSize:13; bold:true } }
-                Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Detalles ocultos por privacidad" : Continuidad.ultimo?.siguiente || "Revisa tu proyecto y elige Retomar"; elide:Text.ElideRight; color:Paleta.texto; font { family:Paleta.fuente; pixelSize:11 } }
+                Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Proyecto disponible para continuar" : "Continuar · " + (Continuidad.ultimo?.nombre || ""); elide: Text.ElideRight; color: Paleta.naranja; font { family:EstiloPanel.fuente; pixelSize:13; bold:true } }
+                Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Detalles ocultos por privacidad" : Continuidad.ultimo?.siguiente || "Revisa tu proyecto y elige Retomar"; elide:Text.ElideRight; color:Paleta.texto; font { family:EstiloPanel.fuente; pixelSize:11 } }
             }
-            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: parent.continuar() }
+            MouseArea { id: zonaContinuar; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: parent.continuar() }
         }
         Rectangle { Layout.fillWidth: true; height: 1; color: Qt.alpha(Paleta.texto, 0.1) }
 

@@ -129,3 +129,5 @@ hyprctl configerrors
 El respaldo de la configuración previa a esta ampliación está en
 `~/.local/state/hypr-avanzado/mesa-20261111-160229/`, con su manifiesto. Las plantillas se conservan
 aparte del código. Consulta también la [guía del centro del escritorio](escritorio-avanzado.md).
+
+Diseño visual y capturas actualizadas: [interfaz del escritorio](interfaz-escritorio.md).

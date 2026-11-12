@@ -156,3 +156,5 @@ replay en `hypr-replay-<instancia>/`. Los datos personales y el estado generado 
 La [revisión inicial](revision-sistema-2026-11-11.md) sigue como registro histórico. Los errores USB,
 la prueba de restauración externa y la hibernación requieren trabajo específico; estos cambios
 no los dan por resueltos. La [ruta de aprendizaje](ruta-hyprland.md) permite seguir profundizando.
+
+Diseño visual y capturas actualizadas: [interfaz del escritorio](interfaz-escritorio.md).
