@@ -4,7 +4,7 @@
 #   movil.sh sonar      → hace sonar el móvil (para encontrarlo)
 #   movil.sh enviar F…  → manda archivos al móvil
 #   movil.sh app        → la ventana de KDE Connect (emparejar, ajustes)
-#   movil.sh menu       → menú de Quickshell con todo (SUPER+ALT+M, clic en el móvil de la barra)
+#   movil.sh menu       → panel «PC + móvil» (SUPER+ALT+M, clic en el móvil de la barra); el menú, de respaldo
 #   movil.sh portapapeles → manda al móvil lo que tengas copiado
 #   movil.sh elegir     → eliges un archivo y lo manda
 #   movil.sh navegar    → abre los archivos del móvil en Thunar
@@ -26,7 +26,9 @@ case "${1:-estado}" in
             qs ipc call osd mensaje "Enviado al móvil" f011c ;;
     navegar) [ -n "$id" ] && thunar "sftp://$(busctl --user call org.kde.kdeconnect "$dev/sftp" org.kde.kdeconnect.device.sftp mountPoint 2>/dev/null | cut -d'"' -f2)" 2>/dev/null \
                 || kdeconnect-app ;;
-    menu)   if [ -z "$id" ]; then
+    menu)   # el panel «PC + móvil» de Quickshell (Movil.qml); este menú queda de respaldo
+            qs ipc call movil toggle 2>/dev/null | grep -q "Not ready\|No running" || exit 0
+            if [ -z "$id" ]; then
                 ops='[{"icono":983324,"texto":"Emparejar un móvil","cmd":"~/.config/hypr/scripts/movil.sh app"}]'
                 titulo="Móvil: ninguno conectado"
             else

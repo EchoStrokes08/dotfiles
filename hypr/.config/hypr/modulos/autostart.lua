@@ -12,6 +12,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("awww-daemon")      -- fondo de pantalla con transiciones (antes hyprpaper, que queda de respaldo)
     hl.exec_cmd("~/.config/hypr/scripts/wallpaper.sh restaurar")   -- vuelve a poner el último wallpaper elegido
     hl.exec_cmd("~/.config/hypr/scripts/tiempo-pantalla.py")   -- escucha eventos: tiempo de pantalla por app
+    hl.exec_cmd("~/.config/hypr/scripts/brujula.py vigilar")   -- contexto automático, línea de tiempo y sesión (SUPER+CTRL+B)
     hl.exec_cmd("qs")               -- Quickshell: barra superior + dashboard SUPER+D (~/.config/quickshell)
     -- hl.exec_cmd("swayosd-server")   -- sustituido por el OSD de Quickshell (OSD.qml)
     hl.exec_cmd("hyprsunset")   -- luz nocturna: horario en ~/.config/hypr/hyprsunset.conf

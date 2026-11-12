@@ -557,13 +557,45 @@ mando o ratón, y hacerlo sonar cuando no lo encuentras.
    elige tu móvil y pulsa *Solicitar emparejamiento*; acepta en el móvil.
 4. En el móvil, dale los permisos que pide cada función (notificaciones, archivos…).
 
-**Uso**: la batería del móvil sale en la barra (clic = KDE Connect, clic derecho = hacerlo sonar). Enviar un
-archivo: icono de la bandeja → *Enviar archivo*, o `~/.config/hypr/scripts/movil.sh enviar archivo.pdf`. En el
-lanzador: *Buscar el móvil*.
+**Uso**: la batería del móvil sale en la barra (clic = panel del móvil, clic derecho = hacerlo sonar).
+
+### PC + móvil como uno solo (`SUPER+ALT+M`)
+
+El panel del móvil (`Movil.qml`, datos de `scripts/movil.py`) junta todo en un sitio:
+
+- **Avisos del móvil** con su app. Los de WhatsApp, Telegram o SMS se **contestan desde el PC**:
+  *Responder*, escribes y Enter. La respuesta sale desde el móvil. *✕* lo quita también del móvil.
+- **Responder desde la notificación:** las notificaciones del móvil traen el botón *Responder* (también
+  en el centro de control), que abre el panel con el mensaje y el cursor listo.
+- **Acciones:**
+  - *Sonar*: para encontrarlo.
+  - *Abrir lo copiado*: un enlace copiado en el PC se abre en el navegador del móvil; un texto llega a
+    su portapapeles.
+  - *Enviar archivo*.
+  - *Captura al móvil*: hace la captura y la manda.
+  - *Sus archivos*: los abre en Thunar.
+  - *Mensajes (SMS)*.
+- **Suena en el móvil:** lo que reproduce el móvil, con anterior, pausa y siguiente desde el PC.
+- **Uno solo:** interruptores para el portapapeles compartido, los avisos en los dos sentidos, pausar
+  la música del PC cuando entra una llamada, los mandos y la música del móvil.
+- **Mandos del PC en el móvil:** *Instalar mandos* añade en el móvil (KDE Connect → *Ejecutar orden*):
+  - diapositiva siguiente y anterior (sirve de mando de presentación);
+  - pausar la música del PC y silenciarlo;
+  - bloquear y suspender el PC;
+  - concentración de 25 min;
+  - captura del PC al móvil y traer lo copiado en el PC.
+
+  Solo son acciones fijas: desde el móvil no se puede ejecutar nada más. Tus propias órdenes se conservan.
+
+Si no llegan avisos del móvil: en la app del móvil, entra en este PC → *Sincronizar notificaciones* y
+concede el acceso a notificaciones en Android. Para contestar, la app tiene que ofrecer respuesta en sus
+notificaciones (WhatsApp, Telegram y Mensajes la ofrecen).
 
 ## 21. Teclado con capas, tema claro, filtros, sonido y escritorio
 
 ### Bloq Mayús reconvertida (keyd)
+
+> **Desactivado** desde el 10-11-2026 (no se instala). Para volver a usarlo, descomenta el paso 15 de `instalar/sistema-base.sh`.
 
 La tecla Bloq Mayús está en el mejor sitio del teclado y casi no se usa. Ahora hace tres cosas:
 
@@ -699,6 +731,16 @@ Los puertos de Syncthing y la interfaz de Tailscale se abren en el cortafuegos c
 
 ---
 
+### Brújula: contexto, línea de tiempo y sesión
+
+`SUPER+CTRL+B` abre Brújula:
+- **Hoy:** sugerencias del día.
+- **Línea de tiempo:** qué tuviste delante y cuándo.
+- **Contexto:** reglas que adaptan perfil, No molestar y energía a lo que haces, y lo deshacen al terminar.
+- **Sesión:** reabre las apps de antes de un reinicio.
+
+Todo se explica en la [guía de Brújula](brujula.md).
+
 ## Apéndice A. Todos los atajos
 
 <!-- atajos:inicio — NO editar a mano: sale del README con docs/actualizar-atajos.py -->
@@ -752,7 +794,7 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+ALT+A` | Asistente local (IA) sobre el texto seleccionado: resumir, corregir, redactar mejor, explicar, traducir o preguntar |
 | `SUPER+SHIFT+O` | Nota rápida: una línea con fecha a `~/Documents/notas.md` |
 | `SUPER+ALT+O` | Guardar en las notas el texto seleccionado |
-| `SUPER+ALT+M` | Móvil: hacerlo sonar, enviarle lo copiado o un archivo, ver sus archivos |
+| `SUPER+ALT+M` | PC + móvil: avisos del móvil con respuesta, música, sonar, abrir lo copiado, archivos, captura, mandos |
 
 #### Workspaces y monitores
 
@@ -788,6 +830,7 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
 | `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
 | `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
+| `SUPER+CTRL+B` | Brújula: hoy, línea de tiempo, contexto automático y sesión anterior |
 | `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
 | `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
@@ -819,6 +862,8 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR): seleccionas una zona y su texto queda copiado |
 
 #### Teclado con capas (keyd: funciona en todas las apps, la TTY y el login)
+
+> **Desactivado** desde el 10-11-2026 (no se instala). Para volver a usarlo, descomenta el paso 15 de `instalar/sistema-base.sh`.
 
 | Atajo | Acción |
 |---|---|

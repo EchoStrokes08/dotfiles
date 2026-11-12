@@ -24,6 +24,9 @@ Singleton {
     }
     property alias manual: persistente.noMolestar
     property bool automatico: false
+    // «Responder» en una tarjeta: el panel del móvil (Movil.qml) abre la respuesta con teclado
+    signal responderPedido(var noti)
+    function responder(n) { responderPedido(n); }
     readonly property bool porAutomatizacion: automatico || Object.values(JSON.parse(persistente.motivosJson || "{}")).some(x => x)
     readonly property bool noMolestar: manual || porAutomatizacion
     function motivo(nombre, activo) {
@@ -43,6 +46,7 @@ Singleton {
         bodyMarkupSupported: true
         bodyHyperlinksSupported: true
         persistenceSupported: true
+        inlineReplySupported: true       // contestar desde el PC (WhatsApp/SMS del móvil vía KDE Connect)
 
         onNotification: (n) => {
             n.tracked = true;                // sin esto la notificación se descarta

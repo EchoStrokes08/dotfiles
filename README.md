@@ -13,6 +13,10 @@ selecciones. [Guía de uso](docs/flujo-de-trabajo.md).
 **Mesa de trabajo:** `SUPER+ALT+ESPACIO` abre ventanas con vista previa, aparcado, plantillas, reuniones
 y rutinas. `SUPER+CTRL+V` va directamente a los textos reutilizables. [Guía y capturas](docs/mesa-de-trabajo.md).
 
+**Brújula:** `SUPER+CTRL+B` muestra tu día con sugerencias, la línea de tiempo, el contexto automático
+(el escritorio se adapta a lo que haces) y la sesión anterior para reabrirla. Con 3+ letras, el
+lanzador busca también dentro de tus documentos, el historial y la línea. [Guía](docs/brujula.md).
+
 **Centro del escritorio:** `SUPER+CTRL+ESPACIO` abre perfiles, privacidad, checkpoints y diagnóstico.
 Lee la [guía del escritorio avanzado](docs/escritorio-avanzado.md).
 
@@ -58,7 +62,7 @@ Cuando instales algo nuevo, actualiza las listas y haz commit:
 | `lugares` | Reglas por lugar: qué cambia al conectarte a cada Wi-Fi (`~/.config/lugares.conf`) |
 | `satty` | Editor de capturas (flechas, texto, difuminar) con la paleta Ayu |
 | `easyeffects` | Perfiles de sonido para las bocinas del portátil (música y voz) |
-| `keyd/` | Capas de teclado: Bloq Mayús = Esc / Ctrl / flechas en HJKL (va a `/etc/keyd`, no es de stow) |
+| `keyd/` | Capas de teclado: Bloq Mayús = Esc / Ctrl / flechas en HJKL (va a `/etc/keyd`, no es de stow). **Desactivado** desde el 10-11-2026: para usarlo, descomenta el paso 15 de `instalar/sistema-base.sh` |
 | `udiskie` | Monta solos los USB y discos externos, con aviso |
 | `gtk` | adw-gtk3 con colores Ayu e iconos Papirus-Ayu |
 | `btop` · `nvim` · `vscode` · `firefox` · `vesktop` · `spicetify` | Apps con el tema Ayu |
@@ -128,7 +132,7 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+ALT+A` | Asistente local (IA) sobre el texto seleccionado: resumir, corregir, redactar mejor, explicar, traducir o preguntar |
 | `SUPER+SHIFT+O` | Nota rápida: una línea con fecha a `~/Documents/notas.md` |
 | `SUPER+ALT+O` | Guardar en las notas el texto seleccionado |
-| `SUPER+ALT+M` | Móvil: hacerlo sonar, enviarle lo copiado o un archivo, ver sus archivos |
+| `SUPER+ALT+M` | PC + móvil: avisos del móvil con respuesta, música, sonar, abrir lo copiado, archivos, captura, mandos |
 
 #### Workspaces y monitores
 
@@ -164,6 +168,7 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
 | `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
 | `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
+| `SUPER+CTRL+B` | Brújula: hoy, línea de tiempo, contexto automático y sesión anterior |
 | `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
 | `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
@@ -195,6 +200,8 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR): seleccionas una zona y su texto queda copiado |
 
 #### Teclado con capas (keyd: funciona en todas las apps, la TTY y el login)
+
+> **Desactivado** desde el 10-11-2026 (no se instala). Para volver a usarlo, descomenta el paso 15 de `instalar/sistema-base.sh`.
 
 | Atajo | Acción |
 |---|---|

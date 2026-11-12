@@ -97,6 +97,8 @@ leer()
 detectar()
 _G.escritorio = M
 hl.bind(p.mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd("~/.config/hypr/scripts/escritorio.py menu"))
+-- Brújula: hoy, línea de tiempo, contexto automático y sesión anterior (scripts/brujula.py)
+hl.bind(p.mainMod .. " + CTRL + B", hl.dsp.exec_cmd("qs ipc call brujula toggle"))
 hl.bind(p.mainMod .. " + CTRL + P", M.privacidad)
 hl.bind(p.mainMod .. " + ALT + SPACE", hl.dsp.exec_cmd("qs ipc call mesa abrir ventanas"))
 hl.bind(p.mainMod .. " + CTRL + V", hl.dsp.exec_cmd("qs ipc call mesa abrir plantillas"))

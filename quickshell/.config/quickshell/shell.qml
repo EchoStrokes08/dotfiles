@@ -32,6 +32,8 @@ ShellRoot {
     Mesa { id: mesa }
     Flujo { id: flujo }
     Resumen { id: resumen }
+    Brujula { id: brujula }
+    Movil { id: movil }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
     readonly property int recordatoriosPendientes: Recordatorios.lista.length   // arranca Recordatorios.qml
@@ -111,6 +113,25 @@ ShellRoot {
         function estado(): string { return JSON.stringify({abierto:mesa.abierto, pagina:mesa.pagina, reunion:Reunion.activa, ventanas:mesa.ventanas.length, plantillas:mesa.plantillas.length}); }
     }
 
+    // Brújula (SUPER+CTRL+B): hoy · línea de tiempo · contexto automático · sesión anterior
+    IpcHandler {
+        target: "brujula"
+        function abrir(pagina: string): void { cerrarTodo(); brujula.abrir(pagina); }
+        function toggle(): void { const a = brujula.abierto; cerrarTodo(); if (!a) brujula.abrir("hoy"); }
+        function dia(fecha: string): void { cerrarTodo(); brujula.abrirDia(fecha); }
+        function cerrar(): void { brujula.abierto = false; }
+        function estado(): string { return JSON.stringify({ abierto: brujula.abierto, pagina: brujula.pagina, aviso: brujula.aviso }); }
+    }
+
+    // Móvil (SUPER+ALT+M): avisos con respuesta, acciones, música y funciones de KDE Connect
+    IpcHandler {
+        target: "movil"
+        function toggle(): void { const a = movil.abierto; cerrarTodo(); if (!a) movil.abrir(); }
+        function abrir(): void { cerrarTodo(); movil.abrir(); }
+        function cerrar(): void { movil.abierto = false; }
+        function estado(): string { return JSON.stringify({ abierto: movil.abierto, conectado: movil.d?.conectado ?? false, avisos: movil.d?.notificaciones?.length ?? 0 }); }
+    }
+
     IpcHandler {
         target: "flujo"
         function abrir(pagina: string): void { cerrarTodo(); flujo.abrir(pagina); }
@@ -120,7 +141,7 @@ ShellRoot {
 
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
-    function cerrarTodo() { flujo.abierto = false; mesa.abierto = false; centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
+    function cerrarTodo() { movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             conexiones.abierto = false; chuleta.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }

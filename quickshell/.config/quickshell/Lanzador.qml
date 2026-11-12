@@ -9,7 +9,11 @@
 //   c texto   historial del portapapeles → copiar    t texto   pestañas abiertas de Firefox
 //   p nombre  contraseñas (Bitwarden/pass) → escribirla donde esté el cursor
 //   ia pregunta   asistente local (ollama)           nota texto   apuntar una línea en notas.md
-//   (v, n, c, t y p los resuelve ~/.config/hypr/scripts/buscar.py)
+//   d texto   DENTRO de PDF, Word y apuntes          h texto   historial de Firefox
+//   a texto   atajos de teclado                      l texto   línea de tiempo (dónde viste algo y cuándo)
+//   s texto   ajustes: «s claro», «s lectura», «s regla programar»… → Enter lo aplica
+//   b texto   todo a la vez. Sin prefijo, con 3+ letras, también salen debajo de las apps (búsqueda universal)
+//   (v, n, c, t, p, d, h, a, l y b los resuelve ~/.config/hypr/scripts/buscar.py)
 // Teclas: ↑↓ / Tab moverse · Enter elegir · Esc o clic fuera cierra.
 // Las apps que más abres suben (contador en ~/.local/state/quickshell/lanzador.json).
 import QtQuick
@@ -119,11 +123,15 @@ PanelWindow {
         { n: "Sesiones de trabajo",     d: "Universidad, programar, descanso · SUPER+ALT+Enter", i: 0xF0E1B, k: "sesion contexto universidad programar", c: "hyprctl dispatch 'sesion.menu() or hl.dsp.no_op()'" },
         { n: "Asistente (IA)",          d: "Resumir, corregir, explicar o traducir lo seleccionado · SUPER+ALT+A", i: 0xF06A9, k: "ia inteligencia resumir corregir explicar ollama", c: scripts + "ia.sh" },
         { n: "Nota rápida",             d: "Apuntar una línea en notas.md · SUPER+SHIFT+O", i: 0xF039A, k: "notas apuntar anotar",  c: "qs ipc call nota abrir" },
-        { n: "Móvil",                   d: "Sonar, enviar lo copiado o un archivo · SUPER+ALT+M", i: 0xF011C, k: "telefono celular enviar", c: scripts + "movil.sh menu" },
+        { n: "Móvil",                   d: "Avisos y respuestas, música, archivos y mandos · SUPER+ALT+M", i: 0xF011C, k: "telefono celular enviar whatsapp responder notificaciones", c: scripts + "movil.sh menu" },
         { n: "Resumen del día",         d: "Clima, eventos, recordatorios y actualizaciones", i: 0xF05A8, k: "manana hoy agenda",    c: "qs ipc call resumen mostrar" },
         { n: "Actualizar el sistema",   d: "yay -Syu en una terminal",                     i: 0xF03D6, k: "update paquetes pacman yay", c: scripts + "actualizaciones.sh instalar" },
         { n: "Filtro de pantalla",      d: "Grises, papel, vivo, invertido · SUPER+ALT+S", i: 0xF03D8, k: "shader grises sepia",   c: "qs ipc call menu shaders" },
         { n: "Sonido de las bocinas",   d: "Perfil música / voz / sin efectos · SUPER+ALT+E", i: 0xF057E, k: "audio ecualizador easyeffects", c: scripts + "sonido.sh menu" },
+        { n: "Brújula", d: "Tu día, línea de tiempo, contexto y sesión · SUPER+CTRL+B", i: 0xF018B, k: "hoy sugerencias asistente dia", c: "qs ipc call brujula abrir hoy" },
+        { n: "Línea de tiempo", d: "Qué tuviste delante y cuándo", i: 0xF0954, k: "historial actividad timeline ayer", c: "qs ipc call brujula abrir linea" },
+        { n: "Contexto automático", d: "Reglas que adaptan el escritorio a lo que haces", i: 0xF0493, k: "reglas automatico perfil adaptar", c: "qs ipc call brujula abrir contexto" },
+        { n: "Restaurar sesión anterior", d: "Reabrir las apps de antes del reinicio en sus espacios", i: 0xF099B, k: "recuperar reabrir reinicio cuelgue", c: "qs ipc call brujula abrir sesion" },
         { n: "Copia de seguridad ahora", d: "Con el disco TOSHIBA conectado",              i: 0xF0E26, k: "respaldo backup",      c: "kitty -e sh -c 'respaldo ahora; read -p \"Enter para cerrar\" x'" }
     ]
     function puntajeAccion(a, q) {
@@ -213,7 +221,10 @@ PanelWindow {
     // Búsquedas que resuelve un script (buscar.py): ventanas, notas, portapapeles, pestañas y contraseñas
     readonly property var externosTipos: ({ v: ["ventanas", "Ventanas abiertas", 0xF05AF], n: ["notas", "Buscar en tus notas", 0xF039A],
                                             c: ["portapapeles", "Historial del portapapeles", 0xF0147], t: ["pestanas", "Pestañas de Firefox", 0xF0239],
-                                            p: ["claves", "Contraseñas", 0xF030B] })
+                                            p: ["claves", "Contraseñas", 0xF030B], d: ["documentos", "Dentro de tus documentos", 0xF0219],
+                                            h: ["historial", "Historial de Firefox", 0xF02DA], a: ["atajos", "Atajos de teclado", 0xF030C],
+                                            l: ["linea", "Tu línea de tiempo", 0xF0954], b: ["todo", "Búsqueda universal", 0xF0349],
+                                            s: ["ajustes", "Ajustes: aplicar una opción", 0xF0493] })
     property var externos: []
     property string externosDe: ""       // texto para el que valen los resultados
     Process {
@@ -223,6 +234,19 @@ PanelWindow {
             onStreamFinished: {
                 try { ventana.externos = JSON.parse(this.text); } catch (e) { ventana.externos = []; }
                 ventana.externosDe = buscaExterno.para;
+            }
+        }
+    }
+    // Búsqueda universal: con 3+ letras, documentos, historial, notas, línea de tiempo… debajo de las apps
+    property var todos: []
+    property string todosDe: ""
+    Process {
+        id: buscaTodo
+        property string para: ""
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { ventana.todos = JSON.parse(this.text); } catch (e) { ventana.todos = []; }
+                ventana.todosDe = buscaTodo.para;
             }
         }
     }
@@ -247,6 +271,10 @@ PanelWindow {
                 buscaExterno.running = false; buscaExterno.para = t;
                 buscaExterno.command = [Quickshell.env("HOME") + "/.config/hypr/scripts/buscar.py", ventana.externosTipos[m[1].toLowerCase()][0], m[2]];
                 buscaExterno.running = true;
+            } else if (ventana.modo === "apps" && t.trim().length >= 3) {
+                buscaTodo.running = false; buscaTodo.para = t;
+                buscaTodo.command = [Quickshell.env("HOME") + "/.config/hypr/scripts/buscar.py", "todo", t.trim()];
+                buscaTodo.running = true;
             } else if (ventana.modo === "archivos" && t.length > 2) {
                 buscaArchivos.running = false;
                 buscaArchivos.command = ["fd", "-i", "--max-results", "40", "--exclude", ".cache", "--", t.slice(1).trim(), Quickshell.env("HOME")];
@@ -272,7 +300,7 @@ PanelWindow {
         if (t.startsWith("=") || /^[\d(.\-√π]/.test(t.trim()) && /[\d)]/.test(t)) return "calc";
         return "apps";
     }
-    onModoChanged: { calcResultado = ""; archivos = []; externos = []; }
+    onModoChanged: { calcResultado = ""; archivos = []; externos = []; todos = []; }
     Connections { target: buscador; function onTextChanged() { espera.restart(); } }
 
     // Cada resultado: { nombre, detalle, icono (nombre de icono de app) | glifo (código) | texto (emoji), accion() }
@@ -302,7 +330,7 @@ PanelWindow {
                 return [{ nombre: tipo[1], detalle: "Buscando…", glifo: tipo[2], accion: null }];
             if (externos.length === 0)
                 return [{ nombre: "Sin resultados", detalle: tipo[1], glifo: tipo[2], accion: null }];
-            return externos.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo,
+            return externos.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo,
                                         accion: x.cmd && x.cmd.length ? () => Quickshell.execDetached(x.cmd) : null }));
         }
         if (modo === "emoji")
@@ -333,7 +361,12 @@ PanelWindow {
                                                             icono: r.app.icon, accion: () => lanzarApp(r.app) } })),
                         ...accs.map(r => ({ p: r.p, item: { nombre: r.a.n, detalle: r.a.d, glifo: r.a.i, accion: () => sh(r.a.c) } }))]
             .sort((a, b) => b.p - a.p || a.item.nombre.localeCompare(b.item.nombre)).slice(0, 40).map(x => x.item);
+        // lo universal solo vale si es de lo que hay escrito ahora (no de una búsqueda anterior)
+        const universal = (todosDe === t && q.length >= 3) ? todos : [];
+        if (universal.length && mezcla.length) mezcla.forEach(x => x.grupo = "Apps y acciones");
         res.push(...mezcla);
+        res.push(...universal.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo,
+                                          accion: x.cmd && x.cmd.length ? () => Quickshell.execDetached(x.cmd) : null })));
         if (q && res.length === 0)   // nada: ofrecer buscarlo en internet
             res.push({ nombre: t.trim(), detalle: "Buscar en Google", glifo: 0xF059F,
                        accion: () => Quickshell.execDetached(["xdg-open", webs.g[1] + encodeURIComponent(t.trim())]) });
@@ -438,33 +471,48 @@ PanelWindow {
             ListView {
                 id: lista
                 Layout.fillWidth: true
-                implicitHeight: Math.min(count, 7) * 52
+                implicitHeight: Math.min(contentHeight, 7 * 52 + 26)
                 clip: true
                 model: ventana.resultados
                 boundsBehavior: Flickable.StopAtBounds
-                highlightMoveDuration: 140
                 keyNavigationWraps: true
-
-                highlight: Rectangle {
-                    radius: 10
-                    color: Qt.alpha(Paleta.naranja, 0.13)
-                    Rectangle {
-                        width: 3; height: parent.height - 18
-                        anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
-                        radius: 2
-                        color: Paleta.naranja
-                    }
-                }
+                highlightFollowsCurrentItem: false
+                onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
 
                 delegate: Item {
                     id: fila
                     required property var modelData
                     required property int index
+                    // encabezado al empezar un grupo nuevo (búsqueda universal)
+                    readonly property bool cabecera: !!modelData.grupo && (index === 0 || ventana.resultados[index - 1]?.grupo !== modelData.grupo)
+                    readonly property bool actual: lista.currentIndex === index
                     width: lista.width
-                    height: 52
+                    height: 52 + (cabecera ? 26 : 0)
+
+                    Text {
+                        visible: fila.cabecera
+                        anchors { left: parent.left; leftMargin: 16; top: parent.top; topMargin: 8 }
+                        text: (fila.modelData.grupo ?? "").toUpperCase()
+                        color: Paleta.gris
+                        font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.5 }
+                    }
+                    Rectangle {
+                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+                        height: 52; radius: 10
+                        color: Qt.alpha(Paleta.naranja, fila.actual ? 0.13 : 0)
+                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Rectangle {
+                            visible: fila.actual
+                            width: 3; height: parent.height - 18
+                            anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
+                            radius: 2
+                            color: Paleta.naranja
+                        }
+                    }
 
                     RowLayout {
-                        anchors { fill: parent; leftMargin: 16; rightMargin: 12 }
+                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; leftMargin: 16; rightMargin: 12 }
+                        height: 52
                         spacing: 12
                         Item {
                             implicitWidth: 30; implicitHeight: 30
@@ -484,6 +532,7 @@ PanelWindow {
                         }
                         ColumnLayout {
                             Layout.fillWidth: true
+                            Layout.minimumWidth: 0; Layout.preferredWidth: 1   // que el texto largo se corte, no estire la fila
                             spacing: 1
                             Text {
                                 Layout.fillWidth: true
@@ -523,8 +572,11 @@ PanelWindow {
             }
 
             Text {
-                Layout.alignment: Qt.AlignHCenter
-                text: "=calc  g/yt/w web  :emoji  /archivos  recordar  ·  v ventanas  n notas  c copiado  t pestañas  p claves  ·  ia …  nota …"
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+                lineHeight: 1.3
+                text: "=calc  g/yt/w web  :emoji  /archivos  recordar  ·  v ventanas  n notas  c copiado  t pestañas  p claves  d documentos  h historial  a atajos  l línea  s ajustes  ·  ia …  nota …"
                 color: Qt.alpha(Paleta.gris, 0.8)
                 font { family: Paleta.fuente; pixelSize: 10 }
             }

@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "_ayuda": [
+    "Brújula (SUPER+CTRL+B): contexto automático, línea de tiempo y sesión que se restaura.",
+    "Se lee al vuelo: guarda y en 2 s vale, sin reiniciar nada. Se ve y se pausa en la pestaña «Contexto».",
+    "si:        apps (class con comodines; SUPER+I la dice) · modo: foco|abierta · gracia (min) ·",
+    "           bateria_menor (%) · cargando (true/false) · pantalla_externa (true/false) ·",
+    "           hora [\"HH:MM\", \"HH:MM\"] · dias [\"lun\", …, \"dom\"]   (todas a la vez: Y)",
+    "entonces:  perfil (cristal|lectura|minimo|rendimiento) · no_molestar (true) ·",
+    "           energia (power-saver|balanced|performance) · juego (true) · sesion (id de sesiones.lua, solo sugerencia)",
+    "Si dos reglas activas quieren lo mismo, gana la que esté más arriba. Al terminar, todo vuelve",
+    "a como estaba, salvo lo que hayas cambiado tú a mano mientras tanto."
+  ],
+  "reglas": [
+    {
+      "id": "juego", "nombre": "Jugar", "icono": "f0297",
+      "si": { "apps": ["steam_app_*", "org.vinegarhq.Sober", "gamescope", "*.exe"], "modo": "abierta" },
+      "entonces": { "juego": true, "energia": "performance" }
+    },
+    {
+      "id": "programar", "nombre": "Programar", "icono": "f0169",
+      "si": { "apps": ["code-oss", "code", "codium", "dev.zed.Zed", "jetbrains-*", "sesion-dotfiles"], "gracia": 4 },
+      "entonces": { "perfil": "lectura", "no_molestar": true, "sesion": "programar" }
+    },
+    {
+      "id": "estudiar", "nombre": "Estudiar", "icono": "f0474",
+      "si": { "apps": ["org.pwmt.zathura", "com-cburch-logisim-Main", "PacketTracer", "sesion-notas", "obsidian", "xournalpp"], "gracia": 4 },
+      "entonces": { "no_molestar": true, "sesion": "universidad" }
+    },
+    {
+      "id": "proyectar", "nombre": "Pantalla externa", "icono": "f0379",
+      "si": { "pantalla_externa": true },
+      "entonces": { "perfil": "lectura" }
+    },
+    {
+      "id": "ahorro", "nombre": "Ahorro de batería", "icono": "f12a3",
+      "si": { "bateria_menor": 20, "cargando": false },
+      "entonces": { "perfil": "minimo", "energia": "power-saver" }
+    }
+  ],
+  "linea": {
+    "guardar": true,
+    "titulos": true,
+    "dias": 30,
+    "sin_titulo": ["Bitwarden", "org.keepassxc.KeePassXC", "rbw", "pinentry*"],
+    "capturas": false,
+    "_capturas": "Cifradas con AES-256; la clave vive en tu anillo de claves (se abre con tu sesión). Solo se descifran en memoria para mirarlas.",
+    "capturas_cada_min": 10,
+    "capturas_dias": 7
+  },
+  "sesion": {
+    "ofrecer_al_iniciar": true,
+    "ignorar": ["xdg-desktop-portal*", "org.kde.polkit*", "hyprpolkitagent", "exo-open", "quickshell", "scratch-*"]
+  },
+  "sugerencias": {
+    "aviso_matutino": true,
+    "distracciones": ["com.rtosta.zapzap", "discord", "vesktop", "org.vinegarhq.Sober", "steam"],
+    "ia": true,
+    "bloque_min": 90
+  }
+}

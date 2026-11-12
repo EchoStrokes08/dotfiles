@@ -127,7 +127,27 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
                 spacing: 6
-                visible: botones.count > 0
+                visible: botones.count > 0 || tarjeta.noti.hasInlineReply
+                // Respuesta en línea (p. ej. WhatsApp del móvil por KDE Connect): se escribe en el panel del móvil
+                Rectangle {
+                    visible: tarjeta.noti.hasInlineReply
+                    Layout.fillWidth: true
+                    implicitHeight: 28
+                    radius: 7
+                    color: zonaResp.containsMouse ? Qt.alpha(Paleta.verde, 0.3) : Qt.alpha(Paleta.verde, 0.14)
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\u{F0451}  Responder"
+                        color: Paleta.texto
+                        font { family: Paleta.fuente; pixelSize: 11; bold: true }
+                    }
+                    MouseArea {
+                        id: zonaResp
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: Notificaciones.responder(tarjeta.noti)
+                    }
+                }
                 Repeater {
                     id: botones
                     model: Array.from(tarjeta.noti.actions).filter(a => a.identifier !== "default")
