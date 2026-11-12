@@ -127,4 +127,52 @@ class Supervisor(unittest.TestCase):
             self.assertNotIn('close',str(run.call_args_list))
 
 
+class Sesiones(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.env = patch.dict(os.environ, {'XDG_STATE_HOME': self.tmp.name})
+        self.env.start()
+        self.ejecutar = patch.object(mesa, 'ejecutar')
+        self.ejecutar.start()
+
+    def tearDown(self):
+        self.ejecutar.stop()
+        self.env.stop()
+        self.tmp.cleanup()
+
+    def test_sin_eleccion_muestra_las_de_serie(self):
+        (mesa.ruta_sesiones() / 'programar.base.tsv').write_text('3\tcode-oss\tcode-oss\tcode\n')
+        d = mesa.sesiones('lista')['sesiones']['programar']
+        self.assertFalse(d['personalizada'])
+        self.assertEqual(d['apps'], [{'ws': 3, 'clase': 'code-oss', 'nombre': 'code-oss', 'cmd': 'code'}])
+
+    def test_guardar_y_restaurar(self):
+        apps = [{'ws': 4, 'clase': 'obsidian', 'nombre': 'Obsidian', 'cmd': 'obsidian --uri x'}]
+        d = mesa.sesiones('guardar', 'universidad', json.dumps(apps))['sesiones']['universidad']
+        self.assertTrue(d['personalizada'])
+        self.assertEqual(d['apps'], apps)
+        self.assertEqual((mesa.ruta_sesiones() / 'universidad.tsv').read_text(), '4\tobsidian\tObsidian\tobsidian --uri x\n')
+        d = mesa.sesiones('restaurar', 'universidad')['sesiones']['universidad']
+        self.assertFalse(d['personalizada'])
+
+    def test_lista_vacia_es_valida(self):
+        d = mesa.sesiones('guardar', 'descanso', '[]')['sesiones']['descanso']
+        self.assertTrue(d['personalizada'])
+        self.assertEqual(d['apps'], [])
+
+    def test_rechaza_datos_invalidos(self):
+        malos = [
+            [{'ws': 11, 'cmd': 'x'}],
+            [{'ws': 2, 'cmd': ''}],
+            [{'ws': 2, 'cmd': 'a\nb'}],
+            [{'ws': 2, 'cmd': 'x', 'clase': 'a\tb'}],
+            [{'ws': 1, 'cmd': 'x'}] * 13,
+        ]
+        for apps in malos:
+            with self.assertRaises(ValueError):
+                mesa.sesiones('guardar', 'programar', json.dumps(apps))
+        with self.assertRaises(ValueError):
+            mesa.sesiones('guardar', '../otra', '[]')
+
+
 if __name__=='__main__': unittest.main()

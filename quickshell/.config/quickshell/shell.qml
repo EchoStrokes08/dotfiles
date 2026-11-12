@@ -111,6 +111,8 @@ ShellRoot {
         target: "mesa"
         function abrir(que: string): void { cerrarTodo(); mesa.abrir(que); }
         function cerrar(): void { mesa.abierto = false; }
+        // Editar las apps de un modo: estudiar | programar | descansar
+        function apps(que: string): void { cerrarTodo(); mesa.abrir("rutinas"); const r = mesa.rutinas.find(x => x.id === que); if (r) mesa.editar(r); }
         function estado(): string { return JSON.stringify({abierto:mesa.abierto, pagina:mesa.pagina, reunion:Reunion.activa, ventanas:mesa.ventanas.length, plantillas:mesa.plantillas.length}); }
     }
 

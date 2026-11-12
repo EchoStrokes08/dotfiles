@@ -11,10 +11,11 @@ import re
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import uuid
-from escritorio import atomico, captura, checkpoint, directorio, ejecutar
+from escritorio import atomico, captura, checkpoint, directorio, ejecutar, espacio_id
 
 PREDEFINIDAS = [
     {'id': 'plan', 'titulo': 'Plan del día', 'texto': '# {{fecha}}\n\nPrioridad de hoy:\n1. \n2. \n3. \n\nAl terminar: '},
@@ -111,9 +112,9 @@ def ventana(operacion, direccion, workspace=None):
             expr = 'hl.dsp.window.float({window=' + selector + ',action="toggle"})'
         else:
             if operacion == 'aparcar' and not aparcada:
-                if w['workspace']['id'] <= 0:
+                if espacio_id(w) <= 0:
                     raise ValueError('No se aparcan ventanas de otros espacios especiales')
-                datos[direccion] = {'pid': w['pid'], 'class': w['class'], 'workspace': w['workspace']['id']}
+                datos[direccion] = {'pid': w['pid'], 'class': w['class'], 'workspace': espacio_id(w)}
                 destino = '"special:aparcadas"'
             elif operacion in ('aparcar', 'enfocar') and aparcada:
                 anterior = datos.get(direccion, {})
@@ -210,6 +211,76 @@ RUTINAS = {
 }
 
 
+SESIONES = [r[0] for r in RUTINAS.values()]
+
+
+def ruta_sesiones():
+    base = ruta_plantillas().parent / 'sesiones'
+    base.mkdir(mode=0o700, exist_ok=True)
+    return base
+
+
+def leer_tsv(ruta):
+    apps = []
+    if not ruta.exists():
+        return apps
+    for linea in ruta.read_text().splitlines():
+        partes = linea.split('\t', 3)
+        if len(partes) == 4 and partes[0].isdigit() and partes[3]:
+            apps.append({'ws': int(partes[0]), 'clase': partes[1], 'nombre': partes[2], 'cmd': partes[3]})
+    return apps
+
+
+def validar_apps(apps):
+    if type(apps) is not list or len(apps) > 12:
+        raise ValueError('Elige hasta 12 aplicaciones')
+    limpias = []
+    for a in apps:
+        if type(a) is not dict:
+            raise ValueError('Aplicación inválida')
+        ws, cmd = a.get('ws'), str(a.get('cmd', '')).strip()
+        clase, nombre = str(a.get('clase', '')).strip(), str(a.get('nombre', '')).strip() or cmd
+        if type(ws) is not int or not 1 <= ws <= 10:
+            raise ValueError('Cada aplicación necesita un espacio del 1 al 10')
+        if not cmd:
+            raise ValueError('Falta el comando de ' + (nombre or 'una aplicación'))
+        if any(c in x for x in (clase, nombre, cmd) for c in '\t\n\r'):
+            raise ValueError('Los campos no pueden tener tabuladores ni saltos de línea')
+        limpias.append({'ws': ws, 'clase': clase, 'nombre': nombre[:80], 'cmd': cmd})
+    return limpias
+
+
+def sesiones(operacion, identificador='', apps='[]'):
+    carpeta = ruta_sesiones()
+    if operacion != 'lista':
+        if identificador not in SESIONES:
+            raise ValueError('Sesión desconocida')
+        propia = carpeta / f'{identificador}.tsv'
+        if operacion == 'guardar':
+            limpias = validar_apps(json.loads(apps))
+            texto = ''.join(f"{a['ws']}\t{a['clase']}\t{a['nombre']}\t{a['cmd']}\n" for a in limpias)
+            fd, temporal = tempfile.mkstemp(dir=carpeta, prefix='.sesion-')
+            with os.fdopen(fd, 'w') as f:
+                f.write(texto)
+            os.replace(temporal, propia)
+            mensaje = 'Apps guardadas: la próxima vez que empieces este modo se abrirán estas'
+        else:
+            propia.unlink(missing_ok=True)
+            mensaje = 'Restauradas las apps de serie'
+    else:
+        mensaje = ''
+    with contextlib.suppress(Exception):   # que Hyprland escriba las de serie (<id>.base.tsv)
+        ejecutar(['hyprctl', 'dispatch', 'sesion.exportar() or hl.dsp.no_op()'])
+    datos = {}
+    for sid in SESIONES:
+        propia = carpeta / f'{sid}.tsv'
+        datos[sid] = {
+            'personalizada': propia.exists(),
+            'apps': leer_tsv(propia) if propia.exists() else leer_tsv(carpeta / f'{sid}.base.tsv'),
+        }
+    return {'sesiones': datos, 'mensaje': mensaje}
+
+
 def rutina(nombre):
     sesion, perfil, minutos = RUTINAS[nombre]
     checkpoint('guardar')
@@ -241,6 +312,10 @@ def main():
     p.add_argument('operacion', choices=['silenciar','activar'])
     p = sub.add_parser('_reunion')
     p.add_argument('minutos', type=int)
+    p = sub.add_parser('sesion')
+    p.add_argument('operacion', choices=['lista', 'guardar', 'restaurar'])
+    p.add_argument('--id', default='')
+    p.add_argument('--apps', default='[]')
     p = sub.add_parser('rutina')
     p.add_argument('nombre', choices=list(RUTINAS))
     a = parser.parse_args()
@@ -251,6 +326,7 @@ def main():
         ejecutar(['wpctl','set-mute','@DEFAULT_AUDIO_SOURCE@','1' if a.operacion == 'silenciar' else '0'])
         resultado = {'mensaje': 'Micrófono silenciado' if a.operacion == 'silenciar' else 'Micrófono activado'}
     elif a.tipo == 'rutina': resultado = rutina(a.nombre)
+    elif a.tipo == 'sesion': resultado = sesiones(a.operacion, a.id, a.apps)
     else:
         if not 1 <= a.minutos <= 180: raise ValueError('Duración inválida')
         trabajador_reunion(a.minutos)
