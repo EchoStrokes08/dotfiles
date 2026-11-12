@@ -220,9 +220,9 @@ RowLayout {
 
         Rectangle {
             anchors.fill: parent
-            anchors.topMargin: 4; anchors.bottomMargin: 4
-            radius: 7
-            color: Qt.alpha(Paleta.texto, zonaBuds.containsMouse ? 0.08 : 0)
+            anchors.topMargin: 5; anchors.bottomMargin: 5
+            radius: height / 2
+            color: Qt.alpha(Paleta.texto, zonaBuds.containsMouse ? 0.10 : 0)
         }
 
         RowLayout {
@@ -265,6 +265,8 @@ RowLayout {
             onContainsMouseChanged: containsMouse && buds.ayudaTexto ? ayuda.mostrar(buds, buds.ayudaTexto) : ayuda.ocultar()
         }
     }
+
+    DivisorBarra {}   // separa grupos: bandeja · sonido y red · sistema · avisos
 
     // ── Volumen (PipeWire) ──────────────────────────────────────────────
     PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
@@ -369,6 +371,8 @@ RowLayout {
         onClic: derecha.ejecutar("~/.config/hypr/scripts/modo-energia.sh")
     }
 
+    DivisorBarra {}   // separa grupos: bandeja · sonido y red · sistema · avisos
+
     // ── CPU y RAM (Sistema.qml) ──────────────────────────────────────────
     Modulo {
         icono: derecha.g(0xF0EE0)
@@ -423,6 +427,8 @@ RowLayout {
         ayuda: ayudaTexto
         onClic: Hyprland.dispatch("modo_juego.alternar() or hl.dsp.no_op()")
     }
+
+    DivisorBarra {}   // separa grupos: bandeja · sonido y red · sistema · avisos
 
     // ── Notificaciones (Notificaciones.qml) ──────────────────────────────
     Modulo {

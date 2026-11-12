@@ -61,7 +61,7 @@ PanelWindow {
         FondoPanel { anchors.fill: parent; radio: 26; opacidad: .84 }
 
         // Entrada: baja 40 px y aparece; salida: al revés
-        y: ventana.abierto ? 40 : 4
+        y: ventana.abierto ? 52 : 14
         opacity: ventana.abierto ? 1 : 0
         scale: ventana.abierto ? 1 : 0.97
         Behavior on y       { NumberAnimation { duration: 320; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }

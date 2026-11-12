@@ -24,9 +24,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        anchors.topMargin: 4; anchors.bottomMargin: 4
-        radius: 7
-        color: Qt.alpha(Paleta.texto, zona.containsMouse ? 0.08 : 0)
+        anchors.topMargin: 5; anchors.bottomMargin: 5
+        radius: height / 2
+        color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(modulo.color, .35)), zona.containsMouse ? 0.11 : 0)
         Behavior on color { ColorAnimation { duration: 120 } }
     }
 

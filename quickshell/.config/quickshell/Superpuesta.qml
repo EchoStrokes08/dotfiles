@@ -15,7 +15,7 @@ PanelWindow {
     property bool abierto: false
     property bool mostrar: false
     property string espacio: "superpuesta"     // namespace: quickshell-<espacio> (para el blur)
-    property real opacidadTarjeta: 0.90
+    property real opacidadTarjeta: 0.92      // el blur de Hyprland es suave: por debajo de ~0.9 se lee el texto de detrás
     property real anchoTarjeta: 560
     property real alturaRelativa: 0.14         // dónde empieza la tarjeta (fracción del alto)
     default property alias contenido: caja.data
@@ -28,6 +28,21 @@ PanelWindow {
         else cierre.restart();
     }
     Timer { id: cierre; interval: EstiloPanel.entrada; onTriggered: v.mostrar = false }
+
+    // Cerrar y DESPUÉS actuar. Mientras el panel está abierto tiene el teclado en exclusiva:
+    // si se enfoca otra ventana en ese momento, Hyprland cambia de espacio pero, al soltar el
+    // panel el teclado, devuelve el foco a la ventana anterior y deshace el salto.
+    property var accionPendiente: null
+    function cerrarY(accion) {
+        accionPendiente = accion;
+        abierto = false;
+        soltarTeclado.restart();
+    }
+    Timer {
+        id: soltarTeclado
+        interval: 70
+        onTriggered: { const f = v.accionPendiente; v.accionPendiente = null; if (f) f(); }
+    }
 
     visible: mostrar
     color: "transparent"
@@ -62,7 +77,7 @@ PanelWindow {
             anchors.fill: parent
             acento: v.acentoPanel
             radio: v.panelCuidado ? 24 : 20
-            opacidad: Math.min(v.opacidadTarjeta, .86)
+            opacidad: Math.min(v.opacidadTarjeta, .95)
         }
         MouseArea { anchors.fill: parent }
 

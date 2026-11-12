@@ -27,16 +27,28 @@ PopupWindow {
     // centrado bajo el módulo, sin salirse por la derecha
     anchor.rect.x: Math.max(4, Math.min(centroX - implicitWidth / 2, (ventana?.width ?? 0) - implicitWidth - 4))
     anchor.rect.y: (ventana?.height ?? 34) + 6
-    implicitWidth: etiqueta.implicitWidth + 24
-    implicitHeight: etiqueta.implicitHeight + 16
+    implicitWidth: etiqueta.implicitWidth + 28
+    implicitHeight: etiqueta.implicitHeight + 18
     color: "transparent"
     visible: false
 
     Rectangle {
         anchors.fill: parent
-        radius: 8
-        color: Qt.alpha(Paleta.fondo, 0.96)
-        border { width: 1; color: Qt.alpha(Paleta.naranja, 0.6) }
+        radius: 11
+        gradient: Gradient {
+            GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.naranja, .08)) }
+            GradientStop { position: 1; color: Paleta.fondo }
+        }
+        border { width: 1; color: Qt.alpha(Paleta.naranja, 0.35) }
+        Rectangle {   // filo de luz
+            x: 10; y: 1; width: parent.width - 20; height: 1
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0; color: "transparent" }
+                GradientStop { position: .5; color: Qt.alpha(Paleta.texto, .18) }
+                GradientStop { position: 1; color: "transparent" }
+            }
+        }
         Text {
             id: etiqueta
             anchors.centerIn: parent

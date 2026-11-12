@@ -40,7 +40,7 @@ hl.window_rule({
 -- Blur detrás de las tarjetas de Quickshell (el velo y la sombra quedan por debajo de 0.3 → ignore_alpha)
 hl.layer_rule({
     name         = "quickshell-blur",
-    match        = { namespace = "quickshell-(dashboard|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|ia|nota|resumen|brujula|agente|movil|mesa|flujo)" },
+    match        = { namespace = "quickshell-(barra|dashboard|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|ia|nota|resumen|brujula|agente|movil|mesa|flujo)" },
     blur         = true,
     ignore_alpha = 0.3,
 })
