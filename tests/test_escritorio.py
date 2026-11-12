@@ -58,6 +58,21 @@ class Checkpoints(unittest.TestCase):
             proceso.terminate()
             proceso.wait()
 
+class CapturaReal(unittest.TestCase):
+    def test_espacio_especial_sin_id_no_rompe(self):
+        # Hyprland 0.57: los espacios especiales (scratchpads) no traen "id" en hyprctl clients
+        clientes = [
+            {'address': '0x1', 'pid': 1, 'class': 'kitty', 'workspace': {'id': 2, 'name': '2'}},
+            {'address': '0x2', 'pid': 2, 'class': 'yazi', 'workspace': {'name': 'special:archivos'}},
+            {'address': '0x3', 'pid': 3, 'class': 'otra', 'workspace': {'id': -98, 'name': 'special:magic'}},
+        ]
+        import json
+        with patch.object(escritorio, 'directorio', return_value=(Path('/tmp'), 'prueba')), \
+             patch.object(escritorio, 'ejecutar', return_value=json.dumps(clientes)):
+            dato = escritorio.captura()
+        self.assertEqual([(w['address'], w['workspace']) for w in dato['ventanas']], [('0x1', 2)])
+
+
 class Bloqueo(unittest.TestCase):
     def ejecutar_bloqueo(self, estado):
         import os

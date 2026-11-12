@@ -44,13 +44,18 @@ def atomico(ruta, datos):
             os.unlink(nombre)
 
 
+def espacio_id(w):
+    """Id del workspace de una ventana de `hyprctl clients`. Hyprland 0.57 no incluye "id" en los
+    espacios especiales (scratchpads): se tratan como -1, igual que antes."""
+    return (w.get("workspace") or {}).get("id", -1)
+
+
 def captura():
     _, firma = directorio()
     ventanas = json.loads(ejecutar(["hyprctl", "-j", "clients"]))
     return {"version": 1, "instancia": firma, "fecha": int(time.time()), "ventanas": [
-        {"address": w["address"], "pid": w["pid"], "class": w["class"],
-         "workspace": w["workspace"]["name"] if w["workspace"]["id"] < 0 else w["workspace"]["id"]}
-        for w in ventanas if w.get("mapped", True) and w["workspace"]["id"] > 0
+        {"address": w["address"], "pid": w["pid"], "class": w["class"], "workspace": espacio_id(w)}
+        for w in ventanas if w.get("mapped", True) and espacio_id(w) > 0
     ]}
 
 
