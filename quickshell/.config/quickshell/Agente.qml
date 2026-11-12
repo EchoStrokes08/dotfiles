@@ -1,4 +1,4 @@
-// Agente (SUPER+O): le hablas al escritorio y él usa todo lo demás. 100 % local (scripts/agente.py + ollama).
+// Agente (SUPER+O): modelo local, herramientas del sistema y navegador visible con perfil propio.
 //   · consulta y abre sin preguntar; lo que CAMBIA algo te lo propone y espera tu «Sí»
 //   · «qué leí / dónde vi / qué hice…» busca en tu memoria (scripts/memoria.py) y cita las fuentes
 //   · micrófono: habla en vez de escribir (dictado local con Whisper)
@@ -25,6 +25,40 @@ Superpuesta {
     property var mensajes: []             // {rol: tu|asistente|paso|fuentes|confirmar|error, texto, lista, resuelto}
     property bool pensando: false
     property bool listo: false            // modelo cargado (la primera vez tarda ~1 min en esta CPU)
+    property bool navegadorListo: false
+    property string nube: ""              // modelo en la nube en uso ("" = local)
+    // Selector de modelo y esfuerzo (se guarda en ~/.local/state/brujula/agente/eleccion.json)
+    property var modelos: ["auto"]
+    property string modeloElegido: "auto"
+    property string esfuerzo: "bajo"
+    function nombreModelo(id) {
+        const n = { "auto": "Auto · el mejor disponible", "local": "Local · privado, lento",
+                    "openai/gpt-oss-120b": "GPT-OSS 120B · el más listo", "qwen/qwen3.8-27b": "Qwen 3.8 27B",
+                    "openai/gpt-oss-20b": "GPT-OSS 20B · el más rápido" };
+        return n[id] || id;
+    }
+    function leerOpciones(texto) {
+        try { const o = JSON.parse(texto); modelos = o.modelos; modeloElegido = o.modelo; esfuerzo = o.esfuerzo;
+              if (o.permisos) permisos = o.permisos; } catch (e) {}
+    }
+    // Permisos del agente: cuánto hace sin preguntarte (~/.config/ia/permisos.json)
+    property string permisos: "equilibrado"
+    readonly property var niveles: [
+        { id: "cauteloso",   nombre: "Cauteloso",   color: Paleta.verde,   resumen: "Te pregunta antes de cambiar nada",
+          detalle: "Solo consulta y abre por su cuenta. Cualquier comando, archivo o ajuste espera tu «sí»." },
+        { id: "equilibrado", nombre: "Equilibrado", color: Paleta.azul,    resumen: "Consultas y tus archivos, sin preguntar",
+          detalle: "Comandos de solo lectura y escribir en tus carpetas personales. Lo demás lo confirma." },
+        { id: "amplio",      nombre: "Amplio",      color: Paleta.naranja, resumen: "Casi todo el día a día, sin preguntar",
+          detalle: "Ventanas, apps, ajustes, comandos y archivos. Pregunta antes de borrar, apagar, ejecutar scripts, tocar configuración o enviar algo. Si leyó una web, vuelve a preguntar." },
+        { id: "total",       nombre: "Total",       color: Paleta.rojo,    resumen: "Todo sin preguntar, salvo administrador",
+          detalle: "Cualquier comando y archivo, también borrar. Riesgo: una web maliciosa o un error del modelo pueden hacer daño. Úsalo solo cuando lo necesites." }
+    ]
+    function nivelDe(id) { return niveles.find(n => n.id === id) || niveles[1]; }
+    function elegir(campo, valor) {
+        if (proceso.running) return;
+        if (campo === "modelo") modeloElegido = valor; else esfuerzo = valor;   // respuesta inmediata
+        pElegir.command = [scripts + "agente.py", "elegir", campo, valor]; pElegir.running = true;
+    }
     property real calentadoEn: 0
     property bool escuchando: false
     property string pendienteTexto: ""    // lo que mandaste mientras el modelo despertaba
@@ -77,6 +111,16 @@ Superpuesta {
         historial = historial.filter(c => c.id !== id);          // respuesta inmediata
         pOrden.command = [scripts + "agente.py", "borrar", id]; pOrden.running = true;
     }
+    // Borrar todo: el primer clic pide confirmación (el botón se pone rojo 4 s); el segundo borra
+    property bool confirmandoBorrado: false
+    function borrarTodo() {
+        if (proceso.running || !historial.length) return;
+        if (!confirmandoBorrado) { confirmandoBorrado = true; tiempoBorrado.restart(); return; }
+        confirmandoBorrado = false;
+        mensajes = []; idActual = ""; historial = [];             // respuesta inmediata
+        pOrden.command = [scripts + "agente.py", "borrar-todo"]; pOrden.running = true;
+    }
+    Timer { id: tiempoBorrado; interval: 4000; onTriggered: ag.confirmandoBorrado = false }
     function moverConversacion(paso) {
         if (!historial.length) return;
         const i = historial.findIndex(c => c.id === idActual);
@@ -101,6 +145,8 @@ Superpuesta {
     }
 
     onAbriendose: {
+        diagnostico.running = true;
+        pOpciones.running = true;
         Qt.callLater(() => entrada.forceActiveFocus());
         refrescarHistorial();
         if (mensajes.length === 0 && !proceso.running) { pCargar.command = [scripts + "agente.py", "actual"]; pCargar.running = true; }
@@ -109,6 +155,11 @@ Superpuesta {
 
     // ── procesos ─────────────────────────────────────────────────────────
     Process {
+        id: diagnostico
+        command: [ag.scripts + "agente.py", "diagnostico"]
+        stdout: StdioCollector { onStreamFinished: { try { const d = JSON.parse(text); ag.navegadorListo = d.navegador; ag.nube = d.nube || ""; } catch (e) {} } }
+    }
+    Process {
         id: pHistorial
         command: [ag.scripts + "agente.py", "historial"]
         stdout: StdioCollector { onStreamFinished: { try { ag.historial = JSON.parse(text).lista || []; } catch (e) {} } }
@@ -116,6 +167,23 @@ Superpuesta {
     Process {
         id: pCargar
         stdout: StdioCollector { onStreamFinished: { try { ag.cargarVista(JSON.parse(text)); } catch (e) {} } }
+    }
+    Process {
+        id: pOpciones
+        command: [ag.scripts + "agente.py", "opciones"]
+        stdout: StdioCollector { onStreamFinished: ag.leerOpciones(text) }
+    }
+    Process {
+        id: pElegir
+        stdout: StdioCollector { onStreamFinished: ag.leerOpciones(text) }
+        onExited: {
+            diagnostico.running = true;   // actualiza el subtítulo («Nube (…)» o «Modelo local»)
+            if (ag.modeloElegido === "local" && !calentador.running) { ag.listo = false; calentador.running = true; }
+        }
+    }
+    Process {
+        id: pMostrar
+        command: ["python3", ag.scripts + "agente_navegador.py", "mostrar"]
     }
     Process {
         id: pOrden
@@ -205,16 +273,64 @@ Superpuesta {
             }
             ColumnLayout {
                 spacing: 1
+                Layout.fillWidth: true; Layout.minimumWidth: 0   // cede sitio al selector de modelo
                 Text { text: "ASISTENTE · EN TU EQUIPO"; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
                 Text { text: "¿En qué te ayudo?"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 22; bold: true } }
                 Text {
+                    Layout.fillWidth: true; elide: Text.ElideRight
                     color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
                     text: calentador.running ? "Despertando al asistente… la primera vez tarda alrededor de un minuto"
                         : ag.pensando ? "Pensando…" : ag.escuchando ? "Escuchando… pulsa el micrófono para terminar"
-                        : "Listo · sin internet · lo que cambie algo te lo pregunto antes"
+                        : (ag.nube ? "Nube (" + ag.nube + ")" : "Modelo local") + " · sistema y web · confirmación para acciones sensibles"
                 }
             }
-            Item { Layout.fillWidth: true }
+            // ── modelo y esfuerzo ──
+            ComboBox {
+                id: selModelo
+                implicitWidth: 215; implicitHeight: 34
+                enabled: !ag.pensando
+                model: ag.modelos
+                currentIndex: ag.modelos.indexOf(ag.modeloElegido)
+                displayText: ag.nombreModelo(ag.modeloElegido)
+                onActivated: (i) => ag.elegir("modelo", ag.modelos[i])
+                font { family: Paleta.fuente; pixelSize: 12 }
+                palette { text: Paleta.texto; buttonText: Paleta.texto; button: EstiloPanel.elevada; base: EstiloPanel.superficie; window: EstiloPanel.superficie; windowText: Paleta.texto; highlight: Qt.alpha(Paleta.morado, .3); highlightedText: Paleta.texto }
+                background: Rectangle { radius: 10; color: EstiloPanel.superficie; border { width: selModelo.activeFocus ? 2 : 1; color: selModelo.activeFocus ? Paleta.morado : EstiloPanel.borde } }
+                delegate: ItemDelegate {
+                    required property var modelData
+                    required property int index
+                    width: selModelo.width
+                    text: ag.nombreModelo(modelData)
+                    highlighted: selModelo.highlightedIndex === index
+                    font { family: Paleta.fuente; pixelSize: 12; bold: modelData === ag.modeloElegido }
+                }
+                ToolTip.visible: hovered && !popup.visible; ToolTip.delay: 500
+                ToolTip.text: "Modelo del asistente. Si se agota su límite gratuito, usa los demás de respaldo."
+            }
+            Row {
+                spacing: 4
+                Repeater {
+                    model: [["bajo", "Rápido"], ["medio", "Medio"], ["alto", "A fondo"]]
+                    Boton {
+                        required property var modelData
+                        text: modelData[1]
+                        implicitHeight: 34; leftPadding: 10; rightPadding: 10
+                        acento: Paleta.morado
+                        destacado: ag.esfuerzo === modelData[0]
+                        enabled: !ag.pensando && ag.modeloElegido !== "local"
+                        onClicked: ag.elegir("esfuerzo", modelData[0])
+                        ToolTip.visible: hovered; ToolTip.delay: 500
+                        ToolTip.text: "Esfuerzo: cuánto razona antes de responder. «A fondo» es más listo pero más lento."
+                    }
+                }
+            }
+            Boton {
+                text: ag.navegadorListo ? "Navegador" : "Instalar navegador"
+                enabled: !ag.pensando
+                // con el navegador instalado, lo muestra directamente (el agente lo usa invisible)
+                onClicked: ag.navegadorListo ? pMostrar.running = true
+                                             : ag.enviar("Instala el navegador integrado con la acción instalar_navegador")
+            }
             Boton { text: "󰅖"; Accessible.name: "Cerrar"; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; onClicked: ag.abierto = false; background: FondoBoton { tinte: Paleta.rojo; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
         }
 
@@ -248,6 +364,22 @@ Superpuesta {
                             Text { id: cuentaHist; anchors.centerIn: parent; text: ag.historial.length; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
                         }
                         Item { Layout.fillWidth: true }
+                        // Borrar todas las conversaciones (doble clic de seguridad)
+                        Rectangle {
+                            visible: ag.historial.length > 0
+                            implicitWidth: ag.confirmandoBorrado ? textoBorrarTodo.implicitWidth + 20 : 26; implicitHeight: 26; radius: 13
+                            color: ag.confirmandoBorrado ? Qt.alpha(Paleta.rojo, .3) : zonaBorrarTodo.containsMouse ? Qt.alpha(Paleta.rojo, .2) : Qt.alpha(Paleta.texto, .06)
+                            Behavior on implicitWidth { NumberAnimation { duration: 150 } }
+                            Text {
+                                id: textoBorrarTodo
+                                anchors.centerIn: parent
+                                text: ag.confirmandoBorrado ? "¿Borrar todo?" : ag.g("f0a7a")
+                                color: ag.confirmandoBorrado || zonaBorrarTodo.containsMouse ? Paleta.rojo : Paleta.gris
+                                font { family: Paleta.fuente; pixelSize: ag.confirmandoBorrado ? 11 : 13; bold: ag.confirmandoBorrado }
+                            }
+                            MouseArea { id: zonaBorrarTodo; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ag.borrarTodo() }
+                            ToolTip.visible: zonaBorrarTodo.containsMouse && !ag.confirmandoBorrado; ToolTip.delay: 400; ToolTip.text: "Borrar todas las conversaciones"
+                        }
                     }
                     Boton {
                         Layout.fillWidth: true
@@ -355,6 +487,96 @@ Superpuesta {
                         text: "⌃↑ ⌃↓ moverse entre ellas"
                         color: Qt.alpha(Paleta.gris, .8)
                         font { family: Paleta.fuente; pixelSize: 9 }
+                    }
+
+                    // ── permisos del agente ──
+                    Text { Layout.topMargin: 6; text: "PERMISOS"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
+                    ComboBox {
+                        id: selPermisos
+                        readonly property var actual: ag.nivelDe(ag.permisos)
+                        Layout.fillWidth: true
+                        implicitHeight: 56
+                        enabled: !ag.pensando
+                        model: ag.niveles
+                        currentIndex: ag.niveles.findIndex(n => n.id === ag.permisos)
+                        onActivated: (i) => ag.elegir("permisos", ag.niveles[i].id)
+                        background: Rectangle {
+                            radius: 14
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0; color: Qt.alpha(selPermisos.actual.color, selPermisos.hovered ? .22 : .15) }
+                                GradientStop { position: 1; color: Qt.alpha(selPermisos.actual.color, .04) }
+                            }
+                            border { width: selPermisos.activeFocus || selPermisos.popup.visible ? 2 : 1; color: Qt.alpha(selPermisos.actual.color, .55) }
+                            Behavior on border.color { ColorAnimation { duration: 200 } }
+                        }
+                        contentItem: RowLayout {
+                            spacing: 10
+                            Rectangle {   // piloto del nivel
+                                Layout.leftMargin: 12
+                                implicitWidth: 10; implicitHeight: 10; radius: 5
+                                color: selPermisos.actual.color
+                                Rectangle { anchors.centerIn: parent; width: 18; height: 18; radius: 9; color: "transparent"; border { width: 2; color: Qt.alpha(selPermisos.actual.color, .3) } }
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true; spacing: 1
+                                Text { text: selPermisos.actual.nombre; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
+                                Text { Layout.fillWidth: true; text: selPermisos.actual.resumen; elide: Text.ElideRight; color: Qt.alpha(Paleta.texto, .6); font { family: Paleta.fuente; pixelSize: 10 } }
+                            }
+                        }
+                        indicator: Text {
+                            x: selPermisos.width - width - 14; anchors.verticalCenter: parent.verticalCenter
+                            text: selPermisos.popup.visible ? "▴" : "▾"; color: selPermisos.actual.color
+                            font { family: Paleta.fuente; pixelSize: 14 }
+                        }
+                        popup: Popup {
+                            y: -implicitHeight - 6   // se abre hacia arriba: está al pie del panel
+                            width: selPermisos.width + 170
+                            padding: 6
+                            implicitHeight: listaNiveles.contentHeight + 12
+                            background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: EstiloPanel.borde } }
+                            contentItem: ListView {
+                                id: listaNiveles
+                                implicitHeight: contentHeight
+                                spacing: 4
+                                interactive: false
+                                model: selPermisos.popup.visible ? selPermisos.delegateModel : null
+                                currentIndex: selPermisos.highlightedIndex
+                            }
+                        }
+                        delegate: ItemDelegate {
+                            id: opcionNivel
+                            required property var modelData
+                            required property int index
+                            readonly property bool elegido: modelData.id === ag.permisos
+                            width: selPermisos.width + 158
+                            padding: 10
+                            highlighted: selPermisos.highlightedIndex === index
+                            background: Rectangle {
+                                radius: 12
+                                color: Qt.alpha(opcionNivel.modelData.color, opcionNivel.elegido ? .2 : opcionNivel.highlighted ? .12 : 0)
+                                border { width: opcionNivel.elegido ? 1 : 0; color: Qt.alpha(opcionNivel.modelData.color, .5) }
+                            }
+                            contentItem: RowLayout {
+                                spacing: 12
+                                Rectangle { Layout.alignment: Qt.AlignTop; Layout.topMargin: 4; implicitWidth: 10; implicitHeight: 10; radius: 5; color: opcionNivel.modelData.color }
+                                ColumnLayout {
+                                    Layout.fillWidth: true; Layout.minimumWidth: 0; spacing: 2
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Text { text: opcionNivel.modelData.nombre; color: opcionNivel.modelData.color; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
+                                        Text { Layout.fillWidth: true; Layout.minimumWidth: 0; elide: Text.ElideRight; text: "· " + opcionNivel.modelData.resumen; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
+                                        Text { visible: opcionNivel.elegido; text: "✓"; color: opcionNivel.modelData.color; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
+                                    }
+                                    Text { Layout.fillWidth: true; text: opcionNivel.modelData.detalle; wrapMode: Text.Wrap; color: Qt.alpha(Paleta.texto, .6); font { family: Paleta.fuente; pixelSize: 10 } }
+                                }
+                            }
+                        }
+                    }
+                    Text {
+                        Layout.fillWidth: true; Layout.leftMargin: 4
+                        text: "Lo de administrador (sudo, pacman) siempre te lo pregunta."
+                        wrapMode: Text.Wrap; color: Qt.alpha(Paleta.gris, .8); font { family: Paleta.fuente; pixelSize: 9 }
                     }
                 }
             }

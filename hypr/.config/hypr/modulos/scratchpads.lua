@@ -61,5 +61,11 @@ hl.window_rule({
     center = true,
 })
 
--- Música: más margen alrededor para que se note que "flota" sobre el escritorio
-hl.workspace_rule({ workspace = "special:musica", gaps_out = 60 })
+-- Navegador del agente (agente_navegador.py): trabaja oculto en su scratchpad, sin quitarte el foco.
+-- El botón «Navegador» del panel del asistente lo muestra/oculta.
+hl.window_rule({ name = "agente-navegador", match = { class = "^agente-navegador$" }, workspace = "special:agente silent" })
+
+-- Música: más margen alrededor para que se note que "flota" sobre el escritorio.
+-- Arriba/abajo poco margen: Spotify no baja de ~600 px de alto y con 60 (pantalla 1280×720 lógica
+-- menos la barra) se quedaba en 558 y el contenido se salía del borde.
+hl.workspace_rule({ workspace = "special:musica", gaps_out = { top = 25, right = 60, bottom = 25, left = 60 } })

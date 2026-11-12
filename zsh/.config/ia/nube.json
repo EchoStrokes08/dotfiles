@@ -1,0 +1,41 @@
+{
+  "activo": true,
+  "proveedores": [
+    {
+      "nombre": "groq-gpt-oss-120b",
+      "clave": "groq",
+      "url": "https://api.groq.com/openai/v1",
+      "modelo": "openai/gpt-oss-120b"
+    },
+    {
+      "nombre": "groq-gpt-oss-120b-2",
+      "clave": "groq2",
+      "url": "https://api.groq.com/openai/v1",
+      "modelo": "openai/gpt-oss-120b"
+    },
+    {
+      "nombre": "groq-qwen3.8-27b",
+      "clave": "groq",
+      "url": "https://api.groq.com/openai/v1",
+      "modelo": "qwen/qwen3.8-27b"
+    },
+    {
+      "nombre": "groq-qwen3.8-27b-2",
+      "clave": "groq2",
+      "url": "https://api.groq.com/openai/v1",
+      "modelo": "qwen/qwen3.8-27b"
+    },
+    {
+      "nombre": "groq-gpt-oss-20b",
+      "clave": "groq",
+      "url": "https://api.groq.com/openai/v1",
+      "modelo": "openai/gpt-oss-20b"
+    },
+    {
+      "nombre": "groq-gpt-oss-20b-2",
+      "clave": "groq2",
+      "url": "https://api.groq.com/openai/v1",
+      "modelo": "openai/gpt-oss-20b"
+    }
+  ]
+}
