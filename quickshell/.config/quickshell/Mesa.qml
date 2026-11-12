@@ -148,6 +148,7 @@ Superpuesta {
                         onClicked: { mesa.pagina = index; filtro.text = ""; }
                     }
                 }
+                Boton { text: "Proyectos y acciones →"; onClicked: Quickshell.execDetached(["qs","ipc","call","flujo","abrir","continuidad"]) }
                 Item { Layout.fillHeight: true }
                 Text {
                     Layout.fillWidth: true

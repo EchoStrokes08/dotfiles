@@ -7,6 +7,9 @@ cambiar solos según el wallpaper, gracias a matugen.
 **¿Primera vez usándolo?** Lee el [manual de uso](docs/manual.md): explica cómo se maneja el escritorio
 día a día. Abajo está la referencia completa de atajos y comandos.
 
+**Continuidad y acciones:** proyectos con próxima tarea, organización por intención y acciones sobre
+selecciones. [Guía de uso](docs/flujo-de-trabajo.md).
+
 **Mesa de trabajo:** `SUPER+ALT+ESPACIO` abre ventanas con vista previa, aparcado, plantillas, reuniones
 y rutinas. `SUPER+CTRL+V` va directamente a los textos reutilizables. [Guía y capturas](docs/mesa-de-trabajo.md).
 
@@ -157,6 +160,9 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
 | `SUPER+ALT+ESPACIO` | Mesa de trabajo: ventanas, aparcado, plantillas, reuniones y rutinas |
 | `SUPER+CTRL+V` | Biblioteca de plantillas de texto con fecha y hora |
+| `SUPER+CTRL+Enter` | Continuidad: guardar y retomar proyectos y su próxima tarea |
+| `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
+| `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
 | `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
 | `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |

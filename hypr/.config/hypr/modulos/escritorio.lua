@@ -100,6 +100,9 @@ hl.bind(p.mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd("~/.config/hypr/scripts/
 hl.bind(p.mainMod .. " + CTRL + P", M.privacidad)
 hl.bind(p.mainMod .. " + ALT + SPACE", hl.dsp.exec_cmd("qs ipc call mesa abrir ventanas"))
 hl.bind(p.mainMod .. " + CTRL + V", hl.dsp.exec_cmd("qs ipc call mesa abrir plantillas"))
+hl.bind(p.mainMod .. " + CTRL + Return", hl.dsp.exec_cmd("~/.config/hypr/scripts/flujo.py abrir continuidad"))
+hl.bind(p.mainMod .. " + CTRL + O", hl.dsp.exec_cmd("~/.config/hypr/scripts/flujo.py abrir organizar"))
+hl.bind(p.mainMod .. " + ALT + C", hl.dsp.exec_cmd("~/.config/hypr/scripts/flujo.py abrir seleccion"))
 -- Una vez terminados todos los require, los módulos ya han comunicado batería y concentración.
 hl.timer(M.sincronizar, { timeout = 250, type = "oneshot" })
 hl.timer(function()

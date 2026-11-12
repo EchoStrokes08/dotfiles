@@ -323,3 +323,14 @@ combinadas y comandos de diagnóstico.
 | `Ctrl+1…4`, dentro de la mesa | Ventanas / plantillas / reunión / rutinas |
 
 Consulta la [guía de la mesa](mesa-de-trabajo.md) para las reuniones, micrófono, rutinas y comandos.
+
+
+### Continuidad y acciones
+
+| Atajo | Acción |
+|---|---|
+| `SUPER+CTRL+Enter` | Guardar y retomar proyectos y su próxima tarea |
+| `SUPER+CTRL+O` | Previsualizar y aplicar un layout por tarea |
+| `SUPER+ALT+C` | Capturar texto seleccionado y elegir una acción |
+
+[Guía, alcance de la recuperación y privacidad](flujo-de-trabajo.md).

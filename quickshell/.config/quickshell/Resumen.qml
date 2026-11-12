@@ -99,6 +99,20 @@ Superpuesta {
                 font { family: Paleta.fuente; pixelSize: 12; capitalization: Font.Capitalize }
             }
         }
+        Rectangle {
+            visible: Continuidad.ultimo !== null
+            Layout.fillWidth: true; implicitHeight: 66; radius: 10
+            color: Qt.alpha(Paleta.naranja, .12)
+            activeFocusOnTab: true
+            function continuar() { r.abierto=false; Quickshell.execDetached(["qs","ipc","call","flujo","abrir","continuidad"]); }
+            Keys.onReturnPressed: continuar()
+            Column {
+                anchors { fill: parent; margins: 10 } spacing: 5
+                Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Proyecto disponible para continuar" : "Continuar · " + (Continuidad.ultimo?.nombre || ""); elide: Text.ElideRight; color: Paleta.naranja; font { family:Paleta.fuente; pixelSize:13; bold:true } }
+                Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Detalles ocultos por privacidad" : Continuidad.ultimo?.siguiente || "Revisa tu proyecto y elige Retomar"; elide:Text.ElideRight; color:Paleta.texto; font { family:Paleta.fuente; pixelSize:11 } }
+            }
+            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: parent.continuar() }
+        }
         Rectangle { Layout.fillWidth: true; height: 1; color: Qt.alpha(Paleta.texto, 0.1) }
 
         ColumnLayout {

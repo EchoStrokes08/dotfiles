@@ -4,6 +4,9 @@ Cómo se usa este escritorio en el día a día: qué es cada cosa, cómo moverse
 La lista completa de atajos y comandos está en el [README](../README.md#todos-los-comandos); este manual explica
 **cuándo y para qué** usar cada uno.
 
+**Continuidad y acciones:** `SUPER+CTRL+Enter` para proyectos, `SUPER+CTRL+O` para organizar y
+`SUPER+ALT+C` para seleccionar texto y actuar. [Guía](flujo-de-trabajo.md).
+
 **Mesa de trabajo:** `SUPER+ALT+ESPACIO`; textos reutilizables con `SUPER+CTRL+V`.
 [Ventanas, plantillas, reuniones y rutinas](mesa-de-trabajo.md).
 
@@ -781,6 +784,9 @@ la copia al apéndice A del manual. Al añadir un atajo: documentarlo aquí y ej
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
 | `SUPER+ALT+ESPACIO` | Mesa de trabajo: ventanas, aparcado, plantillas, reuniones y rutinas |
 | `SUPER+CTRL+V` | Biblioteca de plantillas de texto con fecha y hora |
+| `SUPER+CTRL+Enter` | Continuidad: guardar y retomar proyectos y su próxima tarea |
+| `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
+| `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
 | `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
 | `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |

@@ -6,6 +6,8 @@ Se abre desde el lanzador buscando **Mesa de trabajo**, desde el centro del escr
 
 ![Rutinas](screenshots/mesa-rutinas.png)
 
+**Proyectos y acciones** abre la [continuidad del trabajo, organización y acciones de selección](flujo-de-trabajo.md).
+
 ## Ventanas: encontrar, mover y aparcar
 
 Escribe para buscar por aplicación o título. Arriba/abajo selecciona y Enter enfoca; también
