@@ -10,7 +10,7 @@
 # Las miniaturas se crean una vez con ffmpeg en ~/.cache/wallpapers-mini (fuzzel solo muestra PNG/SVG).
 # El wallpaper elegido queda enlazado en ~/.local/state/tema/wallpaper (se restaura al arrancar)
 # y, si el modo de color es "wallpaper", se regeneran los colores (tema.sh).
-# La rotación cada 10 min la hace Hyprland (modulos/tema.lua).
+# La rotación cada 17,5 min la hace Hyprland (modulos/tema.lua).
 
 CARPETA="$HOME/Imágenes/wallpapers"
 MINIS="$HOME/.cache/wallpapers-mini"

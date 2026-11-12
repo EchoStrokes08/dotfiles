@@ -11,9 +11,9 @@ local TEMA = "~/.config/hypr/scripts/tema.sh"
 hl.bind(mod .. " + SHIFT + T", hl.dsp.exec_cmd(TEMA .. " alternar"))
 hl.bind(mod .. " + CTRL + T",  hl.dsp.exec_cmd(TEMA .. " variante"))
 
--- Rotación de wallpaper cada 10 minutos (antes lo hacía hyprpaper con timeout = 600).
+-- Rotación de wallpaper cada 17,5 minutos (antes lo hacía hyprpaper con timeout = 600).
 -- Al recargar la config el temporizador vuelve a empezar desde cero.
-local MINUTOS = 10
+local MINUTOS = 17.5
 hl.timer(function()
     hl.exec_cmd("~/.config/hypr/scripts/wallpaper.sh aleatorio")
 end, { timeout = MINUTOS * 60 * 1000, type = "repeat" })

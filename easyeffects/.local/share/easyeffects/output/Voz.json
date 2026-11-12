@@ -1,6 +1,8 @@
 {
   "output": {
-    "blocklist": [],
+    "blocklist": [
+      "buds_pceq."
+    ],
     "plugins_order": [
       "equalizer#0",
       "compressor#0",
