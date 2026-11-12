@@ -834,13 +834,41 @@ def vigilar():
     s, buf = None, b""
     ultimo_dia = dt.date.today()
 
+    vivas = {}   # dirección → cómo reabrirla (se calcula mientras el proceso vive: luego ya no se puede)
+
     def refrescar_ventanas():
         nonlocal clases, monitores
         try:
-            clases = [w.get("class", "") for w in json.loads(ejecutar(["hyprctl", "-j", "clients"]) or "[]") if w.get("mapped", True)]
-            monitores = len(json.loads(ejecutar(["hyprctl", "-j", "monitors"]) or "[]")) or 1
-        except ValueError:
-            pass
+            ventanas = json.loads(ejecutar(["hyprctl", "-j", "clients"]) or "[]")
+            pantallas = {m["id"]: m for m in json.loads(ejecutar(["hyprctl", "-j", "monitors"]) or "[]")}
+        except (ValueError, KeyError, TypeError):
+            return
+        clases = [w.get("class", "") for w in ventanas if w.get("mapped", True)]
+        monitores = len(pantallas) or 1
+        ignorar = config()["sesion"].get("ignorar", [])
+        for w in ventanas:
+            ws = w.get("workspace", {}).get("id", 0)
+            if not 1 <= ws <= 10 or coincide(w.get("class", ""), ignorar):
+                continue
+            previa = vivas.get(w["address"])
+            if previa is None:
+                argv = comando_de(w)
+                if not argv:
+                    continue
+                previa = vivas[w["address"]] = {"clase": w.get("class", ""), "nombre": nombre_de(w.get("class", "")),
+                                                 "argv": argv, "desde": time.time()}
+            m = pantallas.get(w.get("monitor"), {"x": 0, "y": 0})
+            previa.update({"ws": ws, "flotante": bool(w.get("floating")), "completa": bool(w.get("fullscreen")),
+                           "geo": {"x": int(w["at"][0] - m["x"]), "y": int(w["at"][1] - m["y"]),
+                                   "w": int(w["size"][0]), "h": int(w["size"][1])} if w.get("floating") else None})
+
+    def al_cerrar(direccion):
+        info = vivas.pop("0x" + direccion.removeprefix("0x"), None)
+        if info and time.time() - info["desde"] >= 2:   # los diálogos de un instante no cuentan
+            info = dict(info, cerrada=int(time.time()))
+            info.pop("desde", None)
+            pila = [x for x in leer_json(ESTADO / "cerradas.json", []) if isinstance(x, dict)][-14:]
+            atomico(ESTADO / "cerradas.json", pila + [info])
 
     def foco_actual():
         nonlocal foco
@@ -876,7 +904,9 @@ def vigilar():
                     clase, _, titulo = val.partition(",")
                     foco = clase
                     linea.ver(clase, titulo)
-                elif ev in ("openwindow", "closewindow", "movewindowv2", "monitoradded", "monitorremoved"):
+                elif ev in ("openwindow", "closewindow", "movewindowv2", "monitoradded", "monitorremoved", "changefloatingmode"):
+                    if ev == "closewindow":
+                        al_cerrar(val.strip())
                     refrescar_ventanas()
                     proxima_foto = min(proxima_foto, time.time() + 5)
                 elif ev == "windowtitle":
@@ -908,6 +938,7 @@ def vigilar():
         linea.capturar(cfg["linea"], bloq, priv)
 
         revisar_programados()
+        revisar_jornada(bloq, escritorio().get("juego_activo") == "true")
         if ahora >= proxima_foto:
             foto = foto_sesion(cfg["sesion"])
             if foto and foto["apps"]:
@@ -930,6 +961,119 @@ def vigilar():
                 prefs["aviso"] = hoy.isoformat()
                 guardar_preferencias(prefs)
                 threading.Thread(target=aviso_del_dia, daemon=True).start()
+
+
+# ── reabrir la última ventana cerrada (SUPER+SHIFT+Z) ────────────────────
+def reabrir():
+    pila = [x for x in leer_json(ESTADO / "cerradas.json", []) if isinstance(x, dict)]
+    while pila:
+        a = pila.pop()
+        argv = a.get("argv")
+        if isinstance(argv, list) and argv and all(isinstance(x, str) for x in argv) and shutil.which(argv[0]) \
+                and type(a.get("ws")) is int and 1 <= a["ws"] <= 10:
+            atomico(ESTADO / "cerradas.json", pila)
+            despachar(f"hl.dsp.exec_cmd({json.dumps(shlex.join(argv), ensure_ascii=False)}, {reglas_ventana(a)})")
+            osd("Reabriendo " + str(a.get("nombre", a.get("clase", ""))), "f099b")
+            return {"mensaje": f"Reabierta: {a.get('nombre', '')} en el espacio {a['ws']}."}
+    atomico(ESTADO / "cerradas.json", [])
+    osd("No hay ventanas cerradas que reabrir", "f099b")
+    return {"mensaje": "No hay ventanas cerradas que reabrir."}
+
+
+# ── fin de jornada ───────────────────────────────────────────────────────
+def jornada_cfg():
+    j = config().get("jornada", {})
+    return j if isinstance(j, dict) else {}
+
+
+def jornada_estado():
+    return leer_json(ESTADO / "jornada.json", {})
+
+
+def brillo():
+    try:
+        return int(ejecutar(["brightnessctl", "-m"]).split(",")[3].rstrip("%"))
+    except (IndexError, ValueError):
+        return None
+
+
+def cerrar_jornada():
+    """Guarda la sesión, silencia, pone la luz cálida y baja el brillo poco a poco. Se deshace sola por la mañana."""
+    e = jornada_estado()
+    if e.get("cerrada") and e.get("dia") == dt.date.today().isoformat():
+        return {"mensaje": "El día ya estaba cerrado."}
+    foto = foto_sesion(config()["sesion"])
+    if foto and foto["apps"]:
+        atomico(ESTADO / "sesion.json", foto)
+    previo = brillo()
+    atomico(ESTADO / "jornada.json", {"cerrada": True, "dia": dt.date.today().isoformat(), "brillo_previo": previo,
+                                      "hora": int(time.time())})
+    lanzar(["qs", "ipc", "call", "notificaciones", "motivo", "jornada", "true"])
+    lanzar([str(HOME / ".config/hypr/scripts/luz-nocturna.sh"), "on"])
+    objetivo = int(jornada_cfg().get("brillo", 30))
+
+    def bajar():
+        if previo is None or previo <= objetivo:
+            return
+        pasos = 30
+        for i in range(1, pasos + 1):   # un minuto, sin saltos
+            ejecutar(["brightnessctl", "-q", "set", f"{round(previo - (previo - objetivo) * i / pasos)}%"], 2)
+            time.sleep(2)
+    threading.Thread(target=bajar, daemon=True).start()
+    osd("Día cerrado. Buen descanso", "f0594")
+    return {"mensaje": "Día cerrado: sesión guardada, sin notificaciones, luz cálida y brillo bajando."}
+
+
+def reabrir_jornada():
+    """Por la mañana (o a mano): vuelve el brillo y las notificaciones."""
+    e = jornada_estado()
+    if not e.get("cerrada"):
+        return {"mensaje": "La jornada no estaba cerrada."}
+    lanzar(["qs", "ipc", "call", "notificaciones", "motivo", "jornada", "false"])
+    if isinstance(e.get("brillo_previo"), int):
+        ejecutar(["brightnessctl", "-q", "set", f"{e['brillo_previo']}%"])
+    atomico(ESTADO / "jornada.json", {"cerrada": False, "dia": e.get("dia"), "aviso": e.get("aviso")})
+    return {"mensaje": "Buen día: brillo y notificaciones de vuelta."}
+
+
+def avisar_jornada(hasta=None):
+    r = ejecutar(["notify-send", "-a", "Brújula", "-i", "weather-clear-night", "-A", "cerrar=Cerrar el día",
+                  "-A", "posponer=15 min más", "Fin de jornada", "Es tu hora de parar. Guardo todo, silencio avisos y bajo la luz."], 3600)
+    if r == "cerrar":
+        cerrar_jornada()
+        lanzar(["qs", "ipc", "call", "brujula", "abrir", "hoy"])
+    elif r == "posponer":
+        e = jornada_estado()
+        e["posponer"] = int(time.time()) + 15 * 60
+        atomico(ESTADO / "jornada.json", e)
+
+
+def revisar_jornada(bloq, juego):
+    """Una vez por tick: avisa a la hora y deshace el cierre por la mañana."""
+    cfg = jornada_cfg()
+    e = jornada_estado()
+    ahora = dt.datetime.now()
+    hoy = ahora.date().isoformat()
+    if e.get("cerrada") and e.get("dia") != hoy and ahora.hour >= 5 and not bloq:
+        reabrir_jornada()
+        return
+    if not cfg.get("activa", True) or bloq or juego or e.get("cerrada"):
+        return
+    if cfg.get("dias") and DIAS[ahora.weekday()] not in cfg["dias"]:
+        return
+    try:
+        hora = dt.time.fromisoformat(str(cfg.get("hora", "23:00")))
+    except ValueError:
+        return
+    if ahora.time() < hora:
+        return
+    if e.get("aviso") == hoy:   # ya avisado hoy: solo se repite si pediste «15 min más» y ya pasaron
+        pospuesto = e.get("posponer", 0)
+        if not pospuesto or time.time() < pospuesto:
+            return
+    e.update({"aviso": hoy, "posponer": 0})
+    atomico(ESTADO / "jornada.json", e)
+    threading.Thread(target=avisar_jornada, daemon=True).start()
 
 
 def aviso_del_dia():
@@ -1010,8 +1154,11 @@ def main():
     cp.add_argument("id")
     cap = sub.add_parser("capturas")
     cap.add_argument("accion", choices=["limpiar"])
+    sub.add_parser("reabrir")
+    jo = sub.add_parser("jornada")
+    jo.add_argument("accion", choices=["cerrar", "reabrir", "estado"])
     a = sub.add_parser("abrir")
-    a.add_argument("pagina", nargs="?", default="hoy", choices=["hoy", "linea", "contexto", "sesion"])
+    a.add_argument("pagina", nargs="?", default="hoy", choices=["hoy", "linea", "contexto", "sesion", "salud"])
     a = p.parse_args()
 
     if a.orden == "vigilar":
@@ -1055,6 +1202,11 @@ def main():
     elif a.orden == "capturas":
         shutil.rmtree(visor(), ignore_errors=True)
         print(json.dumps({"mensaje": ""}))
+    elif a.orden == "reabrir":
+        print(json.dumps(reabrir(), ensure_ascii=False))
+    elif a.orden == "jornada":
+        r = cerrar_jornada() if a.accion == "cerrar" else reabrir_jornada() if a.accion == "reabrir" else dict(jornada_estado(), config=jornada_cfg())
+        print(json.dumps(r, ensure_ascii=False))
     elif a.orden == "abrir":
         lanzar(["qs", "ipc", "call", "brujula", "abrir", a.pagina])
 

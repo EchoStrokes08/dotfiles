@@ -52,6 +52,13 @@
     "ofrecer_al_iniciar": true,
     "ignorar": ["xdg-desktop-portal*", "org.kde.polkit*", "hyprpolkitagent", "exo-open", "quickshell", "scratch-*"]
   },
+  "jornada": {
+    "_ayuda": "A esta hora: aviso «Fin de jornada» → guarda la sesión, No molestar, luz cálida y el brillo baja a «brillo» %. Por la mañana todo vuelve.",
+    "activa": true,
+    "hora": "23:00",
+    "dias": [],
+    "brillo": 30
+  },
   "sugerencias": {
     "aviso_matutino": true,
     "distracciones": ["com.rtosta.zapzap", "discord", "vesktop", "org.vinegarhq.Sober", "steam"],

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Actualizaciones pendientes, para la barra (Actualizaciones.qml lo llama cada 3 h).
 #   actualizaciones.sh          -> JSON { repos, aur, noticias, vulnerables, lista }
-#   actualizaciones.sh instalar -> abre una terminal con yay -Syu (si hay noticias de Arch sin leer, primero las muestra)
+#   actualizaciones.sh instalar -> terminal con actualizar.py: comprobaciones, noticias, yay -Syu y revisión final
+#   actualizaciones.sh deshacer -> terminal para devolver / a antes de la última actualización (snapper)
 # checkupdates consulta los repos en una copia temporal: NO toca el sistema ni hace "pacman -Sy".
 if [ "$1" = instalar ]; then
-    exec kitty --class kitty-actualizar --title "Actualizando" -e sh -c '
-        if command -v informant >/dev/null && ! informant check >/dev/null 2>&1; then
-            echo "── Noticias de Arch sin leer (pueden pedir pasos manuales) ──"; informant read --all; echo
-        fi
-        yay -Syu; echo; qs ipc call actualizaciones refrescar >/dev/null 2>&1
-        read -rp "Enter para cerrar " _'
+    # Con red de seguridad: batería, espacio, noticias, snapshot (snap-pac) y revisión al terminar
+    exec kitty --class kitty-actualizar --title "Actualizando" -e "$HOME/.config/hypr/scripts/actualizar.py"
+fi
+if [ "$1" = deshacer ]; then
+    exec kitty --class kitty-actualizar --title "Deshacer actualización" -e "$HOME/.config/hypr/scripts/actualizar.py" deshacer
 fi
 repos=$(checkupdates 2>/dev/null)
 aur=$(yay -Qua 2>/dev/null)

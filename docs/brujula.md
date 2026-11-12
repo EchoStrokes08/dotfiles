@@ -10,8 +10,12 @@ local: nada sale del equipo.
 | **Contexto** | Reglas que cambian perfil, No molestar, energía y modo juego según lo que haces |
 | **Sesión** | Al volver de un reinicio o un cuelgue, reabre tus apps en sus espacios |
 | **Búsqueda universal** | En el lanzador (`SUPER+R`): dentro de documentos, historial, notas, línea… |
+| **Salud** | Disco, batería, respaldo, snapshots, servicios, temperatura, USB… con semáforo |
+| **Actualizar con seguridad** | Comprobaciones antes, snapshot, revisión después y deshacer |
+| **Reabrir ventana** | `SUPER+SHIFT+Z`: la última que cerraste, en su sitio |
+| **Fin de jornada** | A tu hora: guarda, silencia, luz cálida y brillo bajando; por la mañana vuelve |
 
-Teclas del panel: `Ctrl+1…4` o `Ctrl+Tab` cambian de pestaña; en la línea, `←`/`→` cambian de día.
+Teclas del panel: `Ctrl+1…5` o `Ctrl+Tab` cambian de pestaña; en la línea, `←`/`→` cambian de día.
 
 ## Cómo funciona
 
@@ -141,10 +145,79 @@ Downloads (y sus equivalentes en español). Guarda el contenido en una base SQLi
 `~/.cache/brujula/documentos.db`. Es incremental y el servicio lo relanza cada 30 min con la
 prioridad más baja de CPU y disco.
 
+## 6. Salud del sistema (pestaña «Salud»)
+
+`scripts/salud.py` comprueba en menos de un segundo, y sin contraseña de administrador:
+
+| Comprobación | De dónde sale | Aviso / mal |
+|---|---|---|
+| Copia de seguridad | `/var/lib/respaldo/ultima` | más de 3 / 8 días |
+| Disco (SMART) | UDisks: desgaste, reserva, errores, temperatura | avisos del disco o errores |
+| Espacio libre | `df /` | 85 % / 95 % |
+| Snapshots | `snapper list` | el último hace más de 3 h / 2 días |
+| Actualizaciones | `checkupdates -n`, barra (AUR, noticias, vulnerables) | noticias, vulnerables, más de 60; **mal** si el kernel se actualizó y no has reiniciado |
+| Servicios | `systemctl --failed` (sistema y usuario) | alguno fallido |
+| Temperatura | `sensors -j` | 80 / 92 °C |
+| Batería | capacidad actual frente a la original y ciclos | 80 % / 60 % |
+| Memoria | `/proc/meminfo` | menos del 15 % / 5 % libre |
+| Scrub de Btrfs | temporizador `btrfs-scrub@-` | más de 40 días o con errores |
+| USB | errores `-71` del kernel en este arranque | alguno |
+| `.pacnew` | `pacdiff -o` | alguno |
+| Escritorio y arranque | `hyprctl configerrors`, `grub-btrfsd` | errores o servicio parado |
+
+Cada tarjeta trae su acción: copiar ahora, actualizar, ver qué ocupa, abrir btop, ver por qué falló…
+Si algo está **mal** (no basta con un aviso), «Hoy» lo propone el primero.
+
+## 7. Actualizar con seguridad
+
+«Actualizar con seguridad» (en Salud, el lanzador o la barra) abre `scripts/actualizar.py` en una terminal.
+
+**Antes:**
+- con batería por debajo del 40 % y sin cargador, para y pregunta;
+- con menos de 5 GiB libres, no sigue;
+- muestra las noticias de Arch sin leer (informant) y pide confirmación;
+- avisa de los paquetes delicados (kernel, systemd, Mesa, Hyprland, Quickshell…);
+- comprueba que snap-pac hará los snapshots.
+
+**Durante:** `yay -Syu`. snap-pac hace un snapshot de `/` antes y otro después de cada paso de pacman,
+y grub-btrfs los pone en el menú de GRUB.
+
+**Después:**
+- indica los snapshots creados, los `.pacnew` nuevos, los servicios fallidos y si hace falta reiniciar;
+- lo apunta en `~/.local/state/brujula/actualizaciones.jsonl` y avisa con una notificación.
+
+**Deshacer la última actualización** (Salud o lanzador): `snapper undochange <antes>..<después>`
+devuelve los archivos de `/` a como estaban, sin tocar `/home`. Hay que escribir `DESHACER` para
+confirmar y pide tu contraseña. Si el sistema ni siquiera arranca: GRUB → «Arch Linux snapshots».
+
+## 8. Reabrir la última ventana cerrada (`SUPER+SHIFT+Z`)
+
+El servicio calcula cómo reabrir cada ventana mientras su proceso vive (después ya no se puede). Al
+cerrarla, la guarda en una pila de 15 (`cerradas.json`). `SUPER+SHIFT+Z` reabre la última:
+- en su espacio;
+- si flotaba, con su tamaño y posición;
+- las terminales, en su carpeta.
+
+Repetirlo reabre la anterior. Las que duran menos de 2 s (diálogos) no cuentan.
+
+## 9. Fin de jornada
+
+En `brujula.json → jornada` eliges la hora (23:00), los días (vacío = todos) y el brillo de noche (30 %).
+A esa hora llega «Fin de jornada», con dos botones:
+- **Cerrar el día:**
+  - guarda la sesión, activa No molestar (motivo `jornada`) y enciende la luz nocturna;
+  - baja el brillo poco a poco durante un minuto;
+  - abre «Hoy» con el resumen: pantalla del día, apps principales y lo de mañana.
+- **15 min más:** vuelve a avisar.
+
+No avisa con un juego abierto ni con la pantalla bloqueada. Una hora antes, «Hoy» ya muestra la
+tarjeta de cierre. Por la mañana (desde las 5:00, al desbloquear) vuelven el brillo y las
+notificaciones. También a mano: `brujula.py jornada cerrar` / `reabrir`, o «Cerrar el día» en el lanzador.
+
 ## Pruebas
 
 ```bash
-cd ~/dotfiles && python3 -m unittest tests.test_brujula -v
+cd ~/dotfiles && python3 -m unittest tests.test_brujula tests.test_salud -v
 ```
 
 Los tests cubren:

@@ -4,7 +4,7 @@
 //   Contexto   reglas automáticas (~/.config/hypr/brujula.json): cuáles están activas, pausar, activar/desactivar
 //   Sesión     la sesión anterior (tras reiniciar o un cuelgue) para reabrirla entera o en parte
 //   qs ipc call brujula abrir hoy|linea|contexto|sesion · qs ipc call brujula dia 2026-11-10
-// Teclas: Ctrl+1…4 o Ctrl+Tab cambian de pestaña · ←/→ cambian de día en la línea · Esc cierra.
+// Teclas: Ctrl+1…5 o Ctrl+Tab cambian de pestaña · ←/→ cambian de día en la línea · Esc cierra.
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
@@ -21,7 +21,7 @@ Superpuesta {
     opacidadTarjeta: 0.96
 
     readonly property string scripts: Quickshell.env("HOME") + "/.config/hypr/scripts/"
-    readonly property var paginas: ["hoy", "linea", "contexto", "sesion"]
+    readonly property var paginas: ["hoy", "linea", "contexto", "sesion", "salud"]
     property int pagina: 0
     property var hoy: null
     property string frase: ""
@@ -30,6 +30,7 @@ Superpuesta {
     property string dia: ""
     property var estado: null
     property var sesion: null
+    property var salud: null
     property var elegidas: ({})
     property string aviso: ""
     property string filtro: ""
@@ -41,6 +42,7 @@ Superpuesta {
         if (pagina === 1) correr(pLinea, [scripts + "brujula.py", "linea"].concat(dia ? ["--dia", dia] : []));
         if (pagina === 2) correr(pEstado, [scripts + "brujula.py", "estado"]);
         if (pagina === 3) correr(pSesion, [scripts + "brujula.py", "sesion"]);
+        if (pagina === 4) correr(pSalud, [scripts + "salud.py"]);
     }
     function correr(p, cmd) { if (p.running) return; p.command = cmd; p.running = true; }
     function orden(args, despues) {
@@ -89,10 +91,11 @@ Superpuesta {
         stdout: StdioCollector { onStreamFinished: { try { if (text.trim()) lp.alLeer(JSON.parse(text)); } catch (e) { br.aviso = "No se pudo leer la respuesta."; } } }
         stderr: StdioCollector { onStreamFinished: { if (text.trim()) { try { br.aviso = JSON.parse(text).error; } catch (e) { br.aviso = text.trim().split("\n").pop(); } } } }
     }
-    Lector { id: pHoy; alLeer: function(d) { br.hoy = d; } }
+    Lector { id: pHoy; alLeer: function(d) { br.hoy = d; Qt.callLater(() => hoyVista.contentY = 0); } }
     Lector { id: pFrase; command: [br.scripts + "sugerencias.py", "frase"]; alLeer: function(d) { br.frase = d.frase; br.fraseCargando = false; } onExited: br.fraseCargando = false }
     Lector { id: pLinea; alLeer: function(d) { br.linea = d; } }
     Lector { id: pEstado; alLeer: function(d) { br.estado = d; } }
+    Lector { id: pSalud; alLeer: function(d) { br.salud = d; Qt.callLater(() => rejillaSalud.positionViewAtBeginning()); } }
     Lector { id: pSesion; alLeer: function(d) { br.sesion = d; const e = {}; (d.anterior?.apps || []).forEach((a, i) => e[i] = !a.abierta); br.elegidas = e; } }
     Lector {
         id: pOrden
@@ -176,9 +179,9 @@ Superpuesta {
     }
 
     // ── atajos de teclado del panel ──────────────────────────────────────
-    Shortcut { sequences: ["Ctrl+Tab"]; enabled: br.abierto; onActivated: br.pagina = (br.pagina + 1) % 4 }
-    Shortcut { sequences: ["Ctrl+Shift+Tab"]; enabled: br.abierto; onActivated: br.pagina = (br.pagina + 3) % 4 }
-    Repeater { model: 4; Item { required property int index; Shortcut { sequence: "Ctrl+" + (index + 1); enabled: br.abierto; onActivated: br.pagina = index } } }
+    Shortcut { sequences: ["Ctrl+Tab"]; enabled: br.abierto; onActivated: br.pagina = (br.pagina + 1) % 5 }
+    Shortcut { sequences: ["Ctrl+Shift+Tab"]; enabled: br.abierto; onActivated: br.pagina = (br.pagina + 4) % 5 }
+    Repeater { model: 5; Item { required property int index; Shortcut { sequence: "Ctrl+" + (index + 1); enabled: br.abierto; onActivated: br.pagina = index } } }
     Shortcut { sequence: "Left"; enabled: br.abierto && br.pagina === 1 && !buscarLinea.activeFocus; onActivated: br.moverDia(-1) }
     Shortcut { sequence: "Right"; enabled: br.abierto && br.pagina === 1 && !buscarLinea.activeFocus; onActivated: br.moverDia(1) }
 
@@ -209,7 +212,7 @@ Superpuesta {
                 Text {
                     Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 22; bold: true }
-                    text: ["Tu día, de un vistazo", "Lo que tuviste delante", "El escritorio se adapta solo", "Sigue donde lo dejaste"][br.pagina]
+                    text: ["Tu día, de un vistazo", "Lo que tuviste delante", "El escritorio se adapta solo", "Sigue donde lo dejaste", "Tu equipo, en forma"][br.pagina]
                 }
             }
             // contextos activos ahora mismo
@@ -235,11 +238,11 @@ Superpuesta {
             id: pestanas
             Layout.fillWidth: true; implicitHeight: 40
             focus: true
-            Keys.onTabPressed: br.pagina = (br.pagina + 1) % 4
+            Keys.onTabPressed: br.pagina = (br.pagina + 1) % 5
             Rectangle { anchors.fill: parent; radius: 12; color: Qt.alpha(Paleta.texto, .04) }
             Rectangle {
                 id: indicador
-                y: 4; height: parent.height - 8; width: (parent.width - 8) / 4; radius: 9
+                y: 4; height: parent.height - 8; width: (parent.width - 8) / 5; radius: 9
                 x: 4 + br.pagina * width
                 color: Qt.alpha(Paleta.naranja, .2); border { width: 1; color: Qt.alpha(Paleta.naranja, .55) }
                 Behavior on x { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
@@ -247,11 +250,11 @@ Superpuesta {
             Row {
                 anchors { fill: parent; margins: 4 }
                 Repeater {
-                    model: [["f05a8", "Hoy"], ["f0954", "Línea de tiempo"], ["f0493", "Contexto"], ["f099b", "Sesión"]]
+                    model: [["f05a8", "Hoy"], ["f0954", "Línea de tiempo"], ["f0493", "Contexto"], ["f099b", "Sesión"], ["f05e0", "Salud"]]
                     Item {
                         required property var modelData
                         required property int index
-                        width: parent.width / 4; height: parent.height
+                        width: parent.width / 5; height: parent.height
                         Text {
                             anchors.centerIn: parent
                             text: br.g(parent.modelData[0]) + "  " + parent.modelData[1] + "  " + "⌃" + (parent.index + 1)
@@ -273,12 +276,49 @@ Superpuesta {
 
             // ═══ HOY ═════════════════════════════════════════════════════
             Flickable {
+                id: hoyVista
                 anchors.fill: parent
                 visible: br.pagina === 0
                 contentHeight: hoyCol.implicitHeight; clip: true
                 boundsBehavior: Flickable.StopAtBounds
                 ColumnLayout {
                     id: hoyCol; width: parent.width; spacing: 14
+                    // cierre del día (una hora antes de tu hora de parar, o con el día ya cerrado)
+                    Rectangle {
+                        visible: !!br.hoy?.jornada?.mostrar
+                        Layout.fillWidth: true; implicitHeight: cierre.implicitHeight + 28; radius: 16
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0; color: Qt.alpha(Paleta.morado, .2) }
+                            GradientStop { position: 1; color: Qt.alpha(Paleta.azul, .08) }
+                        }
+                        border { width: 1; color: Qt.alpha(Paleta.morado, .4) }
+                        readonly property var j: br.hoy?.jornada ?? ({})
+                        RowLayout {
+                            id: cierre
+                            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 14 } spacing: 16
+                            Text { text: br.g("f0594"); color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 30 } Layout.alignment: Qt.AlignTop }
+                            ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 4
+                                Etiqueta { text: parent.parent.parent.j.cerrada ? "DÍA CERRADO A LAS " + parent.parent.parent.j.cerrada_a : "CIERRE DEL DÍA · " + (parent.parent.parent.j.hora ?? "") ; color: Paleta.morado }
+                                Text { Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true }
+                                    text: `Hoy: ${parent.parent.parent.j.pantalla} de pantalla` + ((parent.parent.parent.j.top ?? []).length ? " · " + parent.parent.parent.j.top.map(x => x.nombre + " " + x.tiempo).join(", ") : "") }
+                                Text { Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
+                                    text: (parent.parent.parent.j.manana ?? []).length ? "Mañana: " + parent.parent.parent.j.manana.join("  ·  ") : "Mañana: agenda libre." }
+                            }
+                            Boton {
+                                visible: !parent.parent.j.cerrada; text: "Cerrar el día"; destacado: true; acento: Paleta.morado
+                                onClicked: br.orden(["jornada", "cerrar"])
+                            }
+                            Boton {
+                                visible: !!parent.parent.j.cerrada; text: "Suspender"; acento: Paleta.morado
+                                onClicked: { br.abierto = false; Quickshell.execDetached(["systemctl", "suspend"]); }
+                            }
+                            Boton {
+                                visible: !!parent.parent.j.cerrada; text: "Seguir un rato"; acento: Paleta.gris
+                                onClicked: br.orden(["jornada", "reabrir"])
+                            }
+                        }
+                    }
                     // saludo + frase del asistente
                     Rectangle {
                         Layout.fillWidth: true; implicitHeight: saludoCol.implicitHeight + 32; radius: 16
@@ -728,6 +768,73 @@ Superpuesta {
                     Boton { text: "Restaurar todo"; onClicked: br.orden(["sesion", "restaurar"], "cerrar") }
                     Boton { text: `Abrir ${parent.marcadas.length} seleccionadas`; destacado: true; enabled: parent.marcadas.length > 0
                             onClicked: br.orden(["sesion", "restaurar", "--solo", parent.marcadas.join(",")], "cerrar") }
+                }
+            }
+
+            // ═══ SALUD ═══════════════════════════════════════════════════
+            ColumnLayout {
+                anchors.fill: parent; spacing: 12
+                visible: br.pagina === 4
+                readonly property var estado: br.salud?.estado ?? "ok"
+                readonly property color acento: estado === "mal" ? Paleta.rojo : estado === "aviso" ? Paleta.amarillo : Paleta.verde
+                Rectangle {
+                    Layout.fillWidth: true; implicitHeight: 66; radius: 14
+                    color: Qt.alpha(parent.acento, .09); border { width: 1; color: Qt.alpha(parent.acento, .35) }
+                    RowLayout {
+                        anchors { fill: parent; margins: 12 } spacing: 14
+                        Medalla { glifo: parent.parent.parent.estado === "ok" ? "f05e0" : "f0026"; acento: parent.parent.parent.acento }
+                        ColumnLayout { Layout.fillWidth: true; spacing: 2
+                            Text { color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 15; bold: true }
+                                text: !br.salud ? "Comprobando…" : br.salud.estado === "ok" ? "Todo en orden"
+                                    : (() => { const n = br.salud.comprobaciones.filter(x => x.estado === "mal" || x.estado === "aviso").length; return `${n} ${n === 1 ? "cosa" : "cosas"} que revisar`; })() }
+                            Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
+                                text: (br.salud ? "Comprobado " + br.hace(br.salud.fecha) + " · " : "") + (br.salud?.ultima_actualizacion
+                                    ? `Última actualización ${br.hace(br.salud.ultima_actualizacion.fecha)}: ${br.salud.ultima_actualizacion.paquetes} paquetes` + (br.salud.ultima_actualizacion.pre ? ` (snapshot #${br.salud.ultima_actualizacion.pre})` : "")
+                                    : "Actualiza desde aquí para tener snapshot, noticias y revisión final") }
+                        }
+                        Boton { text: "Actualizar con seguridad"; destacado: true; onClicked: { Quickshell.execDetached([br.scripts + "actualizaciones.sh", "instalar"]); br.abierto = false; } }
+                        Boton { text: "Deshacer la última"; acento: Paleta.gris; visible: !!br.salud?.ultima_actualizacion?.pre
+                                onClicked: { Quickshell.execDetached([br.scripts + "actualizaciones.sh", "deshacer"]); br.abierto = false; } }
+                        Boton { text: "↻"; implicitWidth: 36; onClicked: { br.salud = null; br.cargar(); } }
+                    }
+                }
+                GridView {
+                    id: rejillaSalud
+                    Layout.fillWidth: true; Layout.fillHeight: true; clip: true
+                    cellWidth: width / 2; cellHeight: 84
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: br.salud?.comprobaciones ?? []
+                    delegate: Item {
+                        id: chk
+                        required property var modelData
+                        required property int index
+                        readonly property color acento: ({ mal: Paleta.rojo, aviso: Paleta.amarillo, ok: Paleta.verde, info: Paleta.azul })[modelData.estado] ?? Paleta.gris
+                        width: rejillaSalud.cellWidth; height: rejillaSalud.cellHeight
+                        opacity: 0
+                        Component.onCompleted: aparece.start()
+                        NumberAnimation { id: aparece; target: chk; property: "opacity"; to: 1; duration: 220 + chk.index * 25 }
+                        Rectangle {
+                            anchors { fill: parent; margins: 4 } radius: 12
+                            color: Qt.alpha(Paleta.texto, hc.hovered ? .055 : .03)
+                            border { width: 1; color: Qt.alpha(chk.acento, chk.modelData.estado === "ok" ? .1 : .4) }
+                            HoverHandler { id: hc }
+                            RowLayout {
+                                anchors { fill: parent; margins: 10 } spacing: 10
+                                Medalla { glifo: chk.modelData.glifo; acento: chk.acento; lado: 34; Layout.alignment: Qt.AlignTop }
+                                ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 1
+                                    RowLayout { Layout.fillWidth: true; spacing: 6
+                                        Text { text: chk.modelData.nombre; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 12; bold: true } }
+                                        Text { text: chk.modelData.valor; color: chk.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
+                                    }
+                                    Text { Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight; lineHeight: 1.1
+                                        text: chk.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 } }
+                                }
+                                Boton { visible: !!chk.modelData.accion; text: chk.modelData.accion?.texto ?? ""; acento: chk.acento; implicitHeight: 28
+                                        onClicked: { Quickshell.execDetached(chk.modelData.accion.cmd); br.abierto = false; } }
+                            }
+                        }
+                    }
+                    Text { anchors.centerIn: parent; visible: !br.salud; text: "Revisando disco, batería, snapshots, servicios…"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12; italic: true } }
                 }
             }
         }

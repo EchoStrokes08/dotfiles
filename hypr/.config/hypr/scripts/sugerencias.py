@@ -202,6 +202,18 @@ def calcular():
                     "detalle": "Hoy las pausas te avisarán a su hora. Mirar lejos 20 s cada 20 min ayuda a la vista.",
                     "boton": "Entendido", "cmd": []})
 
+    # 7. Salud del equipo: solo lo que está MAL (los avisos se ven en la pestaña Salud sin insistir)
+    try:
+        import salud
+        malos = [x for x in salud.todo()["comprobaciones"] if x["estado"] == "mal"]
+    except Exception:
+        malos = []
+    if malos:
+        sug.insert(0, {"id": "salud", "icono": "f05e0", "tono": "rojo",
+                       "titulo": f"{len(malos)} {'cosa' if len(malos) == 1 else 'cosas'} del equipo por atender",
+                       "detalle": " · ".join(f"{x['nombre']}: {x['valor']}" for x in malos[:3]),
+                       "boton": "Ver salud", "cmd": ["qs", "ipc", "call", "brujula", "abrir", "salud"]})
+
     # Resumen numérico para la cabecera
     medias = [sum(d.values()) for d in semana if d]
     hora = dt.datetime.now().hour
@@ -220,7 +232,38 @@ def calcular():
                                   + dt.datetime.fromtimestamp(x["inicio"]).strftime("%H:%M") + "–"
                                   + dt.datetime.fromtimestamp(x["inicio"] + x["minutos"] * 60).strftime("%H:%M")} for x in pendientes],
         "sugerencias": sug[:5],
+        "jornada": jornada(hoy),
     }
+
+
+def jornada(hoy):
+    """Datos de la tarjeta «Cierre del día»: aparece una hora antes de tu hora de parar (o con el día cerrado)."""
+    cfg, e = b.jornada_cfg(), b.jornada_estado()
+    try:
+        hora = dt.time.fromisoformat(str(cfg.get("hora", "23:00")))
+    except ValueError:
+        hora = dt.time(23, 0)
+    ahora = dt.datetime.now()
+    limite = dt.datetime.combine(hoy, hora)
+    cerrada = bool(e.get("cerrada")) and e.get("dia") == hoy.isoformat()
+    t = tiempos(hoy)
+    manana = hoy + dt.timedelta(days=1)
+    evs = []
+    for ev in b.leer_json(HOME / ".cache/calendario/eventos.json", []) or []:
+        try:
+            ini = dt.datetime.fromisoformat(ev["inicio"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if ini.date() == manana:
+            evs.append(("todo el día" if ev.get("todoDia") else ini.strftime("%H:%M")) + " · " + ev.get("titulo", ""))
+    bloques = [dt.datetime.fromtimestamp(x["inicio"]).strftime("%H:%M") + f" · concentración {x['minutos']} min"
+               for x in b.programados() if dt.date.fromtimestamp(x["inicio"]) == manana]
+    return {"activa": cfg.get("activa", True), "hora": hora.strftime("%H:%M"), "cerrada": cerrada,
+            "cerrada_a": dt.datetime.fromtimestamp(e["hora"]).strftime("%H:%M") if cerrada and e.get("hora") else "",
+            "mostrar": cerrada or (cfg.get("activa", True) and ahora >= limite - dt.timedelta(hours=1)),
+            "pantalla": duracion(sum(t.values())) if t else "—",
+            "top": [{"nombre": b.nombre_de(c), "tiempo": duracion(s)} for c, s in sorted(t.items(), key=lambda x: -x[1])[:3]],
+            "manana": (bloques + evs)[:4]}
 
 
 def frase():
