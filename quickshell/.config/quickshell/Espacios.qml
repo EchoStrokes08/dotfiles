@@ -40,7 +40,7 @@ Flow {
             RowLayout {
                 id: fila
                 anchors.centerIn: parent
-                spacing: 7
+                spacing: 8
 
                 Text {
                     text: pildora.modelData.id

@@ -121,7 +121,7 @@ RowLayout {
 
         // Controles: anterior · reproducir/pausa · siguiente
         RowLayout {
-            spacing: 22
+            spacing: 24
             opacity: musica.jugador ? 1 : 0.35
             Repeater {
                 model: [
@@ -175,7 +175,7 @@ RowLayout {
         visible: musica.mostrarLetras && musica.letra.length > 0
         Layout.preferredWidth: 340
         Layout.maximumWidth: 340
-        spacing: 6
+        spacing: 4
         Repeater {
             model: [-1, 0, 1]
             Text {

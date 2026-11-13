@@ -12,7 +12,7 @@ Row {
         Row {
             id: atajo
             required property var modelData
-            spacing: 6
+            spacing: 4
             Tecla { anchors.verticalCenter: parent.verticalCenter; visible: atajo.modelData[0] !== ""; texto: atajo.modelData[0] }
             Text {
                 anchors.verticalCenter: parent.verticalCenter

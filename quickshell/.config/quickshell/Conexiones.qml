@@ -133,12 +133,12 @@ Superpuesta {
     // ── Interfaz ────────────────────────────────────────────────────────
     ColumnLayout {
         width: parent.width
-        spacing: 10
+        spacing: 8
 
         // Pestañas + interruptor de la radio
         RowLayout {
             Layout.fillWidth: true
-            spacing: 6
+            spacing: 4
             Repeater {
                 model: [ { id: "wifi", icono: 0xF0928, nombre: "Wi-Fi" }, { id: "bluetooth", icono: 0xF00AF, nombre: "Bluetooth" } ]
                 Rectangle {
@@ -238,8 +238,8 @@ Superpuesta {
                 }
 
                 ColumnLayout {
-                    anchors { fill: parent; leftMargin: 16; rightMargin: 12; topMargin: 6; bottomMargin: 6 }
-                    spacing: 6
+                    anchors { fill: parent; leftMargin: 16; rightMargin: 12; topMargin: 4; bottomMargin: 4 }
+                    spacing: 4
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 12
@@ -336,7 +336,7 @@ Superpuesta {
         }
         PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            spacing: 10
+            spacing: 8
             atajos: [["Tab", "pestaña"], ["↵", "conectar"], ["Supr", "olvidar"], ["␣", "on/off"]]
         }
     }

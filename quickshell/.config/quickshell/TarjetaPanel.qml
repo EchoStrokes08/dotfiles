@@ -30,6 +30,6 @@ Rectangle {
     ColumnLayout {
         id: interior
         anchors { fill: parent; margins: t.relleno }
-        spacing: 10
+        spacing: 8
     }
 }

@@ -34,7 +34,7 @@ Item {
         id: fila
         anchors.centerIn: parent
         height: parent.height
-        spacing: 6
+        spacing: 4
         // Glifo = centrado óptico (ver Glifo.qml): icono y texto quedan a la misma altura
         Glifo {
             visible: modulo.icono !== ""

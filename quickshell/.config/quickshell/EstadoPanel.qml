@@ -18,8 +18,8 @@ Rectangle {
     }
     border { width: 1; color: Qt.alpha(estado.tinte, .20) }
     RowLayout {
-        anchors { fill: parent; leftMargin: 10; rightMargin: 14 }
-        spacing: 11
+        anchors { fill: parent; leftMargin: 8; rightMargin: 12 }
+        spacing: 12
         // Punto con halo: late mientras trabaja
         Item {
             implicitWidth: 26; implicitHeight: 26

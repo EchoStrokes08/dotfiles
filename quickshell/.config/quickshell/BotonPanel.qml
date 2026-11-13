@@ -12,7 +12,7 @@ Button {
     Layout.preferredWidth: 1
     implicitHeight: 40
     implicitWidth: 120
-    padding: 10
+    padding: 8
     hoverEnabled: true
     Accessible.name: text
     opacity: enabled ? 1 : .42

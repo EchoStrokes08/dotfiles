@@ -94,8 +94,8 @@ PanelWindow {
         Keys.onEscapePressed: ventana.abierto = false
 
         ColumnLayout {
-            anchors { fill: parent; margins: 18 }
-            spacing: 14
+            anchors { fill: parent; margins: 16 }
+            spacing: 12
 
             // Título + borrar todo
             RowLayout {
@@ -171,7 +171,7 @@ PanelWindow {
                         }
                         Column {
                             anchors.centerIn: parent
-                            spacing: 5
+                            spacing: 4
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: ventana.g(boton.modelData.icono)
@@ -237,7 +237,7 @@ PanelWindow {
                 // Salida de audio: un chip por dispositivo; clic = sonar por ahí (solo si hay más de uno)
                 Flow {
                     Layout.fillWidth: true
-                    spacing: 6
+                    spacing: 4
                     visible: ventana.salidas.length > 1
                     Repeater {
                         model: ventana.salidas
@@ -250,7 +250,7 @@ PanelWindow {
                             Row {
                                 id: filaSalida
                                 anchors.centerIn: parent
-                                spacing: 6
+                                spacing: 4
                                 Text { text: ventana.iconoSalida(modelData); color: actual ? Paleta.acento : Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
                                 Text {
                                     text: (modelData.nickname || modelData.description || modelData.name).replace(/ (Analog|Digital) Stereo$/, "")
@@ -299,7 +299,7 @@ PanelWindow {
             RowLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 4; Layout.rightMargin: 4
-                spacing: 10
+                spacing: 8
                 Text {
                     text: ventana.g(Notificaciones.noMolestar ? 0xF009B : 0xF009A)
                     color: Notificaciones.noMolestar ? Paleta.acento : Paleta.gris

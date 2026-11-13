@@ -75,8 +75,8 @@ PanelWindow {
 
         ColumnLayout {
             id: contenido
-            anchors { fill: parent; margins: 26 }
-            spacing: 14
+            anchors { fill: parent; margins: 24 }
+            spacing: 12
 
             // ── Reloj y saludo ──
             RowLayout {
@@ -120,7 +120,7 @@ PanelWindow {
                             font { family: Paleta.fuente; pixelSize: 11 }
                         }
                         Row {   // próximas horas: hora + probabilidad de lluvia (azul si ≥ 40 %)
-                            spacing: 10
+                            spacing: 8
                             Repeater {
                                 model: Clima.proximas
                                 Text {
@@ -175,7 +175,7 @@ PanelWindow {
                     ColumnLayout {
                     id: columnaCal
                     anchors { left: parent.left; right: parent.right }
-                    spacing: 6
+                    spacing: 4
                     Calendario {
                         id: calendario
                         conMas: Eventos.hayCliente
@@ -199,7 +199,7 @@ PanelWindow {
                             RowLayout {
                                 required property var modelData
                                 Layout.fillWidth: true
-                                spacing: 6
+                                spacing: 4
                                 Text {
                                     text: modelData.cuando
                                     color: modelData.rec ? Paleta.serie[4] : modelData.tarea ? Paleta.exito : Paleta.acento2

@@ -164,11 +164,11 @@ Superpuesta {
     Shortcut { sequence: "Right"; enabled: br.abierto && br.pagina === 1 && !buscarLinea.activeFocus; onActivated: br.moverDia(1) }
 
     ColumnLayout {
-        width: parent.width; spacing: 14
+        width: parent.width; spacing: 12
 
         // ── cabecera ─────────────────────────────────────────────────────
         RowLayout {
-            Layout.fillWidth: true; spacing: 14
+            Layout.fillWidth: true; spacing: 12
             Rectangle {
                 implicitWidth: 52; implicitHeight: 52; radius: 16
                 gradient: Gradient {
@@ -188,7 +188,7 @@ Superpuesta {
                     anchors.centerIn: parent; text: br.g("f018b"); color: Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 26 }
                     rotation: br.abierto ? 0 : -40
-                    Behavior on rotation { NumberAnimation { duration: 700; easing.type: Easing.OutBack } }
+                    Behavior on rotation { NumberAnimation { duration: 700; easing.type: Easing.OutCubic } }
                 }
             }
             ColumnLayout {
@@ -208,7 +208,7 @@ Superpuesta {
                     required property var modelData
                     implicitHeight: 28; implicitWidth: fila.implicitWidth + 20; radius: height / 2
                     color: Qt.alpha(Paleta.exito, .12); border { width: 1; color: Qt.alpha(Paleta.exito, .4) }
-                    Row { id: fila; anchors.centerIn: parent; spacing: 6
+                    Row { id: fila; anchors.centerIn: parent; spacing: 4
                         Rectangle { width: 7; height: 7; radius: 4; color: Paleta.exito; anchors.verticalCenter: parent.verticalCenter
                             SequentialAnimation on opacity { loops: Animation.Infinite; running: br.abierto; NumberAnimation { to: .3; duration: 900 } NumberAnimation { to: 1; duration: 900 } } }
                         Text { text: br.g(chip.modelData.icono) + "  " + chip.modelData.nombre; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
@@ -236,7 +236,7 @@ Superpuesta {
                 id: indicador
                 y: 5; height: parent.height - 10; width: (parent.width - 10) / 5
                 x: 5 + br.pagina * width
-                Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: .8 } }
+                Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
                 RectangularShadow {
                     anchors.fill: parent; visible: EstiloPanel.efectos
                     radius: 12; offset.y: 4; blur: 18; spread: -6
@@ -252,7 +252,7 @@ Superpuesta {
                 }
             }
             Row {
-                anchors { fill: parent; margins: 5 }
+                anchors { fill: parent; margins: 4 }
                 Repeater {
                     model: [["f05a8", "Hoy"], ["f0954", "Línea de tiempo"], ["f0493", "Contexto"], ["f099b", "Sesión"], ["f05e0", "Salud"]]
                     Item {
@@ -286,7 +286,7 @@ Superpuesta {
                 contentHeight: hoyCol.implicitHeight; clip: true
                 boundsBehavior: Flickable.StopAtBounds
                 ColumnLayout {
-                    id: hoyCol; width: parent.width; spacing: 14
+                    id: hoyCol; width: parent.width; spacing: 12
                     // cierre del día (una hora antes de tu hora de parar, o con el día ya cerrado)
                     Rectangle {
                         visible: !!br.hoy?.jornada?.mostrar
@@ -300,7 +300,7 @@ Superpuesta {
                         readonly property var j: br.hoy?.jornada ?? ({})
                         RowLayout {
                             id: cierre
-                            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 14 } spacing: 16
+                            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 } spacing: 16
                             Text { text: br.g("f0594"); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 26 } Layout.alignment: Qt.AlignTop }
                             ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 4
                                 Etiqueta { text: parent.parent.parent.j.cerrada ? "DÍA CERRADO A LAS " + parent.parent.parent.j.cerrada_a : "CIERRE DEL DÍA · " + (parent.parent.parent.j.hora ?? "") ; color: Paleta.acento }
@@ -342,7 +342,7 @@ Superpuesta {
                                 Text { text: br.hoy?.fecha ?? ""; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
                             }
                             RowLayout {
-                                Layout.fillWidth: true; spacing: 10
+                                Layout.fillWidth: true; spacing: 8
                                 Text { text: "✦"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } Layout.alignment: Qt.AlignTop
                                     SequentialAnimation on opacity { loops: Animation.Infinite; running: br.fraseCargando && br.abierto; NumberAnimation { to: .25; duration: 600 } NumberAnimation { to: 1; duration: 600 } } }
                                 Text {
@@ -356,7 +356,7 @@ Superpuesta {
                     }
                     // cifras
                     RowLayout {
-                        Layout.fillWidth: true; spacing: 10
+                        Layout.fillWidth: true; spacing: 8
                         Cifra { titulo: "Ayer en pantalla"; valor: br.hoy?.datos?.ayer ?? "—"; glifo: "f0954"; acento: Paleta.acento2 }
                         Cifra { titulo: "Media de la semana"; valor: br.hoy?.datos?.media ?? "—"; glifo: "f0128"; acento: Paleta.exito }
                         Cifra { titulo: "Hoy"; glifo: "f00ed"; acento: Paleta.aviso
@@ -391,11 +391,11 @@ Superpuesta {
                                 }
                             }
                             MouseArea { id: area; anchors.fill: parent; hoverEnabled: true }
-                            Rectangle { width: 3; radius: 4; color: tarjeta.acento; anchors { left: parent.left; top: parent.top; bottom: parent.bottom; margins: 14 } }
+                            Rectangle { width: 3; radius: 4; color: tarjeta.acento; anchors { left: parent.left; top: parent.top; bottom: parent.bottom; margins: 12 } }
                             RowLayout {
-                                anchors { fill: parent; leftMargin: 26; rightMargin: 14 } spacing: 14
+                                anchors { fill: parent; leftMargin: 24; rightMargin: 12 } spacing: 12
                                 Medalla { glifo: tarjeta.modelData.icono; acento: tarjeta.acento }
-                                ColumnLayout { Layout.fillWidth: true; spacing: 3
+                                ColumnLayout { Layout.fillWidth: true; spacing: 2
                                     Text { Layout.fillWidth: true; text: tarjeta.modelData.titulo; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
                                     Text { Layout.fillWidth: true; text: tarjeta.modelData.detalle; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
                                 }
@@ -423,7 +423,7 @@ Superpuesta {
                                 required property var modelData
                                 implicitHeight: 32; implicitWidth: pt.implicitWidth + 46; radius: 16
                                 color: Qt.alpha(Paleta.acento, .12); border { width: 1; color: Qt.alpha(Paleta.acento, .4) }
-                                Text { id: pt; anchors { left: parent.left; leftMargin: 14; verticalCenter: parent.verticalCenter }
+                                Text { id: pt; anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
                                     text: br.g("f04fe") + "  " + prog.modelData.texto + " · " + prog.modelData.minutos + " min"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
                                 Text { anchors { right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter } text: "✕"; color: Paleta.gris; font { pixelSize: 12 }
                                     MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: br.orden(["cancelar", prog.modelData.id]) } }
@@ -441,7 +441,7 @@ Superpuesta {
                     // vacío
                     ColumnLayout {
                         visible: br.hoy && br.hoy.sugerencias.length === 0
-                        Layout.fillWidth: true; Layout.topMargin: 30; spacing: 6
+                        Layout.fillWidth: true; Layout.topMargin: 30; spacing: 4
                         Text { Layout.alignment: Qt.AlignHCenter; text: br.g("f05a8"); color: Paleta.exito; font { family: Paleta.fuente; pixelSize: 36 } }
                         Text { Layout.alignment: Qt.AlignHCenter; text: "Todo en orden. Nada que proponerte por ahora."; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 13 } }
                     }
@@ -547,7 +547,7 @@ Superpuesta {
                             implicitHeight: 28; implicitWidth: rs.implicitWidth + 22; radius: height / 2
                             color: Qt.alpha(br.colorDe(modelData.clase), br.filtro && modelData.nombre.toLowerCase().includes(br.filtro) ? .25 : .1)
                             border { width: 1; color: Qt.alpha(br.colorDe(modelData.clase), .35) }
-                            Row { id: rs; anchors.centerIn: parent; spacing: 7
+                            Row { id: rs; anchors.centerIn: parent; spacing: 8
                                 Rectangle { width: 8; height: 8; radius: 4; color: br.colorDe(resApp.modelData.clase); anchors.verticalCenter: parent.verticalCenter }
                                 Text { text: resApp.modelData.nombre + "  " + br.dur(resApp.modelData.segundos); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
                             }
@@ -606,7 +606,7 @@ Superpuesta {
                         }
                     }
                     ColumnLayout {
-                        anchors.centerIn: parent; visible: listaBloques.count === 0; spacing: 6
+                        anchors.centerIn: parent; visible: listaBloques.count === 0; spacing: 4
                         Text { Layout.alignment: Qt.AlignHCenter; text: br.g(br.linea?.privado ? "f033e" : "f0954"); color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 36 } }
                         Text {
                             Layout.alignment: Qt.AlignHCenter; horizontalAlignment: Text.AlignHCenter; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 13 }
@@ -638,7 +638,7 @@ Superpuesta {
                     color: Qt.alpha(br.estado?.pausado ? Paleta.gris : Paleta.exito, .08)
                     border { width: 1; color: Qt.alpha(br.estado?.pausado ? Paleta.gris : Paleta.exito, .3) }
                     RowLayout {
-                        anchors { fill: parent; margins: 14 } spacing: 14
+                        anchors { fill: parent; margins: 12 } spacing: 12
                         Medalla { glifo: br.estado?.pausado ? "f03e4" : "f0493"; acento: br.estado?.pausado ? Paleta.gris : Paleta.exito }
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
                             Text { text: !br.estado?.servicio ? "El servicio no está en marcha" : br.estado?.pausado ? "Contexto automático en pausa" : "Contexto automático activo"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
@@ -664,9 +664,9 @@ Superpuesta {
                         opacity: modelData.desactivada || br.estado?.pausado ? .55 : 1
                         Behavior on border.color { ColorAnimation { duration: EstiloPanel.lento } }
                         RowLayout {
-                            anchors { fill: parent; margins: 12 } spacing: 14
+                            anchors { fill: parent; margins: 12 } spacing: 12
                             Medalla { glifo: regla.modelData.icono; acento: regla.acento }
-                            ColumnLayout { Layout.fillWidth: true; spacing: 3
+                            ColumnLayout { Layout.fillWidth: true; spacing: 2
                                 RowLayout { spacing: 8
                                     Text { text: regla.modelData.nombre; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
                                     Rectangle {
@@ -684,7 +684,7 @@ Superpuesta {
                     }
                 }
                 RowLayout {
-                    Layout.fillWidth: true; spacing: 10
+                    Layout.fillWidth: true; spacing: 8
                     Text {
                         Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
                         text: "Línea de tiempo: " + (br.estado?.linea?.guardar ? "activa" : "apagada") + (br.estado?.linea?.titulos ? ", con títulos" : ", sin títulos")
@@ -703,7 +703,7 @@ Superpuesta {
                 // sin sesión pendiente
                 ColumnLayout {
                     visible: !parent.anterior
-                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 10
+                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 8
                     Item { Layout.fillHeight: true }
                     Text { Layout.alignment: Qt.AlignHCenter; text: br.g("f099b"); color: Paleta.exito; font { family: Paleta.fuente; pixelSize: 44 } }
                     Text { Layout.alignment: Qt.AlignHCenter; text: "No hay nada pendiente de restaurar"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 16; bold: true } }
@@ -747,7 +747,7 @@ Superpuesta {
                             border { width: 1; color: Qt.alpha(Paleta.acento, app.marcada ? .5 : .08) }
                             Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                             RowLayout {
-                                anchors { fill: parent; leftMargin: 12; rightMargin: 12 } spacing: 10
+                                anchors { fill: parent; leftMargin: 12; rightMargin: 12 } spacing: 8
                                 Rectangle { implicitWidth: 18; implicitHeight: 18; radius: 4; color: app.marcada ? Paleta.acento : "transparent"; border { width: 1.5; color: app.marcada ? Paleta.acento : Paleta.gris }
                                     Text { anchors.centerIn: parent; text: "✓"; visible: app.marcada; color: Paleta.fondo; font { pixelSize: 12; bold: true } } }
                                 Icono { nombre: app.modelData.icono; clase: app.modelData.clase; lado: 26 }
@@ -765,7 +765,7 @@ Superpuesta {
                 }
                 RowLayout {
                     visible: !!parent.anterior
-                    Layout.fillWidth: true; spacing: 10
+                    Layout.fillWidth: true; spacing: 8
                     readonly property var marcadas: Object.keys(br.elegidas).filter(k => br.elegidas[k])
                     BotonCompacto { text: "Descartar"; acento: Paleta.gris; onClicked: br.orden(["sesion", "descartar"]) }
                     Item { Layout.fillWidth: true }
@@ -785,7 +785,7 @@ Superpuesta {
                     Layout.fillWidth: true; implicitHeight: 66; radius: 16
                     color: Qt.alpha(parent.acento, .09); border { width: 1; color: Qt.alpha(parent.acento, .35) }
                     RowLayout {
-                        anchors { fill: parent; margins: 12 } spacing: 14
+                        anchors { fill: parent; margins: 12 } spacing: 12
                         Medalla { glifo: parent.parent.parent.estado === "ok" ? "f05e0" : "f0026"; acento: parent.parent.parent.acento }
                         ColumnLayout { Layout.fillWidth: true; spacing: 2
                             Text { color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
@@ -823,10 +823,10 @@ Superpuesta {
                             border { width: 1; color: Qt.alpha(chk.acento, chk.modelData.estado === "ok" ? .1 : .4) }
                             HoverHandler { id: hc }
                             RowLayout {
-                                anchors { fill: parent; margins: 10 } spacing: 10
+                                anchors { fill: parent; margins: 8 } spacing: 8
                                 Medalla { glifo: chk.modelData.glifo; acento: chk.acento; lado: 34; Layout.alignment: Qt.AlignTop }
                                 ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 1
-                                    RowLayout { Layout.fillWidth: true; spacing: 6
+                                    RowLayout { Layout.fillWidth: true; spacing: 4
                                         Text { text: chk.modelData.nombre; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 12; bold: true } }
                                         Text { text: chk.modelData.valor; color: chk.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                                     }

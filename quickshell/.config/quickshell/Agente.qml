@@ -242,7 +242,7 @@ Superpuesta {
 
         // ── cabecera ─────────────────────────────────────────────────────
         RowLayout {
-            Layout.fillWidth: true; spacing: 14
+            Layout.fillWidth: true; spacing: 12
             Rectangle {
                 implicitWidth: 48; implicitHeight: 48; radius: 24
                 gradient: Gradient {
@@ -305,13 +305,13 @@ Superpuesta {
                 popup: Popup {
                     y: selModelo.height + 6
                     width: 300
-                    padding: 6
+                    padding: 4
                     implicitHeight: listaModelos.contentHeight + 12
                     background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: Qt.alpha(Paleta.acento, .3) } }
                     contentItem: ListView {
                         id: listaModelos
                         implicitHeight: contentHeight
-                        spacing: 3
+                        spacing: 2
                         interactive: false
                         model: selModelo.popup.visible ? selModelo.delegateModel : null
                         currentIndex: selModelo.highlightedIndex
@@ -323,7 +323,7 @@ Superpuesta {
                     required property int index
                     readonly property bool elegido: modelData === ag.modeloElegido
                     width: 288
-                    padding: 9
+                    padding: 8
                     highlighted: selModelo.highlightedIndex === index
                     background: Rectangle {
                         radius: 12
@@ -331,7 +331,7 @@ Superpuesta {
                         border { width: opcionModelo.elegido ? 1 : 0; color: Qt.alpha(Paleta.acento, .45) }
                     }
                     contentItem: RowLayout {
-                        spacing: 11
+                        spacing: 12
                         Text { text: opcionModelo.modelData === "local" ? ag.g("f0322") : opcionModelo.modelData === "auto" ? "✦" : ag.g("f06a9"); color: opcionModelo.elegido ? Paleta.acento : EstiloPanel.tenue; font { family: Paleta.mono; pixelSize: 16 } }
                         ColumnLayout {
                             Layout.fillWidth: true; spacing: 1
@@ -387,7 +387,7 @@ Superpuesta {
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: 14
+            spacing: 12
             // ── historial de conversaciones ──────────────────────────────
             Rectangle {
                 id: lateral
@@ -401,7 +401,7 @@ Superpuesta {
                 border { width: 1; color: EstiloPanel.borde }
 
                 ColumnLayout {
-                    anchors { fill: parent; margins: 10 }
+                    anchors { fill: parent; margins: 8 }
                     spacing: 8
 
                     RowLayout {
@@ -484,7 +484,7 @@ Superpuesta {
                                     color: Paleta.acento
                                 }
                                 ColumnLayout {
-                                    anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; leftMargin: 14; rightMargin: borrarConv.visible ? 36 : 10 }
+                                    anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; leftMargin: 12; rightMargin: borrarConv.visible ? 36 : 10 }
                                     spacing: 2
                                     Text {
                                         Layout.fillWidth: true
@@ -526,7 +526,7 @@ Superpuesta {
                             anchors.centerIn: parent
                             width: parent.width - 24
                             visible: ag.historial.length === 0
-                            spacing: 6
+                            spacing: 4
                             Text { Layout.alignment: Qt.AlignHCenter; text: ag.g("f0b79"); color: Qt.alpha(Paleta.acento, .6); font { family: Paleta.fuente; pixelSize: 26 } }
                             Text { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap; text: "Aquí aparecerán tus conversaciones para retomarlas cuando quieras"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
                         }
@@ -562,7 +562,7 @@ Superpuesta {
                             Behavior on border.color { ColorAnimation { duration: EstiloPanel.normal } }
                         }
                         contentItem: RowLayout {
-                            spacing: 10
+                            spacing: 8
                             Rectangle {   // piloto del nivel
                                 Layout.leftMargin: 12
                                 implicitWidth: 10; implicitHeight: 10; radius: height / 2
@@ -583,7 +583,7 @@ Superpuesta {
                         popup: Popup {
                             y: -implicitHeight - 6   // se abre hacia arriba: está al pie del panel
                             width: selPermisos.width + 170
-                            padding: 6
+                            padding: 4
                             implicitHeight: listaNiveles.contentHeight + 12
                             background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: EstiloPanel.bordeFuerte } }
                             contentItem: ListView {
@@ -601,7 +601,7 @@ Superpuesta {
                             required property int index
                             readonly property bool elegido: modelData.id === ag.permisos
                             width: selPermisos.width + 158
-                            padding: 10
+                            padding: 8
                             highlighted: selPermisos.highlightedIndex === index
                             background: Rectangle {
                                 radius: 12
@@ -641,7 +641,7 @@ Superpuesta {
                     Layout.fillWidth: true; implicitHeight: 440
                     ListView {
                         id: lista
-                        anchors.fill: parent; clip: true; spacing: 10
+                        anchors.fill: parent; clip: true; spacing: 8
                         boundsBehavior: Flickable.StopAtBounds
                         model: ag.mensajes
                         ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
@@ -665,7 +665,7 @@ Superpuesta {
                     }
                     // vacío: ideas para empezar
                     ColumnLayout {
-                        anchors.centerIn: parent; width: parent.width - 60; spacing: 14
+                        anchors.centerIn: parent; width: parent.width - 60; spacing: 12
                         visible: ag.mensajes.length === 0
                         Rectangle {   // emblema
                             Layout.alignment: Qt.AlignHCenter
@@ -719,7 +719,7 @@ Superpuesta {
                         }
                         TextField {
                             id: entrada
-                            anchors { fill: parent; leftMargin: 18; rightMargin: 12 }
+                            anchors { fill: parent; leftMargin: 16; rightMargin: 12 }
                             placeholderText: ag.hayConfirmacion ? "Responde arriba (S / N) o escribe otra cosa…" : "Escribe aquí… (Enter para enviar)"
                             color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14 }
                             placeholderTextColor: EstiloPanel.apagado
@@ -778,7 +778,7 @@ Superpuesta {
                     GradientStop { position: 1; color: Qt.alpha(Qt.tint(Paleta.acento, Qt.alpha(Paleta.acento, .35)), .16) }
                 }
                 border { width: 1; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.2), .32) }
-                Text { id: tt; anchors { fill: parent; topMargin: 11; bottomMargin: 11; leftMargin: 18; rightMargin: 18 } wrapMode: Text.Wrap; text: parent.parent.parent.m.texto; color: Paleta.texto; lineHeight: 1.15; font { family: Paleta.fuente; pixelSize: 14 } }
+                Text { id: tt; anchors { fill: parent; topMargin: 12; bottomMargin: 12; leftMargin: 16; rightMargin: 16 } wrapMode: Text.Wrap; text: parent.parent.parent.m.texto; color: Paleta.texto; lineHeight: 1.15; font { family: Paleta.fuente; pixelSize: 14 } }
             }
         }
     }
@@ -817,7 +817,7 @@ Superpuesta {
                 color: Qt.alpha(Paleta.acento2, .07); border { width: 1; color: Qt.alpha(Paleta.acento2, .16) }
                 RowLayout {
                     id: filaPaso
-                    anchors { fill: parent; leftMargin: 11; rightMargin: 11 } spacing: 7
+                    anchors { fill: parent; leftMargin: 12; rightMargin: 12 } spacing: 8
                     Rectangle { implicitWidth: 6; implicitHeight: 6; radius: height / 2; color: Paleta.acento2 }
                     Text { Layout.fillWidth: true; elide: Text.ElideRight; text: parent.parent.parent.parent.m.texto; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
                 }
@@ -827,7 +827,7 @@ Superpuesta {
     Component {
         id: fuentes
         Flow {
-            spacing: 6; leftPadding: 40
+            spacing: 4; leftPadding: 40
             Repeater {
                 model: parent.parent.m.lista ?? []
                 Rectangle {
@@ -836,7 +836,7 @@ Superpuesta {
                     required property int index
                     implicitHeight: 26; implicitWidth: Math.min(300, ft.implicitWidth + 20); radius: height / 2
                     color: Qt.alpha(Paleta.acento2, zf.containsMouse ? .2 : .08); border { width: 1; color: Qt.alpha(Paleta.acento2, .3) }
-                    Text { id: ft; anchors { fill: parent; leftMargin: 10; rightMargin: 10 } verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
+                    Text { id: ft; anchors { fill: parent; leftMargin: 8; rightMargin: 8 } verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
                         text: `[${fu.index + 1}] ` + ag.g(({ documento: "f0219", web: "f059f", linea: "f0954" })[fu.modelData.tipo] ?? "f0219") + " " + fu.modelData.titulo
                         color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
                     MouseArea {
@@ -862,7 +862,7 @@ Superpuesta {
             border { width: 1; color: Qt.alpha(m.resuelto === "no" ? Paleta.gris : Paleta.exito, m.resuelto ? .2 : .55) }
             RowLayout {
                 id: cc
-                anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 14 } spacing: 12
+                anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 12 } spacing: 12
                 Text { text: ag.g(parent.parent.m.resuelto === "si" ? "f012c" : parent.parent.m.resuelto === "no" ? "f0156" : "f02d7"); color: parent.parent.m.resuelto === "no" ? Paleta.gris : Paleta.exito; font { family: Paleta.fuente; pixelSize: 20 } }
                 ColumnLayout { Layout.fillWidth: true; spacing: 1
                     Text { text: parent.parent.parent.m.resuelto === "si" ? "HECHO" : parent.parent.parent.m.resuelto === "no" ? "NO SE HIZO" : "¿LO HAGO?"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }

@@ -85,7 +85,7 @@ Superpuesta {
         Behavior on scale { NumberAnimation { duration: 90 } }
         Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
         Column {
-            anchors.centerIn: parent; spacing: 6
+            anchors.centerIn: parent; spacing: 4
             Text { anchors.horizontalCenter: parent.horizontalCenter; text: mv.g(ac.glifo); color: ac.acento; font { family: Paleta.fuente; pixelSize: 20 } }
             Text { anchors.horizontalCenter: parent.horizontalCenter; text: ac.texto; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
         }
@@ -94,11 +94,11 @@ Superpuesta {
     }
 
     ColumnLayout {
-        width: parent.width; spacing: 14
+        width: parent.width; spacing: 12
 
         // ── cabecera ─────────────────────────────────────────────────────
         RowLayout {
-            Layout.fillWidth: true; spacing: 14
+            Layout.fillWidth: true; spacing: 12
             Rectangle {
                 implicitWidth: 50; implicitHeight: 50; radius: 16
                 gradient: Gradient {
@@ -144,7 +144,7 @@ Superpuesta {
             readonly property var nm: (mv.d?.notificaciones ?? []).find(n => n.id === mv.respondiendo) ?? null
             ColumnLayout {
                 id: comp
-                anchors { left: parent.left; right: parent.right; top: parent.top; margins: 14 } spacing: 8
+                anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 } spacing: 8
                 Etiqueta { text: "RESPONDER · " + (mv.notiPc?.appName || parent.parent.nm?.app || "").toUpperCase(); color: Paleta.exito }
                 Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
                     text: mv.notiPc?.summary || parent.parent.nm?.titulo || "" }
@@ -170,7 +170,7 @@ Superpuesta {
 
         // ── acciones ─────────────────────────────────────────────────────
         RowLayout {
-            Layout.fillWidth: true; spacing: 10
+            Layout.fillWidth: true; spacing: 8
             Accion { glifo: "f009e"; texto: "Sonar"; acento: Paleta.aviso; onPulsado: Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "sonar"]) }
             Accion { glifo: "f0339"; texto: "Abrir lo copiado"; acento: Paleta.acento2; onPulsado: mv.orden(["enlace"]) }
             Accion { glifo: "f0552"; texto: "Enviar archivo"; acento: Paleta.acento; onPulsado: { Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "elegir"]); mv.abierto = false; } }
@@ -182,7 +182,7 @@ Superpuesta {
 
         // ── avisos del móvil | música + funciones ────────────────────────
         RowLayout {
-            Layout.fillWidth: true; Layout.preferredHeight: 330; spacing: 14
+            Layout.fillWidth: true; Layout.preferredHeight: 330; spacing: 12
 
             ColumnLayout {
                 Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 3; spacing: 8
@@ -193,7 +193,7 @@ Superpuesta {
                 }
                 ListView {
                     id: avisos
-                    Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 6
+                    Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 4
                     boundsBehavior: Flickable.StopAtBounds
                     model: mv.d?.notificaciones ?? []
                     add: Transition { NumberAnimation { property: "opacity"; from: 0; to: 1; duration: EstiloPanel.normal } }
@@ -204,7 +204,7 @@ Superpuesta {
                         color: Qt.alpha(Paleta.texto, hn.hovered ? .06 : .035)
                         HoverHandler { id: hn }
                         RowLayout {
-                            anchors { fill: parent; leftMargin: 12; rightMargin: 10 } spacing: 10
+                            anchors { fill: parent; leftMargin: 12; rightMargin: 8 } spacing: 8
                             Item {
                                 implicitWidth: 30; implicitHeight: 30
                                 Image { anchors.fill: parent; visible: !!nt.modelData.icono; source: nt.modelData.icono ? "file://" + nt.modelData.icono : ""; sourceSize.width: 60; fillMode: Image.PreserveAspectFit; asynchronous: true }
@@ -223,7 +223,7 @@ Superpuesta {
                         }
                     }
                     ColumnLayout {
-                        anchors.centerIn: parent; width: parent.width - 40; spacing: 6
+                        anchors.centerIn: parent; width: parent.width - 40; spacing: 4
                         visible: avisos.count === 0
                         Text { Layout.alignment: Qt.AlignHCenter; text: mv.g("f009c"); color: Qt.alpha(Paleta.gris, .7); font { family: Paleta.fuente; pixelSize: 36 } }
                         Text { Layout.alignment: Qt.AlignHCenter; text: "Nada nuevo en el móvil"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
@@ -236,7 +236,7 @@ Superpuesta {
             }
 
             ColumnLayout {
-                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 2; spacing: 10
+                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 2; spacing: 8
                 // música del móvil
                 Rectangle {
                     visible: !!mv.d?.musica
@@ -245,7 +245,7 @@ Superpuesta {
                         GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .16) }
                         GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .08) } }
                     RowLayout {
-                        anchors { fill: parent; margins: 10 } spacing: 10
+                        anchors { fill: parent; margins: 8 } spacing: 8
                         ClippingRectangle {
                             implicitWidth: 52; implicitHeight: 52; radius: 12; color: EstiloPanel.rellenoActivo
                             Image { anchors.fill: parent; source: mv.d?.musica?.portada ? (mv.d.musica.portada.startsWith("/") ? "file://" : "") + mv.d.musica.portada : ""; fillMode: Image.PreserveAspectCrop; asynchronous: true }
@@ -272,7 +272,7 @@ Superpuesta {
                     RowLayout {
                         id: fn
                         required property var modelData
-                        Layout.fillWidth: true; spacing: 10
+                        Layout.fillWidth: true; spacing: 8
                         ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 0
                             Text { text: fn.modelData.nombre; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12; bold: true } }
                             Text { Layout.fillWidth: true; elide: Text.ElideRight; text: fn.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }

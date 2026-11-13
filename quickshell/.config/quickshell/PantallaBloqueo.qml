@@ -146,7 +146,7 @@ WlSessionLockSurface {
                     // Puntos de la contraseña
                     Row {
                         anchors.centerIn: parent
-                        spacing: 9
+                        spacing: 8
                         Repeater {
                             model: Math.min(superficie.estado.clave.length, 22)
                             Rectangle {
@@ -154,7 +154,7 @@ WlSessionLockSurface {
                                 color: Paleta.texto
                                 scale: 0
                                 Component.onCompleted: scale = 1
-                                Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutBack } }
+                                Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
                             }
                         }
                     }

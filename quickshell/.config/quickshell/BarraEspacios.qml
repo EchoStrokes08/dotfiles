@@ -32,7 +32,7 @@ Item {
         width: raiz.anchoBoton - 4
         height: 24
         anchors.verticalCenter: parent.verticalCenter
-        Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: 1 } }
+        Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
         RectangularShadow {
             anchors.fill: parent
             visible: EstiloPanel.efectos

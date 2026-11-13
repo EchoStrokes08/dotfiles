@@ -228,12 +228,12 @@ RowLayout {
         RowLayout {
             id: filaBuds
             anchors.centerIn: parent
-            spacing: 6
+            spacing: 4
             Repeater {
                 model: buds.visibles
                 RowLayout {
                     required property var modelData
-                    spacing: 3
+                    spacing: 2
                     Image {
                         sourceSize { width: 22; height: 22 }
                         source: "file://" + modelData.icono + "?" + modelData.version   // ?… = no usar la caché

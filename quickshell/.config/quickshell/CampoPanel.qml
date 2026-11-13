@@ -8,8 +8,8 @@ TextField {
     property color tinte: Paleta.acento
     Layout.fillWidth: true
     implicitHeight: 40
-    leftPadding: 14
-    rightPadding: 14
+    leftPadding: 12
+    rightPadding: 12
     Accessible.name: placeholderText
     color: Paleta.texto
     placeholderTextColor: EstiloPanel.tenue

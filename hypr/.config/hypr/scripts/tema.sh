@@ -35,6 +35,12 @@ generar() {
             # la plantilla de kitty trae los 16 colores ANSI pensados para fondo oscuro: poner los claros
             { grep -v '^color[0-9]' "$OUT/kitty.conf"; grep '^color[0-9]' "$DIR/ayu-claro/kitty.conf"; } > "$OUT/kitty.conf.tmp" \
                 && mv "$OUT/kitty.conf.tmp" "$OUT/kitty.conf"
+            # éxito, aviso y peligro son fijos y pensados para fondo oscuro: los de Ayu claro se leen sobre fondo claro
+            for c in exito aviso peligro; do
+                hex=$(sed -n "s/^@define-color $c *#\([0-9a-fA-F]*\);.*/\1/p" "$DIR/ayu-claro/colores.css")
+                sed -i "s/^\(@define-color $c *\)#[0-9a-fA-F]*;/\1#$hex;/" "$OUT/colores.css"
+                sed -i "s/^\( *$c *= *\)\"[0-9a-fA-F]*\"/\1\"$hex\"/" "$OUT/hyprland.lua"
+            done
         fi
     fi
     if [ "$modo" = ayu ]; then

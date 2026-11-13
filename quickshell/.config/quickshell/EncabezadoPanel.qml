@@ -54,7 +54,7 @@ RowLayout {
         Layout.fillWidth: true
         spacing: 2
         RowLayout {
-            spacing: 7
+            spacing: 8
             Rectangle { width: 6; height: 6; radius: height / 2; color: cabecera.tinte }
             Text { Layout.fillWidth: true; text: cabecera.seccion.toUpperCase(); elide: Text.ElideRight; color: cabecera.tinte; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 } }
         }

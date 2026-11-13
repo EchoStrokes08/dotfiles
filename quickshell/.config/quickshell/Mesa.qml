@@ -200,7 +200,7 @@ Superpuesta {
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: Math.min(408, (screen?.height ?? 720) - 245)
-            spacing: 20
+            spacing: 16
             ColumnLayout {
                 Layout.preferredWidth: 190
                 Layout.maximumWidth: 190
@@ -228,7 +228,7 @@ Superpuesta {
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                spacing: 10
+                spacing: 8
                 CampoPanel {
                     id: filtro
                     tinte: Paleta.acento
@@ -244,11 +244,11 @@ Superpuesta {
                     Layout.fillWidth: true; Layout.fillHeight: true
                     spacing: 12
                     RowLayout {
-                        Layout.fillWidth: true; Layout.fillHeight: true; spacing: 14
+                        Layout.fillWidth: true; Layout.fillHeight: true; spacing: 12
                         ListView {
                             id: listaVentanas
                             Layout.fillWidth: true; Layout.fillHeight: true
-                            clip: true; spacing: 6
+                            clip: true; spacing: 4
                             boundsBehavior: Flickable.StopAtBounds
                             model: mesa.ventanas
                             delegate: Rectangle {
@@ -276,7 +276,7 @@ Superpuesta {
                                         border { width: 1; color: EstiloPanel.borde }
                                         Image {
                                             id: iconoFila
-                                            anchors { fill: parent; margins: 5 }
+                                            anchors { fill: parent; margins: 4 }
                                             source: mesa.icono(fila.modelData)
                                             sourceSize { width: 64; height: 64 }
                                             asynchronous: true
@@ -312,7 +312,7 @@ Superpuesta {
                             Column {
                                 anchors.centerIn: parent
                                 visible: mesa.ventanas.length === 0
-                                spacing: 6
+                                spacing: 4
                                 Text { anchors.horizontalCenter: parent.horizontalCenter; text: "󰍉"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 26 } }
                                 Text { anchors.horizontalCenter: parent.horizontalCenter; text: "No hay ventanas que coincidan"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 12 } }
                             }
@@ -324,7 +324,7 @@ Superpuesta {
                             border { width: 1; color: EstiloPanel.borde }
                             ColumnLayout {
                                 anchors { fill: parent; margins: 12 }
-                                spacing: 10
+                                spacing: 8
                                 Item {
                                     id: lienzo
                                     Layout.fillWidth: true; Layout.fillHeight: true
@@ -366,7 +366,7 @@ Superpuesta {
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 6
+                        spacing: 4
                         Text { text: "MOVER A"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.2 } Layout.rightMargin: 6 }
                         Repeater {
                             model: 10
@@ -383,7 +383,7 @@ Superpuesta {
                                 opacity: mesa.elegida ? 1 : .45
                                 Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                                 Text { anchors.centerIn: parent; anchors.verticalCenterOffset: hueco.ocupado ? -3 : 0; text: hueco.n; color: hueco.aqui ? Paleta.acento : Paleta.texto; font { family: Paleta.fuente; pixelSize: 12; bold: hueco.aqui } }
-                                Rectangle { visible: hueco.ocupado; anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 6 } width: 4; height: 4; radius: height / 2; color: hueco.aqui ? Paleta.acento : EstiloPanel.tenue }
+                                Rectangle { visible: hueco.ocupado; anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 4 } width: 4; height: 4; radius: height / 2; color: hueco.aqui ? Paleta.acento : EstiloPanel.tenue }
                                 MouseArea { id: zonaHueco; anchors.fill: parent; hoverEnabled: true; enabled: hueco.usable; cursorShape: Qt.PointingHandCursor; onClicked: mesa.accionVentana("mover", hueco.n) }
                             }
                         }
@@ -392,12 +392,12 @@ Superpuesta {
                 RowLayout {
                     visible: mesa.pagina === 1
                     Layout.fillWidth: true; Layout.fillHeight: true
-                    spacing: 14
+                    spacing: 12
                     ColumnLayout {
                         Layout.preferredWidth: 190; Layout.fillHeight: true
                         ListView {
                             id: listaPlantillas
-                            Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 6
+                            Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 4
                             model: mesa.textos
                             delegate: Boton { required property var modelData; width: ListView.view.width; text: modelData.titulo; acento: mesa.plantillaId === modelData.id; onClicked: mesa.cargar(modelData) }
                         }
@@ -426,15 +426,15 @@ Superpuesta {
                 }
                 ColumnLayout {
                     visible: mesa.pagina === 2
-                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 15
+                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 16
                     Rectangle {
                         Layout.fillWidth: true; implicitHeight: 119; radius: 16
                         color: Qt.alpha(Reunion.activa ? Paleta.exito : Paleta.acento,.075)
                         border { width: 1; color: Qt.alpha(Reunion.activa ? Paleta.exito : Paleta.acento,.22) }
                         RowLayout {
-                            anchors { fill: parent; margins: 16; bottomMargin: 22 }
+                            anchors { fill: parent; margins: 16; bottomMargin: 24 }
                             ColumnLayout {
-                                Layout.fillWidth: true; spacing: 6
+                                Layout.fillWidth: true; spacing: 4
                                 Text { text: Reunion.activa ? "ESTÁS EN REUNIÓN" : "PRESENTA CON TRANQUILIDAD"; color: Reunion.activa ? Paleta.exito : Paleta.acento; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 } }
                                 Text { text: "Un espacio sin interrupciones"; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 16; weight: Font.DemiBold } }
                                 Text { text: "Privacidad · No molestar · Replay en pausa"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
@@ -467,7 +467,7 @@ Superpuesta {
                 // ── Rutinas: tarjetas para empezar cada modo ──────────────────
                 ColumnLayout {
                     visible: mesa.pagina === 3 && mesa.editando === ""
-                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 10
+                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 8
                     Text { text: "Prepara tu siguiente momento"; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 20; bold: true } }
                     Text { Layout.fillWidth: true; text: "Guarda la distribución actual y prepara apps, apariencia y concentración en una acción. Con «Apps» eliges qué se abre."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 12 } }
                     Repeater {
@@ -485,8 +485,8 @@ Superpuesta {
                             border { width: activeFocus ? 2 : 1; color: Qt.alpha(modelData.color, zona.containsMouse ? .45 : .22) }
                             MouseArea { id: zona; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; enabled: !operacion.running; onClicked: mesa.ejecutar(["rutina", rutina.modelData.id], true) }
                             RowLayout {
-                                anchors { fill: parent; leftMargin: 14; rightMargin: 12 }
-                                spacing: 14
+                                anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
+                                spacing: 12
                                 Rectangle {
                                     implicitWidth: 46; implicitHeight: 46; radius: 12
                                     color: Qt.alpha(rutina.modelData.color, .16)
@@ -495,11 +495,11 @@ Superpuesta {
                                 }
                                 ColumnLayout {
                                     Layout.fillWidth: true
-                                    spacing: 6
+                                    spacing: 4
                                     Text { Layout.fillWidth: true; text: rutina.modelData.titulo; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 14; bold: true } }
                                     // las apps que abrirá, con su espacio
                                     Row {
-                                        spacing: 5
+                                        spacing: 4
                                         Repeater {
                                             model: rutina.datos.apps
                                             Rectangle {
@@ -510,7 +510,7 @@ Superpuesta {
                                                 Row {
                                                     id: filaChip
                                                     anchors.centerIn: parent
-                                                    spacing: 5
+                                                    spacing: 4
                                                     IconoApp { anchors.verticalCenter: parent.verticalCenter; app: chipApp.modelData; lado: 14 }
                                                     Text { anchors.verticalCenter: parent.verticalCenter; text: chipApp.modelData.ws; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                                                 }
@@ -540,11 +540,11 @@ Superpuesta {
                 // ── Editor: qué apps abre un modo y en qué espacio ────────────
                 ColumnLayout {
                     visible: mesa.pagina === 3 && mesa.editando !== ""
-                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 10
+                    Layout.fillWidth: true; Layout.fillHeight: true; spacing: 8
                     readonly property var r: mesa.rutinas.find(x => x.sesion === mesa.editando) ?? mesa.rutinas[0]
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 10
+                        spacing: 8
                         Boton { Layout.fillWidth: false; Layout.preferredWidth: 40; text: ""; simbolo: "󰁍"; onClicked: mesa.editando = "" }
                         Text { text: parent.parent.r.icono; color: parent.parent.r.color; font { family: Paleta.fuente; pixelSize: 20 } }
                         Text { Layout.fillWidth: true; text: "Apps de " + parent.parent.r.nombre; color: Paleta.texto; elide: Text.ElideRight; font { family: EstiloPanel.fuente; pixelSize: 16; bold: true } }
@@ -564,12 +564,12 @@ Superpuesta {
                             radius: 16; color: EstiloPanel.relleno
                             border { width: 1; color: EstiloPanel.borde }
                             ColumnLayout {
-                                anchors { fill: parent; margins: 10 }
-                                spacing: 6
+                                anchors { fill: parent; margins: 8 }
+                                spacing: 4
                                 Text { text: "SE ABRIRÁN"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.2 } }
                                 ListView {
                                     Layout.fillWidth: true; Layout.fillHeight: true
-                                    clip: true; spacing: 5
+                                    clip: true; spacing: 4
                                     boundsBehavior: Flickable.StopAtBounds
                                     model: mesa.borrador
                                     delegate: Rectangle {
@@ -580,7 +580,7 @@ Superpuesta {
                                         color: EstiloPanel.elevada
                                         border { width: 1; color: EstiloPanel.borde }
                                         RowLayout {
-                                            anchors { fill: parent; leftMargin: 10; rightMargin: 6 }
+                                            anchors { fill: parent; leftMargin: 8; rightMargin: 4 }
                                             spacing: 8
                                             IconoApp { app: elegidaApp.modelData; lado: 24 }
                                             Text { Layout.fillWidth: true; text: mesa.nombreDe(elegidaApp.modelData); color: Paleta.texto; elide: Text.ElideRight; font { family: EstiloPanel.fuente; pixelSize: 12; weight: Font.Medium } }
@@ -617,12 +617,12 @@ Superpuesta {
                             radius: 16; color: EstiloPanel.relleno
                             border { width: 1; color: EstiloPanel.borde }
                             ColumnLayout {
-                                anchors { fill: parent; margins: 10 }
-                                spacing: 6
+                                anchors { fill: parent; margins: 8 }
+                                spacing: 4
                                 CampoPanel { id: buscarApp; tinte: Paleta.acento; implicitHeight: 36; placeholderText: "󰍉  Añadir app…"; Keys.onReturnPressed: if (mesa.instaladas.length) mesa.anadirApp(mesa.instaladas[0]) }
                                 ListView {
                                     Layout.fillWidth: true; Layout.fillHeight: true
-                                    clip: true; spacing: 3
+                                    clip: true; spacing: 2
                                     boundsBehavior: Flickable.StopAtBounds
                                     model: mesa.instaladas
                                     delegate: Rectangle {
@@ -633,7 +633,7 @@ Superpuesta {
                                         Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                                         RowLayout {
                                             anchors { fill: parent; leftMargin: 8; rightMargin: 8 }
-                                            spacing: 9
+                                            spacing: 8
                                             Image { Layout.preferredWidth: 22; Layout.preferredHeight: 22; source: Quickshell.iconPath(instalada.modelData.icon, true); sourceSize { width: 44; height: 44 } asynchronous: true }
                                             Text { Layout.fillWidth: true; text: instalada.modelData.name; color: Paleta.texto; elide: Text.ElideRight; font { family: EstiloPanel.fuente; pixelSize: 12 } }
                                             Text { text: "+"; visible: zonaInstalada.containsMouse; color: Paleta.acento; font { pixelSize: 16; bold: true } }

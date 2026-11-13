@@ -57,8 +57,8 @@ Superpuesta {
                 required property int index
                 width: lista.width; height: 44
                 RowLayout {
-                    anchors { fill: parent; leftMargin: 18 }
-                    spacing: 14
+                    anchors { fill: parent; leftMargin: 16 }
+                    spacing: 12
                     Text { text: String.fromCodePoint(modelData.icono); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
                     Text {
                         Layout.fillWidth: true

@@ -111,7 +111,7 @@ Superpuesta {
             function continuar() { r.abierto=false; Quickshell.execDetached(["qs","ipc","call","flujo","abrir","continuidad"]); }
             Keys.onReturnPressed: continuar()
             Column {
-                anchors { fill: parent; margins: 10 } spacing: 5
+                anchors { fill: parent; margins: 8 } spacing: 4
                 Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Proyecto disponible para continuar" : "Continuar · " + (Continuidad.ultimo?.nombre || ""); elide: Text.ElideRight; color: Paleta.acento; font { family:EstiloPanel.fuente; pixelSize:13; bold:true } }
                 Text { width: parent.width; text: EstadoEscritorio.privacidad ? "Detalles ocultos por privacidad" : Continuidad.ultimo?.siguiente || "Revisa tu proyecto y elige Retomar"; elide:Text.ElideRight; color:Paleta.texto; font { family:EstiloPanel.fuente; pixelSize:11 } }
             }

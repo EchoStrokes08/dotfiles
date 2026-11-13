@@ -12,7 +12,7 @@ RowLayout {
     property color acento: Paleta.acento
     signal movido(real v)
     signal iconoPulsado()
-    spacing: 10
+    spacing: 8
     readonly property real v: Math.max(0, Math.min(1, valor))
     readonly property color tono: apagado ? Paleta.gris : acento
 
@@ -73,7 +73,7 @@ RowLayout {
             color: "white"
             border { width: 3; color: raiz.tono }
             scale: zona.pressed ? 1.2 : zona.containsMouse ? 1.1 : 1
-            Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutBack } }
+            Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
         }
         MouseArea {
             id: zona

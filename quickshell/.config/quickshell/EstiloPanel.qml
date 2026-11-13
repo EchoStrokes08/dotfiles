@@ -38,6 +38,8 @@ Singleton {
     readonly property int e4: 16
     readonly property int e5: 24
     readonly property int e6: 32
+    // Valores permitidos en spacing, margins y padding: 1–1,5 son biseles; 40–56, márgenes contra el borde de la pantalla
+    readonly property var escalaEspacio: [0, 1, 1.5, 2, 4, 8, 12, 16, 24, 32, 40, 48, 56]
 
     // ── Capas: el texto a distintas opacidades sobre el fondo del panel ──
     readonly property color relleno:       Qt.alpha(Paleta.texto, .04)   // fondo de tarjeta o control en reposo
@@ -66,7 +68,8 @@ Singleton {
 
     // ── Movimiento (ms). 0 cuando el perfil apaga las animaciones ──────
     // rápido: hover, pulsar, colores · normal: abrir y cerrar paneles, cambiar de página · lento: elementos grandes
-    // Curva: Easing.OutCubic para todo; Easing.OutBack solo en la entrada de un panel o una tarjeta.
+    // Curva: Easing.OutCubic para todo; Easing.OutBack solo en la entrada de un panel o una tarjeta;
+    // Easing.InOutSine solo en bucles (pulsos que respiran).
     readonly property int rapido: movimiento ? 120 : 0
     readonly property int normal: movimiento ? 200 : 0
     readonly property int lento:  movimiento ? 320 : 0

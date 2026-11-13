@@ -71,8 +71,8 @@ Superpuesta {
             color: EstiloPanel.rellenoActivo
             border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.acento, 0.5) : "transparent" }
             RowLayout {
-                anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
-                spacing: 10
+                anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
+                spacing: 8
                 Text { text: String.fromCodePoint(0xF030C); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
                 TextInput {
                     id: buscador
@@ -98,7 +98,7 @@ Superpuesta {
             Row {
                 id: columnas
                 width: parent.width
-                spacing: 18
+                spacing: 16
                 readonly property var reparto: {
                     const cols = [[], [], []], alto = [0, 0, 0];
                     for (const g of ch.filtrados) {
@@ -112,20 +112,20 @@ Superpuesta {
                     Column {
                         required property int index
                         width: (columnas.width - 36) / 3
-                        spacing: 14
+                        spacing: 12
                         Repeater {
                             model: columnas.reparto[index]
                             Column {
                                 required property var modelData
                                 width: parent.width
-                                spacing: 3
+                                spacing: 2
                                 Text {
                                     width: parent.width
                                     wrapMode: Text.WordWrap
                                     text: modelData.titulo
                                     color: Paleta.acento
                                     font { family: Paleta.fuente; pixelSize: 12; bold: true }
-                                    bottomPadding: 3
+                                    bottomPadding: 2
                                 }
                                 Repeater {
                                     model: modelData.filas
@@ -145,7 +145,7 @@ Superpuesta {
                                             wrapMode: Text.WordWrap
                                             color: EstiloPanel.secundario
                                             font { family: Paleta.fuente; pixelSize: 11 }
-                                            topPadding: 3
+                                            topPadding: 2
                                         }
                                     }
                                 }

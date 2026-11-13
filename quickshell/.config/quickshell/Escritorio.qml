@@ -232,7 +232,7 @@ PanelWindow {
         // ── Reloj, fecha, clima y frase ──
         ColumnLayout {
             id: izquierda
-            anchors { left: parent.left; bottom: parent.bottom; leftMargin: 56; bottomMargin: 52 + (v.mostrar ? 0 : -14) }
+            anchors { left: parent.left; bottom: parent.bottom; leftMargin: 56; bottomMargin: 48 + (v.mostrar ? 0 : -14) }
             Behavior on anchors.bottomMargin { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
             spacing: 0
 
@@ -285,7 +285,7 @@ PanelWindow {
         ColumnLayout {
             visible: v.proximo.length > 0
             anchors { right: parent.right; bottom: parent.bottom; rightMargin: 56; bottomMargin: 56 }
-            spacing: 10
+            spacing: 8
             Text {
                 Layout.alignment: Qt.AlignRight
                 text: "LO PRÓXIMO"
@@ -297,7 +297,7 @@ PanelWindow {
                 RowLayout {
                     required property var modelData
                     Layout.alignment: Qt.AlignRight
-                    spacing: 10
+                    spacing: 8
                     ColumnLayout {
                         spacing: 1
                         Text {

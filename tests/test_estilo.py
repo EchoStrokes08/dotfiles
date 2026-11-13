@@ -43,6 +43,14 @@ class Escalas(unittest.TestCase):
                  for i, v in literales(r"(?<![\w.])radius:\s*(\d+(?:\.\d+)?)(?![\d.])", t) if v not in permitidos]
         self.assertEqual(fuera, [], "radios fuera de escala (círculos y píldoras: height / 2)")
 
+    def test_espacio(self):
+        permitidos = escala("escalaEspacio")
+        patron = (r"(?<![\w.])(?:spacing|margins|leftMargin|rightMargin|topMargin|bottomMargin|padding"
+                  r"|leftPadding|rightPadding|topPadding|bottomPadding):\s*(\d+(?:\.\d+)?)(?![\d.\w])")
+        fuera = [f"{p.name}:{i} {v:g}" for p, t in qml() if p.name != "EstiloPanel.qml"
+                 for i, v in literales(patron, t) if v not in permitidos]
+        self.assertEqual(fuera, [], "espacios fuera de escala")
+
     def test_duracion(self):
         # Entre 100 y 499 ms son transiciones de interfaz: EstiloPanel.rapido / normal / lento.
         # Más cortas (micro-efectos: cava, sacudida) o más largas (ambientales: fundidos del escritorio) se permiten.

@@ -79,7 +79,7 @@ Superpuesta {
                     RowLayout {
                         id: fila
                         anchors.centerIn: parent
-                        spacing: 7
+                        spacing: 8
                         Text { text: String.fromCodePoint(modelData.ic); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 14 } }
                         Text { text: modelData.txt; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                     }
@@ -114,7 +114,7 @@ Superpuesta {
                 height: rejilla.cellHeight
 
                 ClippingRectangle {
-                    anchors { fill: parent; margins: 6 }
+                    anchors { fill: parent; margins: 4 }
                     radius: 12
                     color: Paleta.seleccion
                     border { width: celda.esActual ? 3 : celda.marcada ? 2 : 0

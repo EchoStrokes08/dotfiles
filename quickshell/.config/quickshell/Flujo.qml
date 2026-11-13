@@ -89,7 +89,7 @@ Superpuesta {
     }
     ColumnLayout {
         id: cuerpo
-        width: parent.width; spacing:14
+        width: parent.width; spacing: 12
         EncabezadoPanel {
             seccion: "FLUJO DE TRABAJO"
             titulo: ["Tu trabajo tiene memoria", "Un espacio para cada tarea", "De la selección a la acción"][flujo.pagina]
@@ -109,7 +109,7 @@ Superpuesta {
             ColumnLayout {
                 Layout.preferredWidth:220; Layout.fillHeight:true
                 ListView {
-                    Layout.fillWidth:true; Layout.fillHeight:true; clip:true; spacing:6
+                    Layout.fillWidth:true; Layout.fillHeight:true; clip:true; spacing: 4
                     model:flujo.proyectos
                     Column {
                         anchors.centerIn: parent; width: parent.width-24; spacing: 12
@@ -149,7 +149,7 @@ Superpuesta {
         }
         ColumnLayout {
             visible:flujo.pagina===1
-            Layout.fillWidth:true; Layout.preferredHeight:Math.min(350, (screen?.height ?? 720) - 290); spacing:14
+            Layout.fillWidth:true; Layout.preferredHeight:Math.min(350, (screen?.height ?? 720) - 290); spacing: 12
             RowLayout {
                 Layout.fillWidth:true
                 ComboBox {
@@ -176,7 +176,7 @@ Superpuesta {
                             color:Qt.alpha(index===0 ? Paleta.acento : Paleta.acento2,.13)
                             border { width:1; color:Qt.alpha(index===0 ? Paleta.acento : Paleta.acento2,.45) }
                             Column {
-                                anchors.centerIn:parent; spacing:10
+                                anchors.centerIn:parent; spacing: 8
                                 Text { anchors.horizontalCenter:parent.horizontalCenter; text:tarea.currentIndex===3 ? "󰍉" : index===0 ? "󰅩" : "󰈙"; color:index===0 ? Paleta.acento : Paleta.acento2; font { family:Paleta.fuente; pixelSize: 26 } }
                                 Text { anchors.horizontalCenter:parent.horizontalCenter; text:tarea.currentIndex===3 ? "Foco" : index===0 ? "Principal" : "Apoyo"; color:Paleta.texto; font { family:EstiloPanel.fuente; pixelSize:14; weight:Font.DemiBold } }
                             }
@@ -195,11 +195,11 @@ Superpuesta {
         }
         ColumnLayout {
             visible:flujo.pagina===2
-            Layout.fillWidth:true; Layout.preferredHeight:Math.min(350, (screen?.height ?? 720) - 290); spacing:10
+            Layout.fillWidth:true; Layout.preferredHeight:Math.min(350, (screen?.height ?? 720) - 290); spacing: 8
             Text { text:(flujo.seleccion.caracteres || 0)+" caracteres · "+(flujo.seleccion.origen || "sin captura"); color:Paleta.acento; font { family:EstiloPanel.fuente; pixelSize:12; bold:true } }
             ScrollView {
                 Layout.fillWidth:true; Layout.fillHeight:true; clip:true
-                TextArea { padding:14; selectionColor:Qt.alpha(Paleta.acento,.35); text:EstadoEscritorio.privacidad ? "Vista previa oculta por privacidad" : flujo.seleccion.vista || "Selecciona un texto y pulsa SUPER+ALT+C para capturarlo antes de abrir el panel."; readOnly:true; selectByMouse:true; color:Paleta.texto; wrapMode:TextEdit.Wrap; font { family:EstiloPanel.fuente; pixelSize:12 } background:Rectangle { radius:8; color:EstiloPanel.relleno } }
+                TextArea { padding: 12; selectionColor:Qt.alpha(Paleta.acento,.35); text:EstadoEscritorio.privacidad ? "Vista previa oculta por privacidad" : flujo.seleccion.vista || "Selecciona un texto y pulsa SUPER+ALT+C para capturarlo antes de abrir el panel."; readOnly:true; selectByMouse:true; color:Paleta.texto; wrapMode:TextEdit.Wrap; font { family:EstiloPanel.fuente; pixelSize:12 } background:Rectangle { radius:8; color:EstiloPanel.relleno } }
             }
             GridLayout {
                 Layout.fillWidth:true; columns:3

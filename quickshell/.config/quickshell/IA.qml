@@ -55,7 +55,7 @@ Superpuesta {
 
     ColumnLayout {
         width: parent.width
-        spacing: 10
+        spacing: 8
 
         RowLayout {
             Layout.fillWidth: true
@@ -86,7 +86,7 @@ Superpuesta {
             border { width: 1; color: campo.activeFocus ? Qt.alpha(Paleta.acento, 0.5) : "transparent" }
             TextInput {
                 id: campo
-                anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
+                anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
                 verticalAlignment: TextInput.AlignVCenter
                 color: Paleta.texto
                 selectionColor: Qt.alpha(Paleta.acento, 0.4)

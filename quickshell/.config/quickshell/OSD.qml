@@ -142,7 +142,7 @@ Scope {
             RowLayout {
                 id: fila
                 anchors.centerIn: parent
-                spacing: 14
+                spacing: 12
 
                 Rectangle {
                     implicitWidth: 40; implicitHeight: 40; radius: height / 2

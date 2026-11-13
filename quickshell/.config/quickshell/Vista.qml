@@ -134,7 +134,7 @@ Superpuesta {
             Row {
                 width: parent.width
                 height: 44
-                spacing: 14
+                spacing: 12
                 Column {
                     id: titulo
                     anchors.verticalCenter: parent.verticalCenter
@@ -356,7 +356,7 @@ Superpuesta {
                                                     GradientStop { position: 1; color: Qt.alpha("black", .75) }
                                                 }
                                                 Text {
-                                                    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 5; leftMargin: 7 }
+                                                    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 4; leftMargin: 8 }
                                                     text: EstadoEscritorio.privacidad ? vista.nombreApp(ventanita.modelData) : ventanita.modelData.title
                                                     color: "white"
                                                     elide: Text.ElideRight
@@ -463,7 +463,7 @@ Superpuesta {
                         Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                         Column {
                             anchors.centerIn: parent
-                            spacing: 6
+                            spacing: 4
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: "+"
@@ -497,7 +497,7 @@ Superpuesta {
             // ── pie: atajos ────────────────────────────────────────────────────
             PieAtajos {
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 18
+                spacing: 16
                 atajos: [["Enter", "ir"], ["← →", "elegir"], ["↑ ↓", "otro espacio"], ["1-9", "espacio"],
                          ["Ctrl 1-9", "mover"], ["Supr", "cerrar"], ["arrastrar", "mover"], ["Esc", "salir"]]
             }

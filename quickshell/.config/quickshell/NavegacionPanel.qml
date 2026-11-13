@@ -28,8 +28,8 @@ Rectangle {
         y: nav.vertical ? 5 + nav.actual * 50 : 5
         width: nav.vertical ? nav.width - 10 : nav.paso
         height: nav.vertical ? 48 : nav.height - 10
-        Behavior on x { NumberAnimation { duration: EstiloPanel.normal + 40; easing.type: Easing.OutBack; easing.overshoot: .8 } }
-        Behavior on y { NumberAnimation { duration: EstiloPanel.normal + 40; easing.type: Easing.OutBack; easing.overshoot: .8 } }
+        Behavior on x { NumberAnimation { duration: EstiloPanel.normal + 40; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: EstiloPanel.normal + 40; easing.type: Easing.OutCubic } }
         RectangularShadow {
             anchors.fill: parent
             visible: EstiloPanel.efectos

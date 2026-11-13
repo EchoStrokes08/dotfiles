@@ -49,7 +49,7 @@ PanelWindow {
             RowLayout {
                 id: filaEspacios
                 anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
-                spacing: 6
+                spacing: 4
 
                 BarraEspacios { id: espaciosBarra; monitor: barra.monitor }
 
@@ -69,7 +69,7 @@ PanelWindow {
                     Row {
                         id: filaPerfil
                         anchors.centerIn: parent
-                        spacing: 5
+                        spacing: 4
                         Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 6; height: 6; radius: height / 2
@@ -112,7 +112,7 @@ PanelWindow {
 
             RowLayout {
                 id: filaVentana
-                anchors { left: parent.left; leftMargin: 10; right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
+                anchors { left: parent.left; leftMargin: 8; right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
                 spacing: 8
                 IconImage {
                     implicitSize: 18

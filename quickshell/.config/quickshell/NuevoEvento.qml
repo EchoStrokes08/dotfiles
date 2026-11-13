@@ -40,7 +40,7 @@ Rectangle {
     }
 
     ColumnLayout {
-    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 10 }
+    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 8 }
     spacing: 8
 
     RowLayout {
@@ -61,7 +61,7 @@ Rectangle {
 
         ColumnLayout {
         Layout.fillWidth: true
-        spacing: 6
+        spacing: 4
 
         // Evento | Tarea
         RowLayout {
@@ -101,7 +101,7 @@ Rectangle {
         RowLayout {
             Layout.fillWidth: true
             visible: !n.esTarea
-            spacing: 6
+            spacing: 4
             CampoPanel {
                 id: hora
                 implicitHeight: 32

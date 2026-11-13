@@ -8,7 +8,7 @@ import Quickshell.Io
 
 ColumnLayout {
     id: tiempo
-    spacing: 7
+    spacing: 8
 
     property var apps: []          // [{ clase, seg }] ordenado de más a menos
     property real total: 0
@@ -73,7 +73,7 @@ ColumnLayout {
             required property var modelData
             required property int index
             Layout.fillWidth: true
-            spacing: 3
+            spacing: 2
             RowLayout {
                 Layout.fillWidth: true
                 Text {
@@ -123,7 +123,7 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Layout.preferredHeight: 62
-        spacing: 6
+        spacing: 4
         readonly property real maximo: Math.max(3600, ...tiempo.dias.map(d => d.total))
         Repeater {
             model: tiempo.dias
@@ -133,7 +133,7 @@ ColumnLayout {
                 readonly property bool esHoy: index === tiempo.dias.length - 1
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                spacing: 3
+                spacing: 2
                 Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true

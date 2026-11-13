@@ -46,7 +46,7 @@ Superpuesta {
     }
     ColumnLayout {
         width: parent.width
-        spacing: 10
+        spacing: 8
         EncabezadoPanel { seccion: "CENTRO DEL ESCRITORIO"; titulo: "Hazlo tuyo"; simbolo: "󰒓"; onCerrar: centro.abierto=false }
         RowLayout {
             Layout.fillWidth: true

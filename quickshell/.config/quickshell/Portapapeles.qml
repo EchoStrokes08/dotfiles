@@ -59,7 +59,7 @@ Superpuesta {
 
     ColumnLayout {
         width: parent.width
-        spacing: 10
+        spacing: 8
 
         // Buscador
         Rectangle {
@@ -68,8 +68,8 @@ Superpuesta {
             color: EstiloPanel.rellenoActivo
             border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.acento, 0.5) : "transparent" }
             RowLayout {
-                anchors { fill: parent; leftMargin: 14; rightMargin: 10 }
-                spacing: 10
+                anchors { fill: parent; leftMargin: 12; rightMargin: 8 }
+                spacing: 8
                 Text { text: String.fromCodePoint(0xF0147); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
                 TextInput {
                     id: buscador
@@ -123,7 +123,7 @@ Superpuesta {
                 height: modelData.imagen ? 84 : 40
 
                 RowLayout {
-                    anchors { fill: parent; leftMargin: 16; rightMargin: 10 }
+                    anchors { fill: parent; leftMargin: 16; rightMargin: 8 }
                     spacing: 12
                     ClippingRectangle {
                         visible: fila.modelData.imagen

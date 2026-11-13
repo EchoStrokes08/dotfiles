@@ -44,7 +44,7 @@ Rectangle {
     // Línea de urgencia a la izquierda
     Rectangle {
         width: 3; radius: 4
-        anchors { left: parent.left; leftMargin: 6; top: parent.top; bottom: parent.bottom; topMargin: 12; bottomMargin: 12 }
+        anchors { left: parent.left; leftMargin: 4; top: parent.top; bottom: parent.bottom; topMargin: 12; bottomMargin: 12 }
         color: tarjeta.colorUrgencia
     }
 
@@ -62,7 +62,7 @@ Rectangle {
 
     RowLayout {
         id: contenido
-        anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12; leftMargin: 18 }
+        anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12; leftMargin: 16 }
         spacing: 12
 
         // Imagen de la notificación (p. ej. foto de contacto) o icono de la app
@@ -84,7 +84,7 @@ Rectangle {
 
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 3
+            spacing: 2
 
             RowLayout {
                 Layout.fillWidth: true
@@ -135,7 +135,7 @@ Rectangle {
             RowLayout {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
-                spacing: 6
+                spacing: 4
                 visible: botones.count > 0 || tarjeta.noti.hasInlineReply
                 // Respuesta en línea (p. ej. WhatsApp del móvil por KDE Connect): se escribe en el panel del móvil
                 Rectangle {

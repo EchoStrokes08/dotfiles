@@ -36,7 +36,7 @@ Item {
         y: 3
         x: sw.activo ? sw.width - width - 3 : 3
         color: sw.activo ? "white" : Qt.tint(Paleta.gris, EstiloPanel.velo)
-        Behavior on x { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutBack; easing.overshoot: 1.4 } }
+        Behavior on x { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
         Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
     }
     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: sw.alternado() }

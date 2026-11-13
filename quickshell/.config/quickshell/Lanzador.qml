@@ -435,7 +435,7 @@ PanelWindow {
         ColumnLayout {
             id: columna
             anchors { left: parent.left; right: parent.right; top: parent.top; margins: 16 }
-            spacing: 10
+            spacing: 8
 
             // Campo de búsqueda
             Rectangle {
@@ -449,7 +449,7 @@ PanelWindow {
                 border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.acento, 0.45) : EstiloPanel.borde }
 
                 RowLayout {
-                    anchors { fill: parent; leftMargin: 10; rightMargin: 14 }
+                    anchors { fill: parent; leftMargin: 8; rightMargin: 12 }
                     spacing: 12
                     Rectangle {   // pastilla del modo
                         implicitWidth: 36; implicitHeight: 36; radius: 12
@@ -552,14 +552,14 @@ PanelWindow {
                         }
                         Rectangle {
                             width: 3; height: parent.height - 20
-                            anchors { left: parent.left; leftMargin: 5; verticalCenter: parent.verticalCenter }
+                            anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
                             radius: 4
                             color: Paleta.acento
                         }
                     }
 
                     RowLayout {
-                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2; leftMargin: 14; rightMargin: 12 }
+                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2; leftMargin: 12; rightMargin: 12 }
                         height: 52
                         spacing: 12
                         Rectangle {   // baldosa del icono

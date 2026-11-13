@@ -10,7 +10,7 @@ ColumnLayout {
     property date elegido: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
     property bool conMas: false      // muestra el ＋ (nuevo evento/tarea el día elegido) en la cabecera
     signal nuevo()
-    spacing: 6
+    spacing: 4
 
     readonly property date mes: new Date(hoy.getFullYear(), hoy.getMonth() + desfase, 1)
     // lunes = 0 … domingo = 6 (getDay() da domingo = 0)
