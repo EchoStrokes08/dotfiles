@@ -449,7 +449,7 @@ Superpuesta {
                     Text {
                         height: 26
                         verticalAlignment: Text.AlignVCenter
-                        text: "Espacio " + vista.libre
+                        text: "Nuevo · " + vista.libre
                         color: EstiloPanel.tenue
                         font { family: EstiloPanel.fuente; pixelSize: 12 }
                     }

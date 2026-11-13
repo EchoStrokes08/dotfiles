@@ -1,5 +1,5 @@
 // Sistema: CPU, RAM, temperatura y tiempo encendido.
-// Lo usan la barra (siempre) y el dashboard. Un proceso cada 2 s: coste despreciable.
+// Lo usan la barra (siempre) y Brújula › Hoy. Un proceso cada 2 s: coste despreciable.
 pragma Singleton
 import QtQuick
 import Quickshell

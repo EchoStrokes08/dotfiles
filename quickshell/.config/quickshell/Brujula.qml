@@ -36,6 +36,10 @@ Superpuesta {
     property string aviso: ""
     property string filtro: ""
 
+    // Tres pestañas visibles; «Línea de tiempo» agrupa el día, las reglas automáticas y la sesión anterior
+    readonly property int pestana: pagina === 0 ? 0 : pagina === 4 ? 2 : 1
+    property int ultimaLinea: 1
+    function irPestana(i) { pagina = i === 0 ? 0 : i === 2 ? 4 : ultimaLinea; }
     function abrir(nombre) { pagina = Math.max(0, paginas.indexOf(nombre)); abierto = true; cargar(); }
     function abrirDia(d) { dia = d; pagina = 1; abierto = true; cargar(); }
     function cargar() {
@@ -82,7 +86,7 @@ Superpuesta {
     onAbriendose: { aviso = ""; Qt.callLater(() => pestanas.forceActiveFocus()); }
     // las capturas descifradas solo existen mientras el panel está abierto
     onAbiertoChanged: if (!abierto && (linea?.capturas?.length ?? 0) > 0) Quickshell.execDetached([scripts + "brujula.py", "capturas", "limpiar"])
-    onPaginaChanged: { aviso = ""; if (abierto) cargar(); }
+    onPaginaChanged: { aviso = ""; if (pagina >= 1 && pagina <= 3) ultimaLinea = pagina; if (abierto) cargar(); }
     Timer { interval: 5000; repeat: true; running: br.abierto && (br.pagina === 2 || (br.pagina === 1 && !br.dia)); onTriggered: br.cargar() }
 
     // ── procesos ─────────────────────────────────────────────────────────
@@ -157,9 +161,9 @@ Superpuesta {
     }
 
     // ── atajos de teclado del panel ──────────────────────────────────────
-    Shortcut { sequences: ["Ctrl+Tab"]; enabled: br.abierto; onActivated: br.pagina = (br.pagina + 1) % 5 }
-    Shortcut { sequences: ["Ctrl+Shift+Tab"]; enabled: br.abierto; onActivated: br.pagina = (br.pagina + 4) % 5 }
-    Repeater { model: 5; Item { required property int index; Shortcut { sequence: "Ctrl+" + (index + 1); enabled: br.abierto; onActivated: br.pagina = index } } }
+    Shortcut { sequences: ["Ctrl+Tab"]; enabled: br.abierto; onActivated: br.irPestana((br.pestana + 1) % 3) }
+    Shortcut { sequences: ["Ctrl+Shift+Tab"]; enabled: br.abierto; onActivated: br.irPestana((br.pestana + 2) % 3) }
+    Repeater { model: 3; Item { required property int index; Shortcut { sequence: "Ctrl+" + (index + 1); enabled: br.abierto; onActivated: br.irPestana(index) } } }
     Shortcut { sequence: "Left"; enabled: br.abierto && br.pagina === 1 && !buscarLinea.activeFocus; onActivated: br.moverDia(-1) }
     Shortcut { sequence: "Right"; enabled: br.abierto && br.pagina === 1 && !buscarLinea.activeFocus; onActivated: br.moverDia(1) }
 
@@ -170,34 +174,23 @@ Superpuesta {
         RowLayout {
             Layout.fillWidth: true; spacing: 12
             Rectangle {
-                implicitWidth: 52; implicitHeight: 52; radius: 16
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .45) }
-                    GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .32) }
-                }
+                implicitWidth: 40; implicitHeight: 40; radius: 12
+                color: Qt.alpha(Paleta.acento, .22)
                 border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
-                RectangularShadow {
-                    anchors.fill: parent; z: -1
-                    visible: EstiloPanel.efectos
-                    radius: parent.radius; offset.y: 6; blur: 24; spread: -6
-                    color: Qt.alpha(Paleta.acento, .45)
-                }
                 Text {
-                    id: aguja
                     anchors.centerIn: parent; text: br.g("f018b"); color: Paleta.texto
-                    font { family: Paleta.fuente; pixelSize: 26 }
+                    font { family: Paleta.fuente; pixelSize: 20 }
                     rotation: br.abierto ? 0 : -40
                     Behavior on rotation { NumberAnimation { duration: 700; easing.type: Easing.OutCubic } }
                 }
             }
             ColumnLayout {
-                spacing: 1; Layout.fillWidth: true
-                Etiqueta { text: "BRÚJULA"; color: Paleta.acento }
+                spacing: 0; Layout.fillWidth: true
+                Text { text: "Brújula"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
                 Text {
-                    Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto
-                    font { family: Paleta.fuente; pixelSize: 26; bold: true }
-                    text: ["Tu día, de un vistazo", "Lo que tuviste delante", "El escritorio se adapta solo", "Sigue donde lo dejaste", "Tu equipo, en forma"][br.pagina]
+                    Layout.fillWidth: true; elide: Text.ElideRight; color: EstiloPanel.tenue
+                    font { family: Paleta.fuente; pixelSize: 12 }
+                    text: ["Tu día", "Lo que tuviste delante", "Reglas automáticas", "La sesión anterior", "Salud del equipo"][br.pagina]
                 }
             }
             // contextos activos ahora mismo
@@ -223,7 +216,7 @@ Superpuesta {
             id: pestanas
             Layout.fillWidth: true; implicitHeight: 46
             focus: true
-            Keys.onTabPressed: br.pagina = (br.pagina + 1) % 5
+            Keys.onTabPressed: br.irPestana((br.pestana + 1) % 3)
             Rectangle {
                 anchors.fill: parent; radius: 16
                 gradient: Gradient {
@@ -234,8 +227,8 @@ Superpuesta {
             }
             Item {
                 id: indicador
-                y: 5; height: parent.height - 10; width: (parent.width - 10) / 5
-                x: 5 + br.pagina * width
+                y: 4; height: parent.height - 8; width: (parent.width - 8) / 3
+                x: 4 + br.pestana * width
                 Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
                 RectangularShadow {
                     anchors.fill: parent; visible: EstiloPanel.efectos
@@ -254,20 +247,40 @@ Superpuesta {
             Row {
                 anchors { fill: parent; margins: 4 }
                 Repeater {
-                    model: [["f05a8", "Hoy"], ["f0954", "Línea de tiempo"], ["f0493", "Contexto"], ["f099b", "Sesión"], ["f05e0", "Salud"]]
+                    model: [["f05a8", "Hoy"], ["f0954", "Línea de tiempo"], ["f05e0", "Salud"]]
                     Item {
                         required property var modelData
                         required property int index
-                        width: parent.width / 5; height: parent.height
+                        width: parent.width / 3; height: parent.height
                         Text {
                             anchors.centerIn: parent
                             text: br.g(parent.modelData[0]) + "  " + parent.modelData[1] + "  " + "⌃" + (parent.index + 1)
-                            color: br.pagina === parent.index ? Paleta.texto : Paleta.gris
-                            font { family: Paleta.fuente; pixelSize: 12; bold: br.pagina === parent.index }
+                            color: br.pestana === parent.index ? Paleta.texto : Paleta.gris
+                            font { family: Paleta.fuente; pixelSize: 12; bold: br.pestana === parent.index }
                             Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
                         }
-                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: br.pagina = parent.index }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: br.irPestana(parent.index) }
                     }
+                }
+            }
+        }
+
+        // ── secciones de «Línea de tiempo» ──────────────────────────────
+        Row {
+            visible: br.pestana === 1
+            spacing: 8
+            Repeater {
+                model: [[1, "El día"], [2, "Reglas automáticas"], [3, "Sesión anterior"]]
+                Rectangle {
+                    id: seccion
+                    required property var modelData
+                    readonly property bool actual: br.pagina === modelData[0]
+                    implicitWidth: ts.implicitWidth + 24; implicitHeight: 30; radius: height / 2
+                    color: actual ? Qt.alpha(Paleta.acento, .18) : zs.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+                    border { width: 1; color: actual ? Qt.alpha(Paleta.acento, .5) : EstiloPanel.borde }
+                    Text { id: ts; anchors.centerIn: parent; text: seccion.modelData[1]; color: seccion.actual ? Paleta.texto : EstiloPanel.tenue
+                           font { family: Paleta.fuente; pixelSize: 12; bold: seccion.actual } }
+                    MouseArea { id: zs; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: br.pagina = seccion.modelData[0] }
                 }
             }
         }
@@ -275,7 +288,8 @@ Superpuesta {
         // ── páginas ──────────────────────────────────────────────────────
         Item {
             Layout.fillWidth: true
-            implicitHeight: 486
+            // Alto disponible bajo cabecera y pestañas (pantalla de 720 px lógicos → 520)
+            implicitHeight: Math.max(400, Math.min(600, (br.screen?.height ?? 720) - 200)) - (br.pestana === 1 ? 42 : 0)   // 42: fila de secciones
             clip: true
 
             // ═══ HOY ═════════════════════════════════════════════════════
@@ -287,6 +301,21 @@ Superpuesta {
                 boundsBehavior: Flickable.StopAtBounds
                 ColumnLayout {
                     id: hoyCol; width: parent.width; spacing: 12
+                    // reloj, clima y saludo (lo que era el dashboard)
+                    HoyCabecera { Layout.fillWidth: true }
+                    // frase del asistente local
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 8
+                        visible: br.frase !== "" || br.fraseCargando
+                        Text { text: "✦"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } Layout.alignment: Qt.AlignTop
+                            SequentialAnimation on opacity { loops: Animation.Infinite; running: br.fraseCargando && br.abierto; NumberAnimation { to: .25; duration: 600 } NumberAnimation { to: 1; duration: 600 } } }
+                        Text {
+                            Layout.fillWidth: true; wrapMode: Text.Wrap; lineHeight: 1.25
+                            text: br.frase || "El asistente está pensando en tu día…"
+                            color: br.frase ? Paleta.texto : EstiloPanel.tenue
+                            font { family: Paleta.fuente; pixelSize: 13; italic: !br.frase }
+                        }
+                    }
                     // cierre del día (una hora antes de tu hora de parar, o con el día ya cerrado)
                     Rectangle {
                         visible: !!br.hoy?.jornada?.mostrar
@@ -322,46 +351,6 @@ Superpuesta {
                                 onClicked: br.orden(["jornada", "reabrir"])
                             }
                         }
-                    }
-                    // saludo + frase del asistente
-                    Rectangle {
-                        Layout.fillWidth: true; implicitHeight: saludoCol.implicitHeight + 32; radius: 16
-                        gradient: Gradient {
-                            orientation: Gradient.Horizontal
-                            GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .14) }
-                            GradientStop { position: .6; color: Qt.alpha(Paleta.acento, .07) }
-                            GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .05) }
-                        }
-                        border { width: 1; color: Qt.alpha(Paleta.acento, .22) }
-                        ColumnLayout {
-                            id: saludoCol
-                            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 16 } spacing: 8
-                            RowLayout {
-                                Text { text: br.hoy?.saludo ?? "Hola"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 26; bold: true } }
-                                Item { Layout.fillWidth: true }
-                                Text { text: br.hoy?.fecha ?? ""; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true; spacing: 8
-                                Text { text: "✦"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } Layout.alignment: Qt.AlignTop
-                                    SequentialAnimation on opacity { loops: Animation.Infinite; running: br.fraseCargando && br.abierto; NumberAnimation { to: .25; duration: 600 } NumberAnimation { to: 1; duration: 600 } } }
-                                Text {
-                                    Layout.fillWidth: true; wrapMode: Text.Wrap; lineHeight: 1.25
-                                    text: br.frase || (br.fraseCargando ? "El asistente local está pensando en tu día…" : "")
-                                    color: br.frase ? Paleta.texto : Paleta.gris
-                                    font { family: Paleta.fuente; pixelSize: 13; italic: !br.frase }
-                                }
-                            }
-                        }
-                    }
-                    // cifras
-                    RowLayout {
-                        Layout.fillWidth: true; spacing: 8
-                        Cifra { titulo: "Ayer en pantalla"; valor: br.hoy?.datos?.ayer ?? "—"; glifo: "f0954"; acento: Paleta.acento2 }
-                        Cifra { titulo: "Media de la semana"; valor: br.hoy?.datos?.media ?? "—"; glifo: "f0128"; acento: Paleta.exito }
-                        Cifra { titulo: "Hoy"; glifo: "f00ed"; acento: Paleta.aviso
-                                valor: !br.hoy ? "—" : [br.hoy.datos.eventos ? `${br.hoy.datos.eventos} ${br.hoy.datos.eventos === 1 ? "evento" : "eventos"}` : "",
-                                                 br.hoy.datos.recordatorios ? `${br.hoy.datos.recordatorios} ${br.hoy.datos.recordatorios === 1 ? "recordatorio" : "recordatorios"}` : ""].filter(x => x).join(" · ") || "Agenda libre" }
                     }
                     Etiqueta { text: "IDEAS PARA HOY"; visible: (br.hoy?.sugerencias?.length ?? 0) > 0; Layout.topMargin: 2 }
                     Repeater {
@@ -430,21 +419,8 @@ Superpuesta {
                             }
                         }
                     }
-                    // recordatorios
-                    Etiqueta { text: "RECORDATORIOS DE HOY"; visible: (br.hoy?.recordatorios?.length ?? 0) > 0 }
-                    Flow {
-                        Layout.fillWidth: true; spacing: 8; visible: (br.hoy?.recordatorios?.length ?? 0) > 0
-                        Repeater { model: br.hoy?.recordatorios ?? []
-                            Rectangle { required property var modelData; implicitHeight: 30; implicitWidth: rt.implicitWidth + 22; radius: height / 2; color: Qt.alpha(Paleta.aviso, .1); border { width: 1; color: Qt.alpha(Paleta.aviso, .3) }
-                                Text { id: rt; anchors.centerIn: parent; text: parent.modelData.hora + "  " + parent.modelData.texto; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } } } }
-                    }
-                    // vacío
-                    ColumnLayout {
-                        visible: br.hoy && br.hoy.sugerencias.length === 0
-                        Layout.fillWidth: true; Layout.topMargin: 30; spacing: 4
-                        Text { Layout.alignment: Qt.AlignHCenter; text: br.g("f05a8"); color: Paleta.exito; font { family: Paleta.fuente; pixelSize: 36 } }
-                        Text { Layout.alignment: Qt.AlignHCenter; text: "Todo en orden. Nada que proponerte por ahora."; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 13 } }
-                    }
+                    // calendario y «Próximo», sistema y tiempo de pantalla
+                    HoyPaneles { Layout.fillWidth: true; Layout.topMargin: 4 }
                 }
             }
 

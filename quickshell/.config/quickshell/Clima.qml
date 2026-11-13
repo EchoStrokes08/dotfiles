@@ -1,4 +1,4 @@
-// Clima (Open-Meteo: gratis, sin cuenta ni clave). Se actualiza cada 30 min; lo enseña el dashboard.
+// Clima (Open-Meteo: gratis, sin cuenta ni clave). Se actualiza cada 30 min; lo enseñan Brújula › Hoy y los widgets del escritorio.
 // Ubicación: Bogotá. Para cambiarla, edita lat/lon/lugar aquí (coordenadas: buscar «ciudad coordenadas»).
 //   qs ipc call clima estado
 pragma Singleton

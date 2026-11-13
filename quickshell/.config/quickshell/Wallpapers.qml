@@ -11,7 +11,7 @@ import Quickshell.Widgets
 Superpuesta {
     id: sel
     espacio: "wallpapers"
-    anchoTarjeta: 4 * 214 + 28
+    anchoTarjeta: 4 * 214 + 2 * margenPanel + 4   // cuatro columnas exactas: antes cabían tres y sobraba un hueco
     alturaRelativa: 0.10
 
     readonly property string carpeta: Quickshell.env("HOME") + "/Imágenes/wallpapers"

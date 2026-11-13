@@ -89,7 +89,7 @@ RowLayout {
     Text {
         Layout.preferredWidth: 38
         horizontalAlignment: Text.AlignRight
-        text: Math.round(raiz.valor * 100) + "%"
+        text: raiz.apagado ? "mudo" : Math.round(raiz.valor * 100) + "%"   // el % de algo silenciado confunde
         color: raiz.apagado ? Paleta.gris : Paleta.texto
         font { family: Paleta.fuente; pixelSize: 11; bold: true; features: { "tnum": 1 } }   // cifras de igual ancho
     }

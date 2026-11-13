@@ -14,7 +14,6 @@ import Quickshell.Io
 import Quickshell.Hyprland
 
 ShellRoot {
-    Dashboard { id: dashboard }
     Lanzador { id: lanzador }
     OSD {}
     Emergentes {}
@@ -50,7 +49,7 @@ ShellRoot {
         Barra {
             required property var modelData
             screen: modelData
-            onRelojPulsado: dashboard.abierto = !dashboard.abierto
+            onRelojPulsado: { const a = brujula.abierto && brujula.pagina === 0; cerrarTodo(); if (!a) brujula.abrir("hoy"); }
         }
     }
 
@@ -70,11 +69,12 @@ ShellRoot {
         function estado(): string { return escritorioCfg.activado ? "visible" : "oculto"; }
     }
 
+    // «dashboard» es el nombre antiguo de Brújula › Hoy: SUPER+D, el reloj de la barra y tres dedos abajo lo siguen usando
     IpcHandler {
         target: "dashboard"
-        function toggle(): void { dashboard.abierto = !dashboard.abierto; }
-        function abrir(): void  { dashboard.abierto = true; }
-        function cerrar(): void { dashboard.abierto = false; }
+        function toggle(): void { const a = brujula.abierto && brujula.pagina === 0; cerrarTodo(); if (!a) brujula.abrir("hoy"); }
+        function abrir(): void  { cerrarTodo(); brujula.abrir("hoy"); }
+        function cerrar(): void { brujula.abierto = false; }
         // Ir a un workspace desde fuera (pruebas/scripts):  qs ipc call dashboard irA 3
         function irA(n: int): void { Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`); }
     }
@@ -90,7 +90,7 @@ ShellRoot {
     // Notificaciones (SUPER+N panel, SUPER+SHIFT+N no molestar; el modo juego usa noMolestarSi/No)
     IpcHandler {
         target: "notificaciones"
-        function toggle(): void { dashboard.abierto = false; lanzador.abierto = false; centro.abierto = !centro.abierto; }
+        function toggle(): void { const a = centro.abierto; cerrarTodo(); centro.abierto = !a; }
         function noMolestar(): void { Notificaciones.alternarNoMolestar(); }
         function noMolestarSi(): void { Notificaciones.manual = true; }
         function noMolestarNo(): void { Notificaciones.manual = false; }
@@ -116,7 +116,7 @@ ShellRoot {
         function estado(): string { return JSON.stringify({abierto:mesa.abierto, pagina:mesa.pagina, reunion:Reunion.activa, ventanas:mesa.ventanas.length, plantillas:mesa.plantillas.length}); }
     }
 
-    // Brújula (SUPER+CTRL+B): hoy · línea de tiempo · contexto automático · sesión anterior
+    // Brújula (SUPER+D): hoy · línea de tiempo (día, reglas automáticas, sesión anterior) · salud
     IpcHandler {
         target: "brujula"
         function abrir(pagina: string): void { cerrarTodo(); brujula.abrir(pagina); }
@@ -152,7 +152,7 @@ ShellRoot {
 
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
-    function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; centroEscritorio.abierto = false; dashboard.abierto = false; lanzador.abierto = false; centro.abierto = false;
+    function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; centroEscritorio.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             conexiones.abierto = false; chuleta.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }
