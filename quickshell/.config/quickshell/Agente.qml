@@ -247,7 +247,7 @@ Superpuesta {
                 implicitWidth: 40; implicitHeight: 40; radius: height / 2
                 color: Qt.alpha(Paleta.acento, .22)
                 border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
-                Text { anchors.centerIn: parent; text: "✦"; color: Paleta.texto; font { pixelSize: 18 }
+                Text { anchors.centerIn: parent; text: "✦"; color: Paleta.texto; font { pixelSize: 16 }
                     RotationAnimation on rotation { running: ag.pensando || calentador.running; loops: Animation.Infinite; from: 0; to: 360; duration: 2400 } }
                 // halo mientras piensa
                 Rectangle {
