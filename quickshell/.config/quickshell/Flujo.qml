@@ -73,7 +73,7 @@ Superpuesta {
                     }
                     if ("plan" in d) flujo.plan=d.plan;
                     if (d.seleccion && typeof d.seleccion === "object") flujo.seleccion=d.seleccion;
-                    flujo.mensaje=d.mensaje || "Proyectos listos para continuar.";
+                    flujo.mensaje=d.mensaje || "";
                 } catch(e) { flujo.error="No se pudo leer la respuesta."; }
             }
         }
@@ -91,8 +91,8 @@ Superpuesta {
         id: cuerpo
         width: parent.width; spacing: 12
         EncabezadoPanel {
-            seccion: "FLUJO DE TRABAJO"
-            titulo: ["Tu trabajo tiene memoria", "Un espacio para cada tarea", "De la selección a la acción"][flujo.pagina]
+            seccion: ["Proyectos: guárdalos y retómalos", "Organizar ventanas por tarea", "Acciones sobre lo seleccionado"][flujo.pagina]
+            titulo: "Flujo de trabajo"
             simbolo: "󰃖"
             tinte: Paleta.acento
             onCerrar: flujo.abierto=false

@@ -159,7 +159,7 @@ Superpuesta {
                     const d = JSON.parse(text);
                     if (d.plantillas) mesa.plantillas = d.plantillas;
                     if (d.sesiones) { mesa.sesiones = d.sesiones; if (d.mensaje && mesa.editando) mesa.editando = ""; }
-                    mesa.mensaje = d.mensaje || (mesa.pagina === 0 ? mesa.ventanas.length + " ventanas disponibles · Enter para ir a la seleccionada" : "Biblioteca lista");
+                    mesa.mensaje = d.mensaje || "";   // sin mensaje propio no hay nada que contar
                     if (d.seleccion) { mesa.plantillaId = d.seleccion; mesa.cambios = false; }
                 } catch (e) { mesa.error = "No se pudo leer el resultado de la acción."; }
             }
@@ -191,8 +191,8 @@ Superpuesta {
         width: parent.width
         spacing: 16
         EncabezadoPanel {
-            seccion: "MESA DE TRABAJO"
-            titulo: ["Todo en su sitio", "Ideas que puedes reutilizar", "Tu momento de presentar", "Encuentra tu ritmo"][mesa.pagina]
+            seccion: ["Ventanas abiertas", "Plantillas de texto", "Reunión", "Rutinas"][mesa.pagina]
+            titulo: "Mesa de trabajo"
             simbolo: "󰕰"
             tinte: Paleta.acento
             onCerrar: mesa.abierto = false
@@ -213,7 +213,6 @@ Superpuesta {
                     opciones: [{texto:"Ventanas",icono:"󰕰"},{texto:"Plantillas",icono:"󰈙"},{texto:"Reunión",icono:"󰍫"},{texto:"Rutinas",icono:"󰌌"}]
                     onElegir: indice => { mesa.pagina = indice; filtro.text = ""; }
                 }
-                Boton { text: "Proyectos →"; simbolo: "󰃖"; onClicked: Quickshell.execDetached(["qs","ipc","call","flujo","abrir","continuidad"]) }
                 Item { Layout.fillHeight: true }
                 Text {
                     Layout.fillWidth: true

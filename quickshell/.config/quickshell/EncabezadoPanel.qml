@@ -1,6 +1,6 @@
+// EncabezadoPanel: medalla, nombre del panel (titulo) y la sección en la que estás (seccion), y el botón de cerrar.
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Effects
 import QtQuick.Layouts
 
 RowLayout {
@@ -11,59 +11,40 @@ RowLayout {
     property color tinte: Paleta.acento
     signal cerrar()
     Layout.fillWidth: true
-    implicitHeight: 64
-    spacing: 16
+    implicitHeight: 48
+    spacing: 12
 
-    // Medalla del panel: degradado del tinte, filo de luz y resplandor
-    Item {
-        implicitWidth: 52; implicitHeight: 52
-        RectangularShadow {
-            anchors.fill: parent
-            visible: EstiloPanel.efectos
-            radius: 16
-            offset.y: 6; blur: 24; spread: -6
-            color: Qt.alpha(cabecera.tinte, .45)
-        }
-        Rectangle {
-            anchors.fill: parent
-            radius: 16
-            gradient: Gradient {
-                orientation: Gradient.Vertical
-                GradientStop { position: 0; color: Qt.alpha(Qt.lighter(cabecera.tinte, 1.15), .42) }
-                GradientStop { position: 1; color: Qt.alpha(cabecera.tinte, .14) }
-            }
-            border { width: 1; color: Qt.alpha(cabecera.tinte, .55) }
-        }
-        Rectangle {   // brillo de la esquina
-            x: 6; y: 3; width: parent.width - 12; height: 1
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: "transparent" }
-                GradientStop { position: .5; color: Qt.alpha("white", .45) }
-                GradientStop { position: 1; color: "transparent" }
-            }
-        }
+    // Medalla del panel
+    Rectangle {
+        implicitWidth: 40; implicitHeight: 40
+        radius: 12
+        color: Qt.alpha(cabecera.tinte, .22)
+        border { width: 1; color: Qt.alpha(cabecera.tinte, .5) }
         Text {
             anchors.centerIn: parent
             text: cabecera.simbolo
-            color: Qt.lighter(cabecera.tinte, 1.25)
-            font { family: Paleta.fuente; pixelSize: 26 }
+            color: Paleta.texto
+            font { family: Paleta.fuente; pixelSize: 20 }
         }
     }
+    // Nombre del panel y, debajo, dónde estás dentro de él
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 2
-        RowLayout {
-            spacing: 8
-            Rectangle { width: 6; height: 6; radius: height / 2; color: cabecera.tinte }
-            Text { Layout.fillWidth: true; text: cabecera.seccion.toUpperCase(); elide: Text.ElideRight; color: cabecera.tinte; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 } }
-        }
+        spacing: 0
         Text {
             Layout.fillWidth: true
             text: cabecera.titulo
             elide: Text.ElideRight
             color: Paleta.texto
-            font { family: EstiloPanel.fuente; pixelSize: 26; weight: Font.DemiBold; letterSpacing: -.3 }
+            font { family: EstiloPanel.fuente; pixelSize: 20; bold: true }
+        }
+        Text {
+            Layout.fillWidth: true
+            visible: cabecera.seccion !== ""
+            text: cabecera.seccion
+            elide: Text.ElideRight
+            color: EstiloPanel.tenue
+            font { family: EstiloPanel.fuente; pixelSize: 12 }
         }
     }
     // Cerrar: botón redondo con la tecla debajo

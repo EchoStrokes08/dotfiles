@@ -1,3 +1,4 @@
+// EstadoPanel: franja de estado al pie de un panel (trabajando · hecho · error).
 import QtQuick
 import QtQuick.Layouts
 
@@ -7,6 +8,12 @@ Rectangle {
     property string error: ""
     property bool ocupado: false
     readonly property color tinte: error ? Paleta.peligro : ocupado ? Paleta.acento2 : Paleta.exito
+    // Solo aparece cuando informa: mientras se trabaja, ante un error o 4 s tras terminar una acción.
+    // Un mensaje fijo («3 ventanas disponibles») no se muestra.
+    property bool reciente: false
+    onOcupadoChanged: if (!ocupado) { reciente = true; ocultar.restart(); }
+    Timer { id: ocultar; interval: 4000; onTriggered: estado.reciente = false }
+    visible: ocupado || error !== "" || (reciente && mensaje !== "")
     Layout.fillWidth: true
     implicitHeight: 44
     radius: 16

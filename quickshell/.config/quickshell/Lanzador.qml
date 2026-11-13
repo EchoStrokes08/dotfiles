@@ -14,6 +14,10 @@
 //   a texto   atajos de teclado                      l texto   línea de tiempo (dónde viste algo y cuándo)
 //   s texto   ajustes: «s claro», «s lectura», «s regla programar»… → Enter lo aplica
 //   b texto   todo a la vez. Sin prefijo, con 3+ letras, también salen debajo de las apps (búsqueda universal)
+//   pl texto  plantillas de texto → Enter la copia con fecha y hora (también salen sin prefijo con 3+ letras)
+//   el nombre de un proyecto (o «proyecto», «retomar») → Enter lo retoma: apps, espacios y siguiente paso
+// Mesa y Flujo son modos del lanzador: proyectos, plantillas y rutinas salen aquí; sus paneles se abren
+// con las acciones «Mesa de trabajo», «Guardar proyecto»…
 //   (v, n, c, t, p, d, h, a, l y b los resuelve ~/.config/hypr/scripts/buscar.py)
 // Teclas: ↑↓ / Tab moverse · Enter elegir · Esc o clic fuera cierra.
 // Las apps que más abres suben (contador en ~/.local/state/quickshell/lanzador.json).
@@ -31,14 +35,18 @@ PanelWindow {
     property bool abierto: false
     property bool mostrar: false
     property var usos: ({})              // { "firefox.desktop": 12, … }
+    property bool todosPrefijos: false   // chips: los 6 más usados o todos
 
     onAbiertoChanged: {
         if (abierto) {
             cierre.stop(); mostrar = true;
             buscador.text = "";
+            todosPrefijos = false;
             lista.currentIndex = 0;
             buscador.forceActiveFocus();
             recientes.reload();
+            if (!leerProyectos.running) leerProyectos.running = true;
+            if (!leerPlantillas.running) leerPlantillas.running = true;
         } else cierre.restart();
     }
     Timer { id: cierre; interval: 220; onTriggered: ventana.mostrar = false }
@@ -65,6 +73,32 @@ PanelWindow {
         onLoaded: { try { ventana.usos = JSON.parse(text()); } catch (e) { ventana.usos = {}; } }
     }
     Component.onCompleted: Quickshell.execDetached(["mkdir", "-p", Quickshell.env("HOME") + "/.local/state/quickshell"])
+
+    // ── Proyectos (Flujo) y plantillas (Mesa): fuentes de resultados ─────
+    readonly property string scriptsAbs: Quickshell.env("HOME") + "/.config/hypr/scripts/"
+    property var proyectos: []
+    property var plantillas: []
+    Process {
+        id: leerProyectos
+        command: [ventana.scriptsAbs + "flujo.py", "proyecto", "lista"]
+        stdout: StdioCollector { onStreamFinished: { try { ventana.proyectos = JSON.parse(this.text).proyectos ?? []; } catch (e) {} } }
+    }
+    Process {
+        id: leerPlantillas
+        command: [ventana.scriptsAbs + "mesa.py", "plantilla", "lista"]
+        stdout: StdioCollector { onStreamFinished: { try { ventana.plantillas = JSON.parse(this.text).plantillas ?? []; } catch (e) {} } }
+    }
+    function itemProyecto(pr) {
+        return { nombre: "Retomar «" + pr.nombre + "»", detalle: pr.siguiente ? "Siguiente: " + pr.siguiente : "Abre sus apps en sus espacios",
+                 glifo: 0xF0E1B, accion: () => Quickshell.execDetached([scriptsAbs + "flujo.py", "proyecto", "retomar", "--id=" + pr.id]) };
+    }
+    function itemPlantilla(pl) {
+        return { nombre: pl.titulo, detalle: "Plantilla · " + pl.texto.replace(/\s+/g, " ").slice(0, 90), glifo: 0xF0219,
+                 accion: () => Quickshell.execDetached([scriptsAbs + "mesa.py", "plantilla", "copiar", "--id", pl.id]) };
+    }
+    // Entradas que no son apps de verdad (ayudas, «acerca de»): no salen en la lista
+    readonly property var excluidas: /(^|\s)(help|ayuda|about|acerca de)(\s|$)/i
+    function visibleApp(app) { return !excluidas.test(app.name) && !(app.noDisplay ?? false); }
 
     // ── Utilidades de búsqueda ──────────────────────────────────────────
     function normalizar(s) { return (s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
@@ -97,8 +131,8 @@ PanelWindow {
         { n: "Reiniciar",               d: "Reiniciar el equipo",                          i: 0xF0709, k: "reboot",               c: "systemctl reboot" },
         { n: "Apagar",                  d: "Apagar el equipo",                             i: 0xF0425, k: "poweroff shutdown",    c: "systemctl poweroff" },
         { n: "Cerrar sesión",           d: "Salir de Hyprland",                            i: 0xF0343, k: "logout salir",         c: "hyprctl dispatch 'hl.dsp.exit()'" },
-        { n: "Wi-Fi y Bluetooth",       d: "Redes y dispositivos · SUPER+K",               i: 0xF0928, k: "red wifi bluetooth",   c: "qs ipc call conexiones toggle" },
-        { n: "Centro de control",       d: "Volumen, botones rápidos, notificaciones · SUPER+N", i: 0xF0493, k: "notificaciones", c: "qs ipc call notificaciones toggle" },
+        { n: "Wi-Fi y Bluetooth",       d: "Centro de control › Conexiones · SUPER+K",               i: 0xF0928, k: "red wifi bluetooth",   c: "qs ipc call conexiones toggle" },
+        { n: "Centro de control",       d: "Ajustes rápidos, sonido, avisos, conexiones y móvil · SUPER+N", i: 0xF0493, k: "notificaciones", c: "qs ipc call notificaciones toggle" },
         { n: "Vista general",           d: "Todas las ventanas en miniatura · SUPER+TAB arriba", i: 0xF0570, k: "overview ventanas", c: "qs ipc call vista toggle" },
         { n: "Copiar texto de la pantalla", d: "OCR de una zona · SUPER+SHIFT+X",          i: 0xF0EF1, k: "ocr leer texto",       c: scripts + "ocr.sh" },
         { n: "Dictar",                  d: "Escribir con la voz · SUPER+ALT+D",            i: 0xF036C, k: "voz dictado whisper",  c: scripts + "dictado.sh" },
@@ -109,12 +143,16 @@ PanelWindow {
         { n: "Luz nocturna",            d: "Pantalla cálida sí/no · SUPER+ALT+N",          i: 0xF0594, k: "noche sunset",         c: scripts + "luz-nocturna.sh" },
         { n: "Continuar proyecto", d: "Próximo paso, recursos y aplicaciones guardadas · SUPER+CTRL+Enter", i: 0xF0E1B, k: "continuidad memoria proyecto retomar", c: "qs ipc call flujo abrir continuidad" },
         { n: "Organizar por tarea", d: "Previsualizar y aplicar un layout · SUPER+CTRL+O", i: 0xF03D8, k: "comparar programar investigar columnas ordenar", c: "qs ipc call flujo abrir organizar" },
-        { n: "Acciones de selección", d: "Capturar texto y elegir qué hacer · SUPER+ALT+C", i: 0xF0394, k: "seleccion texto transformar resumir traducir", c: "~/.config/hypr/scripts/flujo.py abrir seleccion" },
+        { n: "Acciones de selección", d: "Capturar texto y elegir qué hacer · SUPER+ALT+C", i: 0xF0219, k: "seleccion texto transformar resumir traducir", c: "~/.config/hypr/scripts/flujo.py abrir seleccion" },
         { n: "Mesa de trabajo", d: "Buscar, mover y aparcar ventanas · SUPER+ALT+ESPACIO", i: 0xF03D8, k: "premium ventanas aparcar organizar", c: "qs ipc call mesa abrir ventanas" },
-        { n: "Plantillas de texto", d: "Textos reutilizables con fecha y hora · SUPER+CTRL+V", i: 0xF0394, k: "fragmentos snippets biblioteca copiar", c: "qs ipc call mesa abrir plantillas" },
+        { n: "Plantillas de texto", d: "Textos reutilizables con fecha y hora · SUPER+CTRL+V", i: 0xF0219, k: "fragmentos snippets biblioteca copiar", c: "qs ipc call mesa abrir plantillas" },
         { n: "Reunión temporizada", d: "Privacidad, No molestar y suspensión pausada", i: 0xF0306, k: "presentacion reunion videollamada temporizador", c: "qs ipc call mesa abrir reunion" },
-        { n: "Rutinas", d: "Aplicaciones, perfil y concentración en una acción", i: 0xF0E1B, k: "estudiar programar descansar preparar", c: "qs ipc call mesa abrir rutinas" },
-        { n: "Centro del escritorio", d: "Perfiles, privacidad, checkpoints y diagnóstico · SUPER+CTRL+ESPACIO", i: 0xF03D8, k: "perfil sistema avanzado checkpoint diagnostico", c: "qs ipc call centroEscritorio toggle" },
+        { n: "Rutinas", d: "Editar qué apps abre cada rutina", i: 0xF0E1B, k: "estudiar programar descansar preparar editar", c: "qs ipc call mesa abrir rutinas" },
+        { n: "Empezar a estudiar", d: "Rutina: apps de la universidad, perfil lectura y 25 min de concentración", i: 0xF0474, k: "rutina estudiar universidad clase", c: scripts + "mesa.py rutina estudiar" },
+        { n: "Empezar a programar", d: "Rutina: apps de programar y 50 min de concentración", i: 0xF0169, k: "rutina programar codigo", c: scripts + "mesa.py rutina programar" },
+        { n: "Empezar a descansar", d: "Rutina: apps de descanso", i: 0xF04B2, k: "rutina descansar descanso pausa", c: scripts + "mesa.py rutina descansar" },
+        { n: "Guardar proyecto", d: "Guardar las apps abiertas y el siguiente paso para retomarlo luego", i: 0xF0193, k: "proyecto guardar continuidad memoria", c: "qs ipc call flujo abrir continuidad" },
+        { n: "Perfiles y privacidad", d: "Centro de control › Más: checkpoints, privacidad, diagnóstico y replay", i: 0xF03D8, k: "perfil sistema avanzado checkpoint diagnostico", c: "qs ipc call centroEscritorio toggle" },
         { n: "Modo juego",              d: "Sin efectos ni notificaciones · SUPER+SHIFT+G", i: 0xF0297, k: "game",                c: "hyprctl dispatch 'modo_juego.alternar() or hl.dsp.no_op()'" },
         { n: "Concentración",           d: "Temporizador con No molestar · SUPER+SHIFT+F", i: 0xF04FE, k: "pomodoro foco",        c: "qs ipc call menu concentracion" },
         { n: "Cambiar colores",         d: "Ayu ↔ colores del wallpaper · SUPER+SHIFT+T",  i: 0xF03D8, k: "tema paleta",          c: scripts + "tema.sh alternar" },
@@ -125,7 +163,7 @@ PanelWindow {
         { n: "Sesiones de trabajo",     d: "Universidad, programar, descanso · SUPER+ALT+Enter", i: 0xF0E1B, k: "sesion contexto universidad programar", c: "hyprctl dispatch 'sesion.menu() or hl.dsp.no_op()'" },
         { n: "Asistente (IA)",          d: "Resumir, corregir, explicar o traducir lo seleccionado · SUPER+ALT+A", i: 0xF06A9, k: "ia inteligencia resumir corregir explicar ollama", c: scripts + "ia.sh" },
         { n: "Nota rápida",             d: "Apuntar una línea en notas.md · SUPER+SHIFT+O", i: 0xF039A, k: "notas apuntar anotar",  c: "qs ipc call nota abrir" },
-        { n: "Móvil",                   d: "Avisos y respuestas, música, archivos y mandos · SUPER+ALT+M", i: 0xF011C, k: "telefono celular enviar whatsapp responder notificaciones", c: scripts + "movil.sh menu" },
+        { n: "Móvil",                   d: "Centro de control › Móvil: batería, archivos, avisos · SUPER+ALT+M", i: 0xF011C, k: "telefono celular enviar whatsapp responder notificaciones", c: scripts + "movil.sh menu" },
         { n: "Resumen del día",         d: "Clima, eventos, recordatorios y actualizaciones", i: 0xF05A8, k: "manana hoy agenda",    c: "qs ipc call resumen mostrar" },
         { n: "Actualizar el sistema",   d: "Con snapshot, noticias de Arch y revisión final", i: 0xF03D6, k: "update paquetes pacman yay seguro", c: scripts + "actualizaciones.sh instalar" },
         { n: "Deshacer la última actualización", d: "Devolver / a su snapshot anterior (snapper)", i: 0xF099B, k: "rollback volver snapshot actualizacion rota", c: scripts + "actualizaciones.sh deshacer" },
@@ -135,7 +173,7 @@ PanelWindow {
         { n: "Cerrar el día",           d: "Guarda la sesión, silencia y baja la luz",       i: 0xF0594, k: "jornada fin dormir noche terminar", c: scripts + "brujula.py jornada cerrar" },
         { n: "Filtro de pantalla",      d: "Grises, papel, vivo, invertido · SUPER+ALT+S", i: 0xF03D8, k: "shader grises sepia",   c: "qs ipc call menu shaders" },
         { n: "Sonido de las bocinas",   d: "Perfil música / voz / sin efectos · SUPER+ALT+E", i: 0xF057E, k: "audio ecualizador easyeffects", c: scripts + "sonido.sh menu" },
-        { n: "Brújula", d: "Tu día, línea de tiempo, contexto y sesión · SUPER+CTRL+B", i: 0xF018B, k: "hoy sugerencias asistente dia", c: "qs ipc call brujula abrir hoy" },
+        { n: "Brújula", d: "Tu día, línea de tiempo y salud del equipo · SUPER+D", i: 0xF018B, k: "hoy sugerencias asistente dia", c: "qs ipc call brujula abrir hoy" },
         { n: "Línea de tiempo", d: "Qué tuviste delante y cuándo", i: 0xF0954, k: "historial actividad timeline ayer", c: "qs ipc call brujula abrir linea" },
         { n: "Contexto automático", d: "Reglas que adaptan el escritorio a lo que haces", i: 0xF0493, k: "reglas automatico perfil adaptar", c: "qs ipc call brujula abrir contexto" },
         { n: "Restaurar sesión anterior", d: "Reabrir las apps de antes del reinicio en sus espacios", i: 0xF099B, k: "recuperar reabrir reinicio cuelgue", c: "qs ipc call brujula abrir sesion" },
@@ -299,6 +337,7 @@ PanelWindow {
         if (/^(evento|tarea)\s/i.test(t)) return "agenda";
         if (/^ia\s+\S/i.test(t)) return "ia";
         if (/^nota\s+\S/i.test(t)) return "nota";
+        if (/^pl(\s|$)/i.test(t)) return "plantillas";
         const pe = t.match(/^(\w+)\s/);
         if (pe && externosTipos[pe[1].toLowerCase()]) return "externo";
         if (t.startsWith(":")) return "emoji";
@@ -353,6 +392,12 @@ PanelWindow {
             return externos.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo,
                                         accion: x.cmd && x.cmd.length ? () => Quickshell.execDetached(x.cmd) : null }));
         }
+        if (modo === "plantillas") {
+            const f = normalizar(t.replace(/^pl\s*/i, ""));
+            const l = plantillas.filter(x => normalizar(x.titulo + " " + x.texto).includes(f)).map(itemPlantilla);
+            return l.length ? l : [{ nombre: plantillas.length ? "Ninguna plantilla coincide" : "Aún no tienes plantillas",
+                                     detalle: "Créalas en Mesa de trabajo › Plantillas", glifo: 0xF0219, accion: () => sh("qs ipc call mesa abrir plantillas") }];
+        }
         if (modo === "emoji")
             return buscarEmojis(t.slice(1)).map(x => ({ nombre: x.n, detalle: "Enter: escribirlo (y queda copiado)", texto: x.e,
                 accion: () => Quickshell.execDetached(["sh", "-c", 'printf %s "$1" | wl-copy; sleep 0.25; wtype "$1"', "_", x.e]) }));
@@ -373,13 +418,22 @@ PanelWindow {
                        glifo: 0xF00EC, accion: ok ? (r => () => Quickshell.execDetached(["wl-copy", r]))(calcResultado) : null });
             if (t.startsWith("=")) return res;
         }
-        const apps = DesktopEntries.applications.values
+        const apps = DesktopEntries.applications.values.filter(visibleApp)
             .map(app => ({ app: app, p: puntajeApp(app, q) })).filter(r => r.p > 0)
             .map(r => ({ app: r.app, p: r.p + Math.min(30, (usos[r.app.id] ?? 0) * 3) }));
         const accs = acciones.map(a => ({ a: a, p: puntajeAccion(a, q) })).filter(r => r.p > 0);
+        // proyectos: por su nombre, o todos con «proyecto» / «retomar»
+        const todosProy = q.length >= 3 && ("proyectos".startsWith(q) || "retomar".startsWith(q));
+        const proys = q.length < 2 ? [] : proyectos.map(pr => {
+            const n = normalizar(pr.nombre);
+            return { pr: pr, p: n.startsWith(q) ? 95 : n.includes(q) ? 75 : todosProy ? 60 : 0 };
+        }).filter(r => r.p > 0);
+        const plants = q.length < 3 ? [] : plantillas.filter(x => normalizar(x.titulo).includes(q)).slice(0, 3);
         const mezcla = [...apps.map(r => ({ p: r.p, item: { nombre: r.app.name, detalle: r.app.genericName || r.app.comment || "",
                                                             icono: r.app.icon, accion: () => lanzarApp(r.app) } })),
-                        ...accs.map(r => ({ p: r.p, item: { nombre: r.a.n, detalle: r.a.d, glifo: r.a.i, accion: () => sh(r.a.c) } }))]
+                        ...accs.map(r => ({ p: r.p, item: { nombre: r.a.n, detalle: r.a.d, glifo: r.a.i, accion: () => sh(r.a.c) } })),
+                        ...proys.map(r => ({ p: r.p, item: itemProyecto(r.pr) })),
+                        ...plants.map(x => ({ p: 40, item: itemPlantilla(x) }))]
             .sort((a, b) => b.p - a.p || a.item.nombre.localeCompare(b.item.nombre)).slice(0, 40).map(x => x.item);
         // lo universal solo vale si es de lo que hay escrito ahora (no de una búsqueda anterior)
         const universal = (todosDe === t && q.length >= 3) ? todos : [];
@@ -460,7 +514,7 @@ PanelWindow {
                         border { width: 1; color: Qt.alpha(Paleta.acento, .45) }
                     Text {   // el icono cambia según el modo
                         anchors.centerIn: parent
-                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A })[ventana.modo] ?? 0xF0349)
+                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A, plantillas: 0xF0219 })[ventana.modo] ?? 0xF0349)
                         color: Qt.lighter(Paleta.acento, 1.2)
                         font { family: Paleta.mono; pixelSize: 16 }
                     }
@@ -477,7 +531,7 @@ PanelWindow {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: buscador.text === ""
-                            text: "Apps, =cálculos, g web, :emoji, /archivos, recordar…"
+                            text: "Busca apps, acciones, proyectos… o usa un prefijo"
                             color: Paleta.gris
                             font: buscador.font
                         }
@@ -496,6 +550,46 @@ PanelWindow {
                         color: EstiloPanel.rellenoActivo
                         border { width: 1; color: EstiloPanel.borde }
                         Text { id: numResultados; anchors.centerIn: parent; text: ventana.resultados.length; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
+                    }
+                }
+            }
+
+            // Prefijos: con el campo vacío, los más usados; «Más» los enseña todos. Clic = escribirlo.
+            Flow {
+                Layout.fillWidth: true
+                visible: buscador.text === ""
+                spacing: 4
+                Repeater {
+                    model: {
+                        const todos = [["=", "calcular"], ["g", "web"], ["/", "archivos"], ["v", "ventanas"], ["c", "copiado"], ["pl", "plantillas"],
+                                       ["recordar", "recordatorio"], ["evento", "calendario"], [":", "emoji"], ["n", "notas"], ["d", "documentos"],
+                                       ["t", "pestañas"], ["h", "historial"], ["p", "contraseñas"], ["a", "atajos"], ["l", "línea de tiempo"],
+                                       ["s", "ajustes"], ["ia", "preguntar"], ["nota", "apuntar"], ["b", "todo"]];
+                        return ventana.todosPrefijos ? todos : todos.slice(0, 6).concat([["+", "más"]]);
+                    }
+                    Rectangle {
+                        id: chip
+                        required property var modelData
+                        implicitWidth: filaChip.implicitWidth + 16; implicitHeight: 26; radius: height / 2
+                        color: zonaChip.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+                        border { width: 1; color: EstiloPanel.borde }
+                        Row {
+                            id: filaChip
+                            anchors.centerIn: parent
+                            spacing: 4
+                            Text { text: chip.modelData[0] === "+" ? "" : chip.modelData[0]; visible: text !== ""; color: Paleta.acento; font { family: Paleta.mono; pixelSize: 11; bold: true } }
+                            Text { text: chip.modelData[1]; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                        }
+                        MouseArea {
+                            id: zonaChip
+                            anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (chip.modelData[0] === "+") { ventana.todosPrefijos = true; return; }
+                                const pre = chip.modelData[0];
+                                buscador.text = (pre === "=" || pre === "/" || pre === ":") ? pre : pre + " ";
+                                buscador.forceActiveFocus();
+                            }
+                        }
                     }
                 }
             }
@@ -624,15 +718,6 @@ PanelWindow {
                 font { family: Paleta.fuente; pixelSize: 12; italic: true }
             }
 
-            Text {
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignHCenter
-                wrapMode: Text.Wrap
-                lineHeight: 1.3
-                text: "=calc  g/yt/w web  :emoji  /archivos  recordar  ·  v ventanas  n notas  c copiado  t pestañas  p claves  d documentos  h historial  a atajos  l línea  s ajustes  ·  ia …  nota …"
-                color: Qt.alpha(Paleta.gris, 0.8)
-                font { family: Paleta.fuente; pixelSize: 11 }
-            }
         }
     }
 }
