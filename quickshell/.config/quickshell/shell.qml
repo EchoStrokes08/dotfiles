@@ -22,12 +22,10 @@ ShellRoot {
     Wallpapers { id: wallpapers }
     Portapapeles { id: portapapeles }
     Menu { id: menu }
-    Conexiones { id: conexiones }
     Chuleta { id: chuleta }
     Vista { id: vista }
     IA { id: ia }
     NotaRapida { id: nota }
-    CentroEscritorio { id: centroEscritorio }
     Mesa { id: mesa }
     Flujo { id: flujo }
     Resumen { id: resumen }
@@ -100,11 +98,12 @@ ShellRoot {
         function borrar(): void { Notificaciones.borrarTodo(); }
     }
 
+    // El centro del escritorio vive ahora en el centro de control (perfiles arriba, el resto en «Más»)
     IpcHandler {
         target: "centroEscritorio"
         function estado(): string { return JSON.stringify(EstadoEscritorio.datos); }
-        function toggle(): void { const a = centroEscritorio.abierto; cerrarTodo(); centroEscritorio.abierto = !a; }
-        function cerrar(): void { centroEscritorio.abierto = false; }
+        function toggle(): void { const a = centro.abierto && centro.seccion === "mas"; cerrarTodo(); if (!a) centro.abrirEn("mas"); }
+        function cerrar(): void { centro.abierto = false; }
     }
 
     IpcHandler {
@@ -134,11 +133,12 @@ ShellRoot {
         function estado(): string { return JSON.stringify({ abierto: agente.abierto, pensando: agente.pensando, listo: agente.listo, mensajes: agente.mensajes.length }); }
     }
 
-    // Móvil (SUPER+ALT+M): avisos con respuesta, acciones, música y funciones de KDE Connect
+    // toggle (SUPER+ALT+M, el móvil de la barra) → centro de control › Móvil · avisos → el panel de avisos y respuestas
     IpcHandler {
         target: "movil"
-        function toggle(): void { const a = movil.abierto; cerrarTodo(); if (!a) movil.abrir(); }
-        function abrir(): void { cerrarTodo(); movil.abrir(); }
+        function toggle(): void { const a = centro.abierto && centro.seccion === "movil"; cerrarTodo(); if (!a) centro.abrirEn("movil"); }
+        function abrir(): void { cerrarTodo(); centro.abrirEn("movil"); }
+        function avisos(): void { cerrarTodo(); movil.abrir(); }
         function cerrar(): void { movil.abierto = false; }
         function estado(): string { return JSON.stringify({ abierto: movil.abierto, conectado: movil.d?.conectado ?? false, avisos: movil.d?.notificaciones?.length ?? 0 }); }
     }
@@ -152,9 +152,9 @@ ShellRoot {
 
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
-    function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; centroEscritorio.abierto = false; lanzador.abierto = false; centro.abierto = false;
+    function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
-                            conexiones.abierto = false; chuleta.abierto = false;
+                            chuleta.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }
     IpcHandler {
         target: "wallpapers"
@@ -261,16 +261,16 @@ ShellRoot {
         }
     }
 
-    // Wi-Fi y Bluetooth (SUPER+K, clic en la red de la barra, clic derecho en los botones del centro)
-    //   qs ipc call conexiones toggle · wifi · bluetooth · estado
+    // Wi-Fi y Bluetooth (SUPER+K, clic en la red de la barra, clic derecho en los botones del centro):
+    // la pestaña Conexiones del centro de control.  qs ipc call conexiones toggle · wifi · bluetooth · estado
     IpcHandler {
         target: "conexiones"
-        function toggle(): void { const a = conexiones.abierto; cerrarTodo(); conexiones.abierto = !a; }
-        function wifi(): void { cerrarTodo(); conexiones.abrirEn("wifi"); }
-        function bluetooth(): void { cerrarTodo(); conexiones.abrirEn("bluetooth"); }
+        function toggle(): void { const a = centro.abierto && centro.seccion === "conexiones"; cerrarTodo(); if (!a) centro.abrirEn("conexiones"); }
+        function wifi(): void { cerrarTodo(); centro.abrirEn("conexiones", "wifi"); }
+        function bluetooth(): void { cerrarTodo(); centro.abrirEn("conexiones", "bluetooth"); }
         function estado(): string {
-            return `wifi=${conexiones.wifi ? "si" : "no"} redes=${conexiones.redes.length} ` +
-                   `bt=${conexiones.adaptador?.enabled ?? false} dispositivos=${conexiones.dispositivos.length}`;
+            const l = centro.listaConexiones;
+            return `wifi=${l.wifi ? "si" : "no"} redes=${l.redes.length} bt=${l.adaptador?.enabled ?? false} dispositivos=${l.dispositivos.length}`;
         }
     }
 

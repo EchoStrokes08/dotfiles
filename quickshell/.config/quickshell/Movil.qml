@@ -1,6 +1,6 @@
-// Móvil (SUPER+ALT+M, clic en el móvil de la barra): el PC y el móvil como uno solo (KDE Connect).
+// Móvil › avisos y respuestas (KDE Connect). Las acciones rápidas (sonar, enviar archivo…) y la batería
+// están en el centro de control › Móvil (SUPER+ALT+M); aquí se llega desde allí o al pulsar «Responder».
 //   · avisos del móvil, con respuesta (WhatsApp, Telegram, SMS…) y descartar
-//   · acciones: sonar, abrir en el móvil lo copiado, archivo, captura, sus archivos, mensajes
 //   · música que suena en el móvil · funciones de «uno solo» · mandos del PC en el móvil
 // Datos y órdenes: ~/.config/hypr/scripts/movil.py. «Responder» en una notificación del PC abre
 // aquí la respuesta (Notificaciones.responder).
@@ -72,27 +72,6 @@ Superpuesta {
     }
 
     // ── piezas ───────────────────────────────────────────────────────────
-    component Accion: Rectangle {
-        id: ac
-        property string glifo: "f011c"
-        property string texto: ""
-        property color acento: Paleta.acento
-        signal pulsado()
-        Layout.fillWidth: true; implicitHeight: 74; radius: 16
-        color: Qt.alpha(acento, za.containsMouse ? .16 : .06)
-        border { width: 1; color: Qt.alpha(acento, za.containsMouse ? .55 : .15) }
-        scale: za.pressed ? .96 : 1
-        Behavior on scale { NumberAnimation { duration: 90 } }
-        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
-        Column {
-            anchors.centerIn: parent; spacing: 4
-            Text { anchors.horizontalCenter: parent.horizontalCenter; text: mv.g(ac.glifo); color: ac.acento; font { family: Paleta.fuente; pixelSize: 20 } }
-            Text { anchors.horizontalCenter: parent.horizontalCenter; text: ac.texto; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
-        }
-        MouseArea { id: za; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; enabled: !!mv.d?.conectado; onClicked: ac.pulsado() }
-        opacity: mv.d?.conectado ? 1 : .4
-    }
-
     ColumnLayout {
         width: parent.width; spacing: 12
 
@@ -100,29 +79,19 @@ Superpuesta {
         RowLayout {
             Layout.fillWidth: true; spacing: 12
             Rectangle {
-                implicitWidth: 50; implicitHeight: 50; radius: 16
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Qt.alpha(Paleta.exito, .35) }
-                    GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .3) }
-                }
-                Text { anchors.centerIn: parent; text: mv.g("f011c"); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 26 } }
-                // pulso: conectado
-                Rectangle {
-                    visible: !!mv.d?.conectado
-                    anchors { right: parent.right; bottom: parent.bottom; margins: -2 }
-                    width: 14; height: 14; radius: height / 2; color: Paleta.exito; border { width: 2; color: Paleta.fondo }
-                    SequentialAnimation on scale { loops: Animation.Infinite; running: mv.abierto; NumberAnimation { to: 1.25; duration: 900 } NumberAnimation { to: 1; duration: 900 } }
-                }
+                implicitWidth: 40; implicitHeight: 40; radius: 12
+                color: Qt.alpha(Paleta.acento, .22)
+                border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
+                Text { anchors.centerIn: parent; text: mv.g("f011c"); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20 } }
             }
             ColumnLayout {
-                spacing: 1; Layout.fillWidth: true
-                Etiqueta { text: "PC + MÓVIL"; color: Paleta.exito }
-                Text { text: mv.d?.conectado ? mv.d.nombre : "Móvil sin conectar"; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
+                spacing: 0; Layout.fillWidth: true
+                Text { text: "Móvil"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
                 Text {
-                    color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
-                    text: !mv.d ? "Buscando…" : !mv.d.conectado ? (mv.d.emparejado ? "Emparejado, pero no está en la misma red (o KDE Connect está cerrado en el móvil)" : "Aún no hay un móvil emparejado")
-                        : "Conectado por " + (mv.d.via || "red") + (mv.d.red?.tipo ? ` · ${mv.d.red.tipo} ${"▂▄▆█".slice(0, Math.max(0, mv.d.red.fuerza))}` : "")
+                    Layout.fillWidth: true; elide: Text.ElideRight
+                    color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 }
+                    text: !mv.d ? "Buscando…" : !mv.d.conectado ? "Sin conectar"
+                        : mv.d.nombre + " · conectado por " + (mv.d.via || "red") + (mv.d.red?.tipo ? ` · ${mv.d.red.tipo}` : "")
                 }
             }
             Anillo {
@@ -168,20 +137,26 @@ Superpuesta {
             }
         }
 
-        // ── acciones ─────────────────────────────────────────────────────
-        RowLayout {
-            Layout.fillWidth: true; spacing: 8
-            Accion { glifo: "f009e"; texto: "Sonar"; acento: Paleta.aviso; onPulsado: Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "sonar"]) }
-            Accion { glifo: "f0339"; texto: "Abrir lo copiado"; acento: Paleta.acento2; onPulsado: mv.orden(["enlace"]) }
-            Accion { glifo: "f0552"; texto: "Enviar archivo"; acento: Paleta.acento; onPulsado: { Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "elegir"]); mv.abierto = false; } }
-            Accion { glifo: "f0100"; texto: "Captura al móvil"; acento: Paleta.acento; onPulsado: { mv.abierto = false; capturaLuego.start(); } }
-            Accion { glifo: "f024b"; texto: "Sus archivos"; acento: Paleta.exito; onPulsado: { Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "navegar"]); mv.abierto = false; } }
-            Accion { glifo: "f0361"; texto: "Mensajes (SMS)"; acento: Paleta.acento2; onPulsado: { Quickshell.execDetached(["kdeconnect-sms"]); mv.abierto = false; } }
-        }
         Timer { id: capturaLuego; interval: 450; onTriggered: Quickshell.execDetached([mv.script, "captura"]) }   // sin el panel en la foto
+
+        // ── sin conectar: un mensaje y una acción ────────────────────────
+        ColumnLayout {
+            visible: !!mv.d && !mv.d.conectado
+            Layout.fillWidth: true; Layout.topMargin: 32; Layout.bottomMargin: 32; spacing: 8
+            Text { Layout.alignment: Qt.AlignHCenter; text: mv.g("f011c"); color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 36 } }
+            Text { Layout.alignment: Qt.AlignHCenter; text: mv.d?.emparejado ? "El móvil no está conectado" : "No hay ningún móvil emparejado"
+                   color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 16; bold: true } }
+            Text { Layout.alignment: Qt.AlignHCenter; Layout.maximumWidth: 460; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap
+                   text: mv.d?.emparejado ? "Abre KDE Connect en el móvil y conéctalo a la misma red Wi-Fi que este equipo."
+                                          : "Empareja tu móvil desde KDE Connect para ver aquí sus avisos y contestarlos."
+                   color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 13 } }
+            BotonCompacto { Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 8; text: "Abrir KDE Connect"; destacado: true
+                            onClicked: { Quickshell.execDetached(["kdeconnect-app"]); mv.abierto = false; } }
+        }
 
         // ── avisos del móvil | música + funciones ────────────────────────
         RowLayout {
+            visible: !!mv.d?.conectado
             Layout.fillWidth: true; Layout.preferredHeight: 330; spacing: 12
 
             ColumnLayout {
@@ -294,7 +269,7 @@ Superpuesta {
         RowLayout {
             Layout.fillWidth: true
             Text { Layout.fillWidth: true; elide: Text.ElideRight; text: mv.aviso; color: mv.aviso.startsWith("⚠") ? Paleta.peligro : Paleta.exito; font { family: Paleta.fuente; pixelSize: 11 } }
-            BotonCompacto { text: "Abrir KDE Connect"; acento: Paleta.gris; onClicked: { Quickshell.execDetached(["kdeconnect-app"]); mv.abierto = false; } }
+            BotonCompacto { visible: !!mv.d?.conectado; text: "Abrir KDE Connect"; acento: Paleta.gris; onClicked: { Quickshell.execDetached(["kdeconnect-app"]); mv.abierto = false; } }
         }
     }
 }

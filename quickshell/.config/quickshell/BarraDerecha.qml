@@ -34,7 +34,7 @@ RowLayout {
 
     // ── Visualizador de audio (cava): 10 barras que bailan, solo mientras suena algo ──
     // cava se lanza solo con música (no gasta CPU en silencio); config en ~/.config/quickshell/cava.conf.
-    // Clic = abrir el dashboard (letra, controles).
+    // Clic = abrir el centro de control (controles de la música).
     Item {
         id: visual
         readonly property bool suena: Mpris.players.values.some(p => p.isPlaying)
@@ -68,7 +68,7 @@ RowLayout {
                 }
             }
         }
-        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["qs", "ipc", "call", "dashboard", "toggle"]) }
+        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["qs", "ipc", "call", "notificaciones", "toggle"]) }
     }
 
     // ── Grabando / dictando (solo visible mientras pasa) ─────────────────

@@ -1,23 +1,20 @@
-// Conexiones (SUPER+K o clic en la red de la barra): Wi-Fi y Bluetooth sin salir del escritorio.
-//   Tab cambia de pestaña · ↑↓ elegir · Enter conectar/desconectar · Supr olvidar · Esc cerrar
+// ListaConexiones: Wi-Fi y Bluetooth dentro del centro de control (antes era un panel aparte, SUPER+K).
+//   ↑↓ elegir · Enter conectar/desconectar · Supr olvidar · Tab cambia de pestaña
 //   Wi-Fi: las redes con candado y sin guardar piden la contraseña en la misma fila.
 //   Bluetooth: clic en un dispositivo nuevo = emparejar + confiar + conectar.
-//
-// Usa los módulos nativos de Quickshell (hablan con NetworkManager y BlueZ por D-Bus):
-//   Networking.devices → dispositivo Wi-Fi → .networks (cada red: name, signalStrength 0-1, security, known, connected)
-//   Bluetooth.defaultAdapter → .devices (name, icon, paired, connected, battery…)
-// Mientras el panel está abierto se escanea (Wi-Fi: scannerEnabled, Bluetooth: discovering);
-// al cerrarlo se apaga para no gastar batería.
+// Usa los módulos nativos de Quickshell (NetworkManager y BlueZ por D-Bus). Solo escanea mientras
+// «activa» es true (la sección está desplegada): al plegarla se apaga para no gastar batería.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Networking
 import Quickshell.Bluetooth
 
-Superpuesta {
+Item {
     id: cx
-    espacio: "conexiones"
-    anchoTarjeta: 560
+    property bool activa: false              // desplegada en el centro de control
+    property real altoMaximo: 300
+    implicitHeight: interfaz.implicitHeight
 
     property string pestana: "wifi"          // "wifi" | "bluetooth"
     property string pidiendoClave: ""         // nombre de la red cuya contraseña se está escribiendo
@@ -25,20 +22,19 @@ Superpuesta {
     property int tic: 0                       // sube cada 2 s: reordena las listas (la señal cambia)
 
     function g(cp) { return String.fromCodePoint(cp); }
-    function abrirEn(p) { pestana = p; abierto = true; }
+    function abrirEn(p) { pestana = p; activa = true; }
 
     readonly property var wifi: Networking.devices.values.find(d => d.type === DeviceType.Wifi) ?? null
     readonly property var adaptador: Bluetooth.defaultAdapter
 
     // Escanear solo con el panel abierto y en su pestaña
-    Binding { target: cx.wifi; property: "scannerEnabled"; value: cx.abierto && cx.pestana === "wifi"; when: cx.wifi !== null }
+    Binding { target: cx.wifi; property: "scannerEnabled"; value: cx.activa && cx.pestana === "wifi"; when: cx.wifi !== null }
     Binding { target: cx.adaptador; property: "discovering"
-              value: cx.abierto && cx.pestana === "bluetooth" && (cx.adaptador?.enabled ?? false); when: cx.adaptador !== null }
+              value: cx.activa && cx.pestana === "bluetooth" && (cx.adaptador?.enabled ?? false); when: cx.adaptador !== null }
 
-    Timer { interval: 2000; repeat: true; running: cx.abierto && cx.pidiendoClave === ""; onTriggered: cx.tic++ }
+    Timer { interval: 2000; repeat: true; running: cx.activa && cx.pidiendoClave === ""; onTriggered: cx.tic++ }
 
-    onAbriendose: { pidiendoClave = ""; errores = {}; lista.currentIndex = 0; lista.forceActiveFocus(); }
-    onAbiertoChanged: if (!abierto) pidiendoClave = ""
+    onActivaChanged: { pidiendoClave = ""; if (activa) { errores = {}; lista.currentIndex = 0; } }
     onPestanaChanged: { pidiendoClave = ""; lista.currentIndex = 0; }
 
     // ── Listas ordenadas ────────────────────────────────────────────────
@@ -132,6 +128,7 @@ Superpuesta {
 
     // ── Interfaz ────────────────────────────────────────────────────────
     ColumnLayout {
+        id: interfaz
         width: parent.width
         spacing: 8
 
@@ -164,7 +161,7 @@ Superpuesta {
                 text: cx.g(0xF0450)
                 color: Paleta.gris
                 font { family: Paleta.fuente; pixelSize: 13 }
-                RotationAnimation on rotation { from: 0; to: 360; duration: 1600; loops: Animation.Infinite; running: cx.abierto && cx.radioEncendida }
+                RotationAnimation on rotation { from: 0; to: 360; duration: 1600; loops: Animation.Infinite; running: cx.activa && cx.radioEncendida }
             }
             Rectangle {   // interruptor
                 implicitWidth: 44; implicitHeight: 24; radius: 12
@@ -183,7 +180,7 @@ Superpuesta {
         ListView {
             id: lista
             Layout.fillWidth: true
-            implicitHeight: Math.min(contentHeight, 420)
+            implicitHeight: Math.min(contentHeight, cx.altoMaximo)
             visible: cx.radioEncendida && cx.elementos.length > 0
             clip: true
             spacing: 4
@@ -327,17 +324,12 @@ Superpuesta {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 16; Layout.bottomMargin: 16
             visible: !lista.visible
-            text: !cx.radioEncendida ? (cx.pestana === "wifi" ? "Wi-Fi apagado" : "Bluetooth apagado") + " · espacio para encender"
+            text: !cx.radioEncendida ? (cx.pestana === "wifi" ? "Wi-Fi apagado" : "Bluetooth apagado")
                   : cx.pestana === "wifi" && !cx.wifi ? "No hay tarjeta Wi-Fi"
                   : cx.pestana === "bluetooth" && !cx.adaptador ? "No hay adaptador Bluetooth"
                   : "Buscando…"
             color: Paleta.gris
             font { family: Paleta.fuente; pixelSize: 12; italic: true }
-        }
-        PieAtajos {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 8
-            atajos: [["Tab", "pestaña"], ["↵", "conectar"], ["Supr", "olvidar"], ["␣", "on/off"]]
         }
     }
 }

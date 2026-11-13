@@ -1,6 +1,9 @@
-// Centro de control (SUPER+N o clic en la campana): sustituye al panel de swaync.
-//   botones rápidos · volumen (general y por app) · brillo · música · no molestar · historial
+// Centro de control (SUPER+N o clic en la campana): todo lo que se AJUSTA.
+//   botones rápidos · perfiles · volumen (general y por app) · brillo · música
+//   abajo, en pestañas: avisos (con No molestar) · conexiones (Wi-Fi y Bluetooth) · móvil · más
+//   qs ipc call notificaciones toggle · qs ipc call conexiones wifi|bluetooth · qs ipc call centroEscritorio toggle
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
@@ -20,7 +23,7 @@ PanelWindow {
     }
 
     onAbiertoChanged: {
-        if (abierto) { cierre.stop(); mostrar = true; leerConmutadores.running = true; lectorBrillo.running = true; }
+        if (abierto) { cierre.stop(); mostrar = true; leerConmutadores.running = true; lectorBrillo.running = true; lectorMovil.running = true; salidaEscritorio = ""; }
         else cierre.restart();
     }
     Timer { id: cierre; interval: 240; onTriggered: ventana.mostrar = false }
@@ -79,6 +82,56 @@ PanelWindow {
     }
 
     SystemClock { id: relojCC; precision: SystemClock.Hours }
+
+    // ── Sección de abajo: notificaciones · conexiones · móvil · más ──────
+    property string seccion: "notificaciones"
+    property alias listaConexiones: listaConexiones
+    function abrirEn(que, pestanaConexion) {
+        seccion = que;
+        if (pestanaConexion) listaConexiones.pestana = pestanaConexion;
+        abierto = true;
+    }
+    onMostrarChanged: if (!mostrar) seccion = "notificaciones"
+
+    // Móvil (KDE Connect): lo mismo que lee el panel de avisos (scripts/movil.py estado, JSON)
+    property bool movilListo: false
+    property string movilNombre: ""
+    property int movilCarga: -1
+    property bool movilCargando: false
+    property bool movilEmparejado: false
+    Process {
+        id: lectorMovil
+        command: [Quickshell.env("HOME") + "/.config/hypr/scripts/movil.py", "estado"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let d = {};
+                try { d = JSON.parse(this.text); } catch (e) {}
+                ventana.movilNombre = d.conectado ? (d.nombre || "Móvil") : "";
+                ventana.movilCarga = d.bateria ?? -1;
+                ventana.movilCargando = !!d.cargando;
+                ventana.movilEmparejado = !!d.emparejado;
+                ventana.movilListo = true;
+            }
+        }
+    }
+    function movil(args, cerrarPanel) {
+        Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", ...args]);
+        if (cerrarPanel) abierto = false;
+    }
+
+    // Acciones del escritorio (scripts/escritorio.py): perfiles, checkpoints, privacidad, replay
+    property string salidaEscritorio: ""
+    function escritorio(args) {
+        if (procEscritorio.running) return;
+        salidaEscritorio = "Procesando…";
+        procEscritorio.command = [Quickshell.env("HOME") + "/.config/hypr/scripts/escritorio.py", ...args];
+        procEscritorio.running = true;
+    }
+    Process {
+        id: procEscritorio
+        stdout: StdioCollector { onStreamFinished: ventana.salidaEscritorio = this.text.trim() }
+        stderr: StdioCollector { onStreamFinished: if (this.text.trim()) ventana.salidaEscritorio = this.text.trim() }
+    }
 
     // ── El panel ────────────────────────────────────────────────────────
     Rectangle {
@@ -192,10 +245,10 @@ PanelWindow {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            // clic derecho en Wi-Fi/Bluetooth: abrir la lista (Conexiones.qml)
+                            // clic derecho en Wi-Fi/Bluetooth: su lista, en la pestaña Conexiones de abajo
                             onClicked: (e) => {
                                 if (e.button === Qt.RightButton && (modelData.cosa === "wifi" || modelData.cosa === "bluetooth"))
-                                    ventana.ejecutar("qs ipc call conexiones " + modelData.cosa, true);
+                                    ventana.abrirEn("conexiones", modelData.cosa);
                                 else if (e.button === Qt.LeftButton)
                                     modelData.cosa ? ventana.conmutar(modelData.cosa) : ventana.ejecutar(modelData.cmd, modelData.cerrar);
                             }
@@ -204,9 +257,76 @@ PanelWindow {
                 }
             }
 
+            // Perfiles del escritorio (antes en el centro del escritorio)
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 4
+                Repeater {
+                    model: [
+                        { id: "cristal", nombre: "Cristal", icono: 0xF030C, ayuda: "Luz y profundidad" },
+                        { id: "lectura", nombre: "Lectura", icono: 0xF0474, ayuda: "Claridad al leer: sin transparencias" },
+                        { id: "minimo", nombre: "Mínimo", icono: 0xF04C5, ayuda: "Solo lo esencial: sin animaciones ni sombras" },
+                        { id: "rendimiento", nombre: "Rendimiento", icono: 0xF0493, ayuda: "Espacio y rapidez: sin huecos ni efectos" }
+                    ]
+                    Rectangle {
+                        id: chipPerfil
+                        required property var modelData
+                        readonly property bool actual: EstadoEscritorio.perfil === modelData.id
+                        Layout.fillWidth: true
+                        implicitHeight: 32
+                        radius: height / 2
+                        color: actual ? Qt.alpha(Paleta.acento, .22) : zonaPerfil.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+                        border { width: 1; color: actual ? Qt.alpha(Paleta.acento, .55) : EstiloPanel.borde }
+                        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 4
+                            Text { text: ventana.g(chipPerfil.modelData.icono); color: chipPerfil.actual ? Paleta.acento : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } anchors.verticalCenter: parent.verticalCenter }
+                            Text { text: chipPerfil.modelData.nombre; color: chipPerfil.actual ? Paleta.texto : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11; bold: chipPerfil.actual } anchors.verticalCenter: parent.verticalCenter }
+                        }
+                        MouseArea { id: zonaPerfil; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ventana.escritorio(["perfil", chipPerfil.modelData.id]) }
+                        ToolTip.visible: zonaPerfil.containsMouse
+                        ToolTip.text: modelData.ayuda
+                        ToolTip.delay: 500
+                    }
+                }
+            }
+
+            // ── Pestañas: Inicio (sonido, música y avisos) · Conexiones · Móvil · Más ──
+            Item {
+                Layout.fillWidth: true
+                implicitHeight: 34
+                Rectangle { anchors.fill: parent; radius: height / 2; color: EstiloPanel.relleno; border { width: 1; color: EstiloPanel.borde } }
+                Row {
+                    anchors { fill: parent; margins: 2 }
+                    Repeater {
+                        model: [
+                            { id: "notificaciones", nombre: "Inicio" + (Notificaciones.lista.length ? " · " + Notificaciones.lista.length : "") },
+                            { id: "conexiones", nombre: "Conexiones" },
+                            { id: "movil", nombre: "Móvil" },
+                            { id: "mas", nombre: "Más" }
+                        ]
+                        Rectangle {
+                            id: pestana
+                            required property var modelData
+                            readonly property bool actual: ventana.seccion === modelData.id
+                            width: parent.width / 4; height: parent.height
+                            radius: height / 2
+                            color: actual ? Qt.alpha(Paleta.acento, .22) : "transparent"
+                            border { width: actual ? 1 : 0; color: Qt.alpha(Paleta.acento, .5) }
+                            Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                            Text { anchors.centerIn: parent; text: pestana.modelData.nombre; color: pestana.actual ? Paleta.texto : EstiloPanel.tenue
+                                   font { family: Paleta.fuente; pixelSize: 12; bold: pestana.actual } }
+                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: ventana.seccion = pestana.modelData.id }
+                        }
+                    }
+                }
+            }
+
             // Sonido y brillo, juntos en una tarjeta
             TarjetaPanel {
                 Layout.fillWidth: true
+                visible: ventana.seccion === "notificaciones"
                 espaciado: 8
                 relleno: 12
                 // Volumen general + por app
@@ -292,63 +412,191 @@ PanelWindow {
             // Música (el mismo componente del dashboard)
             Musica {
                 Layout.fillWidth: true
-                visible: jugador !== null
+                visible: jugador !== null && ventana.seccion === "notificaciones"
             }
 
-            // No molestar
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.leftMargin: 4; Layout.rightMargin: 4
-                spacing: 8
-                Text {
-                    text: ventana.g(Notificaciones.noMolestar ? 0xF009B : 0xF009A)
-                    color: Notificaciones.noMolestar ? Paleta.acento : Paleta.gris
-                    font { family: Paleta.fuente; pixelSize: 16 }
-                }
-                Text {
-                    Layout.fillWidth: true
-                    text: Notificaciones.porAutomatizacion ? "No molestar · automático" : "No molestar"
-                    color: Paleta.texto
-                    font { family: Paleta.fuente; pixelSize: 13; bold: true }
-                }
-                Interruptor {
-                    activo: Notificaciones.manual
-                    acento: Paleta.acento
-                    onAlternado: Notificaciones.alternarNoMolestar()
-                }
-            }
-
-            // Historial
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.topMargin: 4
-                Text { text: "NOTIFICACIONES"; color: Paleta.gris; font { family: EstiloPanel.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
-                Rectangle {
-                    visible: Notificaciones.lista.length > 0
-                    implicitWidth: Math.max(20, cuenta.implicitWidth + 12); implicitHeight: 18; radius: height / 2
-                    color: Qt.alpha(Paleta.acento, .2)
-                    Text { id: cuenta; anchors.centerIn: parent; text: Notificaciones.lista.length; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
-                }
-                Rectangle { Layout.fillWidth: true; height: 1; color: EstiloPanel.rellenoActivo }
-            }
-            ListView {
+            // ── Avisos ───────────────────────────────────────────────────
+            ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
+                visible: ventana.seccion === "notificaciones"
                 spacing: 8
-                model: Notificaciones.lista.slice().reverse()       // las más nuevas arriba
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 4; Layout.rightMargin: 4
+                    spacing: 8
+                    Text {
+                        text: ventana.g(Notificaciones.noMolestar ? 0xF009B : 0xF009A)
+                        color: Notificaciones.noMolestar ? Paleta.acento : Paleta.gris
+                        font { family: Paleta.fuente; pixelSize: 16 }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: Notificaciones.porAutomatizacion ? "No molestar · automático" : "No molestar"
+                        color: Paleta.texto
+                        font { family: Paleta.fuente; pixelSize: 13; bold: true }
+                    }
+                    Interruptor {
+                        activo: Notificaciones.manual
+                        acento: Paleta.acento
+                        onAlternado: Notificaciones.alternarNoMolestar()
+                    }
+                }
+                ListView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    spacing: 8
+                    model: Notificaciones.lista.slice().reverse()       // las más nuevas arriba
+                    boundsBehavior: Flickable.StopAtBounds
+                    delegate: NotiTarjeta {
+                        required property var modelData
+                        width: ListView.view.width
+                        noti: modelData
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        visible: parent.count === 0
+                        text: ventana.g(0xF009A) + "  Sin notificaciones"
+                        color: Paleta.gris
+                        font { family: Paleta.fuente; pixelSize: 13; italic: true }
+                    }
+                }
+            }
+
+            // ── Conexiones: Wi-Fi y Bluetooth aquí mismo ─────────────────
+            Flickable {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: ventana.seccion === "conexiones"
+                contentHeight: listaConexiones.implicitHeight
+                clip: true
                 boundsBehavior: Flickable.StopAtBounds
-                delegate: NotiTarjeta {
-                    required property var modelData
-                    width: ListView.view.width
-                    noti: modelData
+                ListaConexiones {
+                    id: listaConexiones
+                    width: parent.width
+                    activa: ventana.abierto && ventana.seccion === "conexiones"
+                    altoMaximo: Math.max(200, parent.parent.height - 50)
+                }
+            }
+
+            // ── Móvil ─────────────────────────────────────────────────────
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: ventana.seccion === "movil"
+                spacing: 12
+                // conectado: nombre, batería y acciones
+                RowLayout {
+                    visible: ventana.movilNombre !== ""
+                    Layout.fillWidth: true
+                    spacing: 12
+                    Text { text: ventana.g(0xF011C); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 26 } }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 0
+                        Text { text: ventana.movilNombre; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
+                        Text {
+                            text: ventana.movilCarga >= 0 ? `Batería ${ventana.movilCarga} %` + (ventana.movilCargando ? " · cargando" : "") : "Conectado"
+                            color: ventana.movilCargando ? Paleta.exito : ventana.movilCarga >= 0 && ventana.movilCarga <= 15 ? Paleta.peligro : EstiloPanel.tenue
+                            font { family: Paleta.fuente; pixelSize: 12 }
+                        }
+                    }
+                }
+                GridLayout {
+                    visible: ventana.movilNombre !== ""
+                    Layout.fillWidth: true
+                    columns: 2; columnSpacing: 8; rowSpacing: 8
+                    BotonPanel { text: "Hacer sonar"; simbolo: ventana.g(0xF009E); onClicked: ventana.movil(["sonar"], false) }
+                    BotonPanel { text: "Abrir lo copiado"; simbolo: ventana.g(0xF0339); onClicked: ventana.ejecutar(Quickshell.env("HOME") + "/.config/hypr/scripts/movil.py enlace", false) }
+                    BotonPanel { text: "Enviar archivo"; simbolo: ventana.g(0xF0552); onClicked: ventana.movil(["elegir"], true) }
+                    BotonPanel { text: "Sus archivos"; simbolo: ventana.g(0xF024B); onClicked: ventana.movil(["navegar"], true) }
+                    BotonPanel { text: "Mensajes (SMS)"; simbolo: ventana.g(0xF0361); onClicked: ventana.ejecutar("kdeconnect-sms", true) }
+                    BotonPanel { text: "Avisos y respuestas"; simbolo: ventana.g(0xF009A); onClicked: ventana.ejecutar("qs ipc call movil avisos", true) }
                 }
                 Text {
-                    anchors.centerIn: parent
-                    visible: parent.count === 0
-                    text: ventana.g(0xF009A) + "  Sin notificaciones"
-                    color: Paleta.gris
+                    visible: !ventana.movilListo
+                    Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 24
+                    text: "Buscando el móvil…"; color: EstiloPanel.tenue
                     font { family: Paleta.fuente; pixelSize: 13; italic: true }
+                }
+                // sin conectar: una sola salida
+                ColumnLayout {
+                    visible: ventana.movilListo && ventana.movilNombre === ""
+                    Layout.fillWidth: true
+                    Layout.topMargin: 24
+                    spacing: 8
+                    Text { Layout.alignment: Qt.AlignHCenter; text: ventana.g(0xF011C); color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 36 } }
+                    Text { Layout.alignment: Qt.AlignHCenter; text: ventana.movilEmparejado ? "El móvil no está conectado" : "No hay ningún móvil emparejado"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
+                    Text {
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.Wrap
+                        text: ventana.movilEmparejado ? "Abre KDE Connect en el móvil y conéctalo a la misma red Wi-Fi." : "Empareja tu móvil desde KDE Connect para ver sus avisos, su batería y enviarle archivos."
+                        color: EstiloPanel.tenue
+                        font { family: Paleta.fuente; pixelSize: 12 }
+                    }
+                    BotonPanel { Layout.alignment: Qt.AlignHCenter; Layout.preferredWidth: 200; Layout.fillWidth: false; text: "Abrir KDE Connect"; destacado: true; onClicked: ventana.ejecutar("kdeconnect-app", true) }
+                }
+                Item { Layout.fillHeight: true }
+            }
+
+            // ── Más: checkpoints, privacidad, juego, diagnóstico y replay ─
+            Flickable {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: ventana.seccion === "mas"
+                contentHeight: columnaMas.implicitHeight
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                ColumnLayout {
+                    id: columnaMas
+                    width: parent.width
+                    spacing: 8
+                    Etiqueta { text: "VENTANAS" }
+                    GridLayout {
+                        Layout.fillWidth: true; columns: 2; columnSpacing: 8; rowSpacing: 8
+                        BotonPanel { text: "Guardar checkpoint"; simbolo: ventana.g(0xF0193); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["checkpoint", "guardar"]) }
+                        BotonPanel { text: "Restaurar espacios"; simbolo: ventana.g(0xF006F); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["checkpoint", "restaurar"]) }
+                        BotonPanel { text: "Deshacer restauración"; simbolo: ventana.g(0xF054C); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["checkpoint", "deshacer"]) }
+                        BotonPanel { text: "Juego automático"; simbolo: ventana.g(0xF0297); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["juego", "automatico"]) }
+                    }
+                    Etiqueta { text: "PRIVACIDAD Y DIAGNÓSTICO"; Layout.topMargin: 4 }
+                    GridLayout {
+                        Layout.fillWidth: true; columns: 2; columnSpacing: 8; rowSpacing: 8
+                        BotonPanel {
+                            text: Reunion.activa ? "Privacidad · reunión" : EstadoEscritorio.privacidad ? "Privacidad activada" : "Activar privacidad"
+                            simbolo: ventana.g(0xF0483)
+                            destacado: EstadoEscritorio.privacidad
+                            enabled: !Reunion.activa && !procEscritorio.running
+                            onClicked: ventana.escritorio(["privacidad"])
+                        }
+                        BotonPanel { text: "Diagnóstico"; simbolo: ventana.g(0xF02CA); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["diagnostico"]) }
+                    }
+                    Etiqueta { text: "REPLAY (ÚLTIMOS 30 s)"; Layout.topMargin: 4 }
+                    GridLayout {
+                        Layout.fillWidth: true; columns: 2; columnSpacing: 8; rowSpacing: 8
+                        BotonPanel { text: "Guardar ahora"; simbolo: ventana.g(0xF0567); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["replay", "save"]) }
+                        BotonPanel { text: "Automático"; simbolo: ventana.g(0xF0450); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["replay", "auto"]) }
+                        BotonPanel { text: "Pausar"; simbolo: ventana.g(0xF03E4); enabled: !procEscritorio.running; onClicked: ventana.escritorio(["replay", "stop"]) }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 4
+                        visible: ventana.salidaEscritorio !== ""
+                        text: ventana.salidaEscritorio
+                        wrapMode: Text.Wrap
+                        color: EstiloPanel.tenue
+                        font { family: Paleta.fuente; pixelSize: 12 }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 4
+                        text: "La privacidad oculta títulos y pausa el replay. Los checkpoints duran esta sesión."
+                        wrapMode: Text.Wrap
+                        color: EstiloPanel.tenue
+                        font { family: Paleta.fuente; pixelSize: 11 }
+                    }
                 }
             }
         }
