@@ -167,14 +167,30 @@ PanelWindow {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 262
                     acento: Paleta.naranja
-                    Calendario { }
-                    // ── Próximo: eventos de Google Calendar + recordatorios ──
+                    // El formulario «nuevo evento/tarea» se abre ENCIMA de calendario + Próximo (no agranda el panel)
+                    Item {
+                    Layout.fillWidth: true
+                    implicitWidth: columnaCal.implicitWidth
+                    implicitHeight: columnaCal.implicitHeight
+                    ColumnLayout {
+                    id: columnaCal
+                    anchors { left: parent.left; right: parent.right }
+                    spacing: 6
+                    Calendario {
+                        id: calendario
+                        conMas: Eventos.hayCliente
+                        onNuevo: formulario.abrir()
+                    }
+                    // ── Próximo: eventos de Google Calendar + tareas + recordatorios ──
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 4
                         readonly property var items: [
                             ...Eventos.proximos(4).map(e => ({ cuando: Eventos.cuando(e), texto: e.titulo, ms: e.inicio.getTime(), rec: null })),
-                            ...Recordatorios.lista.slice(0, 3).map(r => ({ cuando: "⏰ " + Recordatorios.cuandoTexto(r.cuando).split(" · ")[0], texto: r.texto, ms: r.cuando, rec: r.id }))
+                            ...Recordatorios.lista.slice(0, 3).map(r => ({ cuando: "⏰ " + Recordatorios.cuandoTexto(r.cuando).split(" · ")[0], texto: r.texto, ms: r.cuando, rec: r.id })),
+                            // tareas: las vencidas o sin fecha cuentan como de hoy
+                            ...Eventos.tareas.slice(0, 3).map(t => ({ cuando: "☐ " + (t.fecha ? Eventos.diaTexto(t.fecha < new Date() ? new Date() : t.fecha).split(" ").slice(0, 2).join(" ") : "tarea"),
+                                texto: t.titulo, ms: t.fecha ? Math.max(t.fecha.getTime(), Date.now() - 1) : Date.now() - 1, tarea: t.id }))
                         ].sort((a, b) => a.ms - b.ms).slice(0, 4)
                         visible: items.length > 0
                         Text { text: "Próximo"; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
@@ -186,7 +202,7 @@ PanelWindow {
                                 spacing: 6
                                 Text {
                                     text: modelData.cuando
-                                    color: modelData.rec ? Paleta.morado : Paleta.azul
+                                    color: modelData.rec ? Paleta.morado : modelData.tarea ? Paleta.verde : Paleta.azul
                                     font { family: Paleta.fuente; pixelSize: 10; bold: true }
                                 }
                                 Text {
@@ -195,15 +211,24 @@ PanelWindow {
                                     elide: Text.ElideRight
                                     color: Paleta.texto
                                     font { family: Paleta.fuente; pixelSize: 10 }
-                                    MouseArea {   // clic en un recordatorio = borrarlo
+                                    MouseArea {   // clic en un recordatorio = borrarlo · en una tarea = marcarla hecha
                                         anchors.fill: parent
-                                        enabled: !!modelData.rec
+                                        enabled: !!modelData.rec || !!modelData.tarea
                                         cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                        onClicked: Recordatorios.borrar(modelData.rec)
+                                        onClicked: modelData.tarea ? Eventos.completar(modelData.tarea) : Recordatorios.borrar(modelData.rec)
                                     }
                                 }
                             }
                         }
+                    }
+                    }
+                    // ── Crear evento/tarea en Google (el día elegido en el calendario) ──
+                    NuevoEvento {
+                        id: formulario
+                        anchors.fill: parent
+                        anchors.margins: -6
+                        fecha: calendario.elegido
+                    }
                     }
                 }
                 TarjetaPanel {

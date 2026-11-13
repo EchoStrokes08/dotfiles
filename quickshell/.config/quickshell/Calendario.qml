@@ -1,4 +1,5 @@
 // Calendario del mes, empezando en lunes. Las flechas (o la rueda del ratón) cambian de mes.
+// Clic en un día = elegirlo (para crear un evento o tarea ese día; ver NuevoEvento.qml).
 import QtQuick
 import QtQuick.Layouts
 
@@ -6,6 +7,9 @@ ColumnLayout {
     id: cal
     property date hoy: new Date()
     property int desfase: 0          // meses respecto al actual (‹ resta, › suma)
+    property date elegido: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+    property bool conMas: false      // muestra el ＋ (nuevo evento/tarea el día elegido) en la cabecera
+    signal nuevo()
     spacing: 6
 
     readonly property date mes: new Date(hoy.getFullYear(), hoy.getMonth() + desfase, 1)
@@ -18,7 +22,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Text {
             text: ""; color: Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 12 }
+            font { family: Paleta.mono; pixelSize: 12 }
             MouseArea { anchors.fill: parent; anchors.margins: -6; onClicked: cal.desfase-- }
         }
         Text {
@@ -27,12 +31,28 @@ ColumnLayout {
             text: cal.mes.toLocaleDateString(Qt.locale("es_ES"), "MMMM yyyy")
             color: Paleta.naranja
             font { family: Paleta.fuente; pixelSize: 14; bold: true }
-            MouseArea { anchors.fill: parent; onClicked: cal.desfase = 0 }   // clic = volver a hoy
+            MouseArea {   // clic = volver a hoy
+                anchors.fill: parent
+                onClicked: { cal.desfase = 0; cal.elegido = new Date(cal.hoy.getFullYear(), cal.hoy.getMonth(), cal.hoy.getDate()); }
+            }
         }
         Text {
             text: ""; color: Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 12 }
+            font { family: Paleta.mono; pixelSize: 12 }
             MouseArea { anchors.fill: parent; anchors.margins: -6; onClicked: cal.desfase++ }
+        }
+        Rectangle {   // ＋ = nuevo evento o tarea el día elegido
+            visible: cal.conMas
+            Layout.leftMargin: 4
+            implicitWidth: 22; implicitHeight: 22; radius: 11
+            color: mas.containsMouse ? Paleta.naranja : Qt.alpha(Paleta.naranja, .18)
+            Text {
+                anchors.centerIn: parent
+                text: "\uF067"
+                color: mas.containsMouse ? Paleta.fondo : Paleta.naranja
+                font { family: Paleta.mono; pixelSize: 11; bold: true }
+            }
+            MouseArea { id: mas; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: cal.nuevo() }
         }
     }
 
@@ -59,10 +79,19 @@ ColumnLayout {
             Rectangle {
                 readonly property int dia: index - cal.hueco + 1
                 readonly property bool esHoy: cal.desfase === 0 && dia === cal.hoy.getDate()
+                readonly property date fecha: new Date(cal.mes.getFullYear(), cal.mes.getMonth(), dia)
+                readonly property bool esElegido: dia > 0 && fecha.getTime() === cal.elegido.getTime()
                 Layout.preferredWidth: 30
                 Layout.preferredHeight: 26
                 radius: 8
                 color: esHoy ? Paleta.naranja : "transparent"
+                border { width: esElegido && !esHoy ? 1.5 : 0; color: Paleta.naranja }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: dia > 0
+                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                    onClicked: cal.elegido = parent.fecha
+                }
                 Text {
                     anchors.centerIn: parent
                     text: dia > 0 ? dia : ""
@@ -71,7 +100,7 @@ ColumnLayout {
                 }
                 // puntito = ese día hay algo en tu Google Calendar (Eventos.qml)
                 Rectangle {
-                    visible: dia > 0 && Eventos.hayEn(new Date(cal.mes.getFullYear(), cal.mes.getMonth(), dia))
+                    visible: dia > 0 && (Eventos.hayEn(parent.fecha) || Eventos.tareas.some(t => t.fecha && t.fecha.getTime() === parent.fecha.getTime()))
                     width: 4; height: 4; radius: 2
                     anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 2 }
                     color: parent.esHoy ? Paleta.fondo : Paleta.azul

@@ -5,6 +5,7 @@
 //   :fuego · :sigma · :≤                                   emojis y símbolos → Enter los escribe
 //   /apuntes   (solo «/» = recientes)                      archivos de tu carpeta personal → Enter los abre
 //   recordar 20m entregar el taller · recordar 18:30 …     recordatorio (ver Recordatorios.qml)
+//   evento mañana 15:00 dentista · tarea 20/11 informe     a tu Google Calendar / Tasks (ver Eventos.qml)
 //   v texto   ventanas abiertas → ir a ella          n texto   buscar en tus notas → abrir en esa línea
 //   c texto   historial del portapapeles → copiar    t texto   pestañas abiertas de Firefox
 //   p nombre  contraseñas (Bitwarden/pass) → escribirla donde esté el cursor
@@ -295,6 +296,7 @@ PanelWindow {
     readonly property string modo: {
         const t = buscador.text;
         if (/^(recordar|rec)\s/i.test(t)) return "recordar";
+        if (/^(evento|tarea)\s/i.test(t)) return "agenda";
         if (/^ia\s+\S/i.test(t)) return "ia";
         if (/^nota\s+\S/i.test(t)) return "nota";
         const pe = t.match(/^(\w+)\s/);
@@ -319,6 +321,18 @@ PanelWindow {
                                           Quickshell.execDetached(["notify-send", "-a", "Recordatorio", "-u", "low",
                                               "Te lo recuerdo " + Recordatorios.cuandoTexto(r.cuando), r.texto]); } }]
                      : [{ nombre: "¿Cuándo?", detalle: "Ej.: recordar 20m beber agua · recordar 18:30 llamar · recordar mañana 7:00 examen", glifo: 0xF0020, accion: null }];
+        }
+        if (modo === "agenda") {
+            const esTarea = /^tarea/i.test(t), r = Eventos.interpretar(t.replace(/^(evento|tarea)\s+/i, ""));
+            if (!Eventos.conectado)
+                return [{ nombre: "Conectar Google Calendar", detalle: "Necesario una vez para crear eventos y tareas", glifo: 0xF00F0,
+                          accion: () => Eventos.conectar() }];
+            if (!r)
+                return [{ nombre: esTarea ? "¿Qué tarea?" : "¿Qué evento?", glifo: 0xF00F0, accion: null,
+                          detalle: "Ej.: evento mañana 15:00 dentista · evento viernes clase · tarea 20/11 entregar informe" }];
+            const cuando = Eventos.diaTexto(r.fecha) + (esTarea ? "" : r.hora ? " " + r.hora : " · todo el día");
+            return [{ nombre: r.titulo, detalle: (esTarea ? "Tarea en Google · " : "Evento en Google Calendar · ") + cuando, glifo: 0xF00F0,
+                      accion: () => esTarea ? Eventos.crearTarea(r.titulo, r.fecha) : Eventos.crearEvento(r.titulo, r.fecha, r.hora, 60) }];
         }
         if (modo === "ia") {
             const pregunta = t.replace(/^ia\s+/i, "");
@@ -446,9 +460,9 @@ PanelWindow {
                         border { width: 1; color: Qt.alpha(Paleta.naranja, .45) }
                     Text {   // el icono cambia según el modo
                         anchors.centerIn: parent
-                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A })[ventana.modo] ?? 0xF0349)
+                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A })[ventana.modo] ?? 0xF0349)
                         color: Qt.lighter(Paleta.naranja, 1.2)
-                        font { family: Paleta.fuente; pixelSize: 17 }
+                        font { family: Paleta.mono; pixelSize: 17 }
                     }
                     }
                     TextInput {
@@ -565,7 +579,7 @@ PanelWindow {
                                 visible: !fila.modelData.icono
                                 text: fila.modelData.texto ?? (fila.modelData.glifo ? ventana.g(fila.modelData.glifo) : "")
                                 color: fila.actual ? Qt.lighter(Paleta.naranja, 1.2) : Paleta.naranja
-                                font { family: fila.modelData.texto ? "Noto Color Emoji" : Paleta.fuente; pixelSize: fila.modelData.texto ? 22 : 19 }
+                                font { family: fila.modelData.texto ? "Noto Color Emoji" : Paleta.mono; pixelSize: fila.modelData.texto ? 22 : 19 }
                             }
                         }
                         ColumnLayout {

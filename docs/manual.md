@@ -302,8 +302,11 @@ Los gestos siguen a los dedos: si sueltas a medias, se cancelan.
 **Dashboard** (`SUPER+D` o 3 dedos hacia abajo): reloj, **clima de Bogotá** (y la probabilidad de lluvia de las
 próximas horas), workspaces, calendario, estado del sistema, tiempo de pantalla y la música que suena.
 - **Calendario**: flechas o rueda cambian de mes y un clic en el título vuelve a hoy. Un **puntito** bajo un día =
-  tienes algo en tu Google Calendar. Debajo, **«Próximo»**: tus eventos y recordatorios (clic en un recordatorio =
-  borrarlo). 10 minutos antes de cada evento sale un aviso.
+  tienes algo en tu Google Calendar (evento o tarea). Clic en un día = elegirlo. Debajo, **«＋ Nuevo evento o
+  tarea»** lo crea en tu Google Calendar / Google Tasks ese día (hora vacía = todo el día; el botón de la duración
+  cambia con clic). Debajo, **«Próximo»**: eventos, tareas ☐ y recordatorios (clic en un recordatorio = borrarlo; en
+  una tarea = marcarla hecha). 10 minutos antes de cada evento sale un aviso.
+  También desde el lanzador: `evento mañana 15:00 dentista`, `evento viernes clase`, `tarea 20/11 entregar informe`.
 - **Tiempo de pantalla**: hoy por app y, debajo, **los últimos 7 días** (pasa el ratón por una barra).
 - **Música**: con la **letra sincronizada** de la canción a la derecha (si lrclib.net la tiene).
 
@@ -419,6 +422,7 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | Apps de los scratchpads | `scratchpads.lua` |
 | Ciudad del clima | `~/.config/quickshell/Clima.qml` (lat, lon, lugar) |
 | Calendarios de Google | `~/.config/calendario/url` (una dirección iCal secreta por línea; **no va al repo**) |
+| Crear eventos y tareas en Google | `~/.config/calendario/cliente.json` (credencial OAuth «App de escritorio» de Google Cloud con Calendar API y Tasks API activadas) y `token.json` (lo crea `gcal.py conectar`). **Ninguno va al repo** |
 | Límites de tiempo por app | `~/.config/tiempo-pantalla/limites.json` |
 | Modelo del dictado | `~/.config/dictado/modelo` (`small` o `base`) |
 | Qué se apaga con batería | `bateria.lua` (y el perfil, en `~/.config/quickshell/Cargador.qml`) |
@@ -465,6 +469,7 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | El dictado no escribe nada | ¿Micrófono correcto? Prueba `dictado.sh` dos veces y mira la notificación. La primera vez tarda más (carga el modelo) |
 | El móvil no aparece en KDE Connect | Mismo Wi-Fi, app KDE Connect abierta en el móvil y el firewall abierto (sección 20) |
 | No salen eventos en el dashboard | `~/.config/hypr/scripts/eventos.py --lista`: si no lista nada, revisa la dirección de `~/.config/calendario/url` |
+| No deja crear eventos o tareas («No se pudo guardar») | `~/.config/hypr/scripts/gcal.py estado`. Si `conectado` es `false` o la sesión caducó: `gcal.py conectar`. Si la app de Google Cloud sigue «En prueba», la sesión caduca cada 7 días: publícala |
 | Reinstalar todo en otro equipo | `bash <(curl -fsSL https://raw.githubusercontent.com/EchoStrokes08/dotfiles/main/instalar.sh)` |
 
 ## 18. Copias de seguridad, memoria y salud del equipo
@@ -1646,8 +1651,9 @@ Actualiza aquí los atajos cuando cambie su configuración.
 | Barra: mando | Clic = modo juego |
 | Barra: campana | Clic = centro de control · derecho = No molestar |
 | Dashboard: píldoras de workspaces | Clic = ir a ese workspace |
-| Dashboard: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · puntito = hay eventos ese día |
-| Dashboard: «Próximo» | Eventos de Google Calendar y recordatorios · clic en un recordatorio = borrarlo |
+| Dashboard: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · clic en un día = elegirlo · puntito = hay eventos o tareas ese día |
+| Dashboard: «＋ Nuevo evento o tarea» | Crea en Google el evento/tarea del día elegido · Enter guarda · duración: clic = más, derecho = menos |
+| Dashboard: «Próximo» | Eventos de Google Calendar, tareas y recordatorios · clic en un recordatorio = borrarlo · en una tarea = hecha |
 | Dashboard: últimos 7 días | Pasa el ratón por una barra: total y app principal de ese día |
 | Centro de control: Wi-Fi / Bluetooth | Clic = encender/apagar · derecho = abrir su lista |
 | Centro de control: Conservar · Luz noche | Batería hasta ~80 % · pantalla cálida |
