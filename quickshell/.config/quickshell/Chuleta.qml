@@ -1,5 +1,5 @@
 // Chuleta de atajos (SUPER+H): todos los atajos, agrupados y con buscador.
-// NO tiene una lista propia: lee las tablas del manual de usuario (desde "### Atajos de teclado"
+// NO tiene una lista propia: lee las tablas de docs/atajos.md (desde "### Atajos de teclado"
 // hasta "### Comportamiento automático"). Así, al documentar un atajo nuevo en el manual, aparece aquí solo.
 //   Al abrir muestra solo los esenciales (filas marcadas con ★ en el manual); al escribir busca entre todos.
 //   escribe para filtrar (busca en tecla y descripción, sin tildes) · Esc cierra
@@ -24,7 +24,7 @@ Superpuesta {
 
     FileView {
         id: readme
-        path: Quickshell.env("HOME") + "/dotfiles/docs/manual.md"
+        path: Quickshell.env("HOME") + "/dotfiles/docs/atajos.md"
         onLoaded: ch.leer(text())
     }
 

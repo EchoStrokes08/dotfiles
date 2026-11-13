@@ -8,7 +8,6 @@ Un escritorio para estudiar, programar, comunicarte y retomar lo que estabas hac
 Aquí encontrarás cómo usar cada herramienta, qué guarda y cómo salir de un problema.
 `SUPER` es la tecla Windows; `Return` y `Enter` se refieren a la tecla Intro.
 
-![Centro del escritorio con perfiles y acciones](screenshots/centro-escritorio.png)
 
 ## Tu primera sesión en cinco minutos
 
@@ -22,7 +21,7 @@ Aquí encontrarás cómo usar cada herramienta, qué guarda y cómo salir de un 
 > **Para empezar:** aprende seis teclas: Q, R, E, N, H y L con SUPER.
 > Las funciones de móvil, calendario, IA, respaldo externo y conservación de batería necesitan
 > configuración o hardware compatible. keyd está desactivado; las apps de respaldo no arrancan
-> junto a Quickshell. El agente requiere Ollama y sus modelos; su configuración se explica en el capítulo 28.
+> junto a Quickshell. El agente requiere Ollama y sus modelos; su configuración se explica en el capítulo 27.
 
 ## Encuentra lo que necesitas
 
@@ -50,12 +49,12 @@ Aquí encontrarás cómo usar cada herramienta, qué guarda y cómo salir de un 
 - [21. Teclado con capas, tema claro, filtros, sonido y escritorio](#21-teclado-con-capas-tema-claro-filtros-sonido-y-escritorio)
 - [22. Asistente, sesiones, notas, buscador y automatizaciones](#22-asistente-sesiones-notas-buscador-y-automatizaciones)
 - [Tres recorridos para el día a día](#tres-recorridos-para-el-día-a-día)
-- [23. Centro del escritorio](#23-centro-del-escritorio)
-- [24. Mesa de trabajo](#24-mesa-de-trabajo)
-- [25. Proyectos, organización y selecciones](#25-proyectos-organización-y-selecciones)
-- [26. Brújula](#26-brújula)
-- [27. Herramientas y automatismos que conviene conocer](#27-herramientas-y-automatismos-que-conviene-conocer)
-- [28. Agente y memoria: hablarle al escritorio](#28-agente-y-memoria-hablarle-al-escritorio)
+- [23. Los cuatro centros](#23-los-cuatro-centros)
+- [24. Lanzador: hacer](#24-lanzador-hacer)
+- [25. Brújula: ver](#25-brújula-ver)
+- [26. Centro de control: ajustar](#26-centro-de-control-ajustar)
+- [27. Agente: pedir](#27-agente-pedir)
+- [28. Herramientas que conviene conocer](#28-herramientas-que-conviene-conocer)
 - [Apéndice A. Todos los atajos](#apéndice-a-todos-los-atajos)
 
 ---
@@ -355,7 +354,7 @@ usado cada app hoy.
 
 Las capturas van a `~/Imágenes/screenshots` y además al portapapeles (se pueden pegar directamente).
 Los replays van a `~/Videos/Replays`. El modo automático pausa con batería, privacidad o perfil Mínimo.
-El centro del escritorio permite volver a automático después de alternarlo manualmente.
+Centro de control › Más › **Juego automático** lo devuelve a automático después de alternarlo a mano.
 
 **Grabar la pantalla** (`SUPER+ALT+R`): menú con *Región*, *Pantalla completa*, *con audio* (lo que suena en el
 equipo) y *Región como GIF*. Mientras graba hay un **punto rojo con el tiempo** en la barra; para terminar,
@@ -588,60 +587,26 @@ mando o ratón, y hacerlo sonar cuando no lo encuentras.
 
 **Uso**: la batería del móvil sale en la barra (clic = panel del móvil, clic derecho = hacerlo sonar).
 
-### PC + móvil como uno solo (centro de control › Móvil)
+### PC + móvil como uno solo
 
-El panel del móvil (`Movil.qml`, datos de `scripts/movil.py`) junta todo en un sitio:
+- **Centro de control › Móvil** (SUPER+N): batería y acciones (hacerlo sonar, abrir en el móvil
+  lo copiado, enviarle un archivo, ver sus archivos, SMS).
+- **Avisos y respuestas**: los avisos del móvil, y los de WhatsApp, Telegram o SMS se contestan
+  desde el PC. También el botón *Responder* de sus notificaciones. Debajo, lo que suena en el
+  móvil, los interruptores de «uno solo» (portapapeles compartido, avisos en los dos sentidos,
+  pausar la música al entrar una llamada) y **Instalar mandos**: órdenes fijas del PC en el móvil
+  (diapositivas, música, bloquear, suspender, concentración, captura).
 
-- **Avisos del móvil** con su app. Los de WhatsApp, Telegram o SMS se **contestan desde el PC**:
-  *Responder*, escribes y Enter. La respuesta sale desde el móvil. *✕* lo quita también del móvil.
-- **Responder desde la notificación:** las notificaciones del móvil traen el botón *Responder* (también
-  en el centro de control), que abre el panel con el mensaje y el cursor listo.
-- **Acciones:**
-  - *Sonar*: para encontrarlo.
-  - *Abrir lo copiado*: un enlace copiado en el PC se abre en el navegador del móvil; un texto llega a
-    su portapapeles.
-  - *Enviar archivo*.
-  - *Captura al móvil*: hace la captura y la manda.
-  - *Sus archivos*: los abre en Thunar.
-  - *Mensajes (SMS)*.
-- **Suena en el móvil:** lo que reproduce el móvil, con anterior, pausa y siguiente desde el PC.
-- **Uno solo:** interruptores para el portapapeles compartido, los avisos en los dos sentidos, pausar
-  la música del PC cuando entra una llamada, los mandos y la música del móvil.
-- **Mandos del PC en el móvil:** *Instalar mandos* añade en el móvil (KDE Connect → *Ejecutar orden*):
-  - diapositiva siguiente y anterior (sirve de mando de presentación);
-  - pausar la música del PC y silenciarlo;
-  - bloquear y suspender el PC;
-  - concentración de 25 min;
-  - captura del PC al móvil y traer lo copiado en el PC.
-
-  Solo son acciones fijas: desde el móvil no se puede ejecutar nada más. Tus propias órdenes se conservan.
-
-Si no llegan avisos del móvil: en la app del móvil, entra en este PC → *Sincronizar notificaciones* y
-concede el acceso a notificaciones en Android. Para contestar, la app tiene que ofrecer respuesta en sus
-notificaciones (WhatsApp, Telegram y Mensajes la ofrecen).
+Si no llegan avisos: en la app del móvil, este PC → *Sincronizar notificaciones*, y concede el
+acceso a notificaciones en Android.
 
 ## 21. Teclado con capas, tema claro, filtros, sonido y escritorio
 
 ### Bloq Mayús reconvertida (keyd)
 
-> **Desactivado** desde el 10-11-2026 (no se instala). Para volver a usarlo, descomenta el paso 15 de `instalar/sistema-base.sh`.
-
-La tecla Bloq Mayús está en el mejor sitio del teclado y casi no se usa. Si decides activarla, hace tres cosas:
-
-- **Un toque** = `Esc` (cerrar menús, salir de modos en nvim).
-- **Mantenida** = `Ctrl`: `Bloq Mayús+C` copia, `+T` abre pestaña, `+W` la cierra.
-- **Mantenida + `H` `J` `K` `L`** = flechas ← ↓ ↑ →, y **`Y` `U` `I` `O`** = Inicio, Av Pág, Re Pág, Fin.
-  Con Shift además selecciona texto. Sirve en cualquier app, sin mover la mano a las flechas.
-
-Las mayúsculas fijas siguen existiendo: `Shift+Bloq Mayús`.
-
-keyd trabaja por debajo de Hyprland (también en la TTY y el login) y junta los dos teclados en uno,
-así que el Bloq Mayús ya no puede quedar activado en un teclado y no en el otro.
-
-- Cambiar las capas: edita `~/dotfiles/keyd/default.conf`, cópialo con
-  `sudo install -m644 ~/dotfiles/keyd/default.conf /etc/keyd/default.conf` y `sudo keyd reload`.
-- Si el teclado hace algo raro: **Retroceso + Esc + Enter** a la vez apaga keyd.
-- Quitarlo del todo: `sudo systemctl disable --now keyd`.
+**Desactivado** desde el 10-11-2026. Convertía Bloq Mayús en Esc (toque), Ctrl (mantenida) y
+flechas con H J K L. Cómo activarlo y configurarlo: paso 15 de `instalar/sistema-base.sh` y
+`keyd/default.conf`.
 
 ### Tema claro y oscuro
 
@@ -652,9 +617,9 @@ El escritorio es **siempre oscuro** salvo que lo cambies tú. Si algún día qui
 (claro a las 6:30, oscuro a las 18:00), `tema.sh auto on`; las horas están al principio de
 `modulos/tema.lua`.
 
-Cambian con el tema: Hyprland, toda la interfaz de Quickshell, kitty, btop, las apps GTK y lo que
-pregunta al sistema (Firefox y las webs con modo oscuro automático). No cambian solos: nvim, VS Code,
-Discord y Spotify, que tienen su tema Ayu oscuro fijo.
+Cambian con el tema: Hyprland, toda la interfaz de Quickshell, kitty, btop, las apps GTK, el
+bloqueo de respaldo, Firefox (al reiniciarlo) y lo que pregunta al sistema (webs con modo oscuro
+automático). No cambian solos: nvim, VS Code, Discord, Spotify y yazi, con su tema Ayu fijo.
 
 ### Filtros de pantalla
 
@@ -727,27 +692,20 @@ Firefox). La «clase» de una ventana se ve con `SUPER+I`.
 `~/Documents/notas.md` (el mismo archivo de `SUPER+CTRL+SHIFT+O`). `SUPER+ALT+O` guarda lo que tengas
 seleccionado. En el lanzador: `nota comprar cable`.
 
-### Buscador universal
+### Contraseñas desde el lanzador
 
-En el lanzador (`SUPER+R`), una letra y un espacio cambian dónde se busca: `v` ventanas, `n` dentro de
-tus notas, `c` portapapeles, `t` pestañas de Firefox y `p` contraseñas.
+`p algo` + Enter la primera vez abre la guía para elegir gestor: Bitwarden (recomendado; también
+en el móvil) o `pass` (todo local). Después, `p gmail` escribe la contraseña donde esté el
+cursor, sin pasar por el portapapeles.
 
-Las contraseñas necesitan un gestor. La primera vez, `p algo` + `Enter` abre la guía: Bitwarden
-(recomendado; también en el móvil) o `pass` (todo local). Después, `p gmail` + `Enter` escribe la
-contraseña donde esté el cursor, sin pasar por el portapapeles.
+### Syncthing y Tailscale
 
-### Móvil, Syncthing y Tailscale
-
-- **Móvil** (centro de control › pestaña **Móvil**): hacerlo sonar, enviarle lo copiado o un
-  archivo, ver sus archivos. Antes hay que emparejarlo en la app KDE Connect.
 - **Syncthing** (carpetas sincronizadas sin nube): abre http://127.0.0.1:8384, instala Syncthing en
   el móvil, escanea el código QR de «Acciones → Mostrar ID» y comparte una carpeta.
 - **Tailscale** (entrar al portátil desde fuera): `sudo tailscale up --ssh` y abre el enlace que
-  muestra para iniciar sesión; instala la app en el móvil con la misma cuenta. Desde otro equipo
-  tuyo: `ssh oscar@orion`.
+  muestra; instala la app en el móvil con la misma cuenta. Desde otro equipo: `ssh oscar@orion`.
 
-Los puertos de Syncthing y la interfaz de Tailscale se abren en el cortafuegos con el paso 16 de
-`~/dotfiles/instalar/sistema-base.sh`. Sin eso Syncthing funciona igual, pero más lento (por relés).
+Sus puertos se abren con el paso 16 de `instalar/sistema-base.sh`.
 
 ### Automatizaciones
 
@@ -755,10 +713,7 @@ Los puertos de Syncthing y la interfaz de Tailscale se abren en el cortafuegos c
   «Resumen del día» en el lanzador o SUPER+D.
 - **Actualizaciones**: un paquete con el número en la barra cuando hay pendientes. Rojo = hay
   noticias de Arch sin leer (se muestran antes de actualizar). Clic = actualizar.
-- **Pausas**: aviso tras 50 minutos seguidos. Cambiar el tiempo: `minutos` en `Pausas.qml`.
-- **Lugares**: `~/.config/lugares.conf` dice qué hacer al conectarte a cada Wi-Fi (energía, volumen de
-  las bocinas, No molestar). De serie: en casa no cambia nada y en cualquier otra red las bocinas se
-  silencian. Añade la línea de tu universidad con el nombre exacto de su Wi-Fi.
+- **Pausas** y **lugares**: ver la sección 28.
 
 ---
 
@@ -766,969 +721,275 @@ Los puertos de Syncthing y la interfaz de Tailscale se abren en el cortafuegos c
 
 **Preparar una tarde de estudio.** Abre el lanzador (SUPER+R), escribe «empezar» y elige «Empezar a estudiar».
 Revisa las apps abiertas y añade un recordatorio con `recordar 50m revisar apuntes` en el lanzador.
-Guarda un proyecto con SUPER+CTRL+Enter y escribe el próximo paso antes de dejarlo.
+Antes de dejarlo, «Guardar proyecto» en el lanzador con el próximo paso.
 
-**Preparar una reunión.** Abre la pestaña Reunión de Mesa, elige la duración y comienza.
+**Preparar una reunión.** En el lanzador, «Reunión temporizada»: elige la duración y comienza.
 Comprueba el micrófono con sus botones explícitos. Si necesitas enseñar una ventana, selecciónala
 en tu aplicación de videollamada: la privacidad del escritorio no oculta su contenido compartido.
 Al terminar, finaliza la reunión; el silencio que necesiten otros modos se conserva.
 
 **Retomar el día anterior.** Abre Brújula con SUPER+D. Si buscas tus apps de antes del reinicio,
-revisa Sesión y elige cuáles reabrir. Si quieres continuar una tarea concreta, abre tu proyecto y
-lee su próximo paso. Cuando necesites un archivo, búscalo desde SUPER+R con `d tema`.
+revisa Línea de tiempo › Sesión anterior. Para continuar una tarea, pulsa **Retomar** en Hoy o
+escribe el nombre del proyecto en el lanzador. Cuando necesites un archivo, búscalo desde SUPER+R con `d tema`.
 
-## 23. Centro del escritorio
+## 23. Los cuatro centros
 
-Los perfiles están en el **centro de control** (SUPER+N), bajo los botones rápidos; privacidad, checkpoints, replay y diagnóstico, en su pestaña **Más**.
-También puedes pulsar el perfil de la barra o buscar el centro en el lanzador.
+Todo lo que no es una ventana normal vive en uno de cuatro sitios, cada uno con un verbo:
 
-### Empezar a usarlo
+| Centro | Atajo | Para | Qué reúne |
+|---|---|---|---|
+| **Lanzador** | SUPER+R | Hacer | Apps, acciones, proyectos, plantillas, rutinas, cálculos, búsqueda en todo |
+| **Brújula** | SUPER+D | Ver | Tu día, la línea de tiempo y la salud del equipo |
+| **Centro de control** | SUPER+N | Ajustar | Botones rápidos, perfiles, sonido, avisos, Wi-Fi y Bluetooth, móvil, privacidad |
+| **Agente** | SUPER+O | Pedir | Una conversación que consulta y actúa por ti |
 
-1. Elige **Lectura** para ventanas opacas o **Cristal** para tu apariencia habitual.
-2. Antes de reorganizar ventanas, pulsa **Guardar checkpoint**.
-3. Cuando quieras volver, pulsa **Restaurar espacios**. Si cambias de idea, usa **Deshacer restauración**.
-4. Activa **Privacidad** para pausar el replay, ocultar títulos de la barra y activar No molestar.
-5. Consulta **Diagnóstico** si algo falla. El resultado se muestra en el panel y puede seleccionarse.
+Desde un centro no se salta a otro: si algo se hace, se hace donde estás. Mesa de trabajo y Flujo
+(organizar ventanas, acciones sobre una selección) son modos del lanzador.
 
-El panel admite Tab/Shift+Tab, Enter, Escape y **Alt+1…4** para elegir perfil mientras está abierto.
-Los botones muestran ayuda al pasar el puntero. Las acciones indican su resultado y se ejecutan
-de una en una. El panel usa un fondo opaco para mantener la lectura clara.
+## 24. Lanzador: hacer
 
-### Perfiles y automatizaciones
+Escribe y pulsa Enter. Sin prefijo busca apps, acciones (apagar, capturas, filtros…), **proyectos**
+por su nombre y, con 3 letras o más, también en tus documentos, notas, historial y línea de tiempo.
+Con el campo vacío, los chips de debajo muestran los prefijos más usados; **más** los enseña todos.
 
-| Perfil | Comportamiento |
-|---|---|
-| Cristal | Transparencia, blur, sombras y animaciones de la apariencia habitual |
-| Lectura | Ventanas opacas y sin blur; conserva animaciones y sombras salvo ahorro |
-| Mínimo | Sin animaciones, blur ni sombras; opaco; pausa el replay automático |
-| Rendimiento | Sin efectos; sin huecos generales; borde reducido; ventanas opacas |
+| Prefijo | Qué hace | Ejemplo |
+|---|---|---|
+| `=` | Calcular o convertir (Enter copia) | `= 5 km a mi` |
+| `g` `yt` `w` `gh` | Buscar en Google, YouTube, Wikipedia, GitHub | `g método simplex` |
+| `/` | Archivos (solo `/` = recientes) | `/apuntes` |
+| `:` | Emojis y símbolos | `:fuego`, `:≤` |
+| `pl` | Plantillas de texto (Enter copia con fecha y hora) | `pl reunión` |
+| `recordar` · `evento` · `tarea` | Recordatorio, evento o tarea de Google | `recordar 20m agua` |
+| `v` `n` `c` `t` | Ventanas, notas, portapapeles, pestañas de Firefox | `v firefox` |
+| `d` `h` `l` `a` `s` | Documentos, historial, línea de tiempo, atajos, ajustes | `s lectura` |
+| `p` | Contraseñas (las escribe donde está el cursor) | `p correo` |
+| `ia` · `nota` | Preguntar al asistente local · apuntar una línea | `nota llamar al banco` |
 
-El perfil visual no cambia el perfil energético del procesador. Este último sigue disponible en
-el centro de control y mediante `powerprofilesctl`; no son el mismo ajuste.
+**Ajustes** (`s`): cada opción concreta, lista para Enter: perfiles, privacidad, tema, energía,
+replay, sonido, filtros, Wi-Fi, reglas automáticas, funciones del móvil.
 
-Un coordinador calcula el resultado de los motivos activos:
+### Proyectos: retomar donde lo dejaste
 
-- Batería elimina blur y sombras y pausa el replay **automático**.
-- Juego elimina efectos y huecos y activa No molestar. Tiene selección explícita «sí», «no» o
-  «automático». El botón **Juego automático** devuelve el control a la detección de Roblox.
-- Presentación y concentración activan No molestar de forma independiente.
-- Privacidad activa No molestar y pausa el replay incluso si lo encendiste manualmente.
-- No molestar manual conserva su propio estado; las reglas por lugar usan otro motivo independiente.
+**Guardar proyecto** (acción del lanzador o SUPER+CTRL+Enter) recuerda un nombre, el siguiente
+paso, una carpeta, hasta doce archivos o webs y las apps compatibles (terminal, Firefox, Code,
+Thunar) con sus espacios. Después, escribe su nombre en el lanzador: **Retomar «X»** las vuelve a
+abrir en su sitio y aplica su perfil. Brújula › Hoy muestra el último con un botón **Retomar**.
 
-Salir de un modo no cancela el silencio que otro todavía necesita. El centro de control distingue
-el silencio automático del interruptor manual. Las notificaciones críticas mantienen su tratamiento
-habitual: no es un filtro absoluto de toda información sensible.
+No guarda documentos sin guardar, pestañas ni el estado interno de las apps, y no abre nada solo
+al iniciar sesión. Con la privacidad activa se ocultan sus detalles.
 
-Los cambios de modos ya no necesitan recargar toda la configuración. Perfil, privacidad y selección
-de juego sobreviven a `hyprctl reload` dentro de la misma instancia. Al iniciar otra sesión se vuelve
-a Cristal y juego automático. Batería, ventanas de juego y monitores se vuelven a detectar.
+### Plantillas y rutinas
 
-### Checkpoints: alcance preciso
+**Plantillas** (`pl`, o Mesa › Plantillas para crearlas y editarlas): textos reutilizables. Al
+copiarlas, `{{fecha}}`, `{{hora}}` y `{{usuario}}` se sustituyen. No es un gestor de contraseñas:
+lo copiado pasa por el historial del portapapeles.
 
-Se guardan las ventanas normales existentes y su workspace. La restauración comprueba dirección,
-PID y clase; omite ventanas cerradas o con identidad diferente y mueve sin seguir el foco.
-Antes de restaurar guarda la distribución actual para poder deshacer. Las operaciones se serializan.
-
-No guarda documentos, títulos, geometría, grupos, árbol del layout ni comandos de aplicaciones.
-No reabre apps tras reiniciar ni sustituye respaldos. Se excluyen los workspaces especiales, también
-los de concentración, para no interferir con ventanas ocultas por otro modo.
-
-El checkpoint solo sirve en la misma instancia de Hyprland. Un nuevo login comienza sin checkpoint.
-Deshacer recupera los espacios previos a la última restauración; volver a usarlo intercambia esas
-dos distribuciones. Una aplicación cerrada no puede recuperarse con esta función.
-
-### Replay con control de procesos
-
-El modo **automático** graba con cargador y pausa por batería, privacidad o perfil Mínimo.
-**Pausar replay** mantiene el apagado hasta que lo cambies. El atajo tradicional
-`SUPER+ALT+PRINT` alterna una preferencia manual y muestra el resultado en el OSD.
-`SUPER+SHIFT+PRINT` o **Guardar últimos 30 s** solicita guardar el buffer disponible.
-
-El encendido manual puede superar el ahorro por batería; privacidad siempre impide grabar.
-Salir de privacidad respeta la preferencia anterior, incluido un apagado manual.
-
-El gestor verifica usuario, ejecutable, destino de replay y tiempo de inicio del proceso. Evita
-duplicados mediante bloqueo de archivo y no usa un `pkill` general que detenga grabaciones ajenas.
-Al migrar reconoce un replay anterior del mismo usuario y destino. Los errores de arranque quedan
-en `replay.log` bajo el directorio runtime privado de la instancia.
-
-## 24. Mesa de trabajo
-
-Abre Mesa desde el lanzador (acción «Mesa de trabajo»): ventanas, plantillas, reuniones y rutinas en el monitor enfocado. Las plantillas (prefijo `pl`) y las rutinas («empezar») también salen directamente en el lanzador.
-**SUPER+CTRL+V** abre directamente las plantillas. Dentro, **Ctrl+1…4** cambia de pestaña;
-Tab/Shift+Tab recorre controles y Escape cierra. «Proyectos y acciones» abre las herramientas
-explicadas en el capítulo siguiente.
-
-![Rutinas de la Mesa](screenshots/mesa-rutinas.png)
-
-### Ventanas: encontrar, mover y aparcar
-
-Escribe para buscar por aplicación o título. Arriba/abajo selecciona y Enter enfoca; también
-puedes hacer doble clic. La vista previa en vivo acompaña a la selección.
-
-- **Aparcar** retira la ventana a un espacio especial sin cerrar la aplicación.
-- **Recuperar** devuelve esa ventana al espacio anterior si conserva su identidad.
-- **Ir a la ventana** también recupera una ventana aparcada antes de enfocarla.
-- **Flotante / mosaico** cambia la disposición de la ventana seleccionada.
-- Los botones **1–10** la mueven sin llevarte detrás.
-
-Solo se incluyen ventanas normales y las aparcadas por esta herramienta. No se alteran scratchpads
-ni ventanas ocultas por concentración. Una ventana que ya se cerró produce un mensaje, no una
-acción sobre otra aplicación. La recuperación compara PID y clase además de la dirección.
-El registro por instancia guarda destino e identidad; no títulos ni contenido de documentos.
-
-Privacidad y reunión ocultan títulos y desactivan las vistas previas de la mesa y de la vista
-general. Esto no oculta el contenido de aplicaciones que compartas directamente en una videollamada.
-
-### Plantillas: tu biblioteca de textos
-
-**SUPER+CTRL+V** abre esta pestaña directamente. Incluye tres ejemplos: plan del día, notas de
-reunión y reporte de error. Puedes crear, editar, buscar, copiar o eliminar plantillas.
-
-1. Selecciona una plantilla o pulsa **Nueva plantilla**.
-2. Ponle nombre, escribe el contenido y guarda.
-3. **Copiar** expande las variables admitidas y deja el resultado en el portapapeles.
-
-| Variable | Resultado al copiar |
-|---|---|
-| `{{fecha}}` | Fecha local como `2026-11-11` |
-| `{{hora}}` | Hora local como `16:30` |
-| `{{usuario}}` | Nombre del usuario de la sesión |
-
-Las demás variables quedan literales. No se evalúan scripts ni expresiones del texto.
-**Guardar portapapeles** importa texto solamente cuando lo pides. No crea un historial automático.
-Eliminar requiere una segunda pulsación de confirmación; elegir otra plantilla con cambios sin
-guardar se bloquea hasta que guardes o descartes. Copiar se habilita para el contenido guardado.
-
-La biblioteca vive en `$XDG_STATE_HOME/mesa-trabajo/plantillas.json`, o
-`~/.local/state/mesa-trabajo/plantillas.json` si no definiste esa variable. El archivo se escribe
-atómicamente con permisos 600. Límite: 200 plantillas, nombre de 100 caracteres y texto de 16 000.
-No se publica en GitHub. Los ejemplos solo se usan mientras no exista una biblioteca guardada.
-El portapapeles existente del escritorio puede registrar el texto copiado; no uses esta biblioteca
-como gestor de contraseñas.
-
-### Reuniones temporizadas
-
-![Reunión](screenshots/mesa-reunion.png)
-
-Elige 15, 30, 60 o 90 minutos y pulsa **Comenzar reunión**. Durante ese periodo:
-
-- se añade un motivo independiente de No molestar;
-- se pausa el replay incluso si estaba encendido manualmente;
-- se ocultan títulos de la barra y vistas previas;
-- se mantiene una inhibición `idle:sleep` de systemd para evitar inactividad/suspensión;
-- la barra muestra la cuenta atrás y permite volver al panel.
-
-Se termina sola o mediante **Terminar reunión ahora**. Al finalizar solo se retiran los efectos
-aportados por reunión: el perfil, la privacidad manual y los otros motivos se conservan.
-Las notificaciones críticas siguen la política habitual del escritorio. Una inhibición de sueño
-no sustituye el bloqueo y no garantiza comportamiento de todas las aplicaciones o de la tapa.
-
-Los botones de micrófono son explícitos: **Silenciar** y **Activar**. Comenzar o terminar una reunión
-no cambia el micrófono, ni la cámara, ni envía mensajes a otros participantes.
-
-La cuenta atrás se guarda por instancia y sobrevive a recargar Hyprland o Quickshell. El supervisor
-usa un servicio transitorio de systemd del usuario y limpia el estado al salir. El coordinador también
-revisa la caducidad para no conservar indefinidamente el motivo si el supervisor falla.
-
-### Rutinas para empezar con menos pasos
+**Rutinas**: escribe «empezar» y elige una.
 
 | Rutina | Qué prepara |
 |---|---|
-| Estudiar | Sesión universidad, perfil Lectura y 25 min de concentración |
-| Programar | Sesión programar, perfil Cristal y 50 min de concentración |
-| Descansar | Sesión descanso, perfil Cristal y fin de la concentración actual |
+| Empezar a estudiar | Apps de la universidad, perfil Lectura y 25 min de concentración |
+| Empezar a programar | Apps de programar, perfil Cristal y 50 min de concentración |
+| Empezar a descansar | Apps de descanso y fin de la concentración |
 
-**Elegir las apps de cada modo.** Cada tarjeta muestra las apps que abrirá y su espacio. Pulsa
-**Apps** para cambiarlas: busca entre las aplicaciones instaladas y pulsa una (o Enter) para añadirla,
-ajusta el espacio con ‹ › y quítala con ×. **Guardar** la deja para la próxima vez; **Restaurar de
-serie** vuelve a las de `modulos/sesiones.lua`. Sin apps, el modo solo cambia apariencia y
-concentración. También se abre directamente con `qs ipc call mesa apps estudiar` (o `programar`,
-`descansar`). Lo elegido se guarda en `~/.local/state/mesa-trabajo/sesiones/` y vale también para el
-menú de `SUPER+ALT+Enter`.
+Antes guarda un checkpoint de tus ventanas. Qué apps abre cada una se elige en Mesa › Rutinas.
 
-Antes de cambiar nada se guarda un checkpoint de los espacios de las ventanas normales. Las
-aplicaciones siguen dependiendo de que estén instaladas. No se cierran apps ni se recuperan documentos. Restaurar el checkpoint desde
-el centro devuelve las ventanas registradas que sigan abiertas; no revierte todo el perfil ni
-elimina las aplicaciones nuevas de la rutina.
+### Mesa de trabajo y Flujo
 
-## 25. Proyectos, organización y selecciones
+Acciones del lanzador que abren un panel para tareas más largas:
 
-| Quiero | Acceso |
-|---|---|
-| Guardar un proyecto y su próximo paso | `SUPER+CTRL+Enter` |
-| Repartir ventanas según la tarea | `SUPER+CTRL+O` |
-| Actuar sobre un texto seleccionado | `SUPER+ALT+C` |
+- **Mesa de trabajo › Ventanas**: buscar una ventana, ir a ella, **aparcarla** (se esconde sin
+  cerrarse y se recupera luego), pasarla a flotante o moverla a otro espacio.
+- **Mesa › Reunión**: 15 a 90 min con No molestar, replay en pausa, títulos ocultos y sin
+  suspensión. Al terminar solo se retira lo que puso la reunión. No toca micrófono ni cámara.
+- **Organizar por tarea** (SUPER+CTRL+O): reparte las ventanas del espacio para comparar,
+  programar, investigar o concentrarte, con vista previa y **Volver al layout anterior**.
+- **Acciones de selección** (SUPER+ALT+C): marca un texto y elige: copiarlo limpio, guardarlo
+  como nota o plantilla, cambiar mayúsculas, resumir, explicar o traducir con la IA local, o
+  abrirlo si es una dirección.
 
-### Continuar un proyecto
+## 25. Brújula: ver
 
-![Continuidad](screenshots/flujo-continuidad.png)
+**SUPER+D**, clic en el reloj o tres dedos hacia abajo. Tres pestañas (**Ctrl+1…3**):
 
-Escribe un nombre y el siguiente paso que quieres recordar. Puedes añadir una carpeta del
-proyecto y hasta doce recursos existentes, una ruta absoluta o `~/…` por línea. **Guardar**
-recuerda esos datos, el perfil visual actual y las aplicaciones compatibles con sus espacios.
+- **Hoy**: reloj, clima, la frase del asistente, el último proyecto, las ideas para hoy, el
+  calendario con «Próximo», el estado del equipo y el tiempo de pantalla. Se abre sola la primera
+  vez que usas el equipo cada día.
+- **Línea de tiempo**: *El día* (qué tuviste delante y cuándo, ←/→ cambia de día), *Reglas
+  automáticas* y *Sesión anterior*.
+- **Salud**: copias, disco, espacio, snapshots, actualizaciones, servicios, temperatura y batería,
+  cada una con su acción.
 
-Al volver, incluso después de reiniciar, el proyecto aparece en el panel. Brújula › Hoy
-muestra una tarjeta «Continuar» con el último proyecto y un botón para retomarlo. No se abren aplicaciones automáticamente al iniciar sesión.
-La privacidad oculta los detalles del proyecto y deshabilita su edición en pantalla.
+### Ideas para hoy
 
-**Retomar** aplica el perfil guardado y solicita abrir las aplicaciones que falten. Terminal,
-Firefox, Code y Thunar son las aplicaciones compatibles. Las que ya existen en su espacio se
-reutilizan; las demás se solicitan en el espacio guardado. Una carpeta se pasa al terminal,
-editor o gestor de archivos. Los recursos fijados se abren con `xdg-open` por petición explícita.
+Salen de tus datos con reglas fijas: reservar un bloque de concentración si ayer te distrajiste
+más de hora y media, retomar el proyecto, abrir la sesión que sueles usar a esta hora, los
+eventos que quedan, hacer la copia si tiene más de 5 días o descansar si ayer pasaste más de
+9 h delante. La IA local solo redacta la frase de bienvenida (una vez al día).
 
-Esto no restaura documentos sin guardar, pestañas del navegador ni el estado interno de las apps.
-Firefox nuevo comienza con una ventana en blanco; su propia restauración de sesiones es otra
-función. Aplicaciones de instancia única pueden decidir dónde mostrar una ventana. No se guardan
-comandos de procesos ni se ejecutan comandos arbitrarios leídos del archivo del proyecto.
+### Reglas automáticas
 
-La captura es **explícita al guardar**: no hay seguimiento de títulos, documentos o historial.
-Se conservan aplicación compatible, espacio, perfil y las rutas que escribas. Hasta treinta
-proyectos se almacenan en `~/.local/state/mesa-trabajo/proyectos.json`, o bajo `$XDG_STATE_HOME`
-si está definido, con escritura atómica y permisos 600. Ese archivo no va a GitHub.
-Eliminar un proyecto requiere confirmación; cambiar de proyecto con edición pendiente requiere
-guardar o descartar. Guarda antes de cerrar sesión: los campos sin guardar no son un borrador persistente.
+Adaptan el escritorio a lo que haces y, al terminar, todo vuelve como estaba (salvo lo que
+cambiaste a mano). De serie: **Jugar**, **Programar**, **Estudiar**, **Pantalla externa** y
+**Ahorro de batería**. Cada una tiene su interruptor y otro de arriba las pausa todas.
+**Editar reglas** abre `~/.config/hypr/brujula.json` (formato en el manual técnico).
 
-### Organizar según la tarea
+### La línea de tiempo y tu privacidad
 
-![Organización](screenshots/flujo-organizar.png)
+Guarda cada ventana que miras más de 4 s (app y título), se borra a los 30 días y alimenta la
+búsqueda («¿dónde vi lo de las VLAN?»). Con la privacidad activa o en una reunión solo guarda la
+app; la navegación privada y los gestores de contraseñas nunca guardan título; con la pantalla
+bloqueada no registra nada. Las capturas periódicas están apagadas de serie y, si las activas, se
+guardan cifradas.
 
-Elige una intención y pulsa **Previsualizar**. El panel muestra un esquema orientativo y comprueba
-el espacio y las ventanas reales antes de habilitar **Aplicar**.
+### Sesión anterior, reabrir y fin de jornada
 
-| Intención | Layout |
-|---|---|
-| Comparar documentos | Master: área principal y apoyo |
-| Programar | Master: prefiere el editor como principal |
-| Investigar | Scrolling: columnas navegables |
-| Concentrarse | Monocle: una ventana ocupa el área disponible |
-
-Se requieren al menos dos ventanas en mosaico, sin pantalla completa, en un espacio normal.
-No se cierran ni trasladan ventanas, no se convierten las flotantes y no se cambian ajustes
-globales de otros espacios. El esquema no promete una proporción exacta: se respetan las opciones
-de los layouts que ya tengas configuradas.
-
-La previsualización vale dos minutos. Si cambian el espacio o las ventanas participantes,
-debes previsualizar otra vez. El editor se promociona sin expulsarlo si ya era principal,
-usando la variante `ignoremaster` documentada en el
-[layout Master](https://wiki.hypr.land/configuring/layouts/master-layout/).
-
-**Volver al layout anterior** recupera el motor de distribución del mismo espacio. No reconstruye
-el árbol exacto de divisiones, orden o tamaños. Esta recuperación es independiente del checkpoint
-de espacios de la mesa. Los planes y la recuperación solo duran la instancia actual de Hyprland.
-El comportamiento de foco de Monocle puede consultarse en su
-[documentación](https://wiki.hypr.land/configuring/layouts/monocle-layout/).
-
-### Acciones sobre una selección
-
-Marca texto en una aplicación y pulsa **SUPER+ALT+C**. Se captura primero la selección primaria;
-si no contiene texto se usa el portapapeles. Después aparece la vista previa, su origen y su tamaño.
-No necesitas copiar si tu aplicación ofrece selección primaria. **Capturar de nuevo** permite
-actualizar la entrada de forma explícita.
-
-Acciones disponibles:
-
-- copiar el texto exacto;
-- añadirlo a notas o guardarlo como plantilla;
-- pasar a mayúsculas, minúsculas o limpiar espacios, copiando el resultado;
-- resumir, explicar o traducir mediante el asistente local ya configurado;
-- abrir una URL `http`/`https` o una ruta existente cuando se reconoce como recurso.
-
-Las acciones usan la captura revisada, aunque otra app cambie después el portapapeles. El texto
-no se evalúa como código. No se admite `javascript:` como recurso. La vista previa muestra hasta
-700 caracteres de una captura de hasta 32 000; los caracteres restantes también participan en
-la acción. Las plantillas mantienen su propio límite de 16 000 y muestran un error si se supera.
-
-La captura se guarda con permisos 600 en el directorio runtime de la instancia. Se retira al cerrar
-el panel y deja de ser válida a los diez minutos. Si el panel se interrumpe antes de limpiar,
-una lectura posterior detecta la caducidad y elimina el archivo. No hay lectura automática de
-selecciones en segundo plano. La privacidad oculta la vista previa.
-
-La IA utiliza Ollama local a través del panel existente. Abrir una URL sí puede contactar esa web;
-guardar notas, convertir texto y crear plantillas no necesitan red. La entrada del asistente se
-copia a su archivo runtime existente para que pueda procesarse después de cerrar este panel.
-Copiar un resultado puede incorporarlo al historial habitual del portapapeles del escritorio.
-
-## 26. Brújula
-
-**SUPER+D** reúne tres pestañas: Hoy, Línea de tiempo (con El día, Reglas automáticas y Sesión anterior) y Salud.
-**Ctrl+1…5** o **Ctrl+Tab** cambia de pestaña; en la línea, ←/→ cambia de día.
-Las reglas y el estado se procesan localmente; servicios como calendario, webs abiertas y
-actualizaciones sí necesitan red. La configuración se edita desde «Editar reglas» en Contexto.
-
-### Contexto automático
-
-Cada regla tiene `si` (condiciones; tienen que cumplirse todas) y `entonces` (efectos):
-
-```json
-{ "id": "programar", "nombre": "Programar", "icono": "f0169",
-  "si": { "apps": ["code-oss", "code"], "gracia": 4 },
-  "entonces": { "perfil": "lectura", "no_molestar": true, "sesion": "programar" } }
-```
-
-- **Condiciones:** `apps` (class con comodines; `SUPER+I` la dice), `modo` (`foco` por defecto, o
-  `abierta`), `gracia` (minutos que sigue activa después de cambiar de ventana: mirar la
-  documentación no apaga «Programar»), `bateria_menor`, `cargando`, `pantalla_externa`, `hora` y `dias`.
-- **Efectos:** `perfil`, `no_molestar`, `energia` (`power-saver`, `balanced`, `performance`) y `juego`.
-  `sesion` no cambia nada: solo sirve para que «Hoy» proponga abrir esa sesión.
-- Una regla se activa cuando sus condiciones llevan **4 s** cumpliéndose (así no parpadea con alt-tab).
-- Si dos reglas activas quieren lo mismo, gana la de **más arriba** en el archivo.
-- **Al terminar, todo vuelve a como estaba**, salvo lo que cambiaste a mano mientras tanto: si
-  pusiste otro perfil durante «Programar», al cerrar VS Code se queda el tuyo.
-- No molestar se pide como motivo `contexto`: convive con la concentración, las reuniones y el
-  No molestar manual sin apagárselos.
-
-Reglas de serie: Jugar, Programar, Estudiar, Pantalla externa y Ahorro de batería. Cada una se
-activa o desactiva con su interruptor, y el interruptor de arriba pausa todo el contexto automático.
-
-### Línea de tiempo
-
-Cada cambio de ventana que dura más de 4 s queda en `linea/AAAA-MM-DD.jsonl`: hora, class y título.
-El panel lo convierte en una cinta de colores del día, un resumen por app y una lista de bloques
-que se puede filtrar. La búsqueda universal también busca en ella («¿dónde vi lo de las VLAN?»).
-
-Privacidad:
-- Con la privacidad activa (`SUPER+CTRL+P` o una reunión) solo se guarda la app, **sin título**,
-  y el panel oculta la línea.
-- Las ventanas de navegación privada y las apps de `linea.sin_titulo` (gestores de contraseñas)
-  nunca guardan título.
-- Con la pantalla bloqueada no se registra nada.
-- Se borra sola a los `linea.dias` días (30). Con `"titulos": false` se guardan solo las apps.
-- **Capturas** (`"capturas": true`, apagadas de serie): una imagen pequeña cada
-  `capturas_cada_min` minutos, salvo con la privacidad activa o la pantalla bloqueada. Se borran a
-  los `capturas_dias` días.
-  - **Van cifradas** (AES-256 con `openssl`), sin pasar nunca por el disco en claro: `grim` escribe
-    a una tubería y se guarda solo el `.jpg.enc`, con permisos `600`.
-  - La clave se crea sola y vive en tu **anillo de claves** («Brújula: clave de las capturas»), que se
-    abre con tu contraseña al iniciar sesión. Si no hay anillo disponible, no se hace ninguna captura.
-  - Para mirarlas, el panel las descifra en `$XDG_RUNTIME_DIR` (memoria) y las borra al cerrarse.
-- **Archivos del día:** los que abriste con las apps que lo apuntan en `recently-used.xbel` (visores
-  de PDF, editores, el navegador al descargar…). Aparecen como rombos sobre la cinta y como fichas
-  debajo; un clic los abre.
-
-### Sesión que vuelve
-
-Cada minuto (y 5 s después de abrir, cerrar o mover una ventana) se guarda una foto de las apps
-abiertas en los espacios 1-10. Para cada una se recuerda cómo volver a abrirla:
-- las Flatpak, con `flatpak run`;
-- las terminales, en la carpeta donde estabas;
-- las demás, por su `.desktop`.
-
-Las ventanas **flotantes** recuerdan también su **tamaño y posición** (relativos a su pantalla), y las
-de pantalla completa vuelven a pantalla completa. Esos datos se pasan a Hyprland como reglas de la
-ventana al lanzarla, y solo con números validados.
-
-Al iniciar sesión, si la foto es de otro arranque, aparece una notificación: **«Restaurar todo»**
-o **«Elegir…»**. La pestaña Sesión muestra la lista con casillas. Lo que ya está abierto (por
-ejemplo la terminal y Firefox que abre el inicio) no se duplica. Firefox recupera sus pestañas él
-mismo; los documentos sin guardar no se recuperan.
-
-### Sugerencias del día
-
-La primera vez que usas el equipo cada día (desde las 6:00, sin modo juego) llega un aviso:
-«Tengo N ideas para hoy». Las ideas salen de tus datos, con reglas fijas:
-
-- **Distracciones:** si ayer pasaste más de 1 h 30 min en las apps de `sugerencias.distracciones`,
-  propone **reservar** un bloque de concentración de `bloque_min` minutos (90) en el primer hueco
-  libre: en punto o y media, sin pisar los eventos de tu calendario ni otros bloques, entre las 7:00
-  y las 22:30; si hoy ya no cabe, mañana a las 9:00. Botones: *Programar HH:MM* o *Ahora 50 min*.
-  - Avisa 5 min antes y empieza solo a su hora. Si el equipo estaba apagado, no empieza tarde.
-  - Los bloques reservados salen en «Hoy» con una ✕ para cancelarlos.
-  - También desde la terminal: `brujula.py programar --inicio 09:00 --minutos 90`, `programados` y
-    `cancelar <id>`.
-- **Proyecto:** retomar tu último proyecto de la mesa de trabajo, con su próximo paso.
-- **Hábito:** si sueles tener un contexto a esta hora (3 de los últimos 7 días), propone abrir su sesión.
-- **Eventos:** los de hoy que aún no han pasado.
-- **Respaldo:** si la última copia tiene más de 5 días.
-- **Pantalla:** si ayer pasaste más de 9 h delante.
-
-El asistente local (ollama) solo redacta la frase de bienvenida, con esos mismos datos. Tarda
-unos 30 s la primera vez y luego queda guardada todo el día. Sin ollama aparece una frase fija;
-con `"ia": false`, nunca se usa.
-
-### Búsqueda universal
-
-En el lanzador, a partir de 3 letras y sin prefijo, debajo de las apps aparecen los resultados por
-grupos: **ajustes**, ventanas, **dentro de tus documentos**, notas, historial de Firefox, línea de
-tiempo, atajos y portapapeles. Las fuentes se consultan en paralelo y la que tarda más de 1,5 s se queda
-fuera. También hay prefijos para buscar en una sola fuente: `d` documentos, `h` historial,
-`a` atajos, `l` línea de tiempo, `s` ajustes y `b` todo.
-
-**Ajustes:** cada opción concreta, lista para aplicarse con Enter. Escribiendo «claro», «lectura»,
-«regla programar», «bluetooth» o «portapapeles móvil» aparecen, por ejemplo:
-- perfiles, privacidad, No molestar y modo juego;
-- tema (claro u oscuro, Ayu o wallpaper, horario automático) y luz nocturna;
-- energía, replay, sonido de las bocinas y filtros de pantalla;
-- Wi-Fi, Bluetooth y widgets de escritorio;
-- cada regla de contexto (activar o desactivar) y las funciones del móvil.
-
-`indice.py` lee PDF, docx, odt, pptx, odp, ods y texto (md, txt, tex…) de Documents, Desktop y
-Downloads (y sus equivalentes en español). Guarda el contenido en una base SQLite FTS5 en
-`~/.cache/brujula/documentos.db`. Es incremental y el servicio lo relanza cada 30 min con la
-prioridad más baja de CPU y disco.
-
-### Salud del sistema (pestaña «Salud»)
-
-`scripts/salud.py` comprueba en menos de un segundo, y sin contraseña de administrador:
-
-| Comprobación | De dónde sale | Aviso / mal |
-|---|---|---|
-| Copia de seguridad | `/var/lib/respaldo/ultima` | más de 3 / 8 días |
-| Disco (SMART) | UDisks: desgaste, reserva, errores, temperatura | avisos del disco o errores |
-| Espacio libre | `df /` | 85 % / 95 % |
-| Snapshots | `snapper list` | el último hace más de 3 h / 2 días |
-| Actualizaciones | `checkupdates -n`, barra (AUR, noticias, vulnerables) | noticias, vulnerables, más de 60; **mal** si el kernel se actualizó y no has reiniciado |
-| Servicios | `systemctl --failed` (sistema y usuario) | alguno fallido |
-| Temperatura | `sensors -j` | 80 / 92 °C |
-| Batería | capacidad actual frente a la original y ciclos | 80 % / 60 % |
-| Memoria | `/proc/meminfo` | menos del 15 % / 5 % libre |
-| Scrub de Btrfs | temporizador `btrfs-scrub@-` | más de 40 días o con errores |
-| USB | errores `-71` del kernel en este arranque | alguno |
-| `.pacnew` | `pacdiff -o` | alguno |
-| Escritorio y arranque | `hyprctl configerrors`, `grub-btrfsd` | errores o servicio parado |
-
-Cada tarjeta trae su acción: copiar ahora, actualizar, ver qué ocupa, abrir btop, ver por qué falló…
-Si algo está **mal** (no basta con un aviso), «Hoy» lo propone el primero.
+- **Sesión anterior**: tras reiniciar, una notificación ofrece **Restaurar todo** o **Elegir…**.
+  Las apps vuelven a su espacio; las flotantes, con su tamaño y posición.
+- **SUPER+SHIFT+Z** reabre la última ventana cerrada en su sitio (repetirlo, la anterior).
+- **Fin de jornada** (23:00 de serie): **Cerrar el día** guarda la sesión, silencia, enciende la
+  luz nocturna y baja el brillo; por la mañana todo vuelve.
 
 ### Actualizar con seguridad
 
-«Actualizar con seguridad» (en Salud, el lanzador o la barra) abre `scripts/actualizar.py` en una terminal.
+Desde Salud, el lanzador o la barra. Antes comprueba batería, espacio y noticias de Arch, y avisa
+de los paquetes delicados; durante, snap-pac hace snapshots; después resume `.pacnew`, servicios
+fallidos y si hay que reiniciar. **Deshacer la última actualización** revierte `/` al snapshot
+anterior (pide escribir `DESHACER`). Si el sistema no arranca: GRUB › «Arch Linux snapshots».
 
-**Antes:**
-- con batería por debajo del 40 % y sin cargador, para y pregunta;
-- con menos de 5 GiB libres, no sigue;
-- muestra las noticias de Arch sin leer (informant) y pide confirmación;
-- avisa de los paquetes delicados (kernel, systemd, Mesa, Hyprland, Quickshell…);
-- comprueba que snap-pac hará los snapshots.
+## 26. Centro de control: ajustar
 
-**Durante:** `yay -Syu`. snap-pac hace un snapshot de `/` antes y otro después de cada paso de pacman,
-y grub-btrfs los pone en el menú de GRUB.
+**SUPER+N** o clic en la campana. Arriba, diez botones rápidos (clic derecho en Wi-Fi o Bluetooth:
+su lista) y los cuatro **perfiles**:
 
-**Después:**
-- indica los snapshots creados, los `.pacnew` nuevos, los servicios fallidos y si hace falta reiniciar;
-- lo apunta en `~/.local/state/brujula/actualizaciones.jsonl` y avisa con una notificación.
-
-**Deshacer la última actualización** (Salud o lanzador; guarda antes el trabajo): `snapper undochange <antes>..<después>`
-intenta revertir los cambios de archivos de `/` entre el par de snapshots seleccionado, sin restaurar `/home`. Revisa antes el historial: una actualización puede generar varios pares de snapshots y esta operación no equivale a recuperar todo el sistema. Hay que escribir `DESHACER` para
-confirmar y pide tu contraseña. Si el sistema ni siquiera arranca: GRUB → «Arch Linux snapshots».
-
-### Reabrir la última ventana cerrada (`SUPER+SHIFT+Z`)
-
-El servicio calcula cómo reabrir cada ventana mientras su proceso vive (después ya no se puede). Al
-cerrarla, la guarda en una pila de 15 (`cerradas.json`). `SUPER+SHIFT+Z` reabre la última:
-- en su espacio;
-- si flotaba, con su tamaño y posición;
-- las terminales, en su carpeta.
-
-Repetirlo reabre la anterior. Las que duran menos de 2 s (diálogos) no cuentan.
-
-### Fin de jornada
-
-En `brujula.json → jornada` eliges la hora (23:00), los días (vacío = todos) y el brillo de noche (30 %).
-A esa hora llega «Fin de jornada», con dos botones:
-- **Cerrar el día:**
-  - guarda la sesión, activa No molestar (motivo `jornada`) y enciende la luz nocturna;
-  - baja el brillo poco a poco durante un minuto;
-  - abre «Hoy» con el resumen: pantalla del día, apps principales y lo de mañana.
-- **15 min más:** vuelve a avisar.
-
-No avisa con un juego abierto ni con la pantalla bloqueada. Una hora antes, «Hoy» ya muestra la
-tarjeta de cierre. Por la mañana (desde las 5:00, al desbloquear) vuelven el brillo y las
-notificaciones. También a mano: `brujula.py jornada cerrar` / `reabrir`, o «Cerrar el día» en el lanzador.
-
-## 27. Herramientas y automatismos que conviene conocer
-
-### Terminal: copiar, buscar y trabajar con pestañas
-
-Kitty copia al seleccionar texto. **Ctrl+Shift+T** crea una pestaña, **Ctrl+Shift+W** la cierra y
-**Ctrl+Shift+Enter** abre otra ventana. **Ctrl+Shift++**, **Ctrl+Shift+-** y **Ctrl+Shift+0**
-aumentan, reducen y restablecen el tamaño de letra. Su historial de pantalla conserva 10 000 líneas.
-
-En Zsh, escribe el nombre de una carpeta para entrar en ella (`autocd`). `cd` aprende las carpetas
-con zoxide y `cdi` permite elegirlas. Tab completa con menú y vista previa; **Ctrl+T** busca archivos
-y **Alt+C** carpetas. **↑/↓** busca comandos que contengan lo que ya escribiste; **→** o
-**Ctrl+Espacio** acepta la sugerencia gris. **Ctrl+R** abre el historial de Atuin: Enter ejecuta;
-Tab permite revisar y editar antes. `atuin stats` muestra estadísticas.
-
-| Orden | Resultado |
+| Perfil | Cómo se ve |
 |---|---|
-| `ls`, `ll`, `la`, `lt` | Lista con iconos, detalle con Git, ocultos o árbol de dos niveles |
-| `cat archivo` | Lectura con colores mediante bat |
-| `..`, `...` | Subir una o dos carpetas |
-| `y [carpeta]` | Yazi; al salir con `q`, la terminal queda en la carpeta elegida |
-| `rz` | Reinicia la shell para cargar los cambios de configuración |
-| `zplug-actualizar` | Actualiza los plugins de Zsh |
-| `fastfetch` | Resumen del equipo; se muestra al abrir una Kitty interactiva |
+| Cristal | Blur, sombras y animaciones (el habitual) |
+| Lectura | Paneles opacos y sin blur |
+| Mínimo | Sin animaciones, blur ni sombras |
+| Rendimiento | Sin efectos ni huecos, borde fino |
 
-La función `sudo` puede enviar la contraseña al alcanzar la longitud aprendida por el bloqueo.
-Si cambió la contraseña, usa Enter para volver a aprenderla. Solo se guarda la longitud. Para
-invocar directamente el programa sin esta función, escribe `command sudo …`.
+Debajo, cuatro pestañas:
 
-### Editar notas con Neovim
+- **Inicio**: volumen general y por app, micrófono, brillo, música y las notificaciones con
+  **No molestar**.
+- **Conexiones**: Wi-Fi y Bluetooth (ver la sección 10).
+- **Móvil**: batería y acciones (sonar, abrir lo copiado, enviar archivo, sus archivos, SMS) y
+  **Avisos y respuestas**. Sin conexión, un botón para abrir KDE Connect.
+- **Más**: checkpoints, privacidad, juego automático, diagnóstico y replay.
 
-Pulsa `i` para escribir y Esc para regresar al modo normal. En modo normal, **Espacio w** guarda,
-**Espacio q** sale y **Espacio e** abre el explorador. Los números relativos ayudan a saltar líneas:
-`5j` baja cinco. `/texto` busca; Esc quita el resaltado. En modo visual, J/K mueve la selección.
-El portapapeles del sistema está integrado y el historial de deshacer persiste entre aperturas.
-La primera ejecución puede pedir instalar el tema Ayu y la barra lualine; `:lua vim.pack.update()`
-los actualiza. Esta configuración usa el gestor integrado de Neovim 0.12.
+### Varios modos a la vez
 
-### Pausas, avisos y resumen matutino
+Batería, juego, concentración, reunión, privacidad y las reglas por lugar se suman sin pisarse:
+salir de uno no quita el silencio que otro todavía necesita. La batería quita blur y sombras; el
+juego quita efectos y huecos y silencia; la privacidad oculta títulos, silencia, pausa el replay
+**y apaga la nube del agente**. El perfil visual no cambia el modo de energía del procesador.
 
-El recordatorio de descanso aparece tras **50 min** de interacción sin una pausa de **3 min**.
-No bloquea las apps. Sin tocar teclado o ratón durante tres minutos, el contador vuelve a cero;
-ver un vídeo sin interacción cuenta como pausa. Con No molestar espera a que termine el silencio.
+### Checkpoints
 
-El **Resumen del día** es Brújula › Hoy abierta sola una vez al día desde las **5:00**: clima, agenda,
-recordatorios, sistema, tiempo de pantalla y el último proyecto. Puedes abrirlo desde el lanzador, con
-SUPER+D o con `qs ipc call resumen mostrar`.
-Es distinto de las sugerencias de **Hoy** de Brújula, que empiezan desde las **6:00**.
+**Guardar checkpoint** recuerda en qué espacio está cada ventana; **Restaurar espacios** las
+devuelve (solo las que siguen abiertas) y **Deshacer restauración** vuelve atrás. Duran la sesión:
+no reabren apps ni guardan documentos.
 
-### Reglas al cambiar de Wi-Fi
+### Replay
 
-Edita `~/.config/lugares.conf`. Cada línea usa este formato (el nombre de red debe ser el real):
+Graba en memoria los últimos 30 s para guardarlos si pasa algo que valga la pena. En
+**Automático** solo graba con el **modo juego** activo; **Guardar ahora** (o SUPER+SHIFT+PRINT)
+guarda lo último y SUPER+ALT+PRINT lo enciende o apaga a mano. La privacidad siempre lo para.
 
-```text
-WiFiUniversidad | universidad | ahorro | 0 | si
-* | fuera de casa | - | 0 | -
-```
+## 27. Agente: pedir
 
-Las columnas son red, nombre del lugar, energía, volumen y No molestar. `-` deja el ajuste como
-está; `*` cubre redes sin regla propia. El volumen solo se cambia cuando la salida coincide con
-las bocinas detectadas por el script. El motivo de silencio «lugar» convive con los demás.
-El vigilante apunta la red al iniciar y actúa al cambiar a otra: para aplicar ahora la red actual,
-ejecuta `~/.config/hypr/scripts/lugar.sh aplicar`. Estas reglas aplican valores; no prometen
-restaurar el volumen o la energía anteriores al salir de una red.
-
-### Qué necesita conexión y qué funciona localmente
-
-| Función | Requisito |
-|---|---|
-| Ventanas, proyectos, plantillas, notas y OCR | Equipo local y dependencias instaladas |
-| Dictado y asistente | Modelos descargados; Ollama activo para el asistente |
-| Traducción con el atajo dedicado | Internet; es un flujo distinto a traducir con la IA local |
-| Clima y letras | Open-Meteo y lrclib.net; pueden no tener datos disponibles |
-| Google Calendar | URL iCal privada configurada; no la publiques |
-| KDE Connect | Emparejamiento, permisos del móvil y conectividad entre dispositivos |
-| Syncthing | Carpetas y dispositivos autorizados; sus cambios también pueden propagar borrados |
-| Tailscale | Inicio de sesión y permisos de tu red privada |
-| Copia externa | Disco configurado conectado, restic y clave de recuperación |
-| Conservar batería | Hardware Lenovo compatible y regla del instalador |
-
-### Elegir la recuperación adecuada
-
-| Situación | Herramienta | Qué recupera |
-|---|---|---|
-| Cambié las ventanas de espacio | Checkpoint del centro | Espacios de ventanas que siguen abiertas en esta instancia |
-| Quiero volver al reparto anterior | Organizador | Motor de layout anterior del mismo espacio |
-| Quiero continuar mañana | Proyecto | Próxima tarea, recursos y apps compatibles guardadas |
-| Reinicié y quiero reabrir mis apps | Sesión de Brújula | Apps reconocidas, espacios y geometría compatible |
-| Cerré una ventana por error | `SUPER+SHIFT+Z` | Solicitud de reapertura; no documentos sin guardar |
-| Borré o modifiqué un archivo | Snapshot de home o restic | Versión del archivo en una copia existente |
-| Una actualización rompió el sistema | Historial, snapshots y procedimiento de recuperación | Cambios de archivos según la copia seleccionada |
-
-Ni los proyectos ni la sesión de Brújula guardan el trabajo que aún no guardaste dentro de una app.
-Consulta [el procedimiento técnico de recuperación](manual-tecnico.md#12-diagnóstico-y-recuperación)
-antes de restaurar configuración o sistema.
-
-## 28. Agente y memoria: hablarle al escritorio
-
-**SUPER+O** abre el agente. También puedes buscar **Agente** en SUPER+R. Es distinto del asistente
-sobre selecciones de SUPER+ALT+A: además de redactar respuestas, consulta la agenda, la actividad,
-los archivos y el móvil, y propone acciones concretas del escritorio.
-
-### Sistema e internet
-
-El agente también puede leer archivos, crear o editar documentos con copia de respaldo, ejecutar
-programas Linux y manejar un navegador visible con **Playwright + Chromium**. El modelo sigue en
-Ollama; las búsquedas y páginas usan internet. El navegador tiene un perfil independiente y persistente
-en `~/.local/share/brujula/navegador/perfil`: no usa las sesiones de tu Firefox habitual.
-
-Para instalarlo, pulsa **Instalar navegador** en Super+O y confirma la propuesta. También puedes
-ejecutar `~/.config/hypr/scripts/agente-navegador-instalar.sh` desde una terminal. Instala dependencias
-en un entorno Python de tu usuario, descarga Chromium y prueba que arranque antes de marcarlo listo.
-Requiere internet; no pide sudo. Si faltan bibliotecas del sistema, el instalador mostrará el error.
-Vuelve a abrir el panel después de instalarlo. `--simular` muestra el plan sin descargar nada.
-
-Prueba «Busca en internet las noticias de hoy», «Lee https://example.com», «Lee mi archivo
-~/Documents/apuntes.txt» o «Crea ~/Documents/resumen.txt con los puntos principales».
-
-`~/.config/ia/permisos.json` selecciona `{"modo":"autonomo"}`. En este modo se ejecutan consultas
-simples, navegación por URL, sesiones, concentración, recordatorios y ediciones de documentos
-personales. Las ediciones conservan el original en `~/.local/state/brujula/agente/respaldos/`.
-Los comandos generales, borrados, instalaciones, configuración, envíos y acciones del navegador
-mediante clics, teclas o formularios requieren confirmación: pueden cambiar el sistema o datos de una
-cuenta. Revisa el comando, directorio y contenido antes de aceptar. Otros valores de `modo` hacen
-que toda acción de cambio necesite confirmación. Las consultas y aperturas siguen disponibles.
-
-Los comandos se ejecutan sin shell y sin entrada interactiva, con límite de 90 segundos, y muestran
-el código de salida al modelo. Los comandos que necesitan contraseña deben abrirse en una terminal;
-el agente no obtiene privilegios de administrador automáticamente. El control de otras aplicaciones
-depende de las utilidades disponibles en tu sesión (por ejemplo `hyprctl` o `wtype`); no incluye visión
-general de la pantalla ni garantiza poder manejar cualquier aplicación.
-
-El navegador devuelve texto y selectores de la página para las siguientes acciones, conserva sesiones
-y no acepta descargas automáticas. El panel se comunica con él por un socket Unix privado, sin abrir
-puertos TCP de control. Pide «Cierra el navegador del agente» para terminarlo. Cerrar el panel no cierra
-el navegador. El agente puede equivocarse con páginas complejas; comprueba siempre el resultado.
-
-### Primer uso
-
-1. Comprueba que Ollama esté activo y los modelos estén descargados; el procedimiento está en el
-   [manual técnico](manual-tecnico.md#agente-y-memoria-integrados).
-2. Abre el panel y espera la preparación del modelo. Si escribes durante la carga, el panel conserva
-   una pregunta pendiente y la envía al terminar. En CPU puede tardar bastante la primera vez.
-3. Prueba `¿Qué tengo mañana?` o `¿Cómo está el equipo?`. Verás los pasos y la respuesta progresiva.
-4. Para actuar, pide algo concreto: `Concentración de 50 minutos`. En modo autónomo empieza
-   directamente; para acciones que necesitan aprobación, revisa la propuesta y pulsa **Sí, hazlo** o **No**.
-5. Si pregunta por varias acciones, revisa cada propuesta por separado. Escribir otra petición
-   descarta la acción que estaba pendiente. Nueva o Ctrl+L inicia otra conversación.
-6. A la izquierda está el **historial**: tus conversaciones agrupadas en Hoy, Ayer, Últimos 7 días y
-   Anteriores. Pulsa una para verla entera y seguir donde la dejaste; el agente recuerda lo que se
-   habló. La papelera que aparece al pasar el ratón la quita del historial. Al reabrir el panel ves la
-   última conversación.
+**SUPER+O**. Escribe o dicta (Ctrl+Espacio) lo que necesitas: consulta tu agenda, la línea de
+tiempo, la salud del equipo, tus archivos y el móvil; abre apps y sesiones; navega por internet
+con su propio navegador; y propone acciones que confirmas con **Sí, hazlo** o **No**.
 
 | Quiero | Ejemplo |
 |---|---|
 | Preparar el día | `¿Qué tengo mañana y cuánta batería me queda?` |
-| Encontrar algo leído | `¿Qué estuve leyendo sobre el método de dos fases?` |
-| Estudiar | `Abre la sesión universidad y concentración de 50 minutos` |
-| Recordar una tarea | `Recuérdame en 45 minutos tomar agua` |
-| Cambiar apariencia | `Pon el perfil Lectura` |
-| Revisar el móvil | `¿Tengo avisos en el móvil?` |
+| Encontrar algo | `¿Qué estuve leyendo sobre el método de dos fases?` |
+| Ponerme a estudiar | `Abre la sesión universidad y concentración de 50 minutos` |
+| Recordar algo | `Recuérdame en 45 minutos tomar agua` |
 | Responder desde el móvil | `Contéstale a María que llego a las 3` |
 
-### Consultas, aperturas y confirmaciones
+### Modelos
 
-Esta tabla describe el modo de confirmación. En modo autónomo, las excepciones para documentos,
-sesiones, concentración y recordatorios se describen en «Sistema e internet».
+**Ajustes** (arriba a la derecha) elige modelo, esfuerzo y navegador:
 
-| Sin confirmación adicional en el agente | Con propuesta y confirmación |
+- **Auto** usa el mejor disponible: Gemini 4 Hydrogen y, si falla, los modelos de Groq.
+- **Google** muestra todos los modelos de conversación de tu cuenta, ordenados del que mejor
+  responde al que peor (se prueban una vez al día; el selector indica si alguno va lento o falla).
+  Cada uno usa tu clave principal y, si se agota, la de respaldo.
+- **Groq**: GPT-OSS y Qwen, también con dos claves.
+- **Local**: el modelo de este equipo, privado pero lento. Es el que se usa siempre con la
+  **privacidad activa**.
+
+Si un modelo falla, el chat avisa de cada cambio. Las claves viven fuera de dotfiles, en
+`~/.local/share/brujula/claves/`.
+
+### Permisos
+
+**Amplio** (de serie) hace sin preguntar las consultas, aperturas, sesiones, concentración,
+recordatorios y ediciones de tus documentos (guardando el original). Pide confirmación para
+comandos generales, borrados, instalaciones, cambios de configuración, envíos y acciones dentro
+de webs. Nunca obtiene permisos de administrador por su cuenta. Lee siempre la propuesta.
+
+### Memoria y conversaciones
+
+Busca por significado en tus documentos, la línea de tiempo (60 días) y el historial de Firefox
+(90 días), y cita sus fuentes con fichas que se abren con un clic. No indexa el portapapeles.
+Guarda tus últimas 100 conversaciones a la izquierda (Hoy, Ayer…); **Ctrl+L** empieza otra.
+Borrar una conversación no borra lo indexado. La privacidad no borra datos ya indexados: revisa
+qué compartes si muestras la pantalla.
+
+| Si… | Prueba |
 |---|---|
-| Buscar en memoria y localizar archivos | Empezar o programar concentración |
-| Consultar agenda, estado, salud y avisos del móvil | Abrir una sesión de trabajo con sus apps |
-| Consultar la línea de tiempo | Cambiar un ajuste, crear recordatorios |
-| Abrir una app, un archivo, una URL o un panel | Responder/enviar al móvil |
-| | Bloquear, suspender, abrir actualización o reversión, reabrir ventana, cerrar el día |
+| Responde en local y lento | ¿Está la privacidad activa? (centro de control › Más) |
+| Falla la nube | Mira el aviso del chat; el selector dice qué modelos fallan |
+| No encuentra recuerdos | `~/.config/hypr/scripts/memoria.py estado` |
+| Error de Ollama | `systemctl status ollama` y `ollama list` |
 
-Lee destinatario, mensaje, hora y ajuste antes de aceptar. Abrir una URL o enviar algo al móvil
-puede usar red; **local** describe el procesamiento del modelo, no todas las acciones posibles.
-Una propuesta enviada a una aplicación no demuestra que esa aplicación la haya completado:
-comprueba el resultado en el panel o servicio correspondiente.
+## 28. Herramientas que conviene conocer
 
-### Teclado y voz
+### Terminal
 
-| Control | Uso |
+Kitty copia al seleccionar; **Ctrl+Shift+T** pestaña nueva, **Ctrl+Shift+W** la cierra,
+**Ctrl+Shift+±/0** cambia el tamaño de letra. En Zsh: escribe una carpeta para entrar en ella,
+`cdi` elige entre las recientes, **Ctrl+T** busca archivos, **Alt+C** carpetas, **Ctrl+R** el
+historial (Atuin) y **→** acepta la sugerencia gris.
+
+| Orden | Resultado |
 |---|---|
-| Enter | Enviar lo escrito |
-| Ctrl+Espacio o botón de micrófono | Empezar dictado; volver a pulsar para terminar y enviar |
-| Sí / No | Resolver la propuesta visible |
-| S / N | Confirmar o rechazar cuando el campo de escritura no tiene el foco |
-| Ctrl+L o Nueva conversación | Empezar otra conversación (la anterior queda en el historial) |
-| Ctrl+↑ / Ctrl+↓ | Ir a la conversación anterior o siguiente del historial |
-| Escape | Cerrar el panel |
+| `ll`, `la`, `lt` | Listas con detalle, ocultos o en árbol |
+| `cat archivo` | Con colores (bat) |
+| `y [carpeta]` | Yazi; al salir te deja en la carpeta elegida |
+| `rz` | Recarga la shell |
 
-El micrófono usa Whisper local mediante `dictado.sh texto`: devuelve la transcripción al agente
-en lugar de escribirla en otra app o copiarla al portapapeles. El atajo general de dictado sigue
-siendo SUPER+ALT+D. Cerrar el panel no equivale a cancelar una tarea que ya esté en proceso.
+### Neovim
 
-### Qué recuerda la memoria
+`i` escribe, Esc vuelve. **Espacio w** guarda, **Espacio q** sale, **Espacio e** abre el
+explorador, `/texto` busca. El portapapeles del sistema está integrado.
 
-La memoria busca por significado y por palabras exactas sobre:
+### Pausas y lugares
 
-- Documentos de las carpetas que ya indexa el escritorio: PDF, Word, LibreOffice y apuntes.
-- Línea de tiempo: apps, títulos registrados y archivos del día, hasta 60 días de fuentes disponibles.
-- Historial de Firefox: títulos y direcciones de hasta 90 días en los perfiles que reconoce el código.
+Tras **50 min** seguidos sin una pausa de 3 min llega un aviso para descansar (espera si hay No
+molestar). En `~/.config/lugares.conf` puedes poner reglas por red Wi-Fi (energía, volumen, No
+molestar); una línea por red, con `*` para las demás.
 
-No indexa el portapapeles. El historial web no incluye el contenido completo de cada página;
-el filtro excluye algunas direcciones de acceso y pago, pero no garantiza retirar todo dato sensible.
-Las preguntas reconocidas como «qué leí», «qué hice» o «dónde vi» disparan búsqueda antes de responder.
-Otras consultas dependen de las herramientas que elija el modelo. No encontrar algo no demuestra
-que nunca haya existido: puede faltar la fuente, el perfil, el índice o el modelo.
+### Qué recuperar con qué
 
-Las respuestas pueden citar `[1]`, `[2]`… y mostrar fichas de fuentes. Pulsa una ficha para abrir
-el documento, la página o ese día de la línea de tiempo. El índice vive en
-`~/.cache/brujula/memoria.db`; Brújula solicita actualizarlo cada 30 min después del índice de palabras.
-La primera pasada puede tardar bastante; las siguientes procesan fuentes que cambiaron.
-
-### Modelos y datos personales
-
-| Función | Modelo configurado | Configuración |
-|---|---|---|
-| Agente con herramientas | `qwen3:4b-instruct` | `~/.config/ia/agente` |
-| Memoria semántica | `embeddinggemma` por defecto | `~/.config/ia/embeddings` (opcional) |
-| Asistente sobre selecciones | `gemma3:4b` | `~/.config/ia/modelo` |
-| Dictado | Whisper small o base | `~/.config/dictado/modelo` |
-
-Los modelos deben descargarse antes de trabajar sin internet. La velocidad depende del equipo,
-el tamaño de la conversación y la disponibilidad de memoria; no hay un tiempo fijo de respuesta.
-El agente guarda tus últimas 100 conversaciones en `~/.local/state/brujula/agente/` (privado, solo tu
-usuario). **Nueva** empieza otra sin borrar la anterior; para quitar una, usa su papelera. Una propuesta
-sin responder se descarta al cambiar de conversación. Con la privacidad activa, el historial oculta los
-títulos. Borrar conversaciones no borra la memoria indexada, la línea, el historial de Firefox ni los
-documentos originales.
-
-Activar privacidad no elimina datos ya indexados ni bloquea por sí solo las búsquedas de memoria.
-El agente puede usar información personal recuperada al preparar una respuesta: revisa qué compartes
-si estás mostrando la pantalla. Para limpiar el índice o diagnosticar modelos, consulta el manual técnico.
-
-### Si no responde o no encuentra algo
-
-| Síntoma | Comprobación |
+| Situación | Herramienta |
 |---|---|
-| El modelo tarda al abrir | Espera la preparación inicial; evita lanzar varias peticiones a la vez |
-| Aparece error de Ollama o modelo | Revisa `systemctl status ollama` y `ollama list` |
-| No hay recuerdos | `~/.config/hypr/scripts/memoria.py estado`; revisa fuentes e indexación |
-| Solo encuentra palabras literales | Puede estar usando FTS5 sin embeddings disponibles |
-| El móvil no responde | Verifica conexión, permisos y que el aviso admita respuesta |
-| Quiero editar las notas | Usa SUPER+CTRL+SHIFT+O; SUPER+O está reservado al agente |
+| Moví ventanas de espacio | Centro de control › Más › Restaurar espacios |
+| Quiero el reparto anterior | Organizar › Volver al layout anterior |
+| Seguir mañana | Guardar proyecto y retomarlo desde el lanzador |
+| Reinicié | Brújula › Sesión anterior |
+| Cerré una ventana sin querer | SUPER+SHIFT+Z |
+| Borré o cambié un archivo | Snapshot de `/home` o copia de restic |
+| Una actualización rompió algo | Salud › Deshacer la última actualización, o GRUB › snapshots |
+
+Nada de esto recupera lo que no guardaste dentro de una app.
 
 ## Apéndice A. Todos los atajos
 
-<!-- atajos:inicio -->
-
-### Atajos de teclado
-
-Los marcados con ★ son los quince esenciales: la chuleta (`SUPER+H`) abre mostrando solo esos.
-
-Esta es la referencia central: la leen la chuleta (`SUPER+H`) y la búsqueda del lanzador.
-Actualiza aquí los atajos cuando cambie su configuración.
-
-#### Apps
-
-| Atajo | Acción |
-|---|---|
-| ★ `SUPER+Q` | Terminal (kitty) |
-| `SUPER+E` | Archivos (Thunar) |
-| ★ `SUPER+R` | Lanzador: apps, acciones, calculadora, web, emojis, archivos y recordatorios (ver «El lanzador») |
-| `SUPER+H` | Chuleta: todos estos atajos, con buscador |
-| ★ `SUPER+ESPACIO` | Vista general: todas las ventanas en miniatura (clic = ir · arrastrar = mover de workspace) |
-| `SUPER+W` | WhatsApp (lo enfoca si ya está abierto) |
-| `SUPER+G` | Roblox (Sober, con gamemode) |
-| `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
-| ★ `SUPER+D` | Brújula: tu día (reloj, clima, agenda, sistema y tiempo de pantalla), línea de tiempo y salud |
-| `SUPER+A`, luego una letra | Modo lanzar: `F` Firefox · `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify. Cualquier otra tecla cancela |
-
-#### Ventanas
-
-| Atajo | Acción |
-|---|---|
-| ★ `SUPER+C` | Cerrar la ventana |
-| ★ `SUPER+V` | Flotante / en mosaico |
-| ★ `SUPER+F` | Pantalla completa |
-| `SUPER+P` | Pseudo-mosaico |
-| `SUPER+J` | Cambiar la dirección de la división (dwindle) |
-| `SUPER+TAB` | Layout del workspace: dwindle → master → scrolling → monocle |
-| `SUPER+flechas` | Mover el foco |
-| `SUPER+SHIFT+flechas` | Mover la ventana en esa dirección (cambia su sitio en el layout; entra o sale de un grupo vecino) |
-| `SUPER+ALT+flechas` | Intercambiar la ventana con su vecina |
-| `SUPER+T` | Convertir la ventana en grupo (pestañas) / deshacerlo |
-| `SUPER+.` / `SUPER+,` | Pestaña siguiente / anterior del grupo |
-| `SUPER+SHIFT+.` / `SUPER+SHIFT+,` | Mover la pestaña a la derecha / izquierda |
-| `SUPER+clic izquierdo` (arrastrar) | Mover la ventana |
-| `SUPER+clic derecho` (arrastrar) | Redimensionar la ventana |
-| `SUPER+SHIFT+R`, luego flechas | Modo redimensionar (mantener = repetir); `Esc` o `Enter` salen |
-| `SUPER+I` | Inspector: class, título, workspace, tamaño y pid de la ventana; copia la class |
-
-#### Productividad
-
-| Atajo | Acción |
-|---|---|
-| `SUPER+ALT+Enter` | Sesiones de trabajo: universidad / programar / descanso, cada app en su workspace (`modulos/sesiones.lua`) |
-| ★ `SUPER+O` | Agente del escritorio: agenda, memoria, equipo y propuestas de acciones |
-| `SUPER+ALT+A` | Asistente local (IA) sobre el texto seleccionado: resumir, corregir, redactar mejor, explicar, traducir o preguntar |
-| `SUPER+SHIFT+O` | Nota rápida: una línea con fecha a `~/Documents/notas.md` |
-| `SUPER+ALT+O` | Guardar en las notas el texto seleccionado |
-
-#### Workspaces y monitores
-
-| Atajo | Acción |
-|---|---|
-| ★ `SUPER+1` … `SUPER+0` | Ir al workspace 1-10 (el mismo otra vez = volver al anterior) |
-| `SUPER+\|` (tecla a la izquierda del 1) | Saltar a la última ventana enfocada |
-| `ALT+TAB` / `ALT+SHIFT+TAB` | Recorrer las ventanas del workspace (y traerla al frente) |
-| ★ `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | Mover la ventana al workspace 1-10 |
-| `SUPER+rueda del ratón` | Workspace siguiente / anterior |
-| ★ `SUPER+S` | Mostrar / ocultar el scratchpad (workspace especial «magic») |
-| `SUPER+SHIFT+S` | Mandar la ventana al scratchpad |
-| `SUPER+Return` | Terminal flotante (scratchpad; se abre sola la primera vez) |
-| `SUPER+Y` | Música: Spotify en su scratchpad (si ya estaba abierto, lo trae) |
-| `SUPER+CTRL+SHIFT+O` | Notas: nvim con `~/Documents/notas.md` en un scratchpad flotante |
-| `SUPER+SHIFT+E` | Archivos: yazi en un scratchpad flotante (`SUPER+E` sigue siendo Thunar) |
-| `SUPER+CTRL+←/→` | Foco al otro monitor |
-| `SUPER+CTRL+SHIFT+←/→` | Mandar la ventana al otro monitor |
-| `SUPER+CTRL+ALT+←/→` | Mandar el workspace entero al otro monitor |
-
-#### Sistema
-
-| Atajo | Acción |
-|---|---|
-| ★ `SUPER+L` | Bloquear la pantalla |
-| `SUPER+M` | Menú de apagado: bloquear, cerrar sesión, reiniciar, apagar |
-| `ALT+F4` | Menú de apagado (wlogout) |
-| ★ `SUPER+N` | Centro de control: botones, perfiles, sonido, música, avisos, Wi-Fi y Bluetooth, móvil y más |
-| `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
-| `SUPER+CTRL+V` | Biblioteca de plantillas de texto con fecha y hora |
-| `SUPER+CTRL+Enter` | Continuidad: guardar y retomar proyectos y su próxima tarea |
-| `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
-| `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
-| `SUPER+SHIFT+Z` | Reabrir la última ventana cerrada (en su espacio y, si flotaba, con su tamaño) |
-| `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
-| `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
-| `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
-| `SUPER+SHIFT+C` | Selector de color: clic en un píxel → hex copiado |
-| `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
-| `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
-| `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |
-| `SUPER+CTRL+T` | Tema claro ↔ oscuro |
-| `SUPER+ALT+S` | Filtro de pantalla: ninguno / grises / papel / colores vivos / invertido |
-| `SUPER+ALT+E` | Sonido de las bocinas: perfil música / voz / sin efectos (EasyEffects) |
-| `SUPER+SHIFT+W` | Selector de wallpapers |
-| `SUPER+CTRL+W` | Wallpaper al azar |
-| ★ `SUPER+SHIFT+V` | Historial del portapapeles |
-| `SUPER+SHIFT+B` | Buds: cambiar de modo (ANC → transparencia → apagado) |
-| `SUPER+ALT+P` | Pantalla externa: duplicar / extender / solo la externa / solo el portátil |
-
-#### Capturas y grabación
-
-| Atajo | Acción |
-|---|---|
-| ★ `PRINT` | Captura de una región → `~/Imágenes/screenshots` + portapapeles |
-| `SUPER+PRINT` | Captura de toda la pantalla |
-| `SHIFT+PRINT` | Menú: región, pantalla, ventana activa, pantalla en 5 s o región y anotar |
-| `SUPER+SHIFT+A` | Capturar una región y anotarla (satty): flechas, texto, números, resaltar, difuminar. `Enter` copia, guarda y sale |
-| `SUPER+SHIFT+PRINT` | Guardar los últimos 30 s de pantalla y audio en `~/Videos/Replays` |
-| `SUPER+ALT+PRINT` | Encender / apagar el replay |
-| `SUPER+ALT+R` | Grabar pantalla: menú región / pantalla / con audio / GIF; otra vez = parar → `~/Videos/Grabaciones` |
-| `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR): seleccionas una zona y su texto queda copiado |
-
-#### Teclado con capas (keyd: funciona en todas las apps, la TTY y el login)
-
-> **Desactivado** desde el 10-11-2026 (no se instala). Para volver a usarlo, descomenta el paso 15 de `instalar/sistema-base.sh`.
-
-| Atajo | Acción |
-|---|---|
-| `Bloq Mayús` (un toque) | Esc |
-| `Bloq Mayús` mantenida + tecla | Ctrl + tecla (`Bloq Mayús+C` = copiar) |
-| `Bloq Mayús+H` `J` `K` `L` | Flechas ← ↓ ↑ → (con Shift, selecciona) |
-| `Bloq Mayús+Y` `U` `I` `O` | Inicio · Av Pág · Re Pág · Fin |
-| `Shift+Bloq Mayús` | Bloq Mayús de verdad (MAYÚSCULAS) |
-| `Retroceso+Esc+Enter` | Emergencia: apaga keyd (el teclado vuelve a ser el normal) |
-
-#### Texto y voz
-
-| Atajo | Acción |
-|---|---|
-| `SUPER+ALT+D` | Dictar: pulsa, habla, vuelve a pulsar → el texto se escribe donde esté el cursor (Whisper, sin internet) |
-| `SUPER+ALT+T` | Traducir lo seleccionado (otro idioma → español; español → inglés), queda copiado |
-
-#### Teclas multimedia (funcionan también con la pantalla bloqueada)
-
-| Tecla | Acción |
-|---|---|
-| Subir / bajar volumen | Cambia el volumen (máx. 100 %) y lo muestra el OSD |
-| Silencio | Silencia o activa el sonido |
-| Micrófono | Silencia o activa el micrófono |
-| Subir / bajar brillo | Cambia el brillo y lo muestra el OSD |
-| ⏮ anterior · ⏯ reproducir/pausa · ⏭ siguiente | Música, con la canción en el OSD |
-| `Bloq Mayús` | Avisa en el OSD si queda activado en cualquier teclado |
-
-### Con el ratón
-
-| Dónde | Acción |
-|---|---|
-| Barra: número de workspace | Clic = ir · rueda = siguiente / anterior |
-| Barra: barras de colores (solo con música) | Visualizador de audio · clic = centro de control |
-| Barra: punto rojo con tiempo / micrófono rojo | Grabando la pantalla / dictando · clic = parar |
-| Barra: móvil (solo si está conectado) | Batería del móvil · clic = panel PC + móvil · derecho = hacerlo sonar |
-| Barra: reloj | Al pasar el ratón muestra la fecha · clic = Brújula › Hoy |
-| Barra: bandeja | Clic = abrir · clic derecho = menú · clic central = acción secundaria |
-| Barra: Buds | Clic = cambiar modo · derecho = ANC / apagado · central = Buds Manager |
-| Barra: volumen | Clic = silenciar · rueda = volumen |
-| Barra: red | Clic = panel de Wi-Fi y Bluetooth · derecho = nmtui |
-| Barra: brillo | Rueda = brillo |
-| Barra: energía | Clic = cambiar modo |
-| Barra: CPU / RAM | Clic = btop |
-| Barra: concentración (solo en sesión) | Clic = +10 min o terminar |
-| Barra: mando | Clic = modo juego |
-| Barra: campana | Clic = centro de control · derecho = No molestar |
-| Brújula › Hoy: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · clic en un día = elegirlo · puntito = hay eventos o tareas ese día |
-| Brújula › Hoy: «＋ Nuevo evento o tarea» | Crea en Google el evento/tarea del día elegido · Enter guarda · duración: clic = más, derecho = menos |
-| Brújula › Hoy: «Próximo» | Eventos de Google Calendar, tareas y recordatorios · clic en un recordatorio = borrarlo · en una tarea = hecha |
-| Brújula › Hoy: últimos 7 días | Pasa el ratón por una barra: total y app principal de ese día |
-| Centro de control: Wi-Fi / Bluetooth | Clic = encender/apagar · derecho = abrir su lista |
-| Centro de control: Conservar · Luz noche | Batería hasta ~80 % · pantalla cálida |
-| Centro de control: salidas de audio | Un botón por salida (altavoces, Buds, HDMI): clic = sonar por ahí |
-| Vista general | Clic en ventana = ir · clic en hueco = ir al workspace · arrastrar = mover de workspace · `1`-`9` |
-| Notificación | Clic = acción principal · botones = sus acciones · `×` = cerrar · el ratón encima pausa el tiempo |
-
-### El lanzador (`SUPER+R`)
-
-| Escribe | Resultado (Enter) |
-|---|---|
-| `firefox`, `ffx`, `blo`… | Apps (sin tildes, letras salteadas; las que más usas suben) y acciones: bloquear, apagar, atajos, OCR, dictar, grabar… |
-| `2*(3+4)` · `5 km a mi` · `30 °C a °F` · `100 USD a COP` · `=…` | Calculadora y conversor (qalc): copia el resultado |
-| `g …` · `yt …` · `w …` · `gh …` | Buscar en Google / YouTube / Wikipedia / GitHub |
-| `:fuego` · `:corazon` · `:sigma` · `:≤` | Emojis y símbolos: los escribe y quedan copiados |
-| `/apuntes` (solo `/` = recientes) | Archivos de tu carpeta personal: los abre |
-| `recordar 20m beber agua` · `recordar 18:30 llamar` · `recordar mañana 7:00 examen` | Recordatorio (aviso con sonido; sobrevive a reinicios). Abreviado: `rec` |
-| Cualquier cosa sin resultados | Buscarla en Google |
-
-En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas) para moverse, `Enter` para elegir,
-`Esc` o clic fuera para cerrar. En el portapapeles, `Supr` borra la entrada. En los menús, `1`-`9` eligen directo.
-
-### Búsquedas directas del lanzador
-
-| Escribe | Resultado |
-|---|---|
-| `v texto` | Ventanas abiertas en cualquier workspace → ir a ella |
-| `n texto` | Buscar dentro de tus notas (`~/Documents/*.md`) → abrir nvim en esa línea |
-| `c texto` | Historial del portapapeles → copiarlo otra vez |
-| `t texto` | Pestañas abiertas de Firefox → abrir esa dirección (para saltar a la pestaña ya abierta, en Firefox escribe `%` en la barra) |
-| `p nombre` | Contraseñas (Bitwarden o pass) → la escribe donde esté el cursor. Primera vez: `claves.sh configurar` |
-| `ia pregunta` | Preguntar al asistente local |
-| `nota texto` | Apuntar una línea en `notas.md` |
-
-### Atajos que se adaptan al layout (`modulos/layouts.lua`)
-
-| Tecla | dwindle | master | scrolling |
-|---|---|---|---|
-| `SUPER++` / `SUPER+-` | División más grande / pequeña | Área principal más ancha / fina | Columna más ancha / estrecha |
-| `SUPER+Z` | Llevar la ventana a la raíz | Cambiarla con la principal | Centrar la columna |
-| `SUPER+X` | Invertir la división | Girar la orientación | Meter / sacar de la columna anterior |
-| `SUPER+SHIFT++` / `SUPER+SHIFT+-` | — | Una ventana principal más / menos | — |
-
-
-### Búsqueda universal
-
-| Prefijo de búsqueda | Fuente |
-|---|---|
-| `d texto` | Dentro de documentos indexados |
-| `h texto` | Historial de Firefox |
-| `a texto` | Atajos |
-| `l texto` | Línea de tiempo |
-| `s texto` | Ajustes y acciones del sistema |
-| `b texto` | Todas las fuentes universales |
-
-Con tres letras sin prefijo, el lanzador añade resultados de varias fuentes a las apps.
-
-### Gestos del touchpad
-
-| Gesto | Acción |
-|---|---|
-| 3 dedos ← → | Cambiar de workspace |
-| 3 dedos ↑ | Mostrar / ocultar el scratchpad |
-| 3 dedos ↓ | Brújula › Hoy |
-| Abrir 3 dedos | Pantalla completa (otra vez = salir) |
-| Juntar 3 dedos | Flotante ↔ mosaico |
-| 4 dedos (cualquier dirección) | Mover la ventana |
-| `SUPER` + 4 dedos | Redimensionar la ventana |
-| `SUPER` + 3 dedos ↓ | Cerrar la ventana |
-| `SUPER` + 3 dedos ↑ | Vista general |
-| `SUPER` + pellizco (2 dedos) | Lupa alrededor del cursor |
-
-### Comportamiento automático
-
-<!-- atajos:fin -->
-
-Los automatismos se explican en los capítulos anteriores y su arquitectura en el manual técnico.
+La lista completa de atajos, gestos y prefijos del lanzador está en [Atajos y referencia rápida](atajos.md).
+Dentro del escritorio: **SUPER+H** (chuleta) o `a texto` en el lanzador.

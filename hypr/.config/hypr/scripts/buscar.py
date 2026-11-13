@@ -178,11 +178,11 @@ def atajos(q):
         return []
     res = []
     try:
-        texto = (HOME / "dotfiles/docs/manual.md").read_text()
+        texto = (HOME / "dotfiles/docs/atajos.md").read_text()
         texto = texto.split("<!-- atajos:inicio -->", 1)[-1].split("<!-- atajos:fin -->", 1)[0]
     except OSError:
         return []
-    for m in re.finditer(r"^\|\s*`([^`]+)`\s*\|\s*(.+?)\s*\|\s*$", texto, re.M):
+    for m in re.finditer(r"^\|\s*(?:★\s*)?`([^`]+)`\s*\|\s*(.+?)\s*\|\s*$", texto, re.M):   # ★ = esencial
         tecla, accion = m.group(1), re.sub(r"[*`]", "", m.group(2))
         if not re.search(r"SUPER|CTRL|ALT|SHIFT|PRINT|Bloq|XF86|^F\d", tecla):   # filas de comandos o paquetes
             continue

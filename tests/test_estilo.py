@@ -128,6 +128,12 @@ class Componentes(unittest.TestCase):
                     malos.append(f"{p.name}:{i}")
         self.assertEqual(malos, [], "texto suelto antes de los import")
 
+    def test_atajos_esenciales(self):
+        # La chuleta abre con los esenciales: los marca una ★ en docs/atajos.md
+        t = (RAIZ / "docs/atajos.md").read_text()
+        self.assertIn("### Atajos de teclado", t)
+        self.assertEqual(len(re.findall(r"^\| ★ `", t, re.M)), 15)
+
     def test_botones_compartidos(self):
         # Un botón con estilo propio se define una vez (BotonPanel, BotonCompacto), no dentro de cada panel
         locales = [f"{p.name}:{i}" for p, t in qml()

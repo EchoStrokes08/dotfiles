@@ -38,7 +38,7 @@ El objetivo del proyecto es un equipo Arch personal; todavía existen supuestos 
 | Automatización y CLI | `hypr/.config/hypr/scripts/` |
 | Paquetes y configuración del sistema | `instalar.sh`, `instalar/` |
 | Copias externas | `respaldo/` |
-| Referencia documental de atajos | [Apéndice A del manual](manual.md#apéndice-a-todos-los-atajos) |
+| Referencia documental de atajos | [Atajos y referencia rápida](atajos.md) |
 | Evidencia de regresiones | `tests/`, `.github/workflows/validar.yml` |
 
 Las versiones de la revisión histórica son **Hyprland 0.57.2, Quickshell 0.3.2 y Neovim 0.12**

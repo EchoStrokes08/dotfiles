@@ -4,14 +4,15 @@ Un escritorio personal para **Arch Linux**, con **Hyprland en Lua** y una interf
 **Quickshell/QML**. La paleta Ayu acompaña el arranque, las ventanas, la terminal y las aplicaciones;
 matugen permite generar colores desde el fondo de pantalla.
 
-![Centro del escritorio](docs/screenshots/centro-escritorio.png)
+![Lanzador: apps, acciones, proyectos y prefijos](docs/screenshots/lanzador.png)
 
-## Tres documentos, un sistema
+## Cinco documentos, un sistema
 
 | Documento | Para qué sirve |
 |---|---|
 | [Manual de usuario](docs/manual.md) | Primeros pasos, todas las funciones, ejemplos, capturas, solución de problemas y referencia central de atajos |
 | [Manual técnico](docs/manual-tecnico.md) | Arquitectura, instalación, módulos, servicios, datos, IPC, comandos, mantenimiento y recuperación |
+| [Atajos](docs/atajos.md) | Todos los atajos, gestos y prefijos del lanzador; fuente de la chuleta (SUPER+H) |
 | [Sistema de diseño](docs/diseno.md) | Colores por función, escalas de letra, radio, espacio, capas y movimiento, y qué componente usar en cada caso |
 | [Guía de estudio](docs/guia-estudio.md) | Explicaciones de cómo funciona el conjunto y una ruta práctica para aprender a modificarlo |
 
