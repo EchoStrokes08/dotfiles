@@ -56,6 +56,8 @@ PanelWindow {
                 // Perfil del escritorio (o reunión / privacidad)
                 Rectangle {
                     id: perfil
+                    // solo cuando el escritorio no está en su estado habitual (perfil cristal, sin reunión ni privacidad)
+                    visible: Reunion.activa || EstadoEscritorio.privacidad || EstadoEscritorio.perfil !== "cristal"
                     implicitWidth: filaPerfil.implicitWidth + 18
                     implicitHeight: 24
                     radius: 12

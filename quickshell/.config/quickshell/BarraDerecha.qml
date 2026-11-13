@@ -1,8 +1,9 @@
-// Lado derecho de la barra: bandeja · Buds · volumen · red · brillo · batería · energía ·
-// CPU · RAM · modo juego · notificaciones (los mismos módulos que tenía waybar).
+// Lado derecho de la barra. Siempre: bandeja · volumen · red (solo icono) · batería · avisos.
+// Solo cuando importan: grabación, móvil con batería baja, actualizaciones, Buds conectados, modo de energía
+// distinto de equilibrado, CPU o RAM altas, concentración y modo juego activos.
 //
 // Para que un script avise de un cambio al momento (en vez de esperar al sondeo):
-//   qs ipc call barra refrescar buds        (también: modo-juego, red, brillo)
+//   qs ipc call barra refrescar buds        (también: modo-juego, red, grabacion)
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -26,7 +27,6 @@ RowLayout {
         if (que === "buds" || que === "todo") buds.leer();
         if (que === "modo-juego" || que === "todo") modoJuego.leer();
         if (que === "red" || que === "todo") red.leer();
-        if (que === "brillo" || que === "todo") brillo.leer();
         if (que === "grabacion" || que === "todo") grabacion.leer();
     }
 
@@ -161,7 +161,7 @@ RowLayout {
                 }
             }
         }
-        visible: nombre !== ""
+        visible: nombre !== "" && carga >= 0 && carga <= 20 && !cargando   // solo si pide atención: batería baja
         gestorAyuda: ayuda
         icono: derecha.g(0xF011C)
         texto: carga >= 0 ? carga + "%" : ""
@@ -306,32 +306,10 @@ RowLayout {
         }
         gestorAyuda: ayuda
         icono: derecha.g(tipo === "wifi" ? 0xF0928 : tipo === "ethernet" ? 0xF0200 : 0xF092D)
-        texto: tipo === "" ? "sin red" : tipo === "wifi" ? nombre : ""
+        texto: tipo === "" ? "sin red" : ""     // el nombre de la red, en la ayuda
         color: tipo === "" ? Paleta.peligro : Paleta.texto
-        ayuda: (detalle || "Sin conexión") + "\nClic: redes Wi-Fi · clic derecho: nmtui"
+        ayuda: (tipo === "wifi" ? nombre + "\n" : "") + (detalle || "Sin conexión") + "\nClic: redes Wi-Fi · clic derecho: nmtui"
         onClic: (b) => derecha.ejecutar(b === Qt.RightButton ? "kitty -e nmtui" : "qs ipc call conexiones wifi")
-    }
-
-    // ── Brillo ──────────────────────────────────────────────────────────
-    Modulo {
-        id: brillo
-        property int porcentaje: 0
-        function leer() { if (!lectorBrillo.running) lectorBrillo.running = true; }
-        Timer { interval: 4000; running: true; repeat: true; triggeredOnStart: true; onTriggered: brillo.leer() }
-        Process {
-            id: lectorBrillo
-            command: ["brightnessctl", "-m"]
-            stdout: StdioCollector { onStreamFinished: brillo.porcentaje = parseInt(this.text.split(",")[3]) || 0 }
-        }
-        gestorAyuda: ayuda
-        icono: derecha.g(porcentaje < 34 ? 0xF00DE : porcentaje < 67 ? 0xF00DF : 0xF00E0)
-        texto: porcentaje + "%"
-        ayuda: "Brillo · Rueda: subir/bajar"
-        onRueda: (arriba) => {
-            derecha.ejecutar("brightnessctl -e4 -n2 set " + (arriba ? "5%+" : "5%-") + " && qs ipc call osd brillo");
-            espera.restart();
-        }
-        Timer { id: espera; interval: 250; onTriggered: brillo.leer() }
     }
 
     // ── Batería (UPower) ─────────────────────────────────────────────────
@@ -362,6 +340,7 @@ RowLayout {
     // ── Modo de energía (power-profiles-daemon) ──────────────────────────
     Modulo {
         readonly property int perfil: PowerProfiles.profile
+        visible: perfil !== PowerProfile.Balanced     // en equilibrado no hay nada que avisar
         gestorAyuda: ayuda
         tamIcono: 16
         icono: derecha.g(perfil === PowerProfile.Performance ? 0xF04C5 : perfil === PowerProfile.PowerSaver ? 0xF0F86 : 0xF0F85)
@@ -371,21 +350,29 @@ RowLayout {
         onClic: derecha.ejecutar("~/.config/hypr/scripts/modo-energia.sh")
     }
 
-    DivisorBarra {}   // separa grupos: bandeja · sonido y red · sistema · avisos
+    DivisorBarra { visible: cpuMod.visible || ramMod.visible || Concentracion.activo || modoJuego.activo }
 
-    // ── CPU y RAM (Sistema.qml) ──────────────────────────────────────────
+    // ── CPU y RAM (Sistema.qml): solo cuando van altas (aparecen > 85 %, se van < 70 %) ──
     Modulo {
+        id: cpuMod
+        property bool alta: false
+        Connections { target: Sistema; function onCpuChanged() { cpuMod.alta = Sistema.cpu > 0.85 || (cpuMod.alta && Sistema.cpu > 0.70); } }
+        visible: alta
         icono: derecha.g(0xF0EE0)
         texto: Math.round(Sistema.cpu * 100) + "%"
-        color: Paleta.gris
-        colorTexto: Sistema.cpu > 0.85 ? Paleta.peligro : Paleta.gris
+        color: Paleta.aviso
+        colorTexto: Sistema.cpu > 0.85 ? Paleta.peligro : Paleta.aviso
         onClic: derecha.ejecutar("kitty -e btop")
     }
     Modulo {
+        id: ramMod
+        property bool alta: false
+        Connections { target: Sistema; function onRamChanged() { ramMod.alta = Sistema.ram > 0.85 || (ramMod.alta && Sistema.ram > 0.70); } }
+        visible: alta
         gestorAyuda: ayuda
         icono: derecha.g(0xF035B)
         texto: Math.round(Sistema.ram * 100) + "%"
-        color: Paleta.gris
+        color: Sistema.ram > 0.85 ? Paleta.peligro : Paleta.aviso
         ayuda: Sistema.ramUsadaGiB.toFixed(1) + " GiB / " + Sistema.ramTotalGiB.toFixed(1) + " GiB"
         onClic: derecha.ejecutar("kitty -e btop")
     }
@@ -420,6 +407,7 @@ RowLayout {
                 }
             }
         }
+        visible: activo                // solo mientras está activo; se enciende con SUPER+SHIFT+G o solo con un juego
         gestorAyuda: ayuda
         tamIcono: 16
         icono: derecha.g(0xF0297)
@@ -428,7 +416,7 @@ RowLayout {
         onClic: Hyprland.dispatch("modo_juego.alternar() or hl.dsp.no_op()")
     }
 
-    DivisorBarra {}   // separa grupos: bandeja · sonido y red · sistema · avisos
+    DivisorBarra {}
 
     // ── Notificaciones (Notificaciones.qml) ──────────────────────────────
     Modulo {
