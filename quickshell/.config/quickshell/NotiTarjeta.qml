@@ -41,8 +41,9 @@ Rectangle {
         onTriggered: tarjeta.terminada()
     }
 
-    // Línea de urgencia a la izquierda
+    // Línea de urgencia a la izquierda: solo en las críticas (el color se reserva para estados)
     Rectangle {
+        visible: tarjeta.noti.urgency === NotificationUrgency.Critical
         width: 3; radius: 4
         anchors { left: parent.left; leftMargin: 4; top: parent.top; bottom: parent.bottom; topMargin: 12; bottomMargin: 12 }
         color: tarjeta.colorUrgencia
@@ -91,7 +92,7 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     text: tarjeta.noti.appName || "Aviso"
-                    color: tarjeta.colorUrgencia
+                    color: tarjeta.noti.urgency === NotificationUrgency.Critical ? Paleta.peligro : EstiloPanel.tenue
                     elide: Text.ElideRight
                     font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 0.5; capitalization: Font.AllUppercase }
                 }

@@ -48,6 +48,7 @@ generar() {
     fi
     echo "$modo" > "$OUT/modo"
     echo "$variante" > "$OUT/variante"
+    pintar_hyprlock
     # GTK y todo lo que pregunta "¿claro u oscuro?" por el portal (Firefox, apps libadwaita, webs)
     if [ "$variante" = claro ]; then
         gsettings set org.gnome.desktop.interface color-scheme prefer-light
@@ -56,6 +57,20 @@ generar() {
         gsettings set org.gnome.desktop.interface color-scheme prefer-dark
         gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
     fi
+}
+
+# Copia de hyprlock.conf (bloqueo de respaldo, Ayu) con los colores de la paleta activa
+pintar_hyprlock() {
+    local base="$HOME/.config/hypr/hyprlock.conf" css="$OUT/colores.css"
+    [ -f "$base" ] && [ -f "$css" ] || return 0
+    hex() { sed -n "s/^@define-color $1 *#\([0-9a-fA-F]\{6\}\);.*/\1/p" "$css"; }
+    local ac a2 tx ex av pe gr fo
+    ac=$(hex acento); a2=$(hex acento2); tx=$(hex texto); ex=$(hex exito)
+    av=$(hex aviso); pe=$(hex peligro); gr=$(hex gris); fo=$(hex fondo)
+    [ -n "$ac" ] && [ -n "$tx" ] && [ -n "$fo" ] || return 0
+    sed -e "s/f19618/$ac/g; s/36a3d9/$a2/g; s/e5e1cf/$tx/g; s/c2d94c/$ex/g; s/e6c446/$av/g" \
+        -e "s/ff3333/$pe/g; s/f07178/$pe/g; s/5c6773/$gr/g; s/0b0e14/$fo/g" "$base" > "$OUT/hyprlock.conf.tmp" \
+        && mv "$OUT/hyprlock.conf.tmp" "$OUT/hyprlock.conf"
 }
 
 recargar() {

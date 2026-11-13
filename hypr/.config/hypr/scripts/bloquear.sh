@@ -24,4 +24,7 @@ if [ "$pendiente" = 1 ]; then
     exit 1
 fi
 # Sin un bloqueo pendiente, hyprlock puede adquirirlo o recuperar uno abandonado.
+# Con los colores del tema activo si tema.sh ya generó su copia; si no, ~/.config/hypr/hyprlock.conf (Ayu).
+tematizado="$HOME/.local/state/tema/hyprlock.conf"
+[ -s "$tematizado" ] && exec hyprlock -c "$tematizado"
 exec hyprlock

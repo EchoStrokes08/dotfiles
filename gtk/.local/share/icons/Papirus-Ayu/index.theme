@@ -1,6 +1,6 @@
 [Icon Theme]
 Name=Papirus-Ayu
-Comment=Papirus-Dark con carpetas naranjas (Ayu)
+Comment=Papirus-Dark con carpetas grises: neutras con cualquier paleta (Ayu o la del wallpaper)
 Inherits=Papirus-Dark,breeze-dark,hicolor
 
 Example=folder

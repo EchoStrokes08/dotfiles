@@ -19,7 +19,7 @@ Rectangle {
     readonly property color cYellow: "#e6c446"
     readonly property color cRed: "#ff3333"
     readonly property color cPink: "#f07178"
-    readonly property string fontName: config.font || "JetBrainsMono Nerd Font"
+    readonly property string fontName: config.font || "Adwaita Sans"
     readonly property var es: Qt.locale("es_MX")
 
     // Usuario y sesión: el último usado (o el primero de la lista)

@@ -1,4 +1,6 @@
 -- Animaciones: https://wiki.hypr.land/configuring/core/animations/
+-- Mismo ritmo que los paneles (EstiloPanel: rápido 120 · normal 200 · lento 320 ms). speed = décimas de segundo.
+-- El rebote (ayuRebote) se reserva para abrir ventanas.
 -- Curvas bezier: diseñar en https://cubic-bezier.com  ·  springs: masa/rigidez/amortiguación
 
 hl.curve("easeOutQuint",   { type = "bezier", points = { {0.23, 1},    {0.32, 1} } })
@@ -24,18 +26,18 @@ local animaciones = {
     { "border",        5.39, "easeOutQuint"              },
     { "windows",       4.79, "easy",         nil, true   },
     { "windowsIn",     4.1,  "ayuRebote",    "popin 87%", true },  -- propia
-    { "windowsOut",    1.49, "linear",       "popin 87%" },
+    { "windowsOut",    1.2,  "linear",       "popin 87%" },   -- cerrar ~120 ms: no hacer esperar
     { "fadeIn",        1.73, "almostLinear"              },
     { "fadeOut",       1.46, "almostLinear"              },
     { "fade",          3.03, "quick"                     },
     { "layers",        3.81, "easeOutQuint"              },
-    { "layersIn",      4,    "easeOutQuint", "fade"      },
+    { "layersIn",      2,    "easeOutQuint", "fade"      },   -- ~200 ms («normal»), como los paneles
     { "layersOut",     1.5,  "linear",       "fade"      },
     { "fadeLayersIn",  1.79, "almostLinear"              },
     { "fadeLayersOut", 1.39, "almostLinear"              },
-    { "workspaces",    3.5,  "ayuDeslizar",  "slidefade 20%" },  -- propia: desliza + desvanece
-    { "workspacesIn",  3.5,  "ayuDeslizar",  "slidefade 20%" },
-    { "workspacesOut", 3.5,  "ayuDeslizar",  "slidefade 20%" },
+    { "workspaces",    3.2,  "ayuDeslizar",  "slidefade 20%" },  -- propia: desliza + desvanece (~320 ms, «lento»)
+    { "workspacesIn",  3.2,  "ayuDeslizar",  "slidefade 20%" },
+    { "workspacesOut", 3.2,  "ayuDeslizar",  "slidefade 20%" },
     { "specialWorkspace", 3, "ayuAsomar",    "slidefadevert 25%" },  -- scratchpad (SUPER+S) sube desde abajo
     { "specialWorkspaceIn",  3,   "ayuAsomar", "slidefadevert 25%" },  -- entra asomándose (se pasa un 4 % y vuelve)…
     { "specialWorkspaceOut", 1.6, "quick",     "slidefadevert 12%" },  -- …y se va el doble de rápido: esconder no debe hacerte esperar

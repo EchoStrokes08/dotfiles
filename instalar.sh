@@ -210,8 +210,10 @@ paso_sistema() {
     local g=org.gnome.desktop.interface
     { run gsettings set $g gtk-theme 'adw-gtk3-dark' &&
       run gsettings set $g icon-theme 'Papirus-Ayu' &&
-      run gsettings set $g cursor-theme 'Bibata-Modern-Amber' &&
+      run gsettings set $g cursor-theme 'Bibata-Modern-Ice' &&
       run gsettings set $g cursor-size 24 &&
+      run gsettings set $g font-name 'Adwaita Sans 11' &&
+      run gsettings set $g monospace-font-name 'JetBrainsMono Nerd Font 11' &&
       run gsettings set $g color-scheme 'prefer-dark'; } && ok "tema GTK, iconos y cursor" \
       || aviso "gsettings falló (sin sesión gráfica): repite con --solo sistema dentro de Hyprland"
 }

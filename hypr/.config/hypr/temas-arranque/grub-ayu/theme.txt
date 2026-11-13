@@ -14,7 +14,7 @@ terminal-box: "menu_*.png"
     width = 50%-12
     align = "right"
     text = "ARCH"
-    font = "JBMX Regular 64"
+    font = "ADSX Regular 64"
     color = "#f19618"
 }
 + label {
@@ -23,7 +23,7 @@ terminal-box: "menu_*.png"
     width = 50%
     align = "left"
     text = "LINUX"
-    font = "JBMX Regular 64"
+    font = "ADSX Regular 64"
     color = "#36a3d9"
 }
 + label {
@@ -32,7 +32,7 @@ terminal-box: "menu_*.png"
     width = 100%
     align = "center"
     text = "· ELIGE UN SISTEMA ·"
-    font = "JBM Regular 16"
+    font = "ADS Regular 16"
     color = "#5c6773"
 }
 
@@ -43,9 +43,9 @@ terminal-box: "menu_*.png"
     width = 660
     height = 34%
     menu_pixmap_style = "menu_*.png"
-    item_font = "JBM Regular 20"
+    item_font = "ADS Regular 20"
     item_color = "#e5e1cf"
-    selected_item_font = "JBM Bold 22"
+    selected_item_font = "ADSB Regular 22"
     selected_item_color = "#f19618"
     selected_item_pixmap_style = "select_*.png"
     item_height = 46
@@ -76,7 +76,7 @@ terminal-box: "menu_*.png"
     width = 100%
     align = "center"
     text = "arranca en %d s"
-    font = "JBM Regular 16"
+    font = "ADS Regular 16"
     color = "#5c6773"
 }
 
@@ -87,6 +87,6 @@ terminal-box: "menu_*.png"
     width = 100%
     align = "center"
     text = "↑ ↓ elegir    ⏎ arrancar    e editar    c consola"
-    font = "JBM Regular 16"
+    font = "ADS Regular 16"
     color = "#5c6773"
 }

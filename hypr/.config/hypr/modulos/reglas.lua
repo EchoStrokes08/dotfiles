@@ -33,7 +33,7 @@ hl.window_rule({
 -- Blur detrás de las tarjetas de Quickshell (el velo y la sombra quedan por debajo de 0.3 → ignore_alpha)
 hl.layer_rule({
     name         = "quickshell-blur",
-    match        = { namespace = "quickshell-(barra|dashboard|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|ia|nota|resumen|brujula|agente|movil|mesa|flujo)" },
+    match        = { namespace = "^quickshell-(barra|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|chuleta|vista|ia|nota|brujula|agente|movil|mesa|flujo)$" },
     blur         = true,
     ignore_alpha = 0.3,
 })
@@ -128,7 +128,7 @@ hl.layer_rule({ name = "anim-notificaciones", match = { namespace = "^quickshell
 hl.layer_rule({ name = "anim-escritorio",     match = { namespace = "^quickshell-escritorio$" },     animation = "fade" })
 hl.layer_rule({
     name    = "anim-quickshell-propias",
-    match   = { namespace = "^quickshell-(dashboard|lanzador|centro|wallpapers|portapapeles|menu|conexiones|chuleta|vista|osd|ia|nota|resumen)$" },
+    match   = { namespace = "^quickshell-(lanzador|centro|wallpapers|portapapeles|menu|chuleta|vista|osd|ia|nota|brujula|agente|movil|mesa|flujo)$" },
     no_anim = true,
 })
 hl.layer_rule({ name = "anim-seleccion", match = { namespace = "^(selection|hyprpicker)$" }, no_anim = true })
