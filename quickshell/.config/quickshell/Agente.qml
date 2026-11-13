@@ -240,17 +240,14 @@ Superpuesta {
     ColumnLayout {
         width: parent.width; spacing: 12
 
-        // ── cabecera ─────────────────────────────────────────────────────
+        // ── cabecera: nombre y estado · ajustes · cerrar ────────────────
         RowLayout {
             Layout.fillWidth: true; spacing: 12
             Rectangle {
-                implicitWidth: 48; implicitHeight: 48; radius: 24
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .5) }
-                    GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .4) }
-                }
-                Text { anchors.centerIn: parent; text: "✦"; color: Paleta.texto; font { pixelSize: 20 }
+                implicitWidth: 40; implicitHeight: 40; radius: height / 2
+                color: Qt.alpha(Paleta.acento, .22)
+                border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
+                Text { anchors.centerIn: parent; text: "✦"; color: Paleta.texto; font { pixelSize: 18 }
                     RotationAnimation on rotation { running: ag.pensando || calentador.running; loops: Animation.Infinite; from: 0; to: 360; duration: 2400 } }
                 // halo mientras piensa
                 Rectangle {
@@ -262,125 +259,147 @@ Superpuesta {
                 }
             }
             ColumnLayout {
-                spacing: 1
-                Layout.fillWidth: true; Layout.minimumWidth: 0   // cede sitio al selector de modelo
-                Text { text: "ASISTENTE · EN TU EQUIPO"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
-                Text { text: "¿En qué te ayudo?"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
+                spacing: 0
+                Layout.fillWidth: true; Layout.minimumWidth: 0
+                Text { text: "Agente"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
                 Text {
                     Layout.fillWidth: true; elide: Text.ElideRight
-                    color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
+                    color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 }
                     text: calentador.running ? "Despertando al asistente… la primera vez tarda alrededor de un minuto"
                         : ag.pensando ? "Pensando…" : ag.escuchando ? "Escuchando… pulsa el micrófono para terminar"
-                        : (ag.nube ? "Nube (" + ag.nube + ")" : "Modelo local") + " · sistema y web · confirmación para acciones sensibles"
+                        : ag.tituloModelo(ag.modeloElegido) + (ag.modeloElegido !== "local" ? " · esfuerzo " + ({ bajo: "rápido", medio: "medio", alto: "a fondo" })[ag.esfuerzo] : "")
                 }
             }
-            // ── modelo y esfuerzo ──
-            ComboBox {
-                id: selModelo
-                implicitWidth: 190; implicitHeight: 36
-                enabled: !ag.pensando
-                opacity: enabled ? 1 : .5
-                model: ag.modelos
-                currentIndex: ag.modelos.indexOf(ag.modeloElegido)
-                onActivated: (i) => ag.elegir("modelo", ag.modelos[i])
-                background: Rectangle {
-                    radius: 16
-                    gradient: Gradient {
-                        orientation: Gradient.Horizontal
-                        GradientStop { position: 0; color: Qt.alpha(Paleta.acento, selModelo.hovered || selModelo.popup.visible ? .22 : .14) }
-                        GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .04) }
-                    }
-                    border { width: selModelo.activeFocus || selModelo.popup.visible ? 2 : 1; color: Qt.alpha(Paleta.acento, selModelo.popup.visible ? .7 : .4) }
-                }
-                contentItem: RowLayout {
-                    spacing: 8
-                    Text { Layout.leftMargin: 13; text: ag.modeloElegido === "local" ? ag.g("f0322") : ag.modeloElegido === "auto" ? "✦" : ag.g("f06a9"); color: Paleta.acento; font { family: Paleta.mono; pixelSize: 14 } }
-                    Text { Layout.fillWidth: true; Layout.rightMargin: 26; text: ag.tituloModelo(ag.modeloElegido); elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
-                }
-                indicator: Text {
-                    x: selModelo.width - width - 13; anchors.verticalCenter: parent.verticalCenter
-                    text: selModelo.popup.visible ? "▴" : "▾"; color: Paleta.acento
-                    font { family: Paleta.fuente; pixelSize: 13 }
-                }
-                popup: Popup {
-                    y: selModelo.height + 6
-                    width: 300
-                    padding: 4
-                    implicitHeight: listaModelos.contentHeight + 12
-                    background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: Qt.alpha(Paleta.acento, .3) } }
-                    contentItem: ListView {
-                        id: listaModelos
-                        implicitHeight: contentHeight
-                        spacing: 2
-                        interactive: false
-                        model: selModelo.popup.visible ? selModelo.delegateModel : null
-                        currentIndex: selModelo.highlightedIndex
-                    }
-                }
-                delegate: ItemDelegate {
-                    id: opcionModelo
-                    required property var modelData
-                    required property int index
-                    readonly property bool elegido: modelData === ag.modeloElegido
-                    width: 288
-                    padding: 8
-                    highlighted: selModelo.highlightedIndex === index
-                    background: Rectangle {
-                        radius: 12
-                        color: Qt.alpha(Paleta.acento, opcionModelo.elegido ? .2 : opcionModelo.highlighted ? .1 : 0)
-                        border { width: opcionModelo.elegido ? 1 : 0; color: Qt.alpha(Paleta.acento, .45) }
-                    }
-                    contentItem: RowLayout {
-                        spacing: 12
-                        Text { text: opcionModelo.modelData === "local" ? ag.g("f0322") : opcionModelo.modelData === "auto" ? "✦" : ag.g("f06a9"); color: opcionModelo.elegido ? Paleta.acento : EstiloPanel.tenue; font { family: Paleta.mono; pixelSize: 16 } }
-                        ColumnLayout {
-                            Layout.fillWidth: true; spacing: 1
-                            Text { text: ag.tituloModelo(opcionModelo.modelData); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
-                            Text { Layout.fillWidth: true; visible: text !== ""; text: ag.notaModelo(opcionModelo.modelData); elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
-                        }
-                        Text { visible: opcionModelo.elegido; text: "✓"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
-                    }
-                }
-                ToolTip.visible: hovered && !popup.visible; ToolTip.delay: 500
-                ToolTip.text: "Modelo del asistente. Si se agota su límite gratuito, usa los demás de respaldo."
-            }
-            // esfuerzo: control segmentado
-            Rectangle {
-                implicitWidth: filaEsfuerzo.implicitWidth + 6; implicitHeight: 36; radius: height / 2
-                opacity: ag.modeloElegido === "local" ? .45 : 1
-                gradient: Gradient {
-                    GradientStop { position: 0; color: Qt.alpha(Paleta.fondo, .45) }
-                    GradientStop { position: 1; color: EstiloPanel.relleno }
-                }
-                border { width: 1; color: EstiloPanel.borde }
-                Row {
-                    id: filaEsfuerzo
-                    anchors.centerIn: parent
-                    spacing: 2
-                    Repeater {
-                        model: [["bajo", "Rápido"], ["medio", "Medio"], ["alto", "A fondo"]]
-                        BotonCompacto {
-                            id: btEsfuerzo
-                            required property var modelData
-                            text: modelData[1]
-                            implicitHeight: 30; leftPadding: 12; rightPadding: 12
-                            acento: Paleta.acento
-                            destacado: ag.esfuerzo === modelData[0]
-                            enabled: !ag.pensando && ag.modeloElegido !== "local"
-                            onClicked: ag.elegir("esfuerzo", modelData[0])
-                            background: FondoBoton { visible: btEsfuerzo.destacado || btEsfuerzo.hovered; tinte: Paleta.acento; destacado: btEsfuerzo.destacado; encima: btEsfuerzo.hovered; pulsado: btEsfuerzo.down; foco: btEsfuerzo.activeFocus; radio: 15 }
-                            ToolTip.visible: hovered; ToolTip.delay: 500
-                            ToolTip.text: "Esfuerzo: cuánto razona antes de responder. «A fondo» es más listo pero más lento."
-                        }
-                    }
-                }
-            }
+            // Ajustes: modelo, esfuerzo y navegador, en un desplegable
             BotonCompacto {
-                text: ag.navegadorListo ? "Navegador" : "Instalar navegador"
-                enabled: !ag.pensando
-                // con el navegador instalado, lo muestra directamente (el agente lo usa invisible)
-                onClicked: ag.navegadorListo ? pMostrar.running = true
-                                             : ag.enviar("Instala el navegador integrado con la acción instalar_navegador")
+                id: botonAjustes
+                text: ag.g("f0493") + "  Ajustes"
+                destacado: panelAjustes.visible
+                onClicked: panelAjustes.visible ? panelAjustes.close() : panelAjustes.open()
+                Popup {
+                    id: panelAjustes
+                    y: botonAjustes.height + 8
+                    x: botonAjustes.width - width
+                    width: 360
+                    padding: 16
+                    background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: EstiloPanel.bordeFuerte } }
+                    contentItem: ColumnLayout {
+                        spacing: 8
+                        Etiqueta { text: "MODELO" }
+                        // ── modelo y esfuerzo ──
+                        ComboBox {
+                            id: selModelo
+                            Layout.fillWidth: true; implicitHeight: 36
+                            enabled: !ag.pensando
+                            opacity: enabled ? 1 : .5
+                            model: ag.modelos
+                            currentIndex: ag.modelos.indexOf(ag.modeloElegido)
+                            onActivated: (i) => ag.elegir("modelo", ag.modelos[i])
+                            background: Rectangle {
+                                radius: 16
+                                gradient: Gradient {
+                                    orientation: Gradient.Horizontal
+                                    GradientStop { position: 0; color: Qt.alpha(Paleta.acento, selModelo.hovered || selModelo.popup.visible ? .22 : .14) }
+                                    GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .04) }
+                                }
+                                border { width: selModelo.activeFocus || selModelo.popup.visible ? 2 : 1; color: Qt.alpha(Paleta.acento, selModelo.popup.visible ? .7 : .4) }
+                            }
+                            contentItem: RowLayout {
+                                spacing: 8
+                                Text { Layout.leftMargin: 13; text: ag.modeloElegido === "local" ? ag.g("f0322") : ag.modeloElegido === "auto" ? "✦" : ag.g("f06a9"); color: Paleta.acento; font { family: Paleta.mono; pixelSize: 14 } }
+                                Text { Layout.fillWidth: true; Layout.rightMargin: 26; text: ag.tituloModelo(ag.modeloElegido); elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
+                            }
+                            indicator: Text {
+                                x: selModelo.width - width - 13; anchors.verticalCenter: parent.verticalCenter
+                                text: selModelo.popup.visible ? "▴" : "▾"; color: Paleta.acento
+                                font { family: Paleta.fuente; pixelSize: 13 }
+                            }
+                            popup: Popup {
+                                y: selModelo.height + 6
+                                width: 300
+                                padding: 4
+                                implicitHeight: listaModelos.contentHeight + 12
+                                background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: Qt.alpha(Paleta.acento, .3) } }
+                                contentItem: ListView {
+                                    id: listaModelos
+                                    implicitHeight: contentHeight
+                                    spacing: 2
+                                    interactive: false
+                                    model: selModelo.popup.visible ? selModelo.delegateModel : null
+                                    currentIndex: selModelo.highlightedIndex
+                                }
+                            }
+                            delegate: ItemDelegate {
+                                id: opcionModelo
+                                required property var modelData
+                                required property int index
+                                readonly property bool elegido: modelData === ag.modeloElegido
+                                width: 288
+                                padding: 8
+                                highlighted: selModelo.highlightedIndex === index
+                                background: Rectangle {
+                                    radius: 12
+                                    color: Qt.alpha(Paleta.acento, opcionModelo.elegido ? .2 : opcionModelo.highlighted ? .1 : 0)
+                                    border { width: opcionModelo.elegido ? 1 : 0; color: Qt.alpha(Paleta.acento, .45) }
+                                }
+                                contentItem: RowLayout {
+                                    spacing: 12
+                                    Text { text: opcionModelo.modelData === "local" ? ag.g("f0322") : opcionModelo.modelData === "auto" ? "✦" : ag.g("f06a9"); color: opcionModelo.elegido ? Paleta.acento : EstiloPanel.tenue; font { family: Paleta.mono; pixelSize: 16 } }
+                                    ColumnLayout {
+                                        Layout.fillWidth: true; spacing: 1
+                                        Text { text: ag.tituloModelo(opcionModelo.modelData); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
+                                        Text { Layout.fillWidth: true; visible: text !== ""; text: ag.notaModelo(opcionModelo.modelData); elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                                    }
+                                    Text { visible: opcionModelo.elegido; text: "✓"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
+                                }
+                            }
+                            ToolTip.visible: hovered && !popup.visible; ToolTip.delay: 500
+                            ToolTip.text: "Modelo del asistente. Si se agota su límite gratuito, usa los demás de respaldo."
+                        }
+                        Etiqueta { text: "ESFUERZO"; Layout.topMargin: 4 }
+                        // esfuerzo: control segmentado
+                        Rectangle {
+                            implicitWidth: filaEsfuerzo.implicitWidth + 6; implicitHeight: 36; radius: height / 2
+                            opacity: ag.modeloElegido === "local" ? .45 : 1
+                            gradient: Gradient {
+                                GradientStop { position: 0; color: Qt.alpha(Paleta.fondo, .45) }
+                                GradientStop { position: 1; color: EstiloPanel.relleno }
+                            }
+                            border { width: 1; color: EstiloPanel.borde }
+                            Row {
+                                id: filaEsfuerzo
+                                anchors.centerIn: parent
+                                spacing: 2
+                                Repeater {
+                                    model: [["bajo", "Rápido"], ["medio", "Medio"], ["alto", "A fondo"]]
+                                    BotonCompacto {
+                                        id: btEsfuerzo
+                                        required property var modelData
+                                        text: modelData[1]
+                                        implicitHeight: 30; leftPadding: 12; rightPadding: 12
+                                        acento: Paleta.acento
+                                        destacado: ag.esfuerzo === modelData[0]
+                                        enabled: !ag.pensando && ag.modeloElegido !== "local"
+                                        onClicked: ag.elegir("esfuerzo", modelData[0])
+                                        background: FondoBoton { visible: btEsfuerzo.destacado || btEsfuerzo.hovered; tinte: Paleta.acento; destacado: btEsfuerzo.destacado; encima: btEsfuerzo.hovered; pulsado: btEsfuerzo.down; foco: btEsfuerzo.activeFocus; radio: 15 }
+                                        ToolTip.visible: hovered; ToolTip.delay: 500
+                                        ToolTip.text: "Esfuerzo: cuánto razona antes de responder. «A fondo» es más listo pero más lento."
+                                    }
+                                }
+                            }
+                        }
+
+                        Etiqueta { text: "NAVEGADOR"; Layout.topMargin: 4 }
+                        BotonCompacto {
+                            text: ag.navegadorListo ? "Navegador" : "Instalar navegador"
+                            enabled: !ag.pensando
+                            // con el navegador instalado, lo muestra directamente (el agente lo usa invisible)
+                            onClicked: ag.navegadorListo ? pMostrar.running = true
+                                                         : ag.enviar("Instala el navegador integrado con la acción instalar_navegador")
+                        }
+
+                    }
+                }
             }
             BotonCompacto { text: "󰅖"; Accessible.name: "Cerrar"; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; onClicked: ag.abierto = false; background: FondoBoton { tinte: Paleta.peligro; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
         }
@@ -810,16 +829,19 @@ Superpuesta {
     Component {
         id: paso
         Item {
+            id: raizPaso
+            readonly property string texto: parent?.m?.texto ?? ""
             implicitHeight: 28
-            Rectangle {   // pastilla discreta: qué está haciendo
+            TextMetrics { id: medidaPaso; text: raizPaso.texto; font { family: Paleta.fuente; pixelSize: 11 } }
+            Rectangle {   // pastilla discreta: qué está haciendo (ancho = el del texto, medido aparte)
                 x: 40
-                width: Math.min(parent.width - 40, filaPaso.implicitWidth + 22); height: 26; radius: height / 2
+                width: Math.min(parent.width - 40, medidaPaso.advanceWidth + 6 + 8 + 24 + 4); height: 26; radius: height / 2
                 color: Qt.alpha(Paleta.acento2, .07); border { width: 1; color: Qt.alpha(Paleta.acento2, .16) }
                 RowLayout {
                     id: filaPaso
                     anchors { fill: parent; leftMargin: 12; rightMargin: 12 } spacing: 8
                     Rectangle { implicitWidth: 6; implicitHeight: 6; radius: height / 2; color: Paleta.acento2 }
-                    Text { Layout.fillWidth: true; elide: Text.ElideRight; text: parent.parent.parent.parent.m.texto; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                    Text { Layout.fillWidth: true; elide: Text.ElideRight; text: raizPaso.texto; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
                 }
             }
         }

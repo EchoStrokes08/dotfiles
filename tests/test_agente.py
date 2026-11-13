@@ -61,6 +61,20 @@ class Memoria(unittest.TestCase):
             self.assertEqual(memoria.buscar("arepas", k=1)[0]["ref"], "doc:c")   # cae a palabras exactas
 
 
+class FechasHumanas(unittest.TestCase):
+    def test_fechas_relativas_y_texto_libre(self):
+        hoy = dt.date(2026, 11, 13)   # viernes
+        self.assertEqual(agente.fecha_humana("2026-11-13", hoy), "hoy, vie 13 nov")
+        self.assertEqual(agente.fecha_humana("2026-11-14", hoy), "mañana, sáb 14 nov")
+        self.assertEqual(agente.fecha_humana("2026-11-20", hoy), "vie 20 nov")
+        self.assertEqual(agente.fecha_humana("simplex", hoy), "simplex")
+        self.assertEqual(agente.fecha_humana("2026-13-40", hoy), "2026-13-40")
+
+    def test_resumen_de_herramienta(self):
+        r = agente.resumen_llamada("agenda", {"dia": dt.date.today().isoformat()})
+        self.assertTrue(r.startswith("Mirando la agenda: hoy, "), r)
+
+
 class Agente(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

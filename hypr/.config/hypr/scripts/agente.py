@@ -773,11 +773,31 @@ def chat(mensajes, emitir_texto=True, predecir=None):
     return texto, llamadas
 
 
+DIAS_CORTOS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]
+MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+
+
+def fecha_humana(texto, hoy=None):
+    """«2026-11-14» → «mañana, sáb 14 nov»; cualquier otro texto se deja igual."""
+    m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", texto.strip())
+    if not m:
+        return texto
+    try:
+        d = dt.date(int(m[1]), int(m[2]), int(m[3]))
+    except ValueError:
+        return texto
+    hoy = hoy or dt.date.today()
+    base = f"{DIAS_CORTOS[d.weekday()]} {d.day} {MESES_CORTOS[d.month - 1]}"
+    rel = {0: "hoy", 1: "mañana", -1: "ayer"}.get((d - hoy).days)
+    return f"{rel}, {base}" if rel else base
+
+
 def resumen_llamada(nombre, args):
+    valor = next(iter(args.values()), None) if args else None
     return {"buscar_memoria": "Buscando en tu memoria", "agenda": "Mirando la agenda", "estado_equipo": "Revisando el equipo",
             "linea_de_tiempo": "Repasando tu línea de tiempo", "buscar_archivos": "Buscando archivos",
             "avisos_movil": "Mirando el móvil", "abrir": "Abriendo"}.get(nombre, nombre) + \
-        (f": {next(iter(args.values()))}" if args and isinstance(next(iter(args.values())), str) else "")
+        (f": {fecha_humana(valor)}" if isinstance(valor, str) else "")
 
 
 def avanzar(d):
