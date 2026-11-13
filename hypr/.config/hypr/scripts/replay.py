@@ -93,7 +93,9 @@ def main():
         if accion in ('start', 'stop', 'toggle', 'auto'):
             modo.write_text({'start': 'si', 'stop': 'no', 'auto': 'auto', 'toggle': 'no' if dato else 'si'}[accion])
         preferencia = modo.read_text().strip() if modo.exists() else 'auto'
-        deseado = preferencia == 'si' or (preferencia == 'auto' and e.get('pausar_replay') == 'false')
+        # «auto» solo graba jugando (el replay es para guardar jugadas); fuera del juego, solo si lo enciendes
+        deseado = preferencia == 'si' or (preferencia == 'auto' and e.get('juego_activo') == 'true'
+                                          and e.get('pausar_replay') == 'false')
         # Privacidad siempre gana, incluso sobre el encendido manual.
         deseado = deseado and e.get('privacidad_activa', e.get('privacidad')) != 'true'
         if dato and not deseado:

@@ -46,7 +46,7 @@ else:
         sys.exit("Escribe una pregunta.")
     mensaje = pregunta + (f"\n\nTexto al que me refiero:\n\n{texto}" if texto else "")
 
-cuerpo = json.dumps({"model": MODELO, "stream": True, "keep_alive": "10m", "options": {"num_ctx": CONTEXTO},
+cuerpo = json.dumps({"model": MODELO, "stream": True, "keep_alive": "5m", "options": {"num_ctx": CONTEXTO},
                      "messages": [{"role": "system", "content": SISTEMA}, {"role": "user", "content": mensaje}]}).encode()
 try:
     with urllib.request.urlopen(urllib.request.Request(URL, cuerpo, {"Content-Type": "application/json"}), timeout=900) as r:
