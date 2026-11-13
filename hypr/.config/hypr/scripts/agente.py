@@ -590,7 +590,7 @@ def borrar(ident):
 CLAVES = HOME / ".local/share/brujula/claves"   # una clave por proveedor; fuera de dotfiles: nunca entra en git
 
 
-ESFUERZOS = {"bajo": "low", "medio": "medium", "alto": "high"}   # reasoning_effort de Groq
+ESFUERZOS = {"bajo": "low", "medio": "medium", "alto": "high"}   # reasoning_effort de Groq y Google
 
 
 def eleccion():
@@ -618,12 +618,73 @@ def elegir(campo, valor):
 
 
 def opciones():
-    """Para el selector del panel: modelos disponibles (sin repetir) y lo elegido."""
-    vistos = []
+    """Para el selector del panel: modelos disponibles (sin repetir), agrupados por proveedor, y lo elegido.
+    «grupos» dice a qué proveedor pertenece cada modelo (para separarlos visualmente en el panel)."""
+    vistos, grupos = [], {}
     for p in nube(todos=True):
         if p["modelo"] not in vistos:
             vistos.append(p["modelo"])
-    return {**eleccion(), "modelos": ["auto"] + vistos + ["local"], "permisos": nivel(), "niveles": NIVELES}
+            grupos[p["modelo"]] = grupo(p)
+    orden = list(dict.fromkeys(grupos.values()))   # proveedores en el orden de nube.json
+    vistos.sort(key=lambda m: orden.index(grupos[m]))
+    return {**eleccion(), "modelos": ["auto"] + vistos + ["local"], "grupos": grupos, "nombres": nombres_modelos(),
+            "permisos": nivel(), "niveles": NIVELES}
+
+
+def grupo(p):
+    """Proveedor de un modelo de nube.json: «grupo» si está, si no se deduce de la URL."""
+    if p.get("grupo"):
+        return p["grupo"]
+    return "Google" if "googleapis.com" in p.get("url", "") else "Groq" if "groq.com" in p.get("url", "") else "Nube"
+
+
+# Modelos de Google para conversar: todo lo que la API ofrece con generateContent, salvo lo que no es chat
+# (voz, imagen, música, transcripción, robótica, uso del ordenador, investigación profunda, agentes).
+NO_CHAT = re.compile(r"tts|image|banana|lyria|transcribe|robotics|computer-use|deep-research|antigravity|customtools")
+CACHE_MODELOS = 86400   # la lista se pide a Google una vez al día
+
+
+def modelos_google(url, claves):
+    """[(id, nombre visible)] de los modelos de conversación de Google, con caché diaria.
+    Prueba las claves en orden; sin red ni caché devuelve []."""
+    cache = DIR / "modelos-google.json"
+    c = b.leer_json(cache, {})
+    if c.get("modelos") and time.time() - c.get("fecha", 0) < CACHE_MODELOS:
+        return [tuple(m) for m in c["modelos"]]
+    base = url.split("/openai")[0].rstrip("/")
+    for clave in claves:
+        try:
+            req = urllib.request.Request(base + "/models?pageSize=500", headers={"x-goog-api-key": clave})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                datos = json.load(r)
+        except (OSError, ValueError):
+            continue
+        lista = [(m["name"].split("/")[-1], m.get("displayName") or m["name"].split("/")[-1])
+                 for m in datos.get("models", []) if "generateContent" in m.get("supportedGenerationMethods", [])]
+        lista = [m for m in lista if not NO_CHAT.search(m[0])][::-1]   # la API los da de más antiguo a más nuevo
+        if lista:
+            DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+            b.atomico(cache, {"fecha": time.time(), "modelos": lista})
+            return lista
+    return [tuple(m) for m in c.get("modelos", [])]
+
+
+def expandir(p, claves):
+    """Una entrada de nube.json con «modelos": "todos"» → una por modelo y clave (la principal primero).
+    El «preferido» va delante; el resto se ordena de más nuevo a más antiguo."""
+    modelos = [m for m, _ in modelos_google(p["url"], claves)] or [p.get("preferido", "")]
+    pref = p.get("preferido")
+    if pref in modelos:
+        modelos.remove(pref)
+    if pref:
+        modelos.insert(0, pref)
+    return [{**p, "modelo": m, "clave": k, "nombre": f'{p["nombre"]}-{m}-{i}'}
+            for m in modelos if m for i, k in enumerate(claves)]
+
+
+def nombres_modelos():
+    """{id: nombre visible} de los modelos descubiertos (para el selector del panel)."""
+    return {m: n for m, n in b.leer_json(DIR / "modelos-google.json", {}).get("modelos", [])}
 
 
 def nube(todos=False):
@@ -638,14 +699,30 @@ def nube(todos=False):
     if not todos and (b.escritorio().get("privacidad_activa") == "true" or eleccion()["modelo"] == "local"):
         return []
     lista = []
+    elegido = "auto" if todos else eleccion()["modelo"]
     for p in conf.get("proveedores", []):
+        if p.get("modelos") == "todos":   # Google: todos sus modelos de conversación, con claves de respaldo
+            claves = []
+            for nombre in p.get("claves", [p.get("clave", p.get("nombre", ""))]):
+                try:
+                    k = (CLAVES / nombre).read_text().strip()
+                except OSError:
+                    continue
+                if k:
+                    claves.append(k)
+            if not claves or not p.get("url"):
+                continue
+            for e in expandir(p, claves):
+                # en la cadena «auto» solo entra el preferido; el resto, si lo eliges o para el selector
+                if todos or e["modelo"] in (p.get("preferido"), elegido):
+                    lista.append(e)
+            continue
         try:
             clave = (CLAVES / p.get("clave", p["nombre"])).read_text().strip()
         except (OSError, KeyError, TypeError):
             continue
         if clave and p.get("url") and p.get("modelo"):
             lista.append({**p, "clave": clave})
-    elegido = "auto" if todos else eleccion()["modelo"]
     if elegido != "auto":   # el elegido primero; los demás quedan de respaldo si se agota su límite
         lista.sort(key=lambda p: p["modelo"] != elegido)
     return lista
@@ -655,8 +732,10 @@ RECORTE_NUBE = 3000   # caracteres de los últimos resultados de herramienta env
 RECORTE_VIEJO = 400   # …y de los anteriores: el cupo gratuito (Groq) es de 8000 tokens por minuto Y por petición
 
 
-def a_openai(mensajes):
-    """Historial (formato ollama) → formato OpenAI: ids para cada llamada y sin llamadas sin respuesta."""
+def a_openai(mensajes, google=False):
+    """Historial (formato ollama) → formato OpenAI: ids para cada llamada y sin llamadas sin respuesta.
+    Gemini exige devolver la «thought_signature» de cada llamada; si vino de otro modelo (Groq, local)
+    no la hay y se usa el valor que Google acepta para saltarse la comprobación."""
     salida, abiertas, ultimo, n = [], [], None, 0
 
     def cerrar():
@@ -682,8 +761,12 @@ def a_openai(mensajes):
                 n += 1
                 fn = ll.get("function", {})
                 args = fn.get("arguments") or {}
-                nuevo["tool_calls"].append({"id": f"c{n}", "type": "function", "function": {
-                    "name": fn.get("name", ""), "arguments": args if isinstance(args, str) else json.dumps(args, ensure_ascii=False)}})
+                llamada = {"id": f"c{n}", "type": "function", "function": {
+                    "name": fn.get("name", ""), "arguments": args if isinstance(args, str) else json.dumps(args, ensure_ascii=False)}}
+                if google:
+                    llamada["extra_content"] = ll.get("extra_content") or \
+                        {"google": {"thought_signature": "skip_thought_signature_validator"}}
+                nuevo["tool_calls"].append(llamada)
             abiertas[:] = list(nuevo["tool_calls"])
             ultimo = nuevo
         salida.append(nuevo)
@@ -699,7 +782,7 @@ def a_openai(mensajes):
 
 def chat_nube(conf, mensajes, emitir_texto=True, predecir=None):
     cuerpo = {"model": conf["modelo"], "stream": True, "temperature": 0.3, "tools": HERRAMIENTAS,
-              "messages": [{"role": "system", "content": instrucciones()}] + a_openai(mensajes),
+              "messages": [{"role": "system", "content": instrucciones()}] + a_openai(mensajes, grupo(conf) == "Google"),
               **({"max_tokens": predecir} if predecir else {}),
               # cuánto razona antes de responder (selector del panel): bajo es rápido, alto piensa más
               "reasoning_effort": ESFUERZOS[eleccion()["esfuerzo"]]}
@@ -723,13 +806,16 @@ def chat_nube(conf, mensajes, emitir_texto=True, predecir=None):
                     fn = tc.get("function", {})
                     p["name"] += fn.get("name") or ""
                     p["arguments"] += fn.get("arguments") or ""
+                    if tc.get("extra_content"):   # thought_signature de Gemini: hay que devolverla en el siguiente turno
+                        p["extra_content"] = tc["extra_content"]
     llamadas = []
     for p in partes.values():
         try:
             args = json.loads(p["arguments"] or "{}")
         except ValueError:
             args = {}
-        llamadas.append({"function": {"name": p["name"], "arguments": args}})
+        llamadas.append({"function": {"name": p["name"], "arguments": args},
+                         **({"extra_content": p["extra_content"]} if p.get("extra_content") else {})})
     return texto, llamadas
 
 

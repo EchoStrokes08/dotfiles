@@ -2,40 +2,57 @@
   "activo": true,
   "proveedores": [
     {
+      "nombre": "google",
+      "grupo": "Google",
+      "claves": [
+        "google",
+        "google2"
+      ],
+      "url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "modelos": "todos",
+      "preferido": "gemini-4-hydrogen"
+    },
+    {
       "nombre": "groq-gpt-oss-120b",
       "clave": "groq",
       "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-120b"
+      "modelo": "openai/gpt-oss-120b",
+      "grupo": "Groq"
     },
     {
       "nombre": "groq-gpt-oss-120b-2",
       "clave": "groq2",
       "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-120b"
+      "modelo": "openai/gpt-oss-120b",
+      "grupo": "Groq"
     },
     {
       "nombre": "groq-qwen3.8-27b",
       "clave": "groq",
       "url": "https://api.groq.com/openai/v1",
-      "modelo": "qwen/qwen3.8-27b"
+      "modelo": "qwen/qwen3.8-27b",
+      "grupo": "Groq"
     },
     {
       "nombre": "groq-qwen3.8-27b-2",
       "clave": "groq2",
       "url": "https://api.groq.com/openai/v1",
-      "modelo": "qwen/qwen3.8-27b"
+      "modelo": "qwen/qwen3.8-27b",
+      "grupo": "Groq"
     },
     {
       "nombre": "groq-gpt-oss-20b",
       "clave": "groq",
       "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-20b"
+      "modelo": "openai/gpt-oss-20b",
+      "grupo": "Groq"
     },
     {
       "nombre": "groq-gpt-oss-20b-2",
       "clave": "groq2",
       "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-20b"
+      "modelo": "openai/gpt-oss-20b",
+      "grupo": "Groq"
     }
   ]
 }

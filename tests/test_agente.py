@@ -75,6 +75,19 @@ class FechasHumanas(unittest.TestCase):
         self.assertTrue(r.startswith("Mirando la agenda: hoy, "), r)
 
 
+class ModelosGoogle(unittest.TestCase):
+    def test_filtro_y_orden_de_claves(self):
+        for no in ("gemini-3.8-flash-tts", "gemini-3-pro-image", "lyria-3.5", "gemini-3.5-transcribe", "deep-research-preview-04-2026"):
+            self.assertRegex(no, agente.NO_CHAT)
+        self.assertIsNone(agente.NO_CHAT.search("gemini-3.5-flash"))
+        p = {"nombre": "google", "url": "https://x/v1beta/openai", "modelos": "todos", "preferido": "gemini-4-hydrogen"}
+        with patch.object(agente, "modelos_google", lambda url, claves: [("gemini-3.5-flash", "Gemini 3.5 Flash"), ("gemini-4-hydrogen", "Gemini 4 Hydrogen")]):
+            e = agente.expandir(p, ["principal", "respaldo"])
+        self.assertEqual([(x["modelo"], x["clave"]) for x in e],
+                         [("gemini-4-hydrogen", "principal"), ("gemini-4-hydrogen", "respaldo"),
+                          ("gemini-3.5-flash", "principal"), ("gemini-3.5-flash", "respaldo")])
+
+
 class Agente(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

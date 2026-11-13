@@ -29,6 +29,10 @@ Superpuesta {
     property string nube: ""              // modelo en la nube en uso ("" = local)
     // Selector de modelo y esfuerzo (se guarda en ~/.local/state/brujula/agente/eleccion.json)
     property var modelos: ["auto"]
+    property var grupos: ({})            // modelo → proveedor ("Google", "Groq"), para separarlos en el selector
+    property var nombres: ({})           // modelo → nombre visible que da Google («Gemini 3.5 Flash»)
+    function proveedorDe(id) { return id === "local" ? "Este equipo" : (grupos[id] || ""); }
+    function colorGrupo(g) { return g === "Google" ? Paleta.acento2 : g === "Groq" ? Paleta.acento : EstiloPanel.tenue; }
     property string modeloElegido: "auto"
     property string esfuerzo: "bajo"
     function tituloModelo(id) { return nombreModelo(id).split(" · ")[0]; }
@@ -36,11 +40,12 @@ Superpuesta {
     function nombreModelo(id) {
         const n = { "auto": "Auto · el mejor disponible", "local": "Local · privado, lento",
                     "openai/gpt-oss-120b": "GPT-OSS 120B · el más listo", "qwen/qwen3.8-27b": "Qwen 3.8 27B · equilibrado",
-                    "openai/gpt-oss-20b": "GPT-OSS 20B · el más rápido" };
-        return n[id] || id;
+                    "openai/gpt-oss-20b": "GPT-OSS 20B · el más rápido",
+                    "gemini-4-hydrogen": "Gemini 4 Hydrogen · Google, de serie" };
+        return n[id] || nombres[id] || id;
     }
     function leerOpciones(texto) {
-        try { const o = JSON.parse(texto); modelos = o.modelos; modeloElegido = o.modelo; esfuerzo = o.esfuerzo;
+        try { const o = JSON.parse(texto); modelos = o.modelos; grupos = o.grupos || {}; nombres = o.nombres || {}; modeloElegido = o.modelo; esfuerzo = o.esfuerzo;
               if (o.permisos) permisos = o.permisos; } catch (e) {}
     }
     // Permisos del agente: cuánto hace sin preguntarte (~/.config/ia/permisos.json)
@@ -318,13 +323,14 @@ Superpuesta {
                                 y: selModelo.height + 6
                                 width: 300
                                 padding: 4
-                                implicitHeight: listaModelos.contentHeight + 12
+                                implicitHeight: Math.min(listaModelos.contentHeight + 12, 420)   // con muchos modelos, se desplaza
                                 background: Rectangle { radius: 16; color: EstiloPanel.elevada; border { width: 1; color: Qt.alpha(Paleta.acento, .3) } }
                                 contentItem: ListView {
                                     id: listaModelos
                                     implicitHeight: contentHeight
                                     spacing: 2
-                                    interactive: false
+                                    interactive: contentHeight > height   // Gemini ofrece muchos modelos
+                                    clip: true
                                     model: selModelo.popup.visible ? selModelo.delegateModel : null
                                     currentIndex: selModelo.highlightedIndex
                                 }
@@ -334,17 +340,34 @@ Superpuesta {
                                 required property var modelData
                                 required property int index
                                 readonly property bool elegido: modelData === ag.modeloElegido
+                                // primer modelo de cada proveedor: lleva encima su cabecera (GOOGLE, GROQ…)
+                                readonly property string grupo: ag.proveedorDe(modelData)
+                                readonly property color tinte: ag.colorGrupo(grupo)
+                                readonly property bool cabecera: grupo !== "" && (index === 0 || grupo !== ag.proveedorDe(ag.modelos[index - 1]))
+                                readonly property int altoCabecera: cabecera ? 28 : 0
                                 width: 288
                                 padding: 8
+                                topPadding: 8 + altoCabecera
                                 highlighted: selModelo.highlightedIndex === index
-                                background: Rectangle {
-                                    radius: 12
-                                    color: Qt.alpha(Paleta.acento, opcionModelo.elegido ? .2 : opcionModelo.highlighted ? .1 : 0)
-                                    border { width: opcionModelo.elegido ? 1 : 0; color: Qt.alpha(Paleta.acento, .45) }
+                                background: Item {
+                                    RowLayout {
+                                        visible: opcionModelo.cabecera
+                                        anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 8; leftMargin: 8; rightMargin: 8 }
+                                        spacing: 8
+                                        Rectangle { implicitWidth: 6; implicitHeight: 6; radius: height / 2; color: opcionModelo.tinte }
+                                        Text { text: opcionModelo.grupo.toUpperCase(); color: opcionModelo.tinte; font { family: Paleta.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 } }
+                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.alpha(opcionModelo.tinte, .3) }
+                                    }
+                                    Rectangle {
+                                        anchors { fill: parent; topMargin: opcionModelo.altoCabecera }
+                                        radius: 12
+                                        color: Qt.alpha(Paleta.acento, opcionModelo.elegido ? .2 : opcionModelo.highlighted ? .1 : 0)
+                                        border { width: opcionModelo.elegido ? 1 : 0; color: Qt.alpha(Paleta.acento, .45) }
+                                    }
                                 }
                                 contentItem: RowLayout {
                                     spacing: 12
-                                    Text { text: opcionModelo.modelData === "local" ? ag.g("f0322") : opcionModelo.modelData === "auto" ? "✦" : ag.g("f06a9"); color: opcionModelo.elegido ? Paleta.acento : EstiloPanel.tenue; font { family: Paleta.mono; pixelSize: 16 } }
+                                    Text { text: opcionModelo.modelData === "local" ? ag.g("f0322") : opcionModelo.modelData === "auto" ? "✦" : ag.g("f06a9"); color: opcionModelo.elegido ? Paleta.acento : opcionModelo.grupo && opcionModelo.grupo !== "Este equipo" ? opcionModelo.tinte : EstiloPanel.tenue; font { family: Paleta.mono; pixelSize: 16 } }
                                     ColumnLayout {
                                         Layout.fillWidth: true; spacing: 1
                                         Text { text: ag.tituloModelo(opcionModelo.modelData); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
