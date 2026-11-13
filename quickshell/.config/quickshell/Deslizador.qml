@@ -10,6 +10,10 @@ RowLayout {
     property string etiqueta: ""            // nombre a la izquierda (volumen por app)
     property bool apagado: false
     property color acento: Paleta.acento
+    property string nombre: etiqueta        // lo que lee un lector de pantalla («Volumen», «Brillo»…)
+    Accessible.role: Accessible.Slider
+    Accessible.name: nombre + (apagado ? ", silenciado" : "")
+    Accessible.description: Math.round(v * 100) + " %"
     signal movido(real v)
     signal iconoPulsado()
     spacing: 8

@@ -1,5 +1,5 @@
 // OSD: el indicador flotante de volumen, micro, brillo, Bloq Mayús, música y avisos.
-Aparece abajo al centro y se va solo tras 1,5 s.
+// Aparece abajo al centro y se va solo tras 1,5 s.
 //
 // Volumen y micro: se muestran SOLOS al cambiar (escucha PipeWire), venga de donde venga.
 // El resto lo avisan los atajos después de hacer el cambio (así las teclas funcionan aunque qs no esté):

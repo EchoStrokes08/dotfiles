@@ -25,7 +25,7 @@ Singleton {
     property color aviso:     "#e6c446"
     property color peligro:   "#ff3333"
     property color seleccion: "#243340"
-    property color gris:      "#5c6773"
+    property color gris:      "#78818b"
     // Serie para DATOS por categoría (gráficas, contextos de Brújula): empieza por los colores del tema
     // y sigue con tonos Ayu fijos. No es decoración: fuera de gráficas y etiquetas de categoría, usar acento.
     readonly property var serie: [acento, acento2, exito, aviso, "#d2a6ff", "#95e6cb", "#f07178", "#ffb454"]

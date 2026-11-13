@@ -334,6 +334,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     readonly property bool mudo: ventana.salida?.audio?.muted ?? false
                     icono: ventana.g(mudo ? 0xF075F : 0xF057E)
+                    nombre: "Volumen"
                     apagado: mudo
                     valor: ventana.salida?.audio?.volume ?? 0
                     onMovido: (v) => { if (ventana.salida?.audio) ventana.salida.audio.volume = v; }
@@ -390,6 +391,7 @@ PanelWindow {
                     visible: ventana.entrada?.audio !== undefined
                     readonly property bool mudo: ventana.entrada?.audio?.muted ?? true
                     icono: ventana.g(mudo ? 0xF036D : 0xF036C)
+                    nombre: "Micrófono"
                     apagado: mudo
                     valor: ventana.entrada?.audio?.volume ?? 0
                     onMovido: (v) => { if (ventana.entrada?.audio) ventana.entrada.audio.volume = v; }
@@ -400,6 +402,7 @@ PanelWindow {
                 Deslizador {
                     Layout.fillWidth: true
                     icono: ventana.g(0xF00E0)
+                    nombre: "Brillo"
                     valor: ventana.brillo
                     onMovido: (v) => {
                         const p = Math.max(5, Math.round(v * 100));        // nunca a 0 (pantalla negra)

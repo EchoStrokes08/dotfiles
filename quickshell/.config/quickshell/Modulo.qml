@@ -14,6 +14,9 @@ Item {
     property int tamIcono: 15
     property string ayuda: ""
     property real relleno: 7
+    // Para lectores de pantalla: la primera línea de la ayuda (o el texto) y que se puede pulsar
+    Accessible.role: Accessible.Button
+    Accessible.name: (ayuda.split("\n")[0] || texto)
 
     signal clic(int boton)        // Qt.LeftButton, Qt.RightButton, Qt.MiddleButton
     signal rueda(bool arriba)

@@ -8,5 +8,5 @@ return {
     aviso     = "e6c446",
     peligro   = "ff3333",
     seleccion = "243340",
-    gris      = "5c6773",
+    gris      = "78818b",
 }

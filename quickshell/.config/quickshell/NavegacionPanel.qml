@@ -10,6 +10,9 @@ Rectangle {
     property bool vertical: false
     property color tinte: Paleta.acento
     signal elegir(int indice)
+    Accessible.role: Accessible.PageTabList
+    Accessible.name: "Secciones"
+    Accessible.description: (opciones[actual]?.texto ?? "") + " seleccionada"
     readonly property real paso: vertical ? 50 : (width - 10) / Math.max(1, opciones.length)
     Layout.fillWidth: true
     implicitHeight: vertical ? opciones.length * 50 + 10 : 48

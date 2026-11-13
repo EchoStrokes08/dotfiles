@@ -86,7 +86,48 @@ class Colores(unittest.TestCase):
         self.assertEqual(bajos, [], "paneles por debajo de 0.93 de opacidad")
 
 
+def luminancia(h):
+    c = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+
+def contraste(a, b):
+    la, lb = sorted([luminancia(a), luminancia(b)], reverse=True)
+    return (la + 0.05) / (lb + 0.05)
+
+
+def mezcla(a, b, t):
+    return "".join(f"{round(int(a[i:i + 2], 16) + (int(b[i:i + 2], 16) - int(a[i:i + 2], 16)) * t):02x}" for i in (0, 2, 4))
+
+
+class Contraste(unittest.TestCase):
+    """WCAG sobre el fondo: texto ≥ 7, texto secundario (tenue, gris) y peligro ≥ 4,5, acentos y estados ≥ 3."""
+    MINIMOS = {"texto": 7, "tenue": 4.5, "gris": 4.5, "peligro": 4.5, "acento": 3, "acento2": 3, "exito": 3, "aviso": 3}
+
+    def test_paletas_ayu(self):
+        for carpeta in ("ayu", "ayu-claro"):
+            css = (TEMA / carpeta / "colores.css").read_text()
+            p = {m[1]: m[2] for m in re.finditer(r"@define-color\s+(\w+)\s+#([0-9a-fA-F]{6})", css)}
+            claro = luminancia(p["fondo"]) > .5
+            p["tenue"] = mezcla(p["fondo"], p["texto"], .82 if claro else .68)   # EstiloPanel.tenue
+            for nombre, minimo in self.MINIMOS.items():
+                with self.subTest(paleta=carpeta, color=nombre):
+                    self.assertGreaterEqual(contraste(p[nombre], p["fondo"]), minimo)
+
+
 class Componentes(unittest.TestCase):
+    def test_cabeceras(self):
+        # Antes del primer import solo comentarios, líneas en blanco y pragma (un comentario partido rompe el archivo)
+        malos = []
+        for p, t in qml():
+            for i, l in enumerate(t.splitlines(), 1):
+                if l.startswith("import "):
+                    break
+                if l.strip() and not l.lstrip().startswith(("//", "pragma ")):
+                    malos.append(f"{p.name}:{i}")
+        self.assertEqual(malos, [], "texto suelto antes de los import")
+
     def test_botones_compartidos(self):
         # Un botón con estilo propio se define una vez (BotonPanel, BotonCompacto), no dentro de cada panel
         locales = [f"{p.name}:{i}" for p, t in qml()

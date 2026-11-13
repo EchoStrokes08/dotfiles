@@ -50,7 +50,9 @@ Singleton {
     readonly property color apagado:       Qt.alpha(Paleta.texto, .45)   // desactivado, marcadores de posición
     readonly property color secundario:    Qt.alpha(Paleta.texto, .85)   // texto de apoyo sobre resaltado
     // Opacos (mezclados con el fondo): para texto tenue y superficies elevadas
-    readonly property color tenue: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .68))
+    // Sobre fondo claro hace falta más texto para el mismo contraste (≥ 4,5:1, tests/test_estilo.py)
+    readonly property bool fondoClaro: Paleta.fondo.hslLightness > .5
+    readonly property color tenue: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, fondoClaro ? .82 : .68))
     readonly property color superficie: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .035))
     readonly property color elevada: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .065))
 
