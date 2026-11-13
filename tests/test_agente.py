@@ -81,12 +81,43 @@ class ModelosGoogle(unittest.TestCase):
             self.assertRegex(no, agente.NO_CHAT)
         self.assertIsNone(agente.NO_CHAT.search("gemini-3.5-flash"))
         p = {"nombre": "google", "url": "https://x/v1beta/openai", "modelos": "todos", "preferido": "gemini-4-hydrogen"}
-        with patch.object(agente, "modelos_google", lambda url, claves: [("gemini-3.5-flash", "Gemini 3.5 Flash"), ("gemini-4-hydrogen", "Gemini 4 Hydrogen")]):
+        with patch.object(agente, "modelos_google", lambda url, claves: [("gemini-3.5-flash", "Gemini 3.5 Flash", {}), ("gemini-4-hydrogen", "Gemini 4 Hydrogen", {})]):
             e = agente.expandir(p, ["principal", "respaldo"])
         self.assertEqual([(x["modelo"], x["clave"]) for x in e],
                          [("gemini-4-hydrogen", "principal"), ("gemini-4-hydrogen", "respaldo"),
                           ("gemini-3.5-flash", "principal"), ("gemini-3.5-flash", "respaldo")])
 
+    def test_prueba_con_clave_de_respaldo_y_estado(self):
+        def respuestas(*por_clave):
+            """Una respuesta por clave: código HTTP, "ok" o "lento"."""
+            def abrir(req, timeout):
+                r = por_clave[["principal", "respaldo"].index(req.headers["X-goog-api-key"])]
+                if r == "timeout":
+                    raise TimeoutError("timed out")
+                if isinstance(r, tuple):
+                    raise agente.urllib.error.HTTPError(req.full_url, r[0], "", {}, io.BytesIO(r[1].encode()))
+                return io.BytesIO(b"{}")
+            return abrir
+        pago = (429, "limit: 0")
+        casos = [(("ok", "ok"), "rapido"),
+                 (((503, ""), "ok"), "respaldo"),        # la principal falla: se usa la de respaldo
+                 ((pago, "ok"), "respaldo"),             # de pago en un proyecto, gratis en el otro
+                 ((pago, pago), None),                   # de pago en todos: fuera
+                 (((404, ""), "ok"), None),              # retirado: fuera
+                 (("timeout", (500, "")), "falla")]      # no tanto: se queda, al final
+        for por_clave, esperado in casos:
+            with patch.object(agente.urllib.request, "urlopen", respuestas(*por_clave)):
+                e = agente.probar_google("https://x/v1beta", ["principal", "respaldo"], "m")
+            self.assertEqual(e and e["estado"], esperado, por_clave)
+        self.assertEqual(agente.estado_legible({"estado": "falla", "motivo": "no contesta"}), "Falló en la prueba: no contesta")
+
+    def test_orden_del_que_mejor_al_que_peor(self):
+        p = {"nombre": "google", "url": "https://x/v1beta/openai", "modelos": "todos", "preferido": "gemini-4-hydrogen"}
+        probados = [("gemma", "Gemma", {"estado": "falla"}), ("lenta", "Lenta", {"estado": "lento"}),
+                    ("gemini-4-hydrogen", "Hydrogen", {"estado": "rapido"}), ("flash", "Flash", {"estado": "rapido"})]
+        with patch.object(agente, "modelos_google", lambda url, claves: probados):
+            e = agente.expandir(p, ["k"])
+        self.assertEqual([x["modelo"] for x in e], ["gemini-4-hydrogen", "flash", "lenta", "gemma"])
 
 class Agente(unittest.TestCase):
     def setUp(self):

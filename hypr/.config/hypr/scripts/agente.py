@@ -13,7 +13,8 @@ documentos personales, sesiones y recordatorios. Los demás cambios se confirman
     agente.py abrir ID               retomar una conversación del historial → {id, titulo, vista}
     agente.py borrar ID              quitarla del historial
     agente.py borrar-todo            vaciar el historial entero
-    agente.py opciones               modelos disponibles y lo elegido → {modelo, esfuerzo, modelos}
+    agente.py opciones               modelos disponibles y lo elegido → {modelo, esfuerzo, modelos, estados}
+    agente.py refrescar-modelos      prueba los modelos de Google (rápido, respaldo, lento, falla) y los ordena
     agente.py elegir modelo|esfuerzo|permisos VALOR   modelo: auto, local o uno de nube.json; esfuerzo: bajo, medio, alto;
                                      permisos: cauteloso, equilibrado, amplio, total
 Historial: ~/.local/state/brujula/agente/conversaciones/ID.json guarda lo que se vio en el panel («vista»)
@@ -22,6 +23,7 @@ Eventos: {"t":"herramienta","nombre","resumen"} · {"t":"confirmar","descripcion
          {"t":"fuentes","lista"} · {"t":"error","mensaje"} · {"t":"fin"}
 Modelo: ~/.config/ia/agente (de serie qwen3:4b-instruct: necesita «tools» y NO la variante que razona).
 """
+from concurrent.futures import ThreadPoolExecutor
 import datetime as dt
 import json
 import os
@@ -628,7 +630,7 @@ def opciones():
     orden = list(dict.fromkeys(grupos.values()))   # proveedores en el orden de nube.json
     vistos.sort(key=lambda m: orden.index(grupos[m]))
     return {**eleccion(), "modelos": ["auto"] + vistos + ["local"], "grupos": grupos, "nombres": nombres_modelos(),
-            "permisos": nivel(), "niveles": NIVELES}
+            "estados": estados_modelos(), "permisos": nivel(), "niveles": NIVELES}
 
 
 def grupo(p):
@@ -641,16 +643,26 @@ def grupo(p):
 # Modelos de Google para conversar: todo lo que la API ofrece con generateContent, salvo lo que no es chat
 # (voz, imagen, música, transcripción, robótica, uso del ordenador, investigación profunda, agentes).
 NO_CHAT = re.compile(r"tts|image|banana|lyria|transcribe|robotics|computer-use|deep-research|antigravity|customtools")
-CACHE_MODELOS = 86400   # la lista se pide a Google una vez al día
+CACHE_MODELOS = 86400   # la lista se pide y se prueba una vez al día
+LENTO = 6               # segundos: a partir de aquí, el modelo se marca como lento
+# Estados de la prueba, de mejor a peor (así se ordena el selector)
+RANGO = {"rapido": 0, "respaldo": 1, "lento": 2, "falla": 3}
 
 
-def modelos_google(url, claves):
-    """[(id, nombre visible)] de los modelos de conversación de Google, con caché diaria.
-    Prueba las claves en orden; sin red ni caché devuelve []."""
+def modelos_google(url, claves, refrescar=False):
+    """[(id, nombre visible, estado)] de los modelos de conversación de Google que funcionan con tus claves,
+    del que mejor responde al que peor. Caché diaria: si está vieja se sigue usando y se renueva en segundo plano
+    (probar todos tarda). Sin red ni caché devuelve []."""
     cache = DIR / "modelos-google.json"
     c = b.leer_json(cache, {})
-    if c.get("modelos") and time.time() - c.get("fecha", 0) < CACHE_MODELOS:
-        return [tuple(m) for m in c["modelos"]]
+    viejos = [tuple(m) + ({},) * (3 - len(m)) for m in c.get("modelos", [])]   # cachés antiguas: sin estado
+    if viejos and not refrescar:
+        if time.time() - c.get("fecha", 0) >= CACHE_MODELOS or any(not m[2] for m in viejos):
+            marca = DIR / "probando-modelos"   # una sola prueba a la vez (el panel pide opciones a menudo)
+            if time.time() - (marca.stat().st_mtime if marca.exists() else 0) > 120:
+                marca.touch()
+                b.lanzar([sys.executable, str(Path(__file__).resolve()), "refrescar-modelos"])
+        return viejos
     base = url.split("/openai")[0].rstrip("/")
     for clave in claves:
         try:
@@ -662,29 +674,95 @@ def modelos_google(url, claves):
         lista = [(m["name"].split("/")[-1], m.get("displayName") or m["name"].split("/")[-1])
                  for m in datos.get("models", []) if "generateContent" in m.get("supportedGenerationMethods", [])]
         lista = [m for m in lista if not NO_CHAT.search(m[0])][::-1]   # la API los da de más antiguo a más nuevo
+        with ThreadPoolExecutor(8) as hilos:   # una prueba mínima por modelo, en paralelo
+            estados = list(hilos.map(lambda m: probar_google(base, claves, m[0]), lista))
+        lista = [(m, n, e) for (m, n), e in zip(lista, estados) if e]
+        lista.sort(key=lambda m: RANGO[m[2]["estado"]])   # estable: dentro de cada estado, de más nuevo a más antiguo
         if lista:
             DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
             b.atomico(cache, {"fecha": time.time(), "modelos": lista})
             return lista
-    return [tuple(m) for m in c.get("modelos", [])]
+    return viejos
+
+
+def probar_google(base, claves, modelo):
+    """Prueba mínima del modelo, primero con la clave principal y, si falla, con la de respaldo.
+    → {"estado": rapido|respaldo|lento|falla, "seg", "motivo"}; None si no sirve nunca
+    (de pago: cupo gratuito 0 en todas las claves; o retirado)."""
+    cuerpo = json.dumps({"contents": [{"parts": [{"text": "hola"}]}],
+                         "generationConfig": {"maxOutputTokens": 1}}).encode()
+    motivos = []
+    for i, clave in enumerate(claves):
+        req = urllib.request.Request(f"{base}/models/{modelo}:generateContent", data=cuerpo,
+                                     headers={"x-goog-api-key": clave, "Content-Type": "application/json"})
+        t = time.time()
+        try:
+            with urllib.request.urlopen(req, timeout=30):
+                seg = round(time.time() - t, 1)
+            estado = "lento" if seg >= LENTO else "respaldo" if i else "rapido"
+            return {"estado": estado, "seg": seg, **({"motivo": motivos[-1]} if motivos else {})}
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None
+            texto = e.read().decode(errors="replace") if e.code == 429 else ""
+            motivos.append("de pago" if "limit: 0" in texto else motivo(e))
+        except (OSError, ValueError) as e:
+            motivos.append(motivo(e))
+    if motivos and all(m == "de pago" for m in motivos):
+        return None
+    return {"estado": "falla", "motivo": next(m for m in motivos if m != "de pago")}
+
+
+def motivo(e):
+    """Por qué falló una llamada, en palabras de persona."""
+    if isinstance(e, urllib.error.HTTPError):
+        return {429: "límite gratuito agotado", 503: "saturado", 500: "error de Google", 401: "clave no válida",
+                403: "clave no válida", 404: "ya no existe", 413: "mensaje demasiado largo"}.get(e.code, f"error {e.code}")
+    if isinstance(e, TimeoutError) or "timed out" in str(e):
+        return "no contesta"
+    if isinstance(e, urllib.error.URLError):
+        return "sin internet"
+    return str(e)[:60] or "error"
+
+
+def estado_legible(e):
+    """Nota del selector para un modelo probado."""
+    if not e:
+        return ""
+    if e["estado"] == "rapido":
+        return f"Responde bien ({e['seg']} s)"
+    if e["estado"] == "respaldo":
+        return f"Va con la clave de respaldo ({e['seg']} s)"
+    if e["estado"] == "lento":
+        return f"Lento: tardó {e['seg']} s"
+    return f"Falló en la prueba: {e['motivo']}"
 
 
 def expandir(p, claves):
     """Una entrada de nube.json con «modelos": "todos"» → una por modelo y clave (la principal primero).
     El «preferido» va delante; el resto se ordena de más nuevo a más antiguo."""
-    modelos = [m for m, _ in modelos_google(p["url"], claves)] or [p.get("preferido", "")]
+    probados = modelos_google(p["url"], claves)
+    modelos = [m for m, _, _ in probados] or [p.get("preferido", "")]
+    rango = {m: RANGO.get((e or {}).get("estado"), 0) for m, _, e in probados}
     pref = p.get("preferido")
     if pref in modelos:
         modelos.remove(pref)
     if pref:
         modelos.insert(0, pref)
+    modelos.sort(key=lambda m: rango.get(m, 0))   # estable: el preferido sigue primero entre los que van bien
     return [{**p, "modelo": m, "clave": k, "nombre": f'{p["nombre"]}-{m}-{i}'}
             for m in modelos if m for i, k in enumerate(claves)]
 
 
 def nombres_modelos():
     """{id: nombre visible} de los modelos descubiertos (para el selector del panel)."""
-    return {m: n for m, n in b.leer_json(DIR / "modelos-google.json", {}).get("modelos", [])}
+    return {m[0]: m[1] for m in b.leer_json(DIR / "modelos-google.json", {}).get("modelos", [])}
+
+
+def estados_modelos():
+    """{id: nota de la última prueba} para el selector del panel."""
+    return {m[0]: estado_legible(m[2]) for m in b.leer_json(DIR / "modelos-google.json", {}).get("modelos", [])
+            if len(m) > 2}
 
 
 def nube(todos=False):
@@ -819,31 +897,45 @@ def chat_nube(conf, mensajes, emitir_texto=True, predecir=None):
     return texto, llamadas
 
 
+def titulo_nube(conf):
+    """Nombre visible de una entrada de la cadena («Gemini 3.5 Flash», «openai/gpt-oss-120b»)."""
+    return nombres_modelos().get(conf["modelo"]) or conf["modelo"]
+
+
 def chat(mensajes, emitir_texto=True, predecir=None):
     # 1) El primero que responda, en orden (clave principal → clave de respaldo → otros modelos), sin esperar.
     # 2) Si todos están en su límite por minuto, esperar al que antes se libere (si son pocos segundos).
     # 3) Si nada funciona, el modelo local.
+    # Cada salto se cuenta en el chat («… no contesta; pruebo con la clave de respaldo»), para que se entienda.
+    def aviso(texto):
+        if emitir_texto:
+            emitir(t="herramienta", nombre="nube", resumen=texto)
+    cadena = nube()
     fallo, limitados = "", []
-    for conf in nube():
+    for n, conf in enumerate(cadena):
         try:
             return chat_nube(conf, mensajes, emitir_texto, predecir)
-        except urllib.error.HTTPError as e:
-            fallo = f"{conf['nombre']}: {e}"
-            if e.code == 429:
+        except (OSError, ValueError) as e:   # sin internet, clave mala, límite, petición demasiado grande…
+            fallo = motivo(e)
+            if isinstance(e, urllib.error.HTTPError) and e.code == 429:
                 limitados.append((float(e.headers.get("retry-after") or 99), conf))
-        except (OSError, ValueError) as e:   # sin internet, clave mala, petición demasiado grande…
-            fallo = f"{conf['nombre']}: {str(e)[:80]}"
+            sig = cadena[n + 1] if n + 1 < len(cadena) else None
+            if sig is None:
+                break
+            otra = "la clave de respaldo" if sig["modelo"] == conf["modelo"] else titulo_nube(sig)
+            aviso(f"{titulo_nube(conf)}: {fallo}. Pruebo con {otra}")
     if limitados:
         espera, conf = min(limitados, key=lambda x: x[0])
         if espera <= 15:
+            aviso(f"Todos en su límite por minuto; espero {round(espera)} s a {titulo_nube(conf)}")
             time.sleep(espera + 0.5)
             try:
                 return chat_nube(conf, mensajes, emitir_texto, predecir)
             except (OSError, ValueError) as e:
-                fallo = f"{conf['nombre']}: {str(e)[:80]}"
-    if nube() and emitir_texto:   # ninguno respondió: avisar solo entonces
-        emitir(t="herramienta", nombre="nube", resumen=f"La nube no responde ({fallo}); uso el modelo local, más lento")
-    cuerpo = {"model": modelo(), "stream": True, "think": False, "keep_alive": "20m",
+                fallo = motivo(e)
+    if cadena:   # ninguno respondió
+        aviso(f"Ningún modelo de la nube responde ({fallo}); uso el modelo local, más lento")
+    cuerpo = {"model": modelo(), "stream": True, "think": False, "keep_alive": "5m",
               "messages": [{"role": "system", "content": instrucciones()}] + mensajes, "tools": HERRAMIENTAS,
               "options": {"num_ctx": 8192, "temperature": 0.3, **({"num_predict": predecir} if predecir else {})}}
     req = urllib.request.Request(OLLAMA, json.dumps(cuerpo).encode(), {"Content-Type": "application/json"})
@@ -1063,6 +1155,14 @@ def main():
                 navegador.arrancar()
                 return
             chat([{"role": "user", "content": "hola"}], emitir_texto=False, predecir=1)
+        elif orden == "refrescar-modelos":   # prueba de los modelos de Google, en segundo plano
+            for p in b.leer_json(HOME / ".config/ia/nube.json", {}).get("proveedores", []):
+                if p.get("modelos") == "todos":
+                    claves = [k for k in ((CLAVES / c).read_text().strip() for c in p.get("claves", [])
+                                          if (CLAVES / c).exists()) if k]
+                    if claves:
+                        modelos_google(p["url"], claves, refrescar=True)
+            return
         elif orden == "diagnostico":
             print(json.dumps({"navegador": navegador.disponible(), "modelo": modelo(), "nube": next((p["modelo"] for p in nube()), ""),
                               "permisos": b.leer_json(HOME / ".config/ia/permisos.json", {})}))

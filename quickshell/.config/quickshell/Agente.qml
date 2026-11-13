@@ -31,12 +31,13 @@ Superpuesta {
     property var modelos: ["auto"]
     property var grupos: ({})            // modelo → proveedor ("Google", "Groq"), para separarlos en el selector
     property var nombres: ({})           // modelo → nombre visible que da Google («Gemini 3.5 Flash»)
+    property var estados: ({})           // modelo → resultado de la prueba diaria («Lento: tardó 20 s»)
     function proveedorDe(id) { return id === "local" ? "Este equipo" : (grupos[id] || ""); }
     function colorGrupo(g) { return g === "Google" ? Paleta.acento2 : g === "Groq" ? Paleta.acento : EstiloPanel.tenue; }
     property string modeloElegido: "auto"
     property string esfuerzo: "bajo"
     function tituloModelo(id) { return nombreModelo(id).split(" · ")[0]; }
-    function notaModelo(id) { const p = nombreModelo(id).split(" · "); return p.length > 1 ? p[1].charAt(0).toUpperCase() + p[1].slice(1) : ""; }
+    function notaModelo(id) { if (estados[id]) return estados[id]; const p = nombreModelo(id).split(" · "); return p.length > 1 ? p[1].charAt(0).toUpperCase() + p[1].slice(1) : ""; }
     function nombreModelo(id) {
         const n = { "auto": "Auto · el mejor disponible", "local": "Local · privado, lento",
                     "openai/gpt-oss-120b": "GPT-OSS 120B · el más listo", "qwen/qwen3.8-27b": "Qwen 3.8 27B · equilibrado",
@@ -45,7 +46,7 @@ Superpuesta {
         return n[id] || nombres[id] || id;
     }
     function leerOpciones(texto) {
-        try { const o = JSON.parse(texto); modelos = o.modelos; grupos = o.grupos || {}; nombres = o.nombres || {}; modeloElegido = o.modelo; esfuerzo = o.esfuerzo;
+        try { const o = JSON.parse(texto); modelos = o.modelos; grupos = o.grupos || {}; nombres = o.nombres || {}; estados = o.estados || {}; modeloElegido = o.modelo; esfuerzo = o.esfuerzo;
               if (o.permisos) permisos = o.permisos; } catch (e) {}
     }
     // Permisos del agente: cuánto hace sin preguntarte (~/.config/ia/permisos.json)
@@ -272,6 +273,7 @@ Superpuesta {
                     color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 }
                     text: calentador.running ? "Despertando al asistente… la primera vez tarda alrededor de un minuto"
                         : ag.pensando ? "Pensando…" : ag.escuchando ? "Escuchando… pulsa el micrófono para terminar"
+                        : ag.privado && ag.modeloElegido !== "local" ? "Modelo local · la privacidad activa apaga la nube"
                         : ag.tituloModelo(ag.modeloElegido) + (ag.modeloElegido !== "local" ? " · esfuerzo " + ({ bajo: "rápido", medio: "medio", alto: "a fondo" })[ag.esfuerzo] : "")
                 }
             }
@@ -371,13 +373,14 @@ Superpuesta {
                                     ColumnLayout {
                                         Layout.fillWidth: true; spacing: 1
                                         Text { text: ag.tituloModelo(opcionModelo.modelData); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold } }
-                                        Text { Layout.fillWidth: true; visible: text !== ""; text: ag.notaModelo(opcionModelo.modelData); elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                                        Text { Layout.fillWidth: true; visible: text !== ""; text: ag.notaModelo(opcionModelo.modelData); elide: Text.ElideRight
+                                            color: text.startsWith("Falló") ? Paleta.peligro : text.startsWith("Lento") || text.startsWith("Va con") ? Paleta.aviso : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
                                     }
                                     Text { visible: opcionModelo.elegido; text: "✓"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
                                 }
                             }
                             ToolTip.visible: hovered && !popup.visible; ToolTip.delay: 500
-                            ToolTip.text: "Modelo del asistente. Si se agota su límite gratuito, usa los demás de respaldo."
+                            ToolTip.text: "Modelo del asistente, del que mejor responde al que peor (se prueban una vez al día). Si uno falla, se reintenta con la clave de respaldo y luego con los demás; en el chat verás cada cambio."
                         }
                         Etiqueta { text: "ESFUERZO"; Layout.topMargin: 4 }
                         // esfuerzo: control segmentado
