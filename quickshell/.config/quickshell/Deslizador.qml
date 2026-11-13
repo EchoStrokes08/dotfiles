@@ -9,7 +9,7 @@ RowLayout {
     property string icono: ""
     property string etiqueta: ""            // nombre a la izquierda (volumen por app)
     property bool apagado: false
-    property color acento: Paleta.naranja
+    property color acento: Paleta.acento
     signal movido(real v)
     signal iconoPulsado()
     spacing: 10
@@ -18,15 +18,15 @@ RowLayout {
 
     // Icono en una pastilla (clic = silenciar)
     Rectangle {
-        implicitWidth: 32; implicitHeight: 32; radius: 11
+        implicitWidth: 32; implicitHeight: 32; radius: 12
         color: zonaIcono.containsMouse ? Qt.alpha(raiz.tono, .26) : Qt.alpha(raiz.tono, raiz.apagado ? .08 : .15)
         border { width: 1; color: Qt.alpha(raiz.tono, .28) }
-        Behavior on color { ColorAnimation { duration: 140 } }
+        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
         Text {
             anchors.centerIn: parent
             text: raiz.icono
             color: raiz.tono
-            font { family: Paleta.fuente; pixelSize: 15 }
+            font { family: Paleta.fuente; pixelSize: 14 }
         }
         MouseArea { id: zonaIcono; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: raiz.iconoPulsado() }
     }
@@ -46,9 +46,9 @@ RowLayout {
             id: carril
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width; height: zona.containsMouse || zona.pressed ? 10 : 8; radius: height / 2
-            color: Qt.alpha(Paleta.texto, 0.10)
-            border { width: 1; color: Qt.alpha(Paleta.texto, .05) }
-            Behavior on height { NumberAnimation { duration: 120 } }
+            color: EstiloPanel.rellenoActivo
+            border { width: 1; color: EstiloPanel.relleno }
+            Behavior on height { NumberAnimation { duration: EstiloPanel.rapido } }
             RectangularShadow {   // resplandor bajo la parte llena
                 width: relleno.width; height: parent.height
                 visible: EstiloPanel.efectos && !raiz.apagado && raiz.v > 0
@@ -73,7 +73,7 @@ RowLayout {
             color: "white"
             border { width: 3; color: raiz.tono }
             scale: zona.pressed ? 1.2 : zona.containsMouse ? 1.1 : 1
-            Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutBack } }
+            Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutBack } }
         }
         MouseArea {
             id: zona

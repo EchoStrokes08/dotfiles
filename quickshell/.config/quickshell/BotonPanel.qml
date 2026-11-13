@@ -6,7 +6,7 @@ Button {
     id: b
     property bool destacado: false
     property string simbolo: ""
-    property color tinte: Paleta.naranja
+    property color tinte: Paleta.acento
     Layout.fillWidth: true
     Layout.minimumWidth: 0
     Layout.preferredWidth: 1
@@ -17,8 +17,8 @@ Button {
     Accessible.name: text
     opacity: enabled ? 1 : .42
     scale: down ? .965 : 1
-    Behavior on scale { NumberAnimation { duration: EstiloPanel.breve; easing.type: Easing.OutCubic } }
-    Behavior on opacity { NumberAnimation { duration: EstiloPanel.breve } }
+    Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
+    Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
     background: FondoBoton {
         tinte: b.tinte
         destacado: b.destacado
@@ -39,8 +39,8 @@ Button {
                 visible: b.simbolo !== ""
                 text: b.simbolo
                 color: b.destacado || b.hovered ? Qt.lighter(b.tinte, 1.08) : Qt.alpha(b.tinte, .85)
-                font { family: Paleta.fuente; pixelSize: 15 }
-                Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+                font { family: Paleta.fuente; pixelSize: 14 }
+                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
@@ -50,7 +50,7 @@ Button {
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
                 font { family: EstiloPanel.fuente; pixelSize: 12; weight: b.destacado ? Font.DemiBold : Font.Medium }
-                Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
             }
         }
     }

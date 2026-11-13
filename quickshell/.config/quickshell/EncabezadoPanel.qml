@@ -8,7 +8,7 @@ RowLayout {
     property string seccion: ""
     property string titulo: ""
     property string simbolo: ""
-    property color tinte: Paleta.naranja
+    property color tinte: Paleta.acento
     signal cerrar()
     Layout.fillWidth: true
     implicitHeight: 64
@@ -20,13 +20,13 @@ RowLayout {
         RectangularShadow {
             anchors.fill: parent
             visible: EstiloPanel.efectos
-            radius: 17
+            radius: 16
             offset.y: 6; blur: 24; spread: -6
             color: Qt.alpha(cabecera.tinte, .45)
         }
         Rectangle {
             anchors.fill: parent
-            radius: 17
+            radius: 16
             gradient: Gradient {
                 orientation: Gradient.Vertical
                 GradientStop { position: 0; color: Qt.alpha(Qt.lighter(cabecera.tinte, 1.15), .42) }
@@ -47,7 +47,7 @@ RowLayout {
             anchors.centerIn: parent
             text: cabecera.simbolo
             color: Qt.lighter(cabecera.tinte, 1.25)
-            font { family: Paleta.fuente; pixelSize: 25 }
+            font { family: Paleta.fuente; pixelSize: 26 }
         }
     }
     ColumnLayout {
@@ -55,7 +55,7 @@ RowLayout {
         spacing: 2
         RowLayout {
             spacing: 7
-            Rectangle { width: 6; height: 6; radius: 3; color: cabecera.tinte }
+            Rectangle { width: 6; height: 6; radius: height / 2; color: cabecera.tinte }
             Text { Layout.fillWidth: true; text: cabecera.seccion.toUpperCase(); elide: Text.ElideRight; color: cabecera.tinte; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 } }
         }
         Text {
@@ -77,19 +77,19 @@ RowLayout {
         ToolTip.text: "Cerrar · Esc"
         ToolTip.delay: 500
         scale: down ? .92 : 1
-        Behavior on scale { NumberAnimation { duration: EstiloPanel.breve } }
+        Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido } }
         background: Rectangle {
             radius: width / 2
-            color: cerrar.hovered ? Qt.alpha(Paleta.rojo, .20) : Qt.alpha(Paleta.texto, .06)
-            border { width: cerrar.activeFocus ? 2 : 1; color: cerrar.activeFocus ? cabecera.tinte : cerrar.hovered ? Qt.alpha(Paleta.rojo, .55) : Qt.alpha(Paleta.texto, .10) }
-            Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+            color: cerrar.hovered ? Qt.alpha(Paleta.peligro, .20) : EstiloPanel.rellenoActivo
+            border { width: cerrar.activeFocus ? 2 : 1; color: cerrar.activeFocus ? cabecera.tinte : cerrar.hovered ? Qt.alpha(Paleta.peligro, .55) : EstiloPanel.borde }
+            Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
         }
         contentItem: Text {
             text: "󰅖"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            color: cerrar.hovered ? Paleta.rojo : EstiloPanel.tenue
-            font { family: Paleta.fuente; pixelSize: 17 }
+            color: cerrar.hovered ? Paleta.peligro : EstiloPanel.tenue
+            font { family: Paleta.fuente; pixelSize: 16 }
         }
         onClicked: cabecera.cerrar()
     }

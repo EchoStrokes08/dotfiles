@@ -20,11 +20,11 @@ Item {
         anchors.fill: parent
         visible: img.status !== Image.Ready
         radius: ia.lado * .3
-        color: Qt.alpha(Paleta.azul, .2)
+        color: Qt.alpha(Paleta.acento2, .2)
         Text {
             anchors.centerIn: parent
             text: (ia.entrada?.name || ia.app?.nombre || "?").charAt(0).toUpperCase()
-            color: Paleta.azul
+            color: Paleta.acento2
             font { family: EstiloPanel.fuente; pixelSize: ia.lado * .55; bold: true }
         }
     }

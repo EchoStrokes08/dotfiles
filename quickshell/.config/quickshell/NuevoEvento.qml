@@ -23,7 +23,7 @@ Rectangle {
     visible: abierto
     radius: 12
     color: Qt.alpha(Paleta.fondo, .97)
-    border { width: 1; color: Qt.alpha(Paleta.naranja, .35) }
+    border { width: 1; color: Qt.alpha(Paleta.acento, .35) }
     MouseArea { anchors.fill: parent }        // que los clics no lleguen al calendario de debajo
 
     function abrir() {
@@ -49,7 +49,7 @@ Rectangle {
             Layout.fillWidth: true
             text: "Nuevo · " + Eventos.diaTexto(n.fecha)
             elide: Text.ElideRight
-            color: Paleta.naranja
+            color: Paleta.acento
             font { family: Paleta.fuente; pixelSize: 12; bold: true }
         }
         Text {
@@ -76,8 +76,8 @@ Rectangle {
                     Layout.fillWidth: true
                     implicitHeight: 24
                     radius: 8
-                    color: activo ? Qt.alpha(Paleta.naranja, .25) : Qt.alpha(Paleta.texto, .05)
-                    border { width: 1; color: activo ? Paleta.naranja : "transparent" }
+                    color: activo ? Qt.alpha(Paleta.acento, .25) : EstiloPanel.relleno
+                    border { width: 1; color: activo ? Paleta.acento : "transparent" }
                     Text {
                         anchors.centerIn: parent
                         text: modelData
@@ -107,14 +107,14 @@ Rectangle {
                 implicitHeight: 32
                 placeholderText: "hora (vacío = todo el día)"
                 font.pixelSize: 11
-                tinte: n.horaNormal === "?" ? Paleta.rojo : Paleta.naranja
+                tinte: n.horaNormal === "?" ? Paleta.peligro : Paleta.acento
                 onAccepted: n.guardar()
                 Keys.onEscapePressed: n.cerrar()
             }
             Rectangle {   // duración: clic = siguiente, derecho = anterior
                 visible: n.horaNormal !== "" && n.horaNormal !== "?"
-                implicitWidth: 52; implicitHeight: 32; radius: 10
-                color: Qt.alpha(Paleta.texto, .05)
+                implicitWidth: 52; implicitHeight: 32; radius: 12
+                color: EstiloPanel.relleno
                 Text {
                     anchors.centerIn: parent
                     text: n.minutos < 60 ? n.minutos + " min" : (n.minutos / 60) + " h"
@@ -146,8 +146,8 @@ Rectangle {
                 MouseArea { id: diaRaton; anchors.fill: parent; hoverEnabled: true }
             }
             Rectangle {
-                implicitWidth: 74; implicitHeight: 26; radius: 9
-                color: n.valido ? Paleta.naranja : Qt.alpha(Paleta.texto, .08)
+                implicitWidth: 74; implicitHeight: 26; radius: 12
+                color: n.valido ? Paleta.acento : EstiloPanel.rellenoActivo
                 Text {
                     anchors.centerIn: parent
                     text: "Guardar"

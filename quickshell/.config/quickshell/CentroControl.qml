@@ -86,9 +86,9 @@ PanelWindow {
         width: 420
         anchors { top: parent.top; bottom: parent.bottom; topMargin: 8; bottomMargin: 8 }
         x: ventana.abierto ? parent.width - width - 8 : parent.width + 10
-        Behavior on x { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
+        Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
         color: "transparent"
-        FondoPanel { anchors.fill: parent; radio: 22 }
+        FondoPanel { anchors.fill: parent; radio: 24 }
         MouseArea { anchors.fill: parent }
         focus: ventana.abierto
         Keys.onEscapePressed: ventana.abierto = false
@@ -102,36 +102,36 @@ PanelWindow {
                 Layout.fillWidth: true
                 spacing: 12
                 Rectangle {
-                    implicitWidth: 40; implicitHeight: 40; radius: 13
+                    implicitWidth: 40; implicitHeight: 40; radius: 12
                     gradient: Gradient {
-                        GradientStop { position: 0; color: Qt.alpha(Qt.lighter(Paleta.naranja, 1.15), .40) }
-                        GradientStop { position: 1; color: Qt.alpha(Paleta.naranja, .12) }
+                        GradientStop { position: 0; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.15), .40) }
+                        GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .12) }
                     }
-                    border { width: 1; color: Qt.alpha(Paleta.naranja, .5) }
-                    Text { anchors.centerIn: parent; text: ventana.g(0xF0493); color: Qt.lighter(Paleta.naranja, 1.2); font { family: Paleta.fuente; pixelSize: 19 } }
+                    border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
+                    Text { anchors.centerIn: parent; text: ventana.g(0xF0493); color: Qt.lighter(Paleta.acento, 1.2); font { family: Paleta.fuente; pixelSize: 20 } }
                 }
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 0
                     Text {
                         text: relojCC.date.toLocaleDateString(Qt.locale("es_ES"), "dddd d 'de' MMMM").toUpperCase()
-                        color: Paleta.naranja
+                        color: Paleta.acento
                         font { family: EstiloPanel.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 }
                     }
                     Text {
                         Layout.fillWidth: true
                         text: "Centro de control"
                         color: Paleta.texto
-                        font { family: EstiloPanel.fuente; pixelSize: 19; weight: Font.DemiBold }
+                        font { family: EstiloPanel.fuente; pixelSize: 20; weight: Font.DemiBold }
                     }
                 }
                 Rectangle {
                     visible: Notificaciones.lista.length > 0
-                    implicitWidth: textoBorrar.implicitWidth + 24; implicitHeight: 30; radius: 15
-                    color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.rojo, 0.22) : Qt.alpha(Paleta.texto, 0.06)
-                    border { width: 1; color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.rojo, .5) : Qt.alpha(Paleta.texto, .1) }
-                    Behavior on color { ColorAnimation { duration: 140 } }
-                    Text { id: textoBorrar; anchors.centerIn: parent; text: ventana.g(0xF0A7A) + "  Borrar todo"; color: zonaBorrar.containsMouse ? Paleta.rojo : Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
+                    implicitWidth: textoBorrar.implicitWidth + 24; implicitHeight: 30; radius: height / 2
+                    color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.peligro, 0.22) : EstiloPanel.rellenoActivo
+                    border { width: 1; color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.peligro, .5) : EstiloPanel.borde }
+                    Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                    Text { id: textoBorrar; anchors.centerIn: parent; text: ventana.g(0xF0A7A) + "  Borrar todo"; color: zonaBorrar.containsMouse ? Paleta.peligro : Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                     MouseArea { id: zonaBorrar; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Notificaciones.borrarTodo() }
                 }
             }
@@ -161,11 +161,11 @@ PanelWindow {
                         Layout.fillWidth: true
                         implicitHeight: 70
                         scale: zonaBoton.pressed ? .94 : 1
-                        Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                        Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
                         FondoBoton {
                             anchors.fill: parent
                             radio: 16
-                            tinte: Paleta.naranja
+                            tinte: Paleta.acento
                             destacado: boton.encendido
                             encima: zonaBoton.containsMouse
                         }
@@ -175,9 +175,9 @@ PanelWindow {
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: ventana.g(boton.modelData.icono)
-                                color: boton.encendido ? Qt.lighter(Paleta.naranja, 1.2) : Paleta.texto
-                                font { family: Paleta.fuente; pixelSize: 21 }
-                                Behavior on color { ColorAnimation { duration: 150 } }
+                                color: boton.encendido ? Qt.lighter(Paleta.acento, 1.2) : Paleta.texto
+                                font { family: Paleta.fuente; pixelSize: 20 }
+                                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                             }
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
@@ -244,14 +244,14 @@ PanelWindow {
                         Rectangle {
                             required property var modelData
                             readonly property bool actual: modelData === ventana.salida
-                            width: filaSalida.implicitWidth + 22; height: 28; radius: 14
-                            color: actual ? Qt.alpha(Paleta.naranja, 0.22) : Qt.alpha(Paleta.texto, zonaSalida.containsMouse ? 0.10 : 0.05)
-                            border { width: 1; color: actual ? Qt.alpha(Paleta.naranja, .55) : Qt.alpha(Paleta.texto, .08) }
+                            width: filaSalida.implicitWidth + 22; height: 28; radius: height / 2
+                            color: actual ? Qt.alpha(Paleta.acento, 0.22) : Qt.alpha(Paleta.texto, zonaSalida.containsMouse ? 0.10 : 0.05)
+                            border { width: 1; color: actual ? Qt.alpha(Paleta.acento, .55) : EstiloPanel.borde }
                             Row {
                                 id: filaSalida
                                 anchors.centerIn: parent
                                 spacing: 6
-                                Text { text: ventana.iconoSalida(modelData); color: actual ? Paleta.naranja : Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
+                                Text { text: ventana.iconoSalida(modelData); color: actual ? Paleta.acento : Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
                                 Text {
                                     text: (modelData.nickname || modelData.description || modelData.name).replace(/ (Analog|Digital) Stereo$/, "")
                                     color: actual ? Paleta.texto : Paleta.gris
@@ -302,7 +302,7 @@ PanelWindow {
                 spacing: 10
                 Text {
                     text: ventana.g(Notificaciones.noMolestar ? 0xF009B : 0xF009A)
-                    color: Notificaciones.noMolestar ? Paleta.naranja : Paleta.gris
+                    color: Notificaciones.noMolestar ? Paleta.acento : Paleta.gris
                     font { family: Paleta.fuente; pixelSize: 16 }
                 }
                 Text {
@@ -313,7 +313,7 @@ PanelWindow {
                 }
                 Interruptor {
                     activo: Notificaciones.manual
-                    acento: Paleta.naranja
+                    acento: Paleta.acento
                     onAlternado: Notificaciones.alternarNoMolestar()
                 }
             }
@@ -325,11 +325,11 @@ PanelWindow {
                 Text { text: "NOTIFICACIONES"; color: Paleta.gris; font { family: EstiloPanel.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
                 Rectangle {
                     visible: Notificaciones.lista.length > 0
-                    implicitWidth: Math.max(20, cuenta.implicitWidth + 12); implicitHeight: 18; radius: 9
-                    color: Qt.alpha(Paleta.naranja, .2)
-                    Text { id: cuenta; anchors.centerIn: parent; text: Notificaciones.lista.length; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
+                    implicitWidth: Math.max(20, cuenta.implicitWidth + 12); implicitHeight: 18; radius: height / 2
+                    color: Qt.alpha(Paleta.acento, .2)
+                    Text { id: cuenta; anchors.centerIn: parent; text: Notificaciones.lista.length; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: Qt.alpha(Paleta.texto, 0.08) }
+                Rectangle { Layout.fillWidth: true; height: 1; color: EstiloPanel.rellenoActivo }
             }
             ListView {
                 Layout.fillWidth: true

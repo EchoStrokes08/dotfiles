@@ -19,7 +19,6 @@ Superpuesta {
     anchoTarjeta: Math.min(900, (screen?.width ?? 1280) - 40)
     alturaRelativa: 0.07
     opacidadTarjeta: 0.96
-    acentoPanel: Paleta.verde
 
     readonly property string script: Quickshell.env("HOME") + "/.config/hypr/scripts/movil.py"
     property var d: null
@@ -73,34 +72,21 @@ Superpuesta {
     }
 
     // ── piezas ───────────────────────────────────────────────────────────
-    component Boton: Button {
-        id: bt
-        property bool destacado: false
-        property color acento: Paleta.naranja
-        implicitHeight: 34
-        leftPadding: 14; rightPadding: 14
-        hoverEnabled: true
-        scale: down ? .96 : 1
-        Behavior on scale { NumberAnimation { duration: EstiloPanel.breve; easing.type: Easing.OutCubic } }
-        background: FondoBoton { tinte: bt.acento; destacado: bt.destacado; encima: bt.hovered; pulsado: bt.down; foco: bt.activeFocus; radio: 10 }
-        contentItem: Text { text: bt.text; color: !bt.enabled ? Paleta.gris : bt.destacado || bt.hovered ? Paleta.texto : Qt.tint(Paleta.texto, Qt.alpha(Paleta.fondo, .2)); horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
-    }
-    component Etiqueta: Text { color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
     component Accion: Rectangle {
         id: ac
         property string glifo: "f011c"
         property string texto: ""
-        property color acento: Paleta.naranja
+        property color acento: Paleta.acento
         signal pulsado()
-        Layout.fillWidth: true; implicitHeight: 74; radius: 14
+        Layout.fillWidth: true; implicitHeight: 74; radius: 16
         color: Qt.alpha(acento, za.containsMouse ? .16 : .06)
         border { width: 1; color: Qt.alpha(acento, za.containsMouse ? .55 : .15) }
         scale: za.pressed ? .96 : 1
         Behavior on scale { NumberAnimation { duration: 90 } }
-        Behavior on color { ColorAnimation { duration: 140 } }
+        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
         Column {
             anchors.centerIn: parent; spacing: 6
-            Text { anchors.horizontalCenter: parent.horizontalCenter; text: mv.g(ac.glifo); color: ac.acento; font { family: Paleta.fuente; pixelSize: 22 } }
+            Text { anchors.horizontalCenter: parent.horizontalCenter; text: mv.g(ac.glifo); color: ac.acento; font { family: Paleta.fuente; pixelSize: 20 } }
             Text { anchors.horizontalCenter: parent.horizontalCenter; text: ac.texto; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
         }
         MouseArea { id: za; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; enabled: !!mv.d?.conectado; onClicked: ac.pulsado() }
@@ -114,25 +100,25 @@ Superpuesta {
         RowLayout {
             Layout.fillWidth: true; spacing: 14
             Rectangle {
-                implicitWidth: 50; implicitHeight: 50; radius: 15
+                implicitWidth: 50; implicitHeight: 50; radius: 16
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Qt.alpha(Paleta.verde, .35) }
-                    GradientStop { position: 1; color: Qt.alpha(Paleta.azul, .3) }
+                    GradientStop { position: 0; color: Qt.alpha(Paleta.exito, .35) }
+                    GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .3) }
                 }
                 Text { anchors.centerIn: parent; text: mv.g("f011c"); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 26 } }
                 // pulso: conectado
                 Rectangle {
                     visible: !!mv.d?.conectado
                     anchors { right: parent.right; bottom: parent.bottom; margins: -2 }
-                    width: 14; height: 14; radius: 7; color: Paleta.verde; border { width: 2; color: Paleta.fondo }
+                    width: 14; height: 14; radius: height / 2; color: Paleta.exito; border { width: 2; color: Paleta.fondo }
                     SequentialAnimation on scale { loops: Animation.Infinite; running: mv.abierto; NumberAnimation { to: 1.25; duration: 900 } NumberAnimation { to: 1; duration: 900 } }
                 }
             }
             ColumnLayout {
                 spacing: 1; Layout.fillWidth: true
-                Etiqueta { text: "PC + MÓVIL"; color: Paleta.verde }
-                Text { text: mv.d?.conectado ? mv.d.nombre : "Móvil sin conectar"; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 22; bold: true } }
+                Etiqueta { text: "PC + MÓVIL"; color: Paleta.exito }
+                Text { text: mv.d?.conectado ? mv.d.nombre : "Móvil sin conectar"; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
                 Text {
                     color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
                     text: !mv.d ? "Buscando…" : !mv.d.conectado ? (mv.d.emparejado ? "Emparejado, pero no está en la misma red (o KDE Connect está cerrado en el móvil)" : "Aún no hay un móvil emparejado")
@@ -143,23 +129,23 @@ Superpuesta {
                 visible: (mv.d?.bateria ?? -1) >= 0
                 implicitWidth: 62; implicitHeight: 62; grosor: 5
                 valor: (mv.d?.bateria ?? 0) / 100
-                color: mv.d?.cargando ? Paleta.verde : (mv.d?.bateria ?? 100) <= 20 ? Paleta.rojo : Paleta.azul
+                color: mv.d?.cargando ? Paleta.exito : (mv.d?.bateria ?? 100) <= 20 ? Paleta.peligro : Paleta.acento2
                 texto: (mv.d?.bateria ?? 0) + "%"
                 etiqueta: mv.d?.cargando ? "carga" : ""
             }
-            Boton { text: "󰅖"; Accessible.name: "Cerrar"; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; onClicked: mv.abierto = false; background: FondoBoton { tinte: Paleta.rojo; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
+            BotonCompacto { text: "󰅖"; Accessible.name: "Cerrar"; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; onClicked: mv.abierto = false; background: FondoBoton { tinte: Paleta.peligro; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
         }
 
         // ── responder (a una notificación del PC con respuesta en línea, o del móvil) ──
         Rectangle {
             visible: !!mv.notiPc || !!mv.respondiendo
-            Layout.fillWidth: true; implicitHeight: comp.implicitHeight + 28; radius: 14
-            color: Qt.alpha(Paleta.verde, .08); border { width: 1; color: Qt.alpha(Paleta.verde, .45) }
+            Layout.fillWidth: true; implicitHeight: comp.implicitHeight + 28; radius: 16
+            color: Qt.alpha(Paleta.exito, .08); border { width: 1; color: Qt.alpha(Paleta.exito, .45) }
             readonly property var nm: (mv.d?.notificaciones ?? []).find(n => n.id === mv.respondiendo) ?? null
             ColumnLayout {
                 id: comp
                 anchors { left: parent.left; right: parent.right; top: parent.top; margins: 14 } spacing: 8
-                Etiqueta { text: "RESPONDER · " + (mv.notiPc?.appName || parent.parent.nm?.app || "").toUpperCase(); color: Paleta.verde }
+                Etiqueta { text: "RESPONDER · " + (mv.notiPc?.appName || parent.parent.nm?.app || "").toUpperCase(); color: Paleta.exito }
                 Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
                     text: mv.notiPc?.summary || parent.parent.nm?.titulo || "" }
                 Text { Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 3; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 }
@@ -171,13 +157,13 @@ Superpuesta {
                         Layout.fillWidth: true
                         placeholderText: mv.notiPc?.inlineReplyPlaceholder || "Escribe tu respuesta y pulsa Enter…"
                         color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13 }
-                        background: Rectangle { radius: 9; color: Qt.alpha(Paleta.texto, .06); border { width: 1; color: Qt.alpha(Paleta.verde, respuesta.activeFocus ? .6 : .15) } }
+                        background: Rectangle { radius: 12; color: EstiloPanel.borde; border { width: 1; color: Qt.alpha(Paleta.exito, respuesta.activeFocus ? .6 : .15) } }
                         Keys.onReturnPressed: mv.enviarRespuesta()
                         Keys.onEnterPressed: mv.enviarRespuesta()
                         Keys.onEscapePressed: { mv.notiPc = null; mv.respondiendo = ""; }
                     }
-                    Boton { text: "Enviar ↵"; destacado: true; acento: Paleta.verde; enabled: respuesta.text.trim().length > 0; onClicked: mv.enviarRespuesta() }
-                    Boton { text: "Cancelar"; acento: Paleta.gris; onClicked: { mv.notiPc = null; mv.respondiendo = ""; } }
+                    BotonCompacto { text: "Enviar ↵"; destacado: true; acento: Paleta.exito; enabled: respuesta.text.trim().length > 0; onClicked: mv.enviarRespuesta() }
+                    BotonCompacto { text: "Cancelar"; acento: Paleta.gris; onClicked: { mv.notiPc = null; mv.respondiendo = ""; } }
                 }
             }
         }
@@ -185,12 +171,12 @@ Superpuesta {
         // ── acciones ─────────────────────────────────────────────────────
         RowLayout {
             Layout.fillWidth: true; spacing: 10
-            Accion { glifo: "f009e"; texto: "Sonar"; acento: Paleta.amarillo; onPulsado: Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "sonar"]) }
-            Accion { glifo: "f0339"; texto: "Abrir lo copiado"; acento: Paleta.azul; onPulsado: mv.orden(["enlace"]) }
-            Accion { glifo: "f0552"; texto: "Enviar archivo"; acento: Paleta.naranja; onPulsado: { Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "elegir"]); mv.abierto = false; } }
-            Accion { glifo: "f0100"; texto: "Captura al móvil"; acento: Paleta.morado; onPulsado: { mv.abierto = false; capturaLuego.start(); } }
-            Accion { glifo: "f024b"; texto: "Sus archivos"; acento: Paleta.verde; onPulsado: { Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "navegar"]); mv.abierto = false; } }
-            Accion { glifo: "f0361"; texto: "Mensajes (SMS)"; acento: Paleta.azul; onPulsado: { Quickshell.execDetached(["kdeconnect-sms"]); mv.abierto = false; } }
+            Accion { glifo: "f009e"; texto: "Sonar"; acento: Paleta.aviso; onPulsado: Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "sonar"]) }
+            Accion { glifo: "f0339"; texto: "Abrir lo copiado"; acento: Paleta.acento2; onPulsado: mv.orden(["enlace"]) }
+            Accion { glifo: "f0552"; texto: "Enviar archivo"; acento: Paleta.acento; onPulsado: { Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "elegir"]); mv.abierto = false; } }
+            Accion { glifo: "f0100"; texto: "Captura al móvil"; acento: Paleta.acento; onPulsado: { mv.abierto = false; capturaLuego.start(); } }
+            Accion { glifo: "f024b"; texto: "Sus archivos"; acento: Paleta.exito; onPulsado: { Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", "navegar"]); mv.abierto = false; } }
+            Accion { glifo: "f0361"; texto: "Mensajes (SMS)"; acento: Paleta.acento2; onPulsado: { Quickshell.execDetached(["kdeconnect-sms"]); mv.abierto = false; } }
         }
         Timer { id: capturaLuego; interval: 450; onTriggered: Quickshell.execDetached([mv.script, "captura"]) }   // sin el panel en la foto
 
@@ -202,15 +188,15 @@ Superpuesta {
                 Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 3; spacing: 8
                 RowLayout {
                     Etiqueta { text: "AVISOS DEL MÓVIL" }
-                    Rectangle { visible: (mv.d?.notificaciones?.length ?? 0) > 0; implicitWidth: cn.implicitWidth + 12; implicitHeight: 16; radius: 8; color: Qt.alpha(Paleta.naranja, .2)
-                        Text { id: cn; anchors.centerIn: parent; text: mv.d?.notificaciones?.length ?? 0; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true } } }
+                    Rectangle { visible: (mv.d?.notificaciones?.length ?? 0) > 0; implicitWidth: cn.implicitWidth + 12; implicitHeight: 16; radius: 8; color: Qt.alpha(Paleta.acento, .2)
+                        Text { id: cn; anchors.centerIn: parent; text: mv.d?.notificaciones?.length ?? 0; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } } }
                 }
                 ListView {
                     id: avisos
                     Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 6
                     boundsBehavior: Flickable.StopAtBounds
                     model: mv.d?.notificaciones ?? []
-                    add: Transition { NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 220 } }
+                    add: Transition { NumberAnimation { property: "opacity"; from: 0; to: 1; duration: EstiloPanel.normal } }
                     delegate: Rectangle {
                         id: nt
                         required property var modelData
@@ -222,8 +208,8 @@ Superpuesta {
                             Item {
                                 implicitWidth: 30; implicitHeight: 30
                                 Image { anchors.fill: parent; visible: !!nt.modelData.icono; source: nt.modelData.icono ? "file://" + nt.modelData.icono : ""; sourceSize.width: 60; fillMode: Image.PreserveAspectFit; asynchronous: true }
-                                Rectangle { anchors.fill: parent; radius: 9; visible: !nt.modelData.icono; color: Qt.alpha(Paleta.verde, .15)
-                                    Text { anchors.centerIn: parent; text: (nt.modelData.app || "?").charAt(0).toUpperCase(); color: Paleta.verde; font { family: Paleta.fuente; pixelSize: 14; bold: true } } }
+                                Rectangle { anchors.fill: parent; radius: 12; visible: !nt.modelData.icono; color: Qt.alpha(Paleta.exito, .15)
+                                    Text { anchors.centerIn: parent; text: (nt.modelData.app || "?").charAt(0).toUpperCase(); color: Paleta.exito; font { family: Paleta.fuente; pixelSize: 14; bold: true } } }
                             }
                             ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 1
                                 Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12; bold: true }
@@ -231,15 +217,15 @@ Superpuesta {
                                 Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
                                     text: (nt.modelData.titulo ? nt.modelData.app + " · " : "") + nt.modelData.texto }
                             }
-                            Boton { visible: nt.modelData.responder; text: "Responder"; acento: Paleta.verde
+                            BotonCompacto { visible: nt.modelData.responder; text: "Responder"; acento: Paleta.exito
                                     onClicked: { mv.notiPc = null; mv.respondiendo = nt.modelData.id; respuesta.forceActiveFocus(); } }
-                            Boton { visible: nt.modelData.descartable; text: "✕"; implicitWidth: 32; acento: Paleta.gris; onClicked: mv.orden(["descartar", nt.modelData.id]) }
+                            BotonCompacto { visible: nt.modelData.descartable; text: "✕"; implicitWidth: 32; acento: Paleta.gris; onClicked: mv.orden(["descartar", nt.modelData.id]) }
                         }
                     }
                     ColumnLayout {
                         anchors.centerIn: parent; width: parent.width - 40; spacing: 6
                         visible: avisos.count === 0
-                        Text { Layout.alignment: Qt.AlignHCenter; text: mv.g("f009c"); color: Qt.alpha(Paleta.gris, .7); font { family: Paleta.fuente; pixelSize: 34 } }
+                        Text { Layout.alignment: Qt.AlignHCenter; text: mv.g("f009c"); color: Qt.alpha(Paleta.gris, .7); font { family: Paleta.fuente; pixelSize: 36 } }
                         Text { Layout.alignment: Qt.AlignHCenter; text: "Nada nuevo en el móvil"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
                         Text {
                             Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
@@ -254,16 +240,16 @@ Superpuesta {
                 // música del móvil
                 Rectangle {
                     visible: !!mv.d?.musica
-                    Layout.fillWidth: true; implicitHeight: 74; radius: 14
+                    Layout.fillWidth: true; implicitHeight: 74; radius: 16
                     gradient: Gradient { orientation: Gradient.Horizontal
-                        GradientStop { position: 0; color: Qt.alpha(Paleta.morado, .16) }
-                        GradientStop { position: 1; color: Qt.alpha(Paleta.azul, .08) } }
+                        GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .16) }
+                        GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .08) } }
                     RowLayout {
                         anchors { fill: parent; margins: 10 } spacing: 10
                         ClippingRectangle {
-                            implicitWidth: 52; implicitHeight: 52; radius: 10; color: Qt.alpha(Paleta.texto, .08)
+                            implicitWidth: 52; implicitHeight: 52; radius: 12; color: EstiloPanel.rellenoActivo
                             Image { anchors.fill: parent; source: mv.d?.musica?.portada ? (mv.d.musica.portada.startsWith("/") ? "file://" : "") + mv.d.musica.portada : ""; fillMode: Image.PreserveAspectCrop; asynchronous: true }
-                            Text { anchors.centerIn: parent; visible: !mv.d?.musica?.portada; text: mv.g("f075a"); color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 22 } }
+                            Text { anchors.centerIn: parent; visible: !mv.d?.musica?.portada; text: mv.g("f075a"); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 20 } }
                         }
                         ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 1
                             Etiqueta { text: "SUENA EN EL MÓVIL" }
@@ -274,7 +260,7 @@ Superpuesta {
                             model: [["f04ae", "Previous"], [mv.d?.musica?.reproduciendo ? "f03e4" : "f040a", "PlayPause"], ["f04ad", "Next"]]
                             Text {
                                 required property var modelData
-                                text: mv.g(modelData[0]); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 18 }
+                                text: mv.g(modelData[0]); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 16 }
                                 MouseArea { anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: mv.orden(["musica", parent.modelData[1]]) }
                             }
                         }
@@ -299,7 +285,7 @@ Superpuesta {
                     Layout.fillWidth: true; spacing: 8
                     Text { Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
                         text: (mv.d?.mandos_nuestros ?? 0) > 0 ? `${mv.d.mandos_nuestros} mandos del PC en el móvil: KDE Connect → «Ejecutar orden».` : "Controla el PC desde el móvil: diapositivas, música, bloquear…" }
-                    Boton { text: (mv.d?.mandos_nuestros ?? 0) > 0 ? "Actualizar mandos" : "Instalar mandos"; destacado: (mv.d?.mandos_nuestros ?? 0) === 0; onClicked: mv.orden(["comandos"]) }
+                    BotonCompacto { text: (mv.d?.mandos_nuestros ?? 0) > 0 ? "Actualizar mandos" : "Instalar mandos"; destacado: (mv.d?.mandos_nuestros ?? 0) === 0; onClicked: mv.orden(["comandos"]) }
                 }
             }
         }
@@ -307,8 +293,8 @@ Superpuesta {
         // ── pie ──────────────────────────────────────────────────────────
         RowLayout {
             Layout.fillWidth: true
-            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: mv.aviso; color: mv.aviso.startsWith("⚠") ? Paleta.rojo : Paleta.verde; font { family: Paleta.fuente; pixelSize: 11 } }
-            Boton { text: "Abrir KDE Connect"; acento: Paleta.gris; onClicked: { Quickshell.execDetached(["kdeconnect-app"]); mv.abierto = false; } }
+            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: mv.aviso; color: mv.aviso.startsWith("⚠") ? Paleta.peligro : Paleta.exito; font { family: Paleta.fuente; pixelSize: 11 } }
+            BotonCompacto { text: "Abrir KDE Connect"; acento: Paleta.gris; onClicked: { Quickshell.execDetached(["kdeconnect-app"]); mv.abierto = false; } }
         }
     }
 }

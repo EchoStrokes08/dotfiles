@@ -16,15 +16,15 @@ Superpuesta {
     RowLayout {
         width: parent.width
         spacing: 12
-        Text { Layout.leftMargin: 8; text: String.fromCodePoint(0xF039A); color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 18 } }
+        Text { Layout.leftMargin: 8; text: String.fromCodePoint(0xF039A); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
         TextInput {
             id: campo
             Layout.fillWidth: true
             Layout.preferredHeight: 36
             verticalAlignment: TextInput.AlignVCenter
             color: Paleta.texto
-            selectionColor: Qt.alpha(Paleta.naranja, 0.4)
-            font { family: Paleta.fuente; pixelSize: 15 }
+            selectionColor: Qt.alpha(Paleta.acento, 0.4)
+            font { family: Paleta.fuente; pixelSize: 14 }
             clip: true
             focus: true
             function guardar() {

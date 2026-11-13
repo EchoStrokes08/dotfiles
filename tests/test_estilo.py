@@ -1,0 +1,90 @@
+"""El sistema de diseño se cumple en todo el shell (escalas en quickshell/EstiloPanel.qml, docs/diseno.md).
+
+Falla si aparece un tamaño de letra, radio o duración fuera de escala, un color escrito a mano fuera de
+Paleta.qml, un nombre de color por tono (naranja, azul…) o una paleta de tema a la que le falte un color.
+"""
+import re
+import unittest
+from pathlib import Path
+
+RAIZ = Path(__file__).resolve().parent.parent
+QS = RAIZ / "quickshell/.config/quickshell"
+TEMA = RAIZ / "tema/.config/tema"
+COLORES = ["fondo", "texto", "acento", "acento2", "exito", "aviso", "peligro", "seleccion", "gris"]
+
+
+def escala(nombre):
+    texto = (QS / "EstiloPanel.qml").read_text()
+    m = re.search(rf"property var {nombre}:\s*\[([^\]]*)\]", texto)
+    return {float(x) for x in m.group(1).split(",")}
+
+
+def qml():
+    return [(p, p.read_text()) for p in sorted(QS.glob("*.qml"))]
+
+
+def literales(patron, texto):
+    """(número de línea, valor) de cada «propiedad: número» literal."""
+    for i, linea in enumerate(texto.splitlines(), 1):
+        for m in re.finditer(patron, linea):
+            yield i, float(m.group(1))
+
+
+class Escalas(unittest.TestCase):
+    def test_letra(self):
+        permitidos = escala("escalaLetra")
+        fuera = [f"{p.name}:{i} {v:g}" for p, t in qml()
+                 for i, v in literales(r"pixelSize:\s*(\d+(?:\.\d+)?)(?![\d.])", t) if v not in permitidos]
+        self.assertEqual(fuera, [], "tamaños de letra fuera de escala")
+
+    def test_radio(self):
+        permitidos = escala("escalaRadio")
+        fuera = [f"{p.name}:{i} {v:g}" for p, t in qml()
+                 for i, v in literales(r"(?<![\w.])radius:\s*(\d+(?:\.\d+)?)(?![\d.])", t) if v not in permitidos]
+        self.assertEqual(fuera, [], "radios fuera de escala (círculos y píldoras: height / 2)")
+
+    def test_duracion(self):
+        # Entre 100 y 499 ms son transiciones de interfaz: EstiloPanel.rapido / normal / lento.
+        # Más cortas (micro-efectos: cava, sacudida) o más largas (ambientales: fundidos del escritorio) se permiten.
+        fuera = [f"{p.name}:{i} {v:g}" for p, t in qml()
+                 for i, v in literales(r"duration:\s*(\d+)(?![\d.])", t) if 100 <= v < 500]
+        self.assertEqual(fuera, [], "duraciones de interfaz escritas a mano")
+
+
+class Colores(unittest.TestCase):
+    def test_sin_hex_fuera_de_paleta(self):
+        fuera = [f"{p.name}:{i}" for p, t in qml() if p.name != "Paleta.qml"
+                 for i, l in enumerate(t.splitlines(), 1) if re.search(r'"#[0-9a-fA-F]{6,8}"', l)]
+        self.assertEqual(fuera, [], "colores escritos a mano: van en Paleta.qml")
+
+    def test_nombres_por_funcion(self):
+        viejos = [f"{p.name}:{i}" for p, t in qml()
+                  for i, l in enumerate(t.splitlines(), 1)
+                  if re.search(r"Paleta\.(naranja|azul|verde|amarillo|rojo|morado)\b", l)]
+        self.assertEqual(viejos, [], "usa acento, acento2, exito, aviso o peligro")
+
+    def test_paletas_completas(self):
+        for carpeta in ("ayu", "ayu-claro", "plantillas"):
+            css = (TEMA / carpeta / "colores.css").read_text()
+            lua = (TEMA / carpeta / "hyprland.lua").read_text()
+            for nombre in COLORES:
+                self.assertRegex(css, rf"@define-color\s+{nombre}\s", f"{carpeta}/colores.css sin {nombre}")
+                self.assertRegex(lua, rf"\b{nombre}\s*=", f"{carpeta}/hyprland.lua sin {nombre}")
+
+    def test_paneles_no_translucidos(self):
+        # Por debajo de EstiloPanel.opacidadPanel se lee lo que hay detrás del panel
+        bajos = [f"{p.name}:{i}" for p, t in qml()
+                 for i, v in literales(r"opacidad(?:Tarjeta)?:\s*(0?\.\d+)", t) if v < 0.93]
+        self.assertEqual(bajos, [], "paneles por debajo de 0.93 de opacidad")
+
+
+class Componentes(unittest.TestCase):
+    def test_botones_compartidos(self):
+        # Un botón con estilo propio se define una vez (BotonPanel, BotonCompacto), no dentro de cada panel
+        locales = [f"{p.name}:{i}" for p, t in qml()
+                   for i, l in enumerate(t.splitlines(), 1) if re.search(r"component \w+:\s*Button\b", l)]
+        self.assertEqual(locales, [], "botones definidos dentro de un panel")
+
+
+if __name__ == "__main__":
+    unittest.main()

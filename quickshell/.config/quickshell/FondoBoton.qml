@@ -6,7 +6,7 @@ import QtQuick.Effects
 
 Item {
     id: f
-    property color tinte: Paleta.naranja
+    property color tinte: Paleta.acento
     property bool destacado: false
     property bool encima: false
     property bool pulsado: false
@@ -24,7 +24,7 @@ Item {
         blur: 20
         spread: -7
         color: Qt.alpha(f.tinte, f.encima ? .55 : .34)
-        Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
     }
     Rectangle {
         anchors.fill: parent
@@ -34,20 +34,20 @@ Item {
                 position: 0
                 color: f.destacado ? Qt.alpha(f.tinte, f.pulsado ? .30 : f.encima ? .44 : .34)
                      : Qt.alpha(f.encima ? Qt.tint(Paleta.texto, Qt.alpha(f.tinte, .25)) : Paleta.texto, f.pulsado ? .05 : f.encima ? .11 : .062)
-                Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
             }
             GradientStop {
                 position: 1
                 color: f.destacado ? Qt.alpha(f.tinte, f.encima ? .24 : .15)
                      : Qt.alpha(Paleta.texto, f.encima ? .055 : .022)
-                Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
             }
         }
         border.width: f.foco ? 2 : 1
         border.color: f.foco ? f.tinte
             : f.destacado ? Qt.alpha(f.tinte, f.encima ? .75 : .55)
             : Qt.alpha(f.encima ? f.tinte : Paleta.texto, f.encima ? .38 : .085)
-        Behavior on border.color { ColorAnimation { duration: EstiloPanel.breve } }
+        Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
     }
     // filo de luz superior
     Rectangle {

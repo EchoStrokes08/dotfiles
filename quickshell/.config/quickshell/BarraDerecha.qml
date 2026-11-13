@@ -60,10 +60,10 @@ RowLayout {
                 model: 10
                 Rectangle {
                     required property int index
-                    width: 3; radius: 1.5
+                    width: 3; radius: height / 2
                     height: 2 + (visual.valores[index] / 100) * 16
                     anchors.verticalCenter: parent.verticalCenter
-                    color: Qt.tint(Paleta.naranja, Qt.alpha(Paleta.amarillo, index / 12))
+                    color: Qt.tint(Paleta.acento, Qt.alpha(Paleta.aviso, index / 12))
                     Behavior on height { NumberAnimation { duration: 60 } }
                 }
             }
@@ -103,7 +103,7 @@ RowLayout {
         gestorAyuda: ayuda
         icono: derecha.g(modo !== "" ? 0xF044A : 0xF036C)
         texto: modo !== "" ? `${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, "0")}${modo === "gif" ? " GIF" : ""}` : "dictando"
-        color: Paleta.rojo
+        color: Paleta.peligro
         ayuda: modo !== "" ? "Grabando la pantalla · clic o SUPER+ALT+R para parar" : "Dictando · clic o SUPER+ALT+D para terminar"
         onClic: derecha.ejecutar(modo !== "" ? "~/.config/hypr/scripts/grabar.sh parar" : "~/.config/hypr/scripts/dictado.sh")
     }
@@ -165,7 +165,7 @@ RowLayout {
         gestorAyuda: ayuda
         icono: derecha.g(0xF011C)
         texto: carga >= 0 ? carga + "%" : ""
-        color: cargando ? Paleta.verde : carga >= 0 && carga <= 15 ? Paleta.rojo : Paleta.texto
+        color: cargando ? Paleta.exito : carga >= 0 && carga <= 15 ? Paleta.peligro : Paleta.texto
         ayuda: nombre + (cargando ? " · cargando" : "") + "\nClic: menú del móvil (SUPER+ALT+M) · clic derecho: hacer sonar"
         onClic: (b) => derecha.ejecutar("~/.config/hypr/scripts/movil.sh " + (b === Qt.RightButton ? "sonar" : "menu"))
     }
@@ -176,7 +176,7 @@ RowLayout {
         gestorAyuda: ayuda
         icono: derecha.g(0xF03D6)
         texto: Actualizaciones.total > 0 ? String(Actualizaciones.total) : "!"
-        color: Actualizaciones.noticias > 0 ? Paleta.rojo : Actualizaciones.vulnerables > 0 ? Paleta.amarillo : Paleta.texto
+        color: Actualizaciones.noticias > 0 ? Paleta.peligro : Actualizaciones.vulnerables > 0 ? Paleta.aviso : Paleta.texto
         ayuda: `${Actualizaciones.repos} de los repos · ${Actualizaciones.aur} del AUR`
                + (Actualizaciones.noticias > 0 ? `\n${Actualizaciones.noticias} noticia(s) de Arch sin leer (se muestran antes de actualizar)` : "")
                + (Actualizaciones.vulnerables > 0 ? `\n${Actualizaciones.vulnerables} con arreglos de seguridad` : "")
@@ -242,10 +242,10 @@ RowLayout {
                     Text {
                         text: modelData.texto
                         font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold }
-                        color: modelData.clase.includes("low") || modelData.clase.includes("critical") ? Paleta.rojo
-                             : modelData.clase.includes("charging") ? Paleta.amarillo
-                             : modelData.clase.includes("anc") ? Paleta.azul
-                             : modelData.clase.includes("transparency") ? Paleta.verde
+                        color: modelData.clase.includes("low") || modelData.clase.includes("critical") ? Paleta.peligro
+                             : modelData.clase.includes("charging") ? Paleta.aviso
+                             : modelData.clase.includes("anc") ? Paleta.acento2
+                             : modelData.clase.includes("transparency") ? Paleta.exito
                              : Paleta.texto
                     }
                 }
@@ -277,7 +277,7 @@ RowLayout {
         gestorAyuda: ayuda
         icono: mudo ? derecha.g(0xF075F) : derecha.g(vol < 0.34 ? 0xF057F : vol < 0.67 ? 0xF0580 : 0xF057E)
         texto: mudo ? "" : Math.round(vol * 100) + "%"
-        color: mudo ? Paleta.rojo : Paleta.texto
+        color: mudo ? Paleta.peligro : Paleta.texto
         ayuda: (salida?.description ?? "") + "\nClic: silenciar · Rueda: volumen"
         onClic: derecha.ejecutar("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")   // el OSD reacciona solo
         onRueda: (arriba) => derecha.ejecutar(arriba ? "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+" : "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-")
@@ -307,7 +307,7 @@ RowLayout {
         gestorAyuda: ayuda
         icono: derecha.g(tipo === "wifi" ? 0xF0928 : tipo === "ethernet" ? 0xF0200 : 0xF092D)
         texto: tipo === "" ? "sin red" : tipo === "wifi" ? nombre : ""
-        color: tipo === "" ? Paleta.rojo : Paleta.texto
+        color: tipo === "" ? Paleta.peligro : Paleta.texto
         ayuda: (detalle || "Sin conexión") + "\nClic: redes Wi-Fi · clic derecho: nmtui"
         onClic: (b) => derecha.ejecutar(b === Qt.RightButton ? "kitty -e nmtui" : "qs ipc call conexiones wifi")
     }
@@ -347,7 +347,7 @@ RowLayout {
         gestorAyuda: ayuda
         icono: derecha.g(cargando ? 0xF0084 : pct >= 95 ? 0xF0079 : 0xF007A + Math.max(0, Math.min(8, Math.floor(pct / 10) - 1)))
         texto: pct + "%"
-        color: cargando ? Paleta.verde : pct <= 15 ? Paleta.rojo : pct <= 30 ? Paleta.amarillo : Paleta.texto
+        color: cargando ? Paleta.exito : pct <= 15 ? Paleta.peligro : pct <= 30 ? Paleta.aviso : Paleta.texto
         ayuda: (cargando ? (bat?.timeToFull > 0 ? "Enchufada · llena en " + duracion(bat.timeToFull) : "Enchufada")
                          : (bat?.timeToEmpty > 0 ? "Quedan " + duracion(bat.timeToEmpty) : "Batería"))
              + (conservacion ? "\nModo conservación: carga hasta ~80 %" : "\nCarga completa (100 %)")
@@ -365,7 +365,7 @@ RowLayout {
         gestorAyuda: ayuda
         tamIcono: 16
         icono: derecha.g(perfil === PowerProfile.Performance ? 0xF04C5 : perfil === PowerProfile.PowerSaver ? 0xF0F86 : 0xF0F85)
-        color: perfil === PowerProfile.Performance ? Paleta.rojo : perfil === PowerProfile.PowerSaver ? Paleta.verde : Paleta.texto
+        color: perfil === PowerProfile.Performance ? Paleta.peligro : perfil === PowerProfile.PowerSaver ? Paleta.exito : Paleta.texto
         ayuda: "Modo de energía: " + (perfil === PowerProfile.Performance ? "rendimiento" : perfil === PowerProfile.PowerSaver ? "ahorro" : "equilibrado")
              + "\nClic: cambiar · SUPER+SHIFT+P"
         onClic: derecha.ejecutar("~/.config/hypr/scripts/modo-energia.sh")
@@ -378,7 +378,7 @@ RowLayout {
         icono: derecha.g(0xF0EE0)
         texto: Math.round(Sistema.cpu * 100) + "%"
         color: Paleta.gris
-        colorTexto: Sistema.cpu > 0.85 ? Paleta.rojo : Paleta.gris
+        colorTexto: Sistema.cpu > 0.85 ? Paleta.peligro : Paleta.gris
         onClic: derecha.ejecutar("kitty -e btop")
     }
     Modulo {
@@ -396,7 +396,7 @@ RowLayout {
         gestorAyuda: ayuda
         icono: derecha.g(0xF04FE)
         texto: Concentracion.texto()
-        color: Paleta.naranja
+        color: Paleta.acento
         ayuda: "Concentración: " + Concentracion.minutos + " min · apps que distraen escondidas\nClic: añadir tiempo o terminar"
         onClic: derecha.ejecutar("qs ipc call menu concentracion")
     }
@@ -423,7 +423,7 @@ RowLayout {
         gestorAyuda: ayuda
         tamIcono: 16
         icono: derecha.g(0xF0297)
-        color: activo ? Paleta.naranja : Paleta.gris
+        color: activo ? Paleta.acento : Paleta.gris
         ayuda: ayudaTexto
         onClic: Hyprland.dispatch("modo_juego.alternar() or hl.dsp.no_op()")
     }
@@ -439,7 +439,7 @@ RowLayout {
         tamIcono: 16
         icono: derecha.g(dnd ? 0xF009B : cuantas > 0 ? 0xF116B : 0xF009A)
         texto: !dnd && cuantas > 0 ? String(cuantas) : ""
-        color: dnd ? Paleta.gris : cuantas > 0 ? Paleta.naranja : Paleta.texto
+        color: dnd ? Paleta.gris : cuantas > 0 ? Paleta.acento : Paleta.texto
         ayuda: (dnd ? "No molestar activo" : cuantas > 0 ? cuantas + " notificaciones" : "Sin notificaciones")
              + "\nClic: centro de control · Clic derecho: no molestar"
         onClic: (b) => {

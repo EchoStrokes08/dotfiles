@@ -53,7 +53,9 @@ generar() {
 }
 
 recargar() {
-    hyprctl reload >/dev/null                 # bordes y sombras (colores.lua lee la paleta)
+    # Bordes, sombras y pestañas en caliente (apariencia.lua). Sin «hyprctl reload»: una recarga completa
+    # reinicia temporizadores y reglas, y una de ellas dejó Hyprland colgado (13-11-2026).
+    timeout 5 hyprctl dispatch 'colores_tema and colores_tema() or hl.dsp.no_op()' >/dev/null
     pkill -SIGUSR2 -x waybar                  # waybar recarga config y estilo
     pkill -SIGUSR1 -x kitty                   # kitty recarga colores en todas sus ventanas
     pkill -RTMIN+9 -x waybar 2>/dev/null      # (refresca el mando de modo juego)

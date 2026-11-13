@@ -1,6 +1,6 @@
 // TarjetaPanel: una sección dentro de un panel (estilo "bento"): fondo translúcido con un leve
 // degradado del acento y filo de luz. Lo de dentro va en una columna.
-//   TarjetaPanel { acento: Paleta.azul; Text { … } Otra { Layout.fillWidth: true } }
+//   TarjetaPanel { acento: Paleta.acento2; Text { … } Otra { Layout.fillWidth: true } }
 import QtQuick
 import QtQuick.Layouts
 
@@ -15,15 +15,15 @@ Rectangle {
     radius: 16
     gradient: Gradient {
         GradientStop { position: 0; color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(t.acento, .5)), .065) }
-        GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .022) }
+        GradientStop { position: 1; color: EstiloPanel.relleno }
     }
-    border { width: 1; color: Qt.alpha(Paleta.texto, .075) }
+    border { width: 1; color: EstiloPanel.borde }
     Rectangle {
         x: t.radius; y: 1; width: t.width - t.radius * 2; height: 1
         gradient: Gradient {
             orientation: Gradient.Horizontal
             GradientStop { position: 0; color: "transparent" }
-            GradientStop { position: .5; color: Qt.alpha(Paleta.texto, .14) }
+            GradientStop { position: .5; color: EstiloPanel.bordeFuerte }
             GradientStop { position: 1; color: "transparent" }
         }
     }

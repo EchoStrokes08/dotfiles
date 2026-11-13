@@ -89,7 +89,7 @@ RowLayout {
             anchors.centerIn: parent
             visible: caratula.status !== Image.Ready
             text: ""; color: Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 30 }
+            font { family: Paleta.fuente; pixelSize: 26 }
         }
         Image {
             id: caratula
@@ -109,7 +109,7 @@ RowLayout {
             text: musica.jugador?.trackTitle || "Nada sonando"
             color: Paleta.texto
             elide: Text.ElideRight
-            font { family: Paleta.fuente; pixelSize: 15; bold: true }
+            font { family: Paleta.fuente; pixelSize: 14; bold: true }
         }
         Text {
             Layout.fillWidth: true
@@ -131,7 +131,7 @@ RowLayout {
                 ]
                 Text {
                     text: modelData.icono
-                    color: zona.containsMouse ? Paleta.naranja : Paleta.texto
+                    color: zona.containsMouse ? Paleta.acento : Paleta.texto
                     font { family: Paleta.fuente; pixelSize: index === 1 ? 20 : 15 }
                     MouseArea {
                         id: zona
@@ -154,11 +154,11 @@ RowLayout {
             }
             Rectangle {
                 Layout.fillWidth: true
-                height: 4; radius: 2
-                color: Qt.alpha(Paleta.texto, 0.12)
+                height: 4; radius: height / 2
+                color: EstiloPanel.bordeFuerte
                 Rectangle {
-                    height: parent.height; radius: 2
-                    color: Paleta.naranja
+                    height: parent.height; radius: height / 2
+                    color: Paleta.acento
                     width: parent.width * Math.min(1, (musica.jugador?.position ?? 0) / Math.max(1, musica.jugador?.length ?? 1))
                     Behavior on width { NumberAnimation { duration: 900 } }
                 }
@@ -185,7 +185,7 @@ RowLayout {
                 text: i >= 0 && i < musica.letra.length ? musica.letra[i].txt : ""
                 elide: Text.ElideRight
                 horizontalAlignment: Text.AlignRight
-                color: modelData === 0 ? Paleta.naranja : Qt.alpha(Paleta.texto, 0.45)
+                color: modelData === 0 ? Paleta.acento : EstiloPanel.apagado
                 font { family: Paleta.fuente; pixelSize: modelData === 0 ? 14 : 11; bold: modelData === 0 }
             }
         }

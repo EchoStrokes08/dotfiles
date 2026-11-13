@@ -1,10 +1,13 @@
-/* Paleta generada del wallpaper (modo "wallpaper"). La leen waybar y swaync. */
+/* Paleta generada del wallpaper (modo «wallpaper», matugen). Éxito, aviso y peligro son fijos:
+ * la mezcla de matugen los vuelve pasteles y dejan de leerse como estados.
+ * Nombres por FUNCIÓN, no por tono: «acento» puede ser azul si el wallpaper es azul.
+ * La leen Quickshell (Paleta.qml) y Hyprland (modulos/colores.lua vía hyprland.lua). */
 @define-color fondo     {{colors.surface.default.hex}};
 @define-color texto     {{colors.on_surface.default.hex}};
-@define-color naranja   {{colors.primary.default.hex}};
-@define-color amarillo  #e6c446;
-@define-color azul      {{colors.tertiary.default.hex}};
-@define-color verde     #b8cc52;
-@define-color rojo      {{colors.error.default.hex}};
+@define-color acento    {{colors.primary.default.hex}};   /* foco, selección, acción principal */
+@define-color acento2   {{colors.tertiary.default.hex}};   /* solo en parejas: hora/minutos, gráficas */
+@define-color exito     #b8cc52;   /* fijo: conectado, cargando, hecho */
+@define-color aviso     #e6c446;   /* fijo: atención sin urgencia */
+@define-color peligro   #ff5c57;   /* fijo: error, batería baja, borrar */
 @define-color seleccion {{colors.surface_container_highest.default.hex}};
-@define-color gris      {{colors.outline.default.hex}};
+@define-color gris      {{colors.outline.default.hex}};   /* neutro apagado */

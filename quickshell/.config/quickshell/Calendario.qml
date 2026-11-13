@@ -29,7 +29,7 @@ ColumnLayout {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
             text: cal.mes.toLocaleDateString(Qt.locale("es_ES"), "MMMM yyyy")
-            color: Paleta.naranja
+            color: Paleta.acento
             font { family: Paleta.fuente; pixelSize: 14; bold: true }
             MouseArea {   // clic = volver a hoy
                 anchors.fill: parent
@@ -44,12 +44,12 @@ ColumnLayout {
         Rectangle {   // ＋ = nuevo evento o tarea el día elegido
             visible: cal.conMas
             Layout.leftMargin: 4
-            implicitWidth: 22; implicitHeight: 22; radius: 11
-            color: mas.containsMouse ? Paleta.naranja : Qt.alpha(Paleta.naranja, .18)
+            implicitWidth: 22; implicitHeight: 22; radius: height / 2
+            color: mas.containsMouse ? Paleta.acento : Qt.alpha(Paleta.acento, .18)
             Text {
                 anchors.centerIn: parent
                 text: "\uF067"
-                color: mas.containsMouse ? Paleta.fondo : Paleta.naranja
+                color: mas.containsMouse ? Paleta.fondo : Paleta.acento
                 font { family: Paleta.mono; pixelSize: 11; bold: true }
             }
             MouseArea { id: mas; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: cal.nuevo() }
@@ -68,7 +68,7 @@ ColumnLayout {
                 Layout.preferredWidth: 30
                 horizontalAlignment: Text.AlignHCenter
                 text: modelData
-                color: index >= 5 ? Paleta.azul : Paleta.gris
+                color: index >= 5 ? Paleta.acento2 : Paleta.gris
                 font { family: Paleta.fuente; pixelSize: 11; bold: true }
             }
         }
@@ -84,8 +84,8 @@ ColumnLayout {
                 Layout.preferredWidth: 30
                 Layout.preferredHeight: 26
                 radius: 8
-                color: esHoy ? Paleta.naranja : "transparent"
-                border { width: esElegido && !esHoy ? 1.5 : 0; color: Paleta.naranja }
+                color: esHoy ? Paleta.acento : "transparent"
+                border { width: esElegido && !esHoy ? 1.5 : 0; color: Paleta.acento }
                 MouseArea {
                     anchors.fill: parent
                     enabled: dia > 0
@@ -101,9 +101,9 @@ ColumnLayout {
                 // puntito = ese día hay algo en tu Google Calendar (Eventos.qml)
                 Rectangle {
                     visible: dia > 0 && (Eventos.hayEn(parent.fecha) || Eventos.tareas.some(t => t.fecha && t.fecha.getTime() === parent.fecha.getTime()))
-                    width: 4; height: 4; radius: 2
+                    width: 4; height: 4; radius: height / 2
                     anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 2 }
-                    color: parent.esHoy ? Paleta.fondo : Paleta.azul
+                    color: parent.esHoy ? Paleta.fondo : Paleta.acento2
                 }
             }
         }

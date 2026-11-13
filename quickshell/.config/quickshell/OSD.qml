@@ -131,13 +131,13 @@ Scope {
             width: fila.implicitWidth + 36
             height: 60
             color: "transparent"
-            FondoPanel { anchors.fill: parent; radio: 30; acento: osd.apagado ? Paleta.gris : Paleta.naranja }
+            FondoPanel { anchors.fill: parent; radio: 24; acento: osd.apagado ? Paleta.gris : Paleta.acento }
 
             opacity: osd.activo ? 1 : 0
             scale: osd.activo ? 1 : 0.92
-            Behavior on opacity { NumberAnimation { id: animSalida; duration: 180 } }
-            Behavior on scale   { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
-            Behavior on width   { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on opacity { NumberAnimation { id: animSalida; duration: EstiloPanel.normal } }
+            Behavior on scale   { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutBack } }
+            Behavior on width   { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
 
             RowLayout {
                 id: fila
@@ -145,17 +145,17 @@ Scope {
                 spacing: 14
 
                 Rectangle {
-                    implicitWidth: 40; implicitHeight: 40; radius: 20
+                    implicitWidth: 40; implicitHeight: 40; radius: height / 2
                     gradient: Gradient {
-                        GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Qt.lighter(Paleta.naranja, 1.15), .38) }
-                        GradientStop { position: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.naranja, .12) }
+                        GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Qt.lighter(Paleta.acento, 1.15), .38) }
+                        GradientStop { position: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.acento, .12) }
                     }
-                    border { width: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.naranja, .45) }
+                    border { width: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.acento, .45) }
                     Text {
                         anchors.centerIn: parent
                         text: osd.icono
-                        color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.naranja, 1.2)
-                        font { family: Paleta.fuente; pixelSize: 19 }
+                        color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.acento, 1.2)
+                        font { family: Paleta.fuente; pixelSize: 20 }
                     }
                 }
 
@@ -164,26 +164,26 @@ Scope {
                     visible: osd.valor >= 0
                     implicitWidth: 230
                     implicitHeight: 10
-                    radius: 5
-                    color: Qt.alpha(Paleta.texto, 0.10)
-                    border { width: 1; color: Qt.alpha(Paleta.texto, .05) }
+                    radius: height / 2
+                    color: EstiloPanel.rellenoActivo
+                    border { width: 1; color: EstiloPanel.relleno }
                     RectangularShadow {
                         width: barraOsd.width; height: parent.height
                         visible: EstiloPanel.efectos && !osd.apagado
-                        radius: 5; blur: 14; spread: -1
-                        color: Qt.alpha(Paleta.naranja, .45)
+                        radius: 4; blur: 14; spread: -1
+                        color: Qt.alpha(Paleta.acento, .45)
                     }
                     Rectangle {
                         id: barraOsd
                         height: parent.height
-                        radius: 5
+                        radius: 4
                         width: Math.max(height, parent.width * Math.max(0, Math.min(1, osd.valor)))
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.naranja, .55) }
-                            GradientStop { position: 1; color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.naranja, 1.12) }
+                            GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.acento, .55) }
+                            GradientStop { position: 1; color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.acento, 1.12) }
                         }
-                        Behavior on width { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                        Behavior on width { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
                     }
                 }
                 Text {

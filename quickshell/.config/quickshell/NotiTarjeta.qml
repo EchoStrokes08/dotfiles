@@ -13,17 +13,17 @@ Rectangle {
     property bool emergente: false           // en emergentes: fondo más opaco y temporizador
     signal terminada()                       // la emergente ya cumplió su tiempo
 
-    readonly property color colorUrgencia: noti.urgency === NotificationUrgency.Critical ? Paleta.rojo
+    readonly property color colorUrgencia: noti.urgency === NotificationUrgency.Critical ? Paleta.peligro
                                          : noti.urgency === NotificationUrgency.Low ? Paleta.gris
-                                         : Paleta.naranja
+                                         : Paleta.acento
     readonly property string rutaIcono: Notificaciones.icono(noti)
 
     implicitHeight: contenido.implicitHeight + 24
     radius: 16
     color: emergente ? "transparent"
-         : zona.containsMouse ? Qt.alpha(Paleta.texto, 0.075) : Qt.alpha(Paleta.texto, 0.04)
-    border { width: emergente ? 0 : 1; color: zona.containsMouse ? Qt.alpha(tarjeta.colorUrgencia, .3) : Qt.alpha(Paleta.texto, .06) }
-    Behavior on color { ColorAnimation { duration: 120 } }
+         : zona.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+    border { width: emergente ? 0 : 1; color: zona.containsMouse ? Qt.alpha(tarjeta.colorUrgencia, .3) : EstiloPanel.borde }
+    Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
 
     // Emergente: el mismo cristal que los paneles, con la luz del color de urgencia
     FondoPanel {
@@ -43,7 +43,7 @@ Rectangle {
 
     // Línea de urgencia a la izquierda
     Rectangle {
-        width: 3; radius: 2
+        width: 3; radius: 4
         anchors { left: parent.left; leftMargin: 6; top: parent.top; bottom: parent.bottom; topMargin: 12; bottomMargin: 12 }
         color: tarjeta.colorUrgencia
     }
@@ -69,8 +69,8 @@ Rectangle {
         ClippingRectangle {
             Layout.alignment: Qt.AlignTop
             implicitWidth: 46; implicitHeight: 46
-            radius: 14
-            color: Qt.alpha(Paleta.texto, 0.06)
+            radius: 16
+            color: EstiloPanel.rellenoActivo
             visible: imagen.source != "" || tarjeta.rutaIcono !== ""
             Image {
                 id: imagen
@@ -103,7 +103,7 @@ Rectangle {
                 // Cerrar
                 Text {
                     text: ""
-                    color: cerrar.containsMouse ? Paleta.rojo : Paleta.gris
+                    color: cerrar.containsMouse ? Paleta.peligro : Paleta.gris
                     font { family: Paleta.fuente; pixelSize: 12 }
                     MouseArea { id: cerrar; anchors.fill: parent; anchors.margins: -6; hoverEnabled: true; onClicked: tarjeta.noti.dismiss() }
                 }
@@ -122,8 +122,8 @@ Rectangle {
                 visible: text !== ""
                 text: tarjeta.noti.body
                 textFormat: Text.StyledText          // <b>, <i>, enlaces
-                color: Qt.alpha(Paleta.texto, 0.8)
-                linkColor: Paleta.azul
+                color: EstiloPanel.secundario
+                linkColor: Paleta.acento2
                 wrapMode: Text.Wrap
                 maximumLineCount: tarjeta.emergente ? 4 : 3
                 elide: Text.ElideRight
@@ -142,9 +142,9 @@ Rectangle {
                     visible: tarjeta.noti.hasInlineReply
                     Layout.fillWidth: true
                     implicitHeight: 30
-                    radius: 10
-                    color: zonaResp.containsMouse ? Qt.alpha(Paleta.verde, 0.3) : Qt.alpha(Paleta.verde, 0.14)
-                    border { width: 1; color: Qt.alpha(Paleta.verde, .4) }
+                    radius: 12
+                    color: zonaResp.containsMouse ? Qt.alpha(Paleta.exito, 0.3) : Qt.alpha(Paleta.exito, 0.14)
+                    border { width: 1; color: Qt.alpha(Paleta.exito, .4) }
                     Text {
                         anchors.centerIn: parent
                         text: "\u{F0451}  Responder"
@@ -165,9 +165,9 @@ Rectangle {
                         required property var modelData
                         Layout.fillWidth: true
                         implicitHeight: 30
-                        radius: 10
-                        color: zonaAccion.containsMouse ? Qt.alpha(Paleta.naranja, 0.25) : Qt.alpha(Paleta.texto, 0.07)
-                        border { width: 1; color: zonaAccion.containsMouse ? Qt.alpha(Paleta.naranja, .5) : Qt.alpha(Paleta.texto, .08) }
+                        radius: 12
+                        color: zonaAccion.containsMouse ? Qt.alpha(Paleta.acento, 0.25) : EstiloPanel.rellenoActivo
+                        border { width: 1; color: zonaAccion.containsMouse ? Qt.alpha(Paleta.acento, .5) : EstiloPanel.borde }
                         Text {
                             anchors.centerIn: parent
                             text: modelData.text

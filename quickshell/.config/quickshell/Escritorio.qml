@@ -20,7 +20,7 @@ PanelWindow {
     readonly property var monitor: Hyprland.monitorFor(screen)
     readonly property bool vacio: (monitor?.activeWorkspace?.toplevels.values.length ?? 0) === 0
     readonly property bool mostrar: activado && vacio
-    readonly property color claro: "#f3efe0"
+    readonly property color claro: Paleta.sobreImagen
 
     visible: todo.opacity > 0
     color: "transparent"
@@ -238,11 +238,11 @@ PanelWindow {
 
             Row {
                 spacing: 0
-                Text { text: Qt.formatTime(reloj.date, "HH"); color: Paleta.naranja
+                Text { text: Qt.formatTime(reloj.date, "HH"); color: Paleta.acento
                        font { family: Paleta.fuente; pixelSize: 104; bold: true } }
                 Text { text: ":"; color: Qt.alpha(v.claro, 0.55)
                        font { family: Paleta.fuente; pixelSize: 104; bold: true } }
-                Text { text: Qt.formatTime(reloj.date, "mm"); color: Paleta.azul
+                Text { text: Qt.formatTime(reloj.date, "mm"); color: Paleta.acento2
                        font { family: Paleta.fuente; pixelSize: 104; bold: true } }
             }
             Text {
@@ -263,7 +263,7 @@ PanelWindow {
             }
             Rectangle {   // rayita naranja
                 Layout.topMargin: 20; Layout.bottomMargin: 14
-                width: 44; height: 3; radius: 2; color: Paleta.naranja
+                width: 44; height: 3; radius: 4; color: Paleta.acento
             }
             Text {
                 Layout.maximumWidth: 460
@@ -289,7 +289,7 @@ PanelWindow {
             Text {
                 Layout.alignment: Qt.AlignRight
                 text: "LO PRÓXIMO"
-                color: Paleta.naranja
+                color: Paleta.acento
                 font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 2 }
             }
             Repeater {
@@ -315,7 +315,7 @@ PanelWindow {
                             font { family: Paleta.fuente; pixelSize: 12 }
                         }
                     }
-                    Text { text: String.fromCodePoint(modelData.icono); color: Paleta.azul
+                    Text { text: String.fromCodePoint(modelData.icono); color: Paleta.acento2
                            font { family: Paleta.fuente; pixelSize: 20 } }
                 }
             }

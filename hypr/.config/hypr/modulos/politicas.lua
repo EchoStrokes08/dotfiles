@@ -2,11 +2,11 @@
 local M = {}
 M.perfiles = { cristal = true, lectura = true, minimo = true, rendimiento = true }
 M.base = {
-    general = { gaps_in = 3.5, gaps_out = 7.5, border_size = 4 },
+    general = { gaps_in = 4, gaps_out = 8, border_size = 2 },
     animations = { enabled = true },
     decoration = {
         -- Ventanas opacas: el cristal es para los paneles, no para el contenido (kitty lleva su propio fondo translúcido)
-        rounding = 3, active_opacity = 1.0, inactive_opacity = 1.0,
+        rounding = 10, active_opacity = 1.0, inactive_opacity = 1.0,
         shadow = { enabled = true }, blur = { enabled = true },
     },
 }

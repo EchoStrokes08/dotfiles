@@ -32,21 +32,21 @@ Item {
         width: raiz.anchoBoton - 4
         height: 24
         anchors.verticalCenter: parent.verticalCenter
-        Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutBack; easing.overshoot: 1 } }
+        Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: 1 } }
         RectangularShadow {
             anchors.fill: parent
             visible: EstiloPanel.efectos
             radius: 12; offset.y: 2; blur: 12; spread: -3
-            color: Qt.alpha(Paleta.naranja, .55)
+            color: Qt.alpha(Paleta.acento, .55)
         }
         Rectangle {
             anchors.fill: parent
             radius: 12
             gradient: Gradient {
-                GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Qt.lighter(Paleta.naranja, 1.1), .62)) }
-                GradientStop { position: 1; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.naranja, .38)) }
+                GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Qt.lighter(Paleta.acento, 1.1), .62)) }
+                GradientStop { position: 1; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.acento, .38)) }
             }
-            border { width: 1; color: Qt.alpha(Qt.lighter(Paleta.naranja, 1.2), .7) }
+            border { width: 1; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.2), .7) }
         }
     }
 
@@ -70,25 +70,25 @@ Item {
                     width: raiz.anchoBoton - 4; height: 24
                     radius: 12
                     color: Qt.alpha(Paleta.texto, zona.containsMouse && !boton.modelData.active ? 0.09 : 0)
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                 }
                 Text {
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: boton.ocupado && !boton.modelData.active ? -2 : 0
                     text: boton.modelData.id
-                    color: boton.modelData.urgent ? Paleta.rojo
+                    color: boton.modelData.urgent ? Paleta.peligro
                          : boton.modelData.active ? Paleta.texto
-                         : boton.ocupado ? Qt.alpha(Paleta.texto, 0.85) : Qt.alpha(Paleta.gris, .9)
+                         : boton.ocupado ? EstiloPanel.secundario : Qt.alpha(Paleta.gris, .9)
                     font { family: Paleta.fuente; pixelSize: 13; weight: boton.modelData.active ? Font.Bold : Font.DemiBold }
-                    Behavior on color { ColorAnimation { duration: 200 } }
-                    Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: 160 } }
+                    Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
+                    Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: EstiloPanel.rapido } }
                 }
                 // punto: tiene ventanas
                 Rectangle {
                     visible: boton.ocupado && !boton.modelData.active
                     anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter; verticalCenterOffset: 8 }
-                    width: 4; height: 4; radius: 2
-                    color: boton.modelData.urgent ? Paleta.rojo : Qt.alpha(Paleta.naranja, .8)
+                    width: 4; height: 4; radius: height / 2
+                    color: boton.modelData.urgent ? Paleta.peligro : Qt.alpha(Paleta.acento, .8)
                 }
                 MouseArea {
                     id: zona

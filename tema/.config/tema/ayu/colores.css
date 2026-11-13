@@ -1,10 +1,12 @@
-/* Paleta Ayu Dark (modo "ayu"). La leen waybar y swaync. */
+/* Paleta Ayu Dark (modo «ayu»).
+ * Nombres por FUNCIÓN, no por tono: «acento» puede ser azul si el wallpaper es azul.
+ * La leen Quickshell (Paleta.qml) y Hyprland (modulos/colores.lua vía hyprland.lua). */
 @define-color fondo     #0e1419;
 @define-color texto     #e5e1cf;
-@define-color naranja   #f19618;
-@define-color amarillo  #e6c446;
-@define-color azul      #36a3d9;
-@define-color verde     #b8cc52;
-@define-color rojo      #ff3333;
+@define-color acento    #f19618;   /* foco, selección, acción principal */
+@define-color acento2   #36a3d9;   /* solo en parejas: hora/minutos, gráficas */
+@define-color exito     #b8cc52;   /* fijo: conectado, cargando, hecho */
+@define-color aviso     #e6c446;   /* fijo: atención sin urgencia */
+@define-color peligro   #ff3333;   /* fijo: error, batería baja, borrar */
 @define-color seleccion #243340;
-@define-color gris      #5c6773;
+@define-color gris      #5c6773;   /* neutro apagado */

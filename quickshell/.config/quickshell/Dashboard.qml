@@ -36,7 +36,7 @@ PanelWindow {
         anchors.fill: parent
         color: "black"
         opacity: ventana.abierto ? 0.25 : 0
-        Behavior on opacity { NumberAnimation { duration: 250 } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
         MouseArea { anchors.fill: parent; onClicked: ventana.abierto = false }
     }
 
@@ -58,15 +58,15 @@ PanelWindow {
         height: contenido.implicitHeight + 52
         anchors.horizontalCenter: parent.horizontalCenter
         color: "transparent"
-        FondoPanel { anchors.fill: parent; radio: 26 }
+        FondoPanel { anchors.fill: parent; radio: 24 }
 
         // Entrada: baja 40 px y aparece; salida: al revés
         y: ventana.abierto ? 52 : 14
         opacity: ventana.abierto ? 1 : 0
         scale: ventana.abierto ? 1 : 0.97
-        Behavior on y       { NumberAnimation { duration: 320; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
-        Behavior on opacity { NumberAnimation { duration: 220 } }
-        Behavior on scale   { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
+        Behavior on y       { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
+        Behavior on scale   { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
 
         MouseArea { anchors.fill: parent }    // que un clic en la tarjeta no la cierre
 
@@ -85,12 +85,12 @@ PanelWindow {
                     spacing: -4
                     Text {
                         text: Qt.formatTime(reloj.date, "HH:mm")
-                        color: Qt.lighter(Paleta.naranja, 1.05)
+                        color: Qt.lighter(Paleta.acento, 1.05)
                         font { family: Paleta.fuente; pixelSize: 62; bold: true; letterSpacing: -1 }
                     }
                     Text {
                         text: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd, d 'de' MMMM")
-                        color: Qt.alpha(Paleta.texto, .85)
+                        color: EstiloPanel.secundario
                         font { family: Paleta.fuente; pixelSize: 14; letterSpacing: .3 }
                     }
                 }
@@ -98,13 +98,13 @@ PanelWindow {
                 // ── Clima (Clima.qml, Open-Meteo) ──
                 TarjetaPanel {
                     visible: Clima.listo
-                    acento: Paleta.amarillo
+                    acento: Paleta.aviso
                     relleno: 12
                 RowLayout {
                     spacing: 12
                     Text {
                         text: Clima.icono(Clima.codigo, Clima.deDia)
-                        color: Paleta.amarillo
+                        color: Paleta.aviso
                         font { family: Paleta.fuente; pixelSize: 44 }
                     }
                     ColumnLayout {
@@ -112,7 +112,7 @@ PanelWindow {
                         Text {
                             text: `${Math.round(Clima.temp)}°  ${Clima.texto(Clima.codigo)}`
                             color: Paleta.texto
-                            font { family: Paleta.fuente; pixelSize: 15; bold: true }
+                            font { family: Paleta.fuente; pixelSize: 14; bold: true }
                         }
                         Text {
                             text: `${Clima.lugar} · máx ${Math.round(Clima.max)}° · mín ${Math.round(Clima.min)}° · lluvia ${Clima.lluviaHoy}%`
@@ -126,7 +126,7 @@ PanelWindow {
                                 Text {
                                     required property var modelData
                                     text: `${modelData.hora}h ${modelData.lluvia}%`
-                                    color: modelData.lluvia >= 40 ? Paleta.azul : Qt.alpha(Paleta.gris, 0.8)
+                                    color: modelData.lluvia >= 40 ? Paleta.acento2 : Qt.alpha(Paleta.gris, 0.8)
                                     font { family: Paleta.fuente; pixelSize: 11 }
                                 }
                             }
@@ -141,8 +141,8 @@ PanelWindow {
                     Text {
                         Layout.alignment: Qt.AlignRight
                         text: ventana.saludo(reloj.date.getHours()) + ", " + Quickshell.env("USER")
-                        color: Paleta.morado
-                        font { family: Paleta.fuente; pixelSize: 15; bold: true }
+                        color: Paleta.acento
+                        font { family: Paleta.fuente; pixelSize: 14; bold: true }
                     }
                     Text {
                         Layout.alignment: Qt.AlignRight
@@ -166,7 +166,7 @@ PanelWindow {
                 TarjetaPanel {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 262
-                    acento: Paleta.naranja
+                    acento: Paleta.acento
                     // El formulario «nuevo evento/tarea» se abre ENCIMA de calendario + Próximo (no agranda el panel)
                     Item {
                     Layout.fillWidth: true
@@ -193,7 +193,7 @@ PanelWindow {
                                 texto: t.titulo, ms: t.fecha ? Math.max(t.fecha.getTime(), Date.now() - 1) : Date.now() - 1, tarea: t.id }))
                         ].sort((a, b) => a.ms - b.ms).slice(0, 4)
                         visible: items.length > 0
-                        Text { text: "Próximo"; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
+                        Text { text: "Próximo"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                         Repeater {
                             model: parent.items
                             RowLayout {
@@ -202,7 +202,7 @@ PanelWindow {
                                 spacing: 6
                                 Text {
                                     text: modelData.cuando
-                                    color: modelData.rec ? Paleta.morado : modelData.tarea ? Paleta.verde : Paleta.azul
+                                    color: modelData.rec ? Paleta.serie[4] : modelData.tarea ? Paleta.exito : Paleta.acento2
                                     font { family: Paleta.fuente; pixelSize: 11; bold: true }
                                 }
                                 Text {
@@ -233,7 +233,7 @@ PanelWindow {
                 }
                 TarjetaPanel {
                     Layout.fillHeight: true
-                    acento: Paleta.azul
+                    acento: Paleta.acento2
                     Item { Layout.fillHeight: true }
                 GridLayout {
                     Layout.alignment: Qt.AlignHCenter
@@ -241,22 +241,22 @@ PanelWindow {
                     columnSpacing: 18
                     rowSpacing: 14
                     Anillo {
-                        valor: Sistema.cpu; color: Paleta.azul
+                        valor: Sistema.cpu; color: Paleta.acento2
                         etiqueta: "CPU"; texto: Math.round(Sistema.cpu * 100) + "%"
                     }
                     Anillo {
-                        valor: Sistema.ram; color: Paleta.verde
+                        valor: Sistema.ram; color: Paleta.exito
                         etiqueta: "RAM"; texto: Math.round(Sistema.ram * 100) + "%"
                     }
                     Anillo {
                         // 30 °C = vacío, 95 °C = lleno; amarillo → rojo a partir de 80
                         valor: (Sistema.temp - 30) / 65
-                        color: Sistema.temp >= 80 ? Paleta.rojo : Paleta.amarillo
+                        color: Sistema.temp >= 80 ? Paleta.peligro : Paleta.aviso
                         etiqueta: "TEMP"; texto: Math.round(Sistema.temp) + "°"
                     }
                     Anillo {
                         valor: ventana.carga
-                        color: ventana.cargando ? Paleta.verde : ventana.carga < 0.2 ? Paleta.rojo : Paleta.naranja
+                        color: ventana.cargando ? Paleta.exito : ventana.carga < 0.2 ? Paleta.peligro : Paleta.acento
                         etiqueta: ventana.cargando ? " BAT" : "BAT"
                         texto: Math.round(ventana.carga * 100) + "%"
                     }
@@ -266,7 +266,7 @@ PanelWindow {
                 TarjetaPanel {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    acento: Paleta.morado
+                    acento: Paleta.acento
                 Tiempo {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -278,7 +278,7 @@ PanelWindow {
             // ── Música ──
             TarjetaPanel {
                 Layout.fillWidth: true
-                acento: Paleta.verde
+                acento: Paleta.exito
                 Musica { Layout.fillWidth: true; mostrarLetras: true }
             }
         }

@@ -1,5 +1,5 @@
 // Tecla: una tecla con relieve (cara clara y canto inferior más grueso), para mostrar atajos.
-//   Tecla { texto: "Esc" }        Tecla { texto: "SUPER+Q"; tinte: Paleta.amarillo; anchoMax: 120 }
+//   Tecla { texto: "Esc" }        Tecla { texto: "SUPER+Q"; tinte: Paleta.aviso; anchoMax: 120 }
 import QtQuick
 
 Item {
@@ -11,15 +11,15 @@ Item {
     implicitWidth: etiqueta.width + 14
     implicitHeight: etiqueta.height + 9
 
-    Rectangle { anchors.fill: parent; radius: 6; color: Qt.alpha(Paleta.texto, .06) }   // canto
+    Rectangle { anchors.fill: parent; radius: 8; color: EstiloPanel.rellenoActivo }   // canto
     Rectangle {
         anchors { fill: parent; bottomMargin: 2 }
-        radius: 6
+        radius: 8
         gradient: Gradient {
-            GradientStop { position: 0; color: Qt.alpha(Paleta.texto, .13) }
-            GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .07) }
+            GradientStop { position: 0; color: EstiloPanel.bordeFuerte }
+            GradientStop { position: 1; color: EstiloPanel.rellenoActivo }
         }
-        border { width: 1; color: Qt.alpha(Paleta.texto, .12) }
+        border { width: 1; color: EstiloPanel.bordeFuerte }
         Text {
             id: etiqueta
             anchors.centerIn: parent

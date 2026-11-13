@@ -412,7 +412,7 @@ PanelWindow {
         anchors.fill: parent
         color: "black"
         opacity: ventana.abierto ? 0.25 : 0
-        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
         MouseArea { anchors.fill: parent; onClicked: ventana.abierto = false }
     }
 
@@ -425,9 +425,9 @@ PanelWindow {
         y: parent.height * 0.16 + (ventana.abierto ? 0 : -12)
         opacity: ventana.abierto ? 1 : 0
         scale: ventana.abierto ? 1 : 0.98
-        Behavior on y       { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
-        Behavior on opacity { NumberAnimation { duration: 180 } }
-        Behavior on scale   { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
+        Behavior on y       { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
+        Behavior on scale   { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
         color: "transparent"
         FondoPanel { anchors.fill: parent; radio: 24 }
         MouseArea { anchors.fill: parent }
@@ -444,9 +444,9 @@ PanelWindow {
                 radius: 16
                 gradient: Gradient {
                     GradientStop { position: 0; color: Qt.alpha(Paleta.fondo, .55) }
-                    GradientStop { position: 1; color: Qt.alpha(Paleta.texto, .045) }
+                    GradientStop { position: 1; color: EstiloPanel.relleno }
                 }
-                border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.naranja, 0.45) : Qt.alpha(Paleta.texto, .1) }
+                border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.acento, 0.45) : EstiloPanel.borde }
 
                 RowLayout {
                     anchors { fill: parent; leftMargin: 10; rightMargin: 14 }
@@ -454,23 +454,23 @@ PanelWindow {
                     Rectangle {   // pastilla del modo
                         implicitWidth: 36; implicitHeight: 36; radius: 12
                         gradient: Gradient {
-                            GradientStop { position: 0; color: Qt.alpha(Qt.lighter(Paleta.naranja, 1.15), .38) }
-                            GradientStop { position: 1; color: Qt.alpha(Paleta.naranja, .12) }
+                            GradientStop { position: 0; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.15), .38) }
+                            GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .12) }
                         }
-                        border { width: 1; color: Qt.alpha(Paleta.naranja, .45) }
+                        border { width: 1; color: Qt.alpha(Paleta.acento, .45) }
                     Text {   // el icono cambia según el modo
                         anchors.centerIn: parent
                         text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A })[ventana.modo] ?? 0xF0349)
-                        color: Qt.lighter(Paleta.naranja, 1.2)
-                        font { family: Paleta.mono; pixelSize: 17 }
+                        color: Qt.lighter(Paleta.acento, 1.2)
+                        font { family: Paleta.mono; pixelSize: 16 }
                     }
                     }
                     TextInput {
                         id: buscador
                         Layout.fillWidth: true
                         color: Paleta.texto
-                        selectionColor: Qt.alpha(Paleta.naranja, 0.4)
-                        font { family: Paleta.fuente; pixelSize: 17 }
+                        selectionColor: Qt.alpha(Paleta.acento, 0.4)
+                        font { family: Paleta.fuente; pixelSize: 16 }
                         clip: true
                         onTextChanged: lista.currentIndex = 0
 
@@ -492,9 +492,9 @@ PanelWindow {
                     }
                     Rectangle {
                         visible: ventana.resultados.length > 0
-                        implicitWidth: numResultados.implicitWidth + 16; implicitHeight: 22; radius: 11
-                        color: Qt.alpha(Paleta.texto, .07)
-                        border { width: 1; color: Qt.alpha(Paleta.texto, .08) }
+                        implicitWidth: numResultados.implicitWidth + 16; implicitHeight: 22; radius: height / 2
+                        color: EstiloPanel.rellenoActivo
+                        border { width: 1; color: EstiloPanel.borde }
                         Text { id: numResultados; anchors.centerIn: parent; text: ventana.resultados.length; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                     }
                 }
@@ -533,28 +533,28 @@ PanelWindow {
                         anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2 }
                         height: 52
                         opacity: fila.actual ? 1 : 0
-                        Behavior on opacity { NumberAnimation { duration: 120 } }
+                        Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
                         RectangularShadow {
                             anchors.fill: parent
                             visible: EstiloPanel.efectos
-                            radius: 14; offset.y: 4; blur: 18; spread: -8
-                            color: Qt.alpha(Paleta.naranja, .4)
+                            radius: 16; offset.y: 4; blur: 18; spread: -8
+                            color: Qt.alpha(Paleta.acento, .4)
                         }
                         Rectangle {
                             anchors.fill: parent
-                            radius: 14
+                            radius: 16
                             gradient: Gradient {
                                 orientation: Gradient.Horizontal
-                                GradientStop { position: 0; color: Qt.alpha(Paleta.naranja, .26) }
-                                GradientStop { position: 1; color: Qt.alpha(Paleta.naranja, .07) }
+                                GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .26) }
+                                GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .07) }
                             }
-                            border { width: 1; color: Qt.alpha(Paleta.naranja, .35) }
+                            border { width: 1; color: Qt.alpha(Paleta.acento, .35) }
                         }
                         Rectangle {
                             width: 3; height: parent.height - 20
                             anchors { left: parent.left; leftMargin: 5; verticalCenter: parent.verticalCenter }
-                            radius: 2
-                            color: Paleta.naranja
+                            radius: 4
+                            color: Paleta.acento
                         }
                     }
 
@@ -564,9 +564,9 @@ PanelWindow {
                         spacing: 12
                         Rectangle {   // baldosa del icono
                             implicitWidth: 38; implicitHeight: 38; radius: 12
-                            color: Qt.alpha(fila.actual ? Paleta.naranja : Paleta.texto, fila.actual ? .14 : .05)
-                            border { width: 1; color: Qt.alpha(fila.actual ? Paleta.naranja : Paleta.texto, fila.actual ? .3 : .06) }
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                            color: Qt.alpha(fila.actual ? Paleta.acento : Paleta.texto, fila.actual ? .14 : .05)
+                            border { width: 1; color: Qt.alpha(fila.actual ? Paleta.acento : Paleta.texto, fila.actual ? .3 : .06) }
+                            Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                             IconImage {
                                 anchors.centerIn: parent
                                 width: 28; height: 28
@@ -578,7 +578,7 @@ PanelWindow {
                                 anchors.centerIn: parent
                                 visible: !fila.modelData.icono
                                 text: fila.modelData.texto ?? (fila.modelData.glifo ? ventana.g(fila.modelData.glifo) : "")
-                                color: fila.actual ? Qt.lighter(Paleta.naranja, 1.2) : Paleta.naranja
+                                color: fila.actual ? Qt.lighter(Paleta.acento, 1.2) : Paleta.acento
                                 font { family: fila.modelData.texto ? "Noto Color Emoji" : Paleta.mono; pixelSize: fila.modelData.texto ? 22 : 19 }
                             }
                         }
@@ -598,7 +598,7 @@ PanelWindow {
                                 visible: text !== ""
                                 text: fila.modelData.detalle ?? ""
                                 // gris puro se perdía sobre el resaltado; tenue (texto al 68 %) se lee en ambos casos
-                                color: fila.actual ? Qt.alpha(Paleta.texto, .85) : EstiloPanel.tenue
+                                color: fila.actual ? EstiloPanel.secundario : EstiloPanel.tenue
                                 elide: Text.ElideMiddle
                                 font { family: Paleta.fuente; pixelSize: 11 }
                             }

@@ -5,7 +5,7 @@ import QtQuick.Layouts
 
 TextField {
     id: campo
-    property color tinte: Paleta.naranja
+    property color tinte: Paleta.acento
     Layout.fillWidth: true
     implicitHeight: 40
     leftPadding: 14
@@ -25,7 +25,7 @@ TextField {
             radius: 12
             blur: 16; spread: -3
             color: Qt.alpha(campo.tinte, .35)
-            Behavior on opacity { NumberAnimation { duration: EstiloPanel.breve } }
+            Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
         }
         Rectangle {
             anchors.fill: parent
@@ -36,8 +36,8 @@ TextField {
                 GradientStop { position: 1; color: Qt.alpha(Paleta.texto, campo.activeFocus ? .06 : .035) }
             }
             border.width: campo.activeFocus ? 1.5 : 1
-            border.color: campo.activeFocus ? Qt.alpha(campo.tinte, .85) : campo.hovered ? Qt.alpha(Paleta.texto, .18) : EstiloPanel.borde
-            Behavior on border.color { ColorAnimation { duration: EstiloPanel.breve } }
+            border.color: campo.activeFocus ? Qt.alpha(campo.tinte, .85) : campo.hovered ? EstiloPanel.bordeFuerte : EstiloPanel.bordeFuerte
+            Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
         }
     }
 }

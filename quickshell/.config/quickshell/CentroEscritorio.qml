@@ -50,7 +50,7 @@ Superpuesta {
         EncabezadoPanel { seccion: "CENTRO DEL ESCRITORIO"; titulo: "Hazlo tuyo"; simbolo: "󰒓"; onCerrar: centro.abierto=false }
         RowLayout {
             Layout.fillWidth: true
-            Rectangle { width: 7; height: 7; radius: 4; color: Paleta.verde }
+            Rectangle { width: 7; height: 7; radius: 4; color: Paleta.exito }
             Text { Layout.fillWidth: true; text: EstadoEscritorio.motivos; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 12 } }
             Text { text: "Alt + 1…4"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
         }
@@ -60,10 +60,10 @@ Superpuesta {
             spacing: 8
             Repeater {
                 model: [
-                    {id:"cristal",titulo:"Cristal",detalle:"Luz y profundidad",icono:"󰌌",color:Paleta.naranja},
-                    {id:"lectura",titulo:"Lectura",detalle:"Claridad al leer",icono:"󰑴",color:Paleta.azul},
-                    {id:"minimo",titulo:"Mínimo",detalle:"Solo lo esencial",icono:"󰓅",color:Paleta.verde},
-                    {id:"rendimiento",titulo:"Rendimiento",detalle:"Espacio y rapidez",icono:"󰒓",color:Paleta.morado}
+                    {id:"cristal",titulo:"Cristal",detalle:"Luz y profundidad",icono:"󰌌",color:Paleta.acento},
+                    {id:"lectura",titulo:"Lectura",detalle:"Claridad al leer",icono:"󰑴",color:Paleta.acento},
+                    {id:"minimo",titulo:"Mínimo",detalle:"Solo lo esencial",icono:"󰓅",color:Paleta.acento},
+                    {id:"rendimiento",titulo:"Rendimiento",detalle:"Espacio y rapidez",icono:"󰒓",color:Paleta.acento}
                 ]
                 Accion {
                     id: perfil
@@ -77,7 +77,7 @@ Superpuesta {
                         spacing: 4
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: perfil.modelData.icono; color: perfil.tinte; font { family: Paleta.fuente; pixelSize: 22 } }
+                            Text { text: perfil.modelData.icono; color: perfil.tinte; font { family: Paleta.fuente; pixelSize: 20 } }
                             Item { Layout.fillWidth: true }
                             Text { text: perfil.destacado ? "✓" : ""; color: perfil.tinte; font.pixelSize: 14 }
                         }
@@ -109,15 +109,15 @@ Superpuesta {
             Layout.fillWidth: true
             implicitHeight: Math.min(86, (screen?.height ?? 720) - 555)
             Layout.minimumHeight: 60
-            radius: 10; color: EstiloPanel.superficie
-            border { width: 1; color: EstiloPanel.borde }
+            radius: 12; color: EstiloPanel.superficie
+            border { width: 1; color: EstiloPanel.bordeFuerte }
             ScrollView {
                 anchors { fill: parent; margins: 8 }
                 clip: true
-                TextArea { text: centro.salida; readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; color: EstiloPanel.tenue; selectionColor: Qt.alpha(Paleta.naranja,.35); font { family: EstiloPanel.fuente; pixelSize: 12 } background: null }
+                TextArea { text: centro.salida; readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; color: EstiloPanel.tenue; selectionColor: Qt.alpha(Paleta.acento,.35); font { family: EstiloPanel.fuente; pixelSize: 12 } background: null }
             }
         }
-        Accion { text: "Mesa de trabajo · ventanas, plantillas y rutinas"; simbolo: "󰕰"; tinte: Paleta.azul; onClicked: Quickshell.execDetached(["qs", "ipc", "call", "mesa", "abrir", "ventanas"]) }
+        Accion { text: "Mesa de trabajo · ventanas, plantillas y rutinas"; simbolo: "󰕰"; tinte: Paleta.acento2; onClicked: Quickshell.execDetached(["qs", "ipc", "call", "mesa", "abrir", "ventanas"]) }
         Text { Layout.fillWidth: true; text: "La privacidad oculta títulos y pausa el replay. Los checkpoints duran esta sesión."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 11 } }
     }
 }

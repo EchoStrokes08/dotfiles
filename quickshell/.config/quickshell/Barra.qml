@@ -59,7 +59,7 @@ PanelWindow {
                     implicitWidth: filaPerfil.implicitWidth + 18
                     implicitHeight: 24
                     radius: 12
-                    readonly property color tono: Reunion.activa ? Paleta.rojo : EstadoEscritorio.privacidad ? Paleta.morado : Paleta.naranja
+                    readonly property color tono: Reunion.activa ? Paleta.peligro : EstadoEscritorio.privacidad ? Paleta.acento2 : Paleta.acento
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
                         GradientStop { position: 0; color: Qt.alpha(perfil.tono, zonaPerfil.containsMouse ? .30 : .20) }
@@ -72,7 +72,7 @@ PanelWindow {
                         spacing: 5
                         Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
-                            width: 6; height: 6; radius: 3
+                            width: 6; height: 6; radius: height / 2
                             color: perfil.tono
                         }
                         Text {
@@ -108,7 +108,7 @@ PanelWindow {
             tinte: .02
             implicitWidth: Math.max(0, Math.min(360, hueco, filaVentana.implicitWidth + 28))
             Layout.preferredWidth: implicitWidth
-            Behavior on implicitWidth { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+            Behavior on implicitWidth { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
 
             RowLayout {
                 id: filaVentana
@@ -123,7 +123,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.maximumWidth: implicitWidth
                     text: islaVentana.actual?.title ?? ""
-                    color: Qt.alpha(Paleta.texto, .78)
+                    color: EstiloPanel.secundario
                     elide: Text.ElideRight
                     font { family: Paleta.fuente; pixelSize: 12; weight: Font.DemiBold }
                 }
@@ -143,11 +143,11 @@ PanelWindow {
             return Math.max(libreIni, (libreIni + libreFin - width) / 2);
         }
         anchors.verticalCenter: parent.verticalCenter
-        acento: Paleta.naranja
+        acento: Paleta.acento
         tinte: zonaReloj.containsMouse ? .16 : .09
         implicitWidth: filaReloj.implicitWidth + 30
         width: implicitWidth
-        Behavior on implicitWidth { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
+        Behavior on implicitWidth { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
 
         Row {
             id: filaReloj
@@ -156,7 +156,7 @@ PanelWindow {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "󰥔"
-                color: Qt.alpha(Paleta.naranja, .85)
+                color: Qt.alpha(Paleta.acento, .85)
                 font { family: Paleta.fuente; pixelSize: 13 }
             }
             Text {
@@ -165,7 +165,7 @@ PanelWindow {
                 text: zonaReloj.containsMouse
                     ? reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd d 'de' MMMM") + "  ·  " + Qt.formatTime(reloj.date, "HH:mm")
                     : Qt.formatTime(reloj.date, "HH:mm")
-                color: Qt.lighter(Paleta.naranja, 1.08)
+                color: Qt.lighter(Paleta.acento, 1.08)
                 font { family: Paleta.fuente; pixelSize: 13; weight: Font.Bold; letterSpacing: .4; features: { "tnum": 1 } }   // cifras de igual ancho: la hora no baila
             }
         }

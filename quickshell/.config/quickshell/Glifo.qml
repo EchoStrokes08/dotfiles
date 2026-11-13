@@ -22,6 +22,6 @@ Item {
         // borde superior del dibujo dentro del Text = ascendente + y del contorno (negativo, desde la línea base)
         y: Math.round((g.alto - medida.tightBoundingRect.height) / 2 - (fuente.ascent + medida.tightBoundingRect.y))
         font.family: Paleta.fuente
-        Behavior on color { ColorAnimation { duration: 200 } }
+        Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
     }
 }

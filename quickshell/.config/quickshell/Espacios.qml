@@ -32,10 +32,10 @@ Flow {
             implicitWidth: fila.implicitWidth + 20
             implicitHeight: 38
             radius: 12
-            color: modelData.focused ? Qt.alpha(Paleta.naranja, 0.14)
-                 : zona.containsMouse ? Qt.alpha(Paleta.texto, 0.07) : Qt.alpha(Paleta.texto, 0.035)
-            border { width: 1; color: modelData.focused ? Qt.alpha(Paleta.naranja, 0.6) : "transparent" }
-            Behavior on color { ColorAnimation { duration: 150 } }
+            color: modelData.focused ? Qt.alpha(Paleta.acento, 0.14)
+                 : zona.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+            border { width: 1; color: modelData.focused ? Qt.alpha(Paleta.acento, 0.6) : "transparent" }
+            Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
 
             RowLayout {
                 id: fila
@@ -44,7 +44,7 @@ Flow {
 
                 Text {
                     text: pildora.modelData.id
-                    color: pildora.modelData.focused ? Paleta.naranja : Paleta.gris
+                    color: pildora.modelData.focused ? Paleta.acento : Paleta.gris
                     font { family: Paleta.fuente; pixelSize: 13; bold: true }
                 }
 
@@ -66,7 +66,7 @@ Flow {
                         Rectangle {
                             anchors.fill: parent
                             visible: parent.ruta === ""
-                            radius: 10
+                            radius: 12
                             color: Paleta.seleccion
                             Text {
                                 anchors.centerIn: parent

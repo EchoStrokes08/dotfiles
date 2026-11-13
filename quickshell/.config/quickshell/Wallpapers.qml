@@ -74,13 +74,13 @@ Superpuesta {
                 ]
                 Rectangle {
                     required property var modelData
-                    implicitWidth: fila.implicitWidth + 22; implicitHeight: 30; radius: 9
-                    color: zonaChip.containsMouse ? Qt.alpha(Paleta.naranja, 0.22) : Qt.alpha(Paleta.texto, 0.07)
+                    implicitWidth: fila.implicitWidth + 22; implicitHeight: 30; radius: 12
+                    color: zonaChip.containsMouse ? Qt.alpha(Paleta.acento, 0.22) : EstiloPanel.rellenoActivo
                     RowLayout {
                         id: fila
                         anchors.centerIn: parent
                         spacing: 7
-                        Text { text: String.fromCodePoint(modelData.ic); color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 14 } }
+                        Text { text: String.fromCodePoint(modelData.ic); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 14 } }
                         Text { text: modelData.txt; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                     }
                     MouseArea { id: zonaChip; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: modelData.accion() }
@@ -115,12 +115,12 @@ Superpuesta {
 
                 ClippingRectangle {
                     anchors { fill: parent; margins: 6 }
-                    radius: 11
+                    radius: 12
                     color: Paleta.seleccion
                     border { width: celda.esActual ? 3 : celda.marcada ? 2 : 0
-                             color: celda.esActual ? Paleta.naranja : Paleta.texto }
+                             color: celda.esActual ? Paleta.acento : Paleta.texto }
                     scale: celda.marcada ? 1.0 : 0.95
-                    Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+                    Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
 
                     Image {
                         anchors.fill: parent
@@ -129,7 +129,7 @@ Superpuesta {
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
                         opacity: status === Image.Ready ? 1 : 0
-                        Behavior on opacity { NumberAnimation { duration: 200 } }
+                        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
                     }
                     // nombre al pasar el ratón o al estar seleccionada
                     Rectangle {
@@ -141,7 +141,7 @@ Superpuesta {
                             anchors { fill: parent; leftMargin: 8; rightMargin: 8 }
                             verticalAlignment: Text.AlignVCenter
                             text: (celda.esActual ? "  " : "") + celda.fileName
-                            color: celda.esActual ? Paleta.naranja : Paleta.texto
+                            color: celda.esActual ? Paleta.acento : Paleta.texto
                             elide: Text.ElideMiddle
                             font { family: Paleta.fuente; pixelSize: 11 }
                         }

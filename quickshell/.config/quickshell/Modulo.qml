@@ -1,5 +1,5 @@
 // Modulo: una "caja" de la barra (icono + texto), como cada módulo de waybar.
-//   Modulo { icono: "…"; texto: "42%"; color: Paleta.azul; ayuda: "tooltip"
+//   Modulo { icono: "…"; texto: "42%"; color: Paleta.acento2; ayuda: "tooltip"
 //            onClic: (boton) => …;  onRueda: (arriba) => … }
 // El tooltip lo pinta Ayuda.qml (una sola ventana emergente para todos los módulos).
 import QtQuick
@@ -27,7 +27,7 @@ Item {
         anchors.topMargin: 5; anchors.bottomMargin: 5
         radius: height / 2
         color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(modulo.color, .35)), zona.containsMouse ? 0.11 : 0)
-        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
     }
 
     RowLayout {

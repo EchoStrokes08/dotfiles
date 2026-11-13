@@ -223,7 +223,7 @@ Un grupo mete varias ventanas en un solo hueco, con una barra de pestañas arrib
 5. `SUPER+T` otra vez deshace el grupo.
 
 Con el ratón: clic en una pestaña para ir a ella, clic central para cerrarla, arrastrar una ventana sobre la
-barra para meterla. Una ventana agrupada tiene el borde amarillo → naranja.
+barra para meterla. Una ventana agrupada tiene el borde del segundo color del tema (`acento2`), distinto del de una ventana normal.
 
 ## 8. Scratchpads: apps que aparecen y desaparecen
 

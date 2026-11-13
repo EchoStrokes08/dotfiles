@@ -141,7 +141,7 @@ Superpuesta {
                     spacing: 2
                     Text {
                         text: "VISTA GENERAL"
-                        color: Paleta.naranja
+                        color: Paleta.acento
                         font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 }
                     }
                     Text {
@@ -149,7 +149,7 @@ Superpuesta {
                             ? (vista.coincidencias === 1 ? "1 coincidencia" : vista.coincidencias + " coincidencias")
                             : Hyprland.toplevels.values.filter(t => (t.workspace?.id ?? 0) > 0).length + " ventanas · " + vista.espacios.length + " espacios"
                         color: Paleta.texto
-                        font { family: EstiloPanel.fuente; pixelSize: 17; weight: Font.DemiBold }
+                        font { family: EstiloPanel.fuente; pixelSize: 16; weight: Font.DemiBold }
                     }
                 }
                 Item { width: parent.width - titulo.width - buscar.width - parent.spacing * 2; height: 1 }
@@ -210,8 +210,8 @@ Superpuesta {
 
                         // entrada escalonada
                         opacity: vista.abierto ? 1 : 0
-                        transform: Translate { y: vista.abierto ? 0 : 10; Behavior on y { NumberAnimation { duration: EstiloPanel.entrada + celda.index * 35; easing.type: Easing.OutCubic } } }
-                        Behavior on opacity { NumberAnimation { duration: EstiloPanel.entrada + celda.index * 35 } }
+                        transform: Translate { y: vista.abierto ? 0 : 10; Behavior on y { NumberAnimation { duration: EstiloPanel.normal + celda.index * 35; easing.type: Easing.OutCubic } } }
+                        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal + celda.index * 35 } }
 
                         // rótulo: número, nombre y nº de ventanas
                         Row {
@@ -220,8 +220,8 @@ Superpuesta {
                             spacing: 8
                             Rectangle {
                                 anchors.verticalCenter: parent.verticalCenter
-                                width: Math.max(22, numero.implicitWidth + 12); height: 22; radius: 7
-                                color: celda.esActivo ? Paleta.naranja : Qt.alpha(Paleta.texto, .08)
+                                width: Math.max(22, numero.implicitWidth + 12); height: 22; radius: 8
+                                color: celda.esActivo ? Paleta.acento : EstiloPanel.rellenoActivo
                                 Text {
                                     id: numero
                                     anchors.centerIn: parent
@@ -243,7 +243,7 @@ Superpuesta {
                                 anchors.verticalCenter: parent.verticalCenter
                                 visible: celda.esActivo
                                 text: "· aquí estás"
-                                color: Paleta.naranja
+                                color: Paleta.acento
                                 font { family: EstiloPanel.fuente; pixelSize: 11 }
                             }
                         }
@@ -255,14 +255,14 @@ Superpuesta {
                             width: parent.width
                             height: pantalla.height
                             scale: zonaCelda.containsMouse && !celda.esActivo ? 1.012 : 1
-                            Behavior on scale { NumberAnimation { duration: EstiloPanel.breve; easing.type: Easing.OutCubic } }
+                            Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
 
                             RectangularShadow {
                                 anchors.fill: parent
                                 visible: EstiloPanel.efectos
-                                radius: 14
+                                radius: 16
                                 offset.y: 8; blur: 26; spread: -8
-                                color: celda.esActivo || celda.resaltada ? Qt.alpha(Paleta.naranja, .35) : Qt.alpha("black", .55)
+                                color: celda.esActivo || celda.resaltada ? Qt.alpha(Paleta.acento, .35) : Qt.alpha("black", .55)
                             }
                             Item {
                                 id: pantalla
@@ -306,7 +306,7 @@ Superpuesta {
                                     anchors.centerIn: parent
                                     visible: celda.ventanas.length === 0
                                     text: "Espacio vacío"
-                                    color: Qt.alpha(Paleta.texto, .7)
+                                    color: EstiloPanel.tenue
                                     font { family: EstiloPanel.fuente; pixelSize: 12 }
                                 }
 
@@ -328,8 +328,8 @@ Superpuesta {
                                         z: arrastre.drag.active ? 10 : elegida ? 3 : (ipc?.floating ? 2 : 1)
                                         opacity: encaja ? 1 : 0.22
                                         scale: arrastre.drag.active ? 0.9 : encima ? 1.03 : 1
-                                        Behavior on opacity { NumberAnimation { duration: EstiloPanel.breve } }
-                                        Behavior on scale { NumberAnimation { duration: EstiloPanel.breve; easing.type: Easing.OutCubic } }
+                                        Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
+                                        Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
                                         Drag.active: arrastre.drag.active
                                         Drag.keys: ["ventana"]
                                         Drag.source: ventanita
@@ -338,7 +338,7 @@ Superpuesta {
                                         Rectangle {
                                             id: tapa
                                             anchors.fill: parent
-                                            radius: 7
+                                            radius: 8
                                             color: Paleta.seleccion
                                             clip: true
                                             ScreencopyView {
@@ -366,11 +366,11 @@ Superpuesta {
                                         }
                                         Rectangle {   // borde (encima de la captura)
                                             anchors.fill: parent
-                                            radius: 7
+                                            radius: 8
                                             color: "transparent"
                                             border.width: ventanita.elegida ? 2 : 1
-                                            border.color: ventanita.elegida ? Paleta.naranja : ventanita.encima ? Qt.alpha(Paleta.texto, .6) : Qt.alpha(Paleta.texto, .14)
-                                            Behavior on border.color { ColorAnimation { duration: EstiloPanel.breve } }
+                                            border.color: ventanita.elegida ? Paleta.acento : ventanita.encima ? EstiloPanel.tenue : EstiloPanel.bordeFuerte
+                                            Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
                                         }
                                         // icono de la app, en el centro
                                         Rectangle {
@@ -378,10 +378,10 @@ Superpuesta {
                                             readonly property real lado: Math.min(34, Math.max(18, Math.min(parent.width, parent.height) * 0.32))
                                             width: lado; height: lado; radius: lado * 0.28
                                             color: Qt.alpha(Paleta.fondo, .72)
-                                            border { width: 1; color: Qt.alpha(Paleta.texto, .12) }
+                                            border { width: 1; color: EstiloPanel.bordeFuerte }
                                             visible: parent.height > 30 && imagenIcono.status === Image.Ready
                                             opacity: ventanita.encima ? 0 : 1
-                                            Behavior on opacity { NumberAnimation { duration: EstiloPanel.breve } }
+                                            Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
                                             Image {
                                                 id: imagenIcono
                                                 anchors { fill: parent; margins: parent.lado * 0.14 }
@@ -411,9 +411,9 @@ Superpuesta {
                                         // ×: cerrar la ventana
                                         Rectangle {
                                             anchors { top: parent.top; right: parent.right; margins: 4 }
-                                            width: 18; height: 18; radius: 9
+                                            width: 18; height: 18; radius: height / 2
                                             visible: ventanita.encima && !arrastre.drag.active && parent.width > 50
-                                            color: equis.containsMouse ? Paleta.rojo : Qt.alpha("black", .65)
+                                            color: equis.containsMouse ? Paleta.peligro : Qt.alpha("black", .65)
                                             Text { anchors.centerIn: parent; text: "×"; color: "white"; font { pixelSize: 13; bold: true } }
                                             MouseArea {
                                                 id: equis
@@ -431,10 +431,10 @@ Superpuesta {
                                 radius: 12
                                 color: "transparent"
                                 border.width: celda.esActivo || celda.resaltada ? 2 : 1
-                                border.color: celda.esActivo ? Paleta.naranja
-                                            : celda.resaltada ? Qt.alpha(Paleta.naranja, .6)
+                                border.color: celda.esActivo ? Paleta.acento
+                                            : celda.resaltada ? Qt.alpha(Paleta.acento, .6)
                                             : Qt.alpha(Paleta.texto, zonaCelda.containsMouse ? .3 : .12)
-                                Behavior on border.color { ColorAnimation { duration: EstiloPanel.breve } }
+                                Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
                             }
                         }
                     }
@@ -445,7 +445,7 @@ Superpuesta {
                     width: vista.anchoCelda
                     height: vista.anchoCelda * vista.proporcion + 34
                     opacity: vista.abierto ? 1 : 0
-                    Behavior on opacity { NumberAnimation { duration: EstiloPanel.entrada + vista.espacios.length * 35 } }
+                    Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal + vista.espacios.length * 35 } }
                     Text {
                         height: 26
                         verticalAlignment: Text.AlignVCenter
@@ -459,16 +459,16 @@ Superpuesta {
                         height: parent.height - 32
                         radius: 12
                         color: Qt.alpha(Paleta.texto, nuevoDestino.containsDrag ? .1 : nuevoZona.containsMouse ? .06 : .025)
-                        border { width: nuevoDestino.containsDrag ? 2 : 1; color: nuevoDestino.containsDrag ? Paleta.naranja : Qt.alpha(Paleta.texto, nuevoZona.containsMouse ? .3 : .12) }
-                        Behavior on color { ColorAnimation { duration: EstiloPanel.breve } }
+                        border { width: nuevoDestino.containsDrag ? 2 : 1; color: nuevoDestino.containsDrag ? Paleta.acento : Qt.alpha(Paleta.texto, nuevoZona.containsMouse ? .3 : .12) }
+                        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                         Column {
                             anchors.centerIn: parent
                             spacing: 6
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: "+"
-                                color: nuevoDestino.containsDrag || nuevoZona.containsMouse ? Paleta.naranja : EstiloPanel.tenue
-                                font { family: EstiloPanel.fuente; pixelSize: 30; weight: Font.Light }
+                                color: nuevoDestino.containsDrag || nuevoZona.containsMouse ? Paleta.acento : EstiloPanel.tenue
+                                font { family: EstiloPanel.fuente; pixelSize: 26; weight: Font.Light }
                             }
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter

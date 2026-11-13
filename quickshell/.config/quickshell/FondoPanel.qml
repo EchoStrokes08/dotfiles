@@ -2,7 +2,7 @@
 // Superpuesta…). Se pone como primer hijo de la tarjeta:  FondoPanel { anchors.fill: parent; acento: … }
 //   · sombra suave que separa la tarjeta del fondo + halo difuso del color del panel
 //   · degradado vertical con un toque del acento arriba (se nota el color del panel sin teñirlo todo)
-//   · dos luces radiales (acento arriba a la izquierda, morado abajo a la derecha) que dan profundidad
+//   · una luz radial del acento arriba a la izquierda que da profundidad
 //   · filo de luz en el borde superior, como el canto de un cristal
 // En los perfiles mínimo/rendimiento, con batería o jugando (EstiloPanel.efectos) quita sombras y luces.
 import QtQuick
@@ -11,8 +11,7 @@ import QtQuick.Shapes
 
 Item {
     id: f
-    property color acento: Paleta.naranja
-    property color acento2: Paleta.morado
+    property color acento: Paleta.acento
     property real radio: 22
     property real opacidad: EstiloPanel.opacidadPanel   // 0.93 con blur detrás, 1 sin él
     property bool luces: EstiloPanel.efectos
@@ -47,7 +46,7 @@ Item {
                 x1: 0; y1: 0; x2: 0; y2: f.height
                 GradientStop { position: 0;   color: Qt.alpha(Qt.tint(Paleta.fondo, Qt.alpha(f.acento, .09)), f.opacidad) }
                 GradientStop { position: .38; color: Qt.alpha(Paleta.fondo, f.opacidad) }
-                GradientStop { position: 1;   color: Qt.alpha(Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .025)), Math.min(1, f.opacidad + .05)) }
+                GradientStop { position: 1;   color: Qt.alpha(Qt.tint(Paleta.fondo, EstiloPanel.relleno), Math.min(1, f.opacidad + .05)) }
             }
             PathRectangle { x: .5; y: .5; width: f.width - 1; height: f.height - 1; radius: f.radio }
         }
@@ -65,19 +64,6 @@ Item {
             }
             PathRectangle { x: 1; y: 1; width: f.width - 2; height: f.height - 2; radius: f.radio - 1 }
         }
-        // Contraluz frío (abajo a la derecha)
-        ShapePath {
-            strokeWidth: 0
-            strokeColor: "transparent"
-            fillGradient: RadialGradient {
-                centerX: f.width * .96; centerY: f.height * 1.04
-                centerRadius: Math.max(220, Math.min(f.width, 800) * .5)
-                focalX: centerX; focalY: centerY
-                GradientStop { position: 0; color: Qt.alpha(f.acento2, f.luces ? .09 : 0) }
-                GradientStop { position: 1; color: "transparent" }
-            }
-            PathRectangle { x: 1; y: 1; width: f.width - 2; height: f.height - 2; radius: f.radio - 1 }
-        }
     }
 
     // Bisel interior: un segundo filo, más tenue, 1 px hacia dentro (cristal grueso)
@@ -85,7 +71,7 @@ Item {
         anchors { fill: parent; margins: 1.5 }
         radius: f.radio - 1.5
         color: "transparent"
-        border { width: 1; color: Qt.alpha(Paleta.texto, .035) }
+        border { width: 1; color: EstiloPanel.relleno }
     }
     // Filo de luz superior
     Rectangle {
@@ -95,7 +81,7 @@ Item {
             orientation: Gradient.Horizontal
             GradientStop { position: 0;  color: "transparent" }
             GradientStop { position: .3; color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(f.acento, .4)), .30) }
-            GradientStop { position: .7; color: Qt.alpha(Paleta.texto, .14) }
+            GradientStop { position: .7; color: EstiloPanel.bordeFuerte }
             GradientStop { position: 1;  color: "transparent" }
         }
     }

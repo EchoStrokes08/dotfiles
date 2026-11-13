@@ -64,7 +64,7 @@ ColumnLayout {
     Text {
         text: tiempo.total > 0 ? tiempo.formato(tiempo.total) : "—"
         color: Paleta.texto
-        font { family: Paleta.fuente; pixelSize: 22; bold: true }
+        font { family: Paleta.fuente; pixelSize: 20; bold: true }
     }
 
     Repeater {
@@ -91,12 +91,12 @@ ColumnLayout {
             }
             Rectangle {
                 Layout.fillWidth: true
-                height: 4; radius: 2
-                color: Qt.alpha(Paleta.texto, 0.08)
+                height: 4; radius: height / 2
+                color: EstiloPanel.rellenoActivo
                 Rectangle {
-                    height: parent.height; radius: 2
+                    height: parent.height; radius: height / 2
                     width: parent.width * modelData.seg / Math.max(1, tiempo.apps[0]?.seg ?? 1)
-                    color: [Paleta.naranja, Paleta.azul, Paleta.verde, Paleta.morado][index % 4]
+                    color: Paleta.serie[index % 4]
                 }
             }
         }
@@ -139,10 +139,10 @@ ColumnLayout {
                     Layout.fillHeight: true
                     Rectangle {
                         anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
-                        width: Math.min(parent.width, 18); radius: 3
+                        width: Math.min(parent.width, 18); radius: 4
                         height: Math.max(2, parent.height * modelData.total / parent.parent.parent.maximo)
-                        color: esHoy ? Paleta.naranja : tiempo.elegido === index ? Paleta.azul : Qt.alpha(Paleta.azul, 0.45)
-                        Behavior on height { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                        color: esHoy ? Paleta.acento : tiempo.elegido === index ? Paleta.acento2 : Qt.alpha(Paleta.acento2, 0.45)
+                        Behavior on height { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
                     }
                     MouseArea {
                         anchors.fill: parent; hoverEnabled: true
@@ -153,7 +153,7 @@ ColumnLayout {
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: ["D", "L", "M", "X", "J", "V", "S"][new Date(modelData.dia + "T12:00").getDay()]
-                    color: esHoy ? Paleta.naranja : Paleta.gris
+                    color: esHoy ? Paleta.acento : Paleta.gris
                     font { family: Paleta.fuente; pixelSize: 11; bold: esHoy }
                 }
             }

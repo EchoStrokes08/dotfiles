@@ -144,14 +144,14 @@ Superpuesta {
                 Rectangle {
                     required property var modelData
                     readonly property bool activa: cx.pestana === modelData.id
-                    implicitWidth: filaPest.implicitWidth + 24; implicitHeight: 34; radius: 10
-                    color: activa ? Qt.alpha(Paleta.naranja, 0.20) : Qt.alpha(Paleta.texto, zonaPest.containsMouse ? 0.08 : 0.04)
-                    Behavior on color { ColorAnimation { duration: 150 } }
+                    implicitWidth: filaPest.implicitWidth + 24; implicitHeight: 34; radius: 12
+                    color: activa ? Qt.alpha(Paleta.acento, 0.20) : Qt.alpha(Paleta.texto, zonaPest.containsMouse ? 0.08 : 0.04)
+                    Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                     Row {
                         id: filaPest
                         anchors.centerIn: parent
                         spacing: 8
-                        Text { text: cx.g(modelData.icono); color: activa ? Paleta.naranja : Paleta.gris; font { family: Paleta.fuente; pixelSize: 15 } }
+                        Text { text: cx.g(modelData.icono); color: activa ? Paleta.acento : Paleta.gris; font { family: Paleta.fuente; pixelSize: 14 } }
                         Text { text: modelData.nombre; color: activa ? Paleta.texto : Paleta.gris; font { family: Paleta.fuente; pixelSize: 12; bold: true } }
                     }
                     MouseArea { id: zonaPest; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -168,13 +168,13 @@ Superpuesta {
             }
             Rectangle {   // interruptor
                 implicitWidth: 44; implicitHeight: 24; radius: 12
-                color: cx.radioEncendida ? Paleta.naranja : Qt.alpha(Paleta.texto, 0.15)
-                Behavior on color { ColorAnimation { duration: 150 } }
+                color: cx.radioEncendida ? Paleta.acento : EstiloPanel.bordeFuerte
+                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                 Rectangle {
-                    width: 18; height: 18; radius: 9; y: 3
+                    width: 18; height: 18; radius: height / 2; y: 3
                     x: cx.radioEncendida ? parent.width - width - 3 : 3
                     color: cx.radioEncendida ? Paleta.fondo : Paleta.texto
-                    Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                    Behavior on x { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
                 }
                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: cx.conmutarRadio() }
             }
@@ -193,9 +193,9 @@ Superpuesta {
             keyNavigationWraps: true
             focus: true
             highlight: Rectangle {
-                radius: 9
-                color: Qt.alpha(Paleta.naranja, 0.13)
-                Rectangle { width: 3; height: parent.height - 14; radius: 2; color: Paleta.naranja
+                radius: 12
+                color: Qt.alpha(Paleta.acento, 0.13)
+                Rectangle { width: 3; height: parent.height - 14; radius: 4; color: Paleta.acento
                             anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter } }
             }
             Keys.onTabPressed: cx.pestana = cx.pestana === "wifi" ? "bluetooth" : "wifi"
@@ -246,8 +246,8 @@ Superpuesta {
                         Text {
                             Layout.preferredWidth: 22
                             text: fila.esWifi ? cx.iconoRed(fila.modelData) : cx.iconoBt(fila.modelData)
-                            color: fila.activo ? Paleta.naranja : fila.guardado ? Paleta.texto : Paleta.gris
-                            font { family: Paleta.fuente; pixelSize: 18 }
+                            color: fila.activo ? Paleta.acento : fila.guardado ? Paleta.texto : Paleta.gris
+                            font { family: Paleta.fuente; pixelSize: 16 }
                         }
                         ColumnLayout {
                             Layout.fillWidth: true
@@ -255,14 +255,14 @@ Superpuesta {
                             Text {
                                 Layout.fillWidth: true
                                 text: fila.modelData.name
-                                color: fila.activo ? Paleta.naranja : Paleta.texto
+                                color: fila.activo ? Paleta.acento : Paleta.texto
                                 elide: Text.ElideRight
                                 font { family: Paleta.fuente; pixelSize: 13; bold: fila.activo }
                             }
                             Text {
                                 Layout.fillWidth: true
                                 text: fila.esWifi ? cx.detalleRed(fila.modelData) : cx.detalleBt(fila.modelData)
-                                color: fila.conError ? Paleta.rojo : Paleta.gris
+                                color: fila.conError ? Paleta.peligro : Paleta.gris
                                 elide: Text.ElideRight
                                 font { family: Paleta.fuente; pixelSize: 11 }
                             }
@@ -270,7 +270,7 @@ Superpuesta {
                         Text {   // olvidar (solo guardados, al pasar el ratón)
                             visible: fila.guardado && zonaFila.containsMouse && !fila.pideClave
                             text: cx.g(0xF0A7A)
-                            color: zonaOlvidar.containsMouse ? Paleta.rojo : Paleta.gris
+                            color: zonaOlvidar.containsMouse ? Paleta.peligro : Paleta.gris
                             font { family: Paleta.fuente; pixelSize: 14 }
                             MouseArea { id: zonaOlvidar; anchors.fill: parent; anchors.margins: -6; hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor; onClicked: cx.olvidar(fila.modelData) }
@@ -278,8 +278,8 @@ Superpuesta {
                         Text {
                             visible: fila.activo
                             text: cx.g(0xF012C)
-                            color: Paleta.naranja
-                            font { family: Paleta.fuente; pixelSize: 15 }
+                            color: Paleta.acento
+                            font { family: Paleta.fuente; pixelSize: 14 }
                         }
                     }
 
@@ -288,13 +288,13 @@ Superpuesta {
                         visible: fila.pideClave
                         Layout.fillWidth: true
                         Layout.leftMargin: 34
-                        implicitHeight: 34; radius: 9
-                        color: Qt.alpha(Paleta.texto, 0.06)
-                        border { width: 1; color: Qt.alpha(Paleta.naranja, 0.5) }
+                        implicitHeight: 34; radius: 12
+                        color: EstiloPanel.rellenoActivo
+                        border { width: 1; color: Qt.alpha(Paleta.acento, 0.5) }
                         RowLayout {
                             anchors { fill: parent; leftMargin: 12; rightMargin: 8 }
                             spacing: 8
-                            Text { text: cx.g(0xF033E); color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 13 } }
+                            Text { text: cx.g(0xF033E); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 13 } }
                             TextInput {
                                 id: clave
                                 Layout.fillWidth: true

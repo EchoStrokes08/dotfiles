@@ -8,5 +8,5 @@ Rectangle {
     Layout.alignment: Qt.AlignVCenter
     implicitWidth: 1
     implicitHeight: 14
-    color: Qt.alpha(Paleta.texto, .14)
+    color: EstiloPanel.bordeFuerte
 }

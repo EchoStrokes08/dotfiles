@@ -67,13 +67,13 @@ Superpuesta {
         // Buscador
         Rectangle {
             Layout.fillWidth: true
-            implicitHeight: 42; radius: 11
-            color: Qt.alpha(Paleta.texto, 0.06)
-            border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.naranja, 0.5) : "transparent" }
+            implicitHeight: 42; radius: 12
+            color: EstiloPanel.rellenoActivo
+            border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.acento, 0.5) : "transparent" }
             RowLayout {
                 anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
                 spacing: 10
-                Text { text: String.fromCodePoint(0xF030C); color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 16 } }
+                Text { text: String.fromCodePoint(0xF030C); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
                 TextInput {
                     id: buscador
                     Layout.fillWidth: true
@@ -123,7 +123,7 @@ Superpuesta {
                                     width: parent.width
                                     wrapMode: Text.WordWrap
                                     text: modelData.titulo
-                                    color: Paleta.naranja
+                                    color: Paleta.acento
                                     font { family: Paleta.fuente; pixelSize: 12; bold: true }
                                     bottomPadding: 3
                                 }
@@ -136,14 +136,14 @@ Superpuesta {
                                         Tecla {
                                             id: chip
                                             texto: modelData.tecla
-                                            tinte: Paleta.amarillo
+                                            tinte: Paleta.aviso
                                             anchoMax: parent.width * 0.42
                                         }
                                         Text {
                                             width: parent.width - chip.width - 8
                                             text: modelData.texto
                                             wrapMode: Text.WordWrap
-                                            color: Qt.alpha(Paleta.texto, 0.85)
+                                            color: EstiloPanel.secundario
                                             font { family: Paleta.fuente; pixelSize: 11 }
                                             topPadding: 3
                                         }

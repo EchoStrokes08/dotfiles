@@ -64,13 +64,13 @@ Superpuesta {
         // Buscador
         Rectangle {
             Layout.fillWidth: true
-            implicitHeight: 42; radius: 11
-            color: Qt.alpha(Paleta.texto, 0.06)
-            border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.naranja, 0.5) : "transparent" }
+            implicitHeight: 42; radius: 12
+            color: EstiloPanel.rellenoActivo
+            border { width: 1; color: buscador.activeFocus ? Qt.alpha(Paleta.acento, 0.5) : "transparent" }
             RowLayout {
                 anchors { fill: parent; leftMargin: 14; rightMargin: 10 }
                 spacing: 10
-                Text { text: String.fromCodePoint(0xF0147); color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 16 } }
+                Text { text: String.fromCodePoint(0xF0147); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
                 TextInput {
                     id: buscador
                     Layout.fillWidth: true
@@ -91,7 +91,7 @@ Superpuesta {
                 }
                 Rectangle {   // borrar todo
                     implicitWidth: 92; implicitHeight: 26; radius: 8
-                    color: zonaWipe.containsMouse ? Qt.alpha(Paleta.rojo, 0.25) : Qt.alpha(Paleta.texto, 0.07)
+                    color: zonaWipe.containsMouse ? Qt.alpha(Paleta.peligro, 0.25) : EstiloPanel.rellenoActivo
                     Text { anchors.centerIn: parent; text: "Borrar todo"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                     MouseArea { id: zonaWipe; anchors.fill: parent; hoverEnabled: true; onClicked: { pp.sh("cliphist wipe"); pp.entradas = []; } }
                 }
@@ -109,9 +109,9 @@ Superpuesta {
             highlightMoveDuration: 120
             keyNavigationWraps: true
             highlight: Rectangle {
-                radius: 9
-                color: Qt.alpha(Paleta.naranja, 0.13)
-                Rectangle { width: 3; height: parent.height - 14; radius: 2; color: Paleta.naranja
+                radius: 12
+                color: Qt.alpha(Paleta.acento, 0.13)
+                Rectangle { width: 3; height: parent.height - 14; radius: 4; color: Paleta.acento
                             anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter } }
             }
 
@@ -143,7 +143,7 @@ Superpuesta {
                         text: fila.modelData.imagen
                               ? "Imagen  " + (fila.modelData.texto.match(/(\d+x\d+)/)?.[1] ?? "")
                               : fila.modelData.texto.replace(/\s+/g, " ")
-                        color: lista.currentIndex === fila.index ? Paleta.texto : Qt.alpha(Paleta.texto, 0.75)
+                        color: lista.currentIndex === fila.index ? Paleta.texto : EstiloPanel.secundario
                         elide: Text.ElideRight
                         maximumLineCount: 1
                         font { family: Paleta.fuente; pixelSize: 12; italic: fila.modelData.imagen }
@@ -151,7 +151,7 @@ Superpuesta {
                     Text {   // borrar esta entrada
                         text: ""
                         visible: zonaFila.containsMouse
-                        color: zonaBorrar.containsMouse ? Paleta.rojo : Paleta.gris
+                        color: zonaBorrar.containsMouse ? Paleta.peligro : Paleta.gris
                         font { family: Paleta.fuente; pixelSize: 12 }
                         MouseArea { id: zonaBorrar; anchors.fill: parent; anchors.margins: -6; hoverEnabled: true; onClicked: pp.borrar(fila.modelData) }
                     }

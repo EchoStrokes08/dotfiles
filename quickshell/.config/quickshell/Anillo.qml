@@ -1,12 +1,12 @@
 // Anillo: un indicador circular (CPU, RAM…). Se usa así:
-//   Anillo { valor: 0.42; color: Paleta.azul; etiqueta: "CPU"; texto: "42%" }
+//   Anillo { valor: 0.42; color: Paleta.acento2; etiqueta: "CPU"; texto: "42%" }
 import QtQuick
 import QtQuick.Shapes
 
 Item {
     id: anillo
     property real valor: 0          // 0..1
-    property color color: Paleta.naranja
+    property color color: Paleta.acento
     property string etiqueta: ""
     property string texto: ""
     property real grosor: 7
@@ -24,7 +24,7 @@ Item {
 
         // pista (el círculo de fondo)
         ShapePath {
-            strokeColor: Qt.alpha(Paleta.texto, 0.10)
+            strokeColor: EstiloPanel.rellenoActivo
             strokeWidth: anillo.grosor
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap
@@ -55,7 +55,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             text: anillo.texto
             color: Paleta.texto
-            font { family: Paleta.fuente; pixelSize: 17; bold: true }
+            font { family: Paleta.fuente; pixelSize: 16; bold: true }
         }
         Text {
             anchors.horizontalCenter: parent.horizontalCenter

@@ -6,7 +6,7 @@ import QtQuick.Effects
 
 Item {
     id: isla
-    property color acento: Paleta.naranja
+    property color acento: Paleta.acento
     property real tinte: .06            // cuánto se nota el acento en el degradado
     implicitHeight: 34
 
@@ -24,7 +24,7 @@ Item {
         radius: height / 2
         gradient: Gradient {
             GradientStop { position: 0; color: Qt.alpha(Qt.tint(Paleta.fondo, Qt.alpha(isla.acento, isla.tinte * 1.6)), .82) }
-            GradientStop { position: 1; color: Qt.alpha(Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .02)), .88) }
+            GradientStop { position: 1; color: Qt.alpha(Qt.tint(Paleta.fondo, EstiloPanel.relleno), .88) }
         }
         border { width: 1; color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(isla.acento, .4)), .12) }
     }
@@ -33,7 +33,7 @@ Item {
         anchors { fill: parent; margins: 1.5 }
         radius: height / 2
         color: "transparent"
-        border { width: 1; color: Qt.alpha(Paleta.texto, .03) }
+        border { width: 1; color: EstiloPanel.relleno }
     }
     // filo de luz superior
     Rectangle {
@@ -42,7 +42,7 @@ Item {
         gradient: Gradient {
             orientation: Gradient.Horizontal
             GradientStop { position: 0; color: "transparent" }
-            GradientStop { position: .5; color: Qt.alpha(Paleta.texto, .16) }
+            GradientStop { position: .5; color: EstiloPanel.bordeFuerte }
             GradientStop { position: 1; color: "transparent" }
         }
     }

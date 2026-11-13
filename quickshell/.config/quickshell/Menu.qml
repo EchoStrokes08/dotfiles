@@ -47,9 +47,9 @@ Superpuesta {
             Keys.onReturnPressed: menu.elegir(menu.opciones[currentIndex])
             Keys.onEnterPressed: menu.elegir(menu.opciones[currentIndex])
             highlight: Rectangle {
-                radius: 9
-                color: Qt.alpha(Paleta.naranja, 0.13)
-                Rectangle { width: 3; height: parent.height - 14; radius: 2; color: Paleta.naranja
+                radius: 12
+                color: Qt.alpha(Paleta.acento, 0.13)
+                Rectangle { width: 3; height: parent.height - 14; radius: 4; color: Paleta.acento
                             anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter } }
             }
             delegate: Item {
@@ -59,11 +59,11 @@ Superpuesta {
                 RowLayout {
                     anchors { fill: parent; leftMargin: 18 }
                     spacing: 14
-                    Text { text: String.fromCodePoint(modelData.icono); color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 18 } }
+                    Text { text: String.fromCodePoint(modelData.icono); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
                     Text {
                         Layout.fillWidth: true
                         text: modelData.texto
-                        color: lista.currentIndex === index ? Paleta.texto : Qt.alpha(Paleta.texto, 0.8)
+                        color: lista.currentIndex === index ? Paleta.texto : EstiloPanel.secundario
                         font { family: Paleta.fuente; pixelSize: 13; bold: lista.currentIndex === index }
                     }
                     Text {   // número: pulsar 1-9 elige directamente

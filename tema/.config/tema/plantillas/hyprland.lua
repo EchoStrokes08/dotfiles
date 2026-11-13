@@ -1,5 +1,12 @@
--- Paleta generada del wallpaper (modo "wallpaper") para Hyprland
+-- Paleta generada del wallpaper (modo «wallpaper», matugen) para Hyprland. Nombres por función (ver colores.css)
 return {
-    fondo = "{{colors.surface.default.hex_stripped}}", texto = "{{colors.on_surface.default.hex_stripped}}", naranja = "{{colors.primary.default.hex_stripped}}", amarillo = "e6c446", azul = "{{colors.tertiary.default.hex_stripped}}",
-    verde = "b8cc52", rojo = "{{colors.error.default.hex_stripped}}", seleccion = "{{colors.surface_container_highest.default.hex_stripped}}", gris = "{{colors.outline.default.hex_stripped}}",
+    fondo     = "{{colors.surface.default.hex_stripped}}",
+    texto     = "{{colors.on_surface.default.hex_stripped}}",
+    acento    = "{{colors.primary.default.hex_stripped}}",
+    acento2   = "{{colors.tertiary.default.hex_stripped}}",
+    exito     = "b8cc52",
+    aviso     = "e6c446",
+    peligro   = "ff5c57",
+    seleccion = "{{colors.surface_container_highest.default.hex_stripped}}",
+    gris      = "{{colors.outline.default.hex_stripped}}",
 }

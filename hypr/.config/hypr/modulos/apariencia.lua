@@ -8,12 +8,6 @@ hl.config({
         gaps_out    = base.general.gaps_out,  -- espacio entre las ventanas y el borde de la pantalla
         border_size = base.general.border_size,
 
-        col = {
-            -- borde activo: degradado naranja → azul a 135°
-            active_border   = { colors = { c.rgba("naranja", "ee"), c.rgba("azul", "ff") }, angle = 135 },
-            inactive_border = c.rgba("seleccion", "aa"),
-        },
-
         resize_on_border = false,  -- true = redimensionar arrastrando bordes y huecos
         allow_tearing    = true,   -- solo afecta a ventanas con la regla "immediate" (Roblox)
         layout           = "dwindle",
@@ -27,11 +21,11 @@ hl.config({
         inactive_opacity   = base.decoration.inactive_opacity,
         fullscreen_opacity = 1.0,  -- en pantalla completa nada es transparente
 
+        -- Sombra amplia y suave, como la de los paneles de Quickshell
         shadow = {
             enabled      = true,
-            range        = 4,
+            range        = 20,
             render_power = 3,
-            color        = "0xee" .. c.fondo,
         },
 
         -- Blur fuerte: detrás de un panel no se debe poder leer nada. Con batería se apaga solo (politicas.lua).
@@ -64,29 +58,54 @@ hl.window_rule({ name = "no-gaps-f1",   match = { float = false, workspace = "f[
 -- Los colores salen de colores.lua, así que siguen al tema (Ayu o wallpaper) igual que el resto.
 hl.config({
     group = {
-        col = {
-            -- borde de una ventana agrupada: amarillo → naranja, para distinguirla de una normal (naranja → azul)
-            border_active   = { colors = { c.rgba("amarillo", "ee"), c.rgba("naranja", "ff") }, angle = 135 },
-            border_inactive = c.rgba("seleccion", "aa"),
-        },
         groupbar = {
             enabled             = true,
-            font_family         = "JetBrainsMono Nerd Font",
-            font_size           = 11,
-            height              = 18,
+            font_family         = "Adwaita Sans",
+            font_size           = 12,
+            height              = 20,
             gradients           = true,   -- pestañas rellenas de color (no solo una línea)
-            rounding            = 4,
-            gradient_rounding   = 4,
+            rounding            = 8,
+            gradient_rounding   = 8,
             indicator_height    = 0,      -- sin rayita extra: ya se ve por el relleno
             gaps_in             = 3,
             keep_upper_gap      = false,
             middle_click_close  = true,   -- clic central en una pestaña = cerrarla
-            text_color          = c.rgba("fondo"),         -- texto de la pestaña activa (sobre naranja)
-            text_color_inactive = c.rgba("texto", "cc"),
-            col = {
-                active   = c.rgba("naranja", "ee"),
-                inactive = c.rgba("seleccion", "dd"),
-            },
         },
     },
 })
+
+-- ---------- Colores ----------
+-- Todo lo que depende de la paleta va aquí, en una función: al cambiar de tema o de wallpaper, tema.sh la
+-- llama en caliente (hyprctl dispatch 'colores_tema() or hl.dsp.no_op()') en vez de hacer «hyprctl reload».
+-- Una recarga completa reinicia temporizadores y reglas de espacio, y el 13-11-2026 dejó Hyprland colgado.
+local function colores()
+    hl.config({
+        general = { col = {
+            -- borde activo: el acento liso (2 px). El inactivo, casi invisible: la ventana activa se reconoce por color
+            active_border   = c.rgba("acento", "ee"),
+            inactive_border = c.rgba("texto", "14"),
+        } },
+        decoration = { shadow = { color = c.rgba("fondo", "59") } },   -- sombra al 35 %
+        group = {
+            col = {
+                -- borde de una ventana agrupada: acento2, para distinguirla de una normal (acento)
+                border_active   = c.rgba("acento2", "ee"),
+                border_inactive = c.rgba("seleccion", "aa"),
+            },
+            groupbar = {
+                text_color          = c.rgba("fondo"),         -- texto de la pestaña activa (sobre el acento)
+                text_color_inactive = c.rgba("texto", "cc"),
+                col = {
+                    active   = c.rgba("acento", "ee"),
+                    inactive = c.rgba("seleccion", "dd"),
+                },
+            },
+        },
+    })
+end
+colores()
+
+_G.colores_tema = function()
+    c.recargar()
+    colores()
+end

@@ -60,7 +60,7 @@ Superpuesta {
         RowLayout {
             Layout.fillWidth: true
             Layout.leftMargin: 6; Layout.rightMargin: 6
-            Text { text: String.fromCodePoint(0xF06A9); color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 16 } }
+            Text { text: String.fromCodePoint(0xF06A9); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
             Text {
                 Layout.fillWidth: true
                 text: ia.titulos[ia.accion] ?? "Asistente"
@@ -70,7 +70,7 @@ Superpuesta {
             Text {
                 visible: ia.pensando
                 text: ia.respuesta === "" ? "pensando…" : "escribiendo…"
-                color: Paleta.azul
+                color: Paleta.acento2
                 font { family: Paleta.fuente; pixelSize: 11; italic: true }
                 SequentialAnimation on opacity { running: ia.pensando; loops: Animation.Infinite
                     NumberAnimation { to: 0.35; duration: 600 } NumberAnimation { to: 1; duration: 600 } }
@@ -81,15 +81,15 @@ Superpuesta {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 42
-            radius: 11
-            color: Qt.alpha(Paleta.texto, 0.06)
-            border { width: 1; color: campo.activeFocus ? Qt.alpha(Paleta.naranja, 0.5) : "transparent" }
+            radius: 12
+            color: EstiloPanel.rellenoActivo
+            border { width: 1; color: campo.activeFocus ? Qt.alpha(Paleta.acento, 0.5) : "transparent" }
             TextInput {
                 id: campo
                 anchors { fill: parent; leftMargin: 14; rightMargin: 14 }
                 verticalAlignment: TextInput.AlignVCenter
                 color: Paleta.texto
-                selectionColor: Qt.alpha(Paleta.naranja, 0.4)
+                selectionColor: Qt.alpha(Paleta.acento, 0.4)
                 font { family: Paleta.fuente; pixelSize: 14 }
                 clip: true
                 focus: true
@@ -127,7 +127,7 @@ Superpuesta {
                 text: ia.error !== "" && ia.respuesta === "" ? ia.error : ia.respuesta
                 textFormat: ia.error !== "" && ia.respuesta === "" ? Text.PlainText : Text.MarkdownText
                 wrapMode: Text.Wrap
-                color: ia.error !== "" && ia.respuesta === "" ? Paleta.rojo : Paleta.texto
+                color: ia.error !== "" && ia.respuesta === "" ? Paleta.peligro : Paleta.texto
                 font { family: Paleta.fuente; pixelSize: 13 }
                 lineHeight: 1.2
             }

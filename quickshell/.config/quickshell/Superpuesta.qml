@@ -10,7 +10,7 @@ import Quickshell.Wayland
 PanelWindow {
     id: v
     property bool panelCuidado: false
-    property color acentoPanel: Paleta.naranja
+    property color acentoPanel: Paleta.acento
     property real margenPanel: panelCuidado ? 24 : 18
     property bool abierto: false
     property bool mostrar: false
@@ -27,7 +27,7 @@ PanelWindow {
         if (abierto) { cierre.stop(); mostrar = true; abriendose(); }
         else cierre.restart();
     }
-    Timer { id: cierre; interval: EstiloPanel.entrada; onTriggered: v.mostrar = false }
+    Timer { id: cierre; interval: EstiloPanel.normal; onTriggered: v.mostrar = false }
 
     // Cerrar y DESPUÉS actuar. Mientras el panel está abierto tiene el teclado en exclusiva:
     // si se enfoca otra ventana en ese momento, Hyprland cambia de espacio pero, al soltar el
@@ -57,7 +57,7 @@ PanelWindow {
         // < 0.3 de opacidad: así el blur de Hyprland (ignore_alpha 0.3) solo actúa bajo la tarjeta
         color: "black"
         opacity: v.abierto ? 0.28 : 0
-        Behavior on opacity { NumberAnimation { duration: EstiloPanel.entrada } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
         MouseArea { anchors.fill: parent; onClicked: v.abierto = false }
     }
 
@@ -69,14 +69,14 @@ PanelWindow {
         y: Math.max(12, Math.min(parent.height * v.alturaRelativa, parent.height - height - 16)) + (v.abierto ? 0 : 14)
         opacity: v.abierto ? 1 : 0
         scale: v.abierto ? 1 : 0.965
-        Behavior on y       { NumberAnimation { duration: EstiloPanel.entrada; easing.type: Easing.OutCubic } }
-        Behavior on opacity { NumberAnimation { duration: EstiloPanel.entrada } }
-        Behavior on scale   { NumberAnimation { duration: EstiloPanel.entrada; easing.type: Easing.OutCubic } }
+        Behavior on y       { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
+        Behavior on scale   { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
         color: "transparent"
         FondoPanel {
             anchors.fill: parent
             acento: v.acentoPanel
-            radio: v.panelCuidado ? 24 : 20
+            radio: EstiloPanel.rPanel
             opacidad: Math.max(v.opacidadTarjeta, EstiloPanel.opacidadPanel)
         }
         MouseArea { anchors.fill: parent }

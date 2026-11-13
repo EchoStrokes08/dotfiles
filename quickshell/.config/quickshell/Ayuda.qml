@@ -34,18 +34,18 @@ PopupWindow {
 
     Rectangle {
         anchors.fill: parent
-        radius: 11
+        radius: 12
         gradient: Gradient {
-            GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.naranja, .08)) }
+            GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.acento, .08)) }
             GradientStop { position: 1; color: Paleta.fondo }
         }
-        border { width: 1; color: Qt.alpha(Paleta.naranja, 0.35) }
+        border { width: 1; color: Qt.alpha(Paleta.acento, 0.35) }
         Rectangle {   // filo de luz
             x: 10; y: 1; width: parent.width - 20; height: 1
             gradient: Gradient {
                 orientation: Gradient.Horizontal
                 GradientStop { position: 0; color: "transparent" }
-                GradientStop { position: .5; color: Qt.alpha(Paleta.texto, .18) }
+                GradientStop { position: .5; color: EstiloPanel.bordeFuerte }
                 GradientStop { position: 1; color: "transparent" }
             }
         }

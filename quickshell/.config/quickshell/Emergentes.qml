@@ -38,8 +38,8 @@ PanelWindow {
                 Component.onCompleted: { x = 40; opacity = 0; entrada.start(); }
                 ParallelAnimation {
                     id: entrada
-                    NumberAnimation { target: tarj; property: "x"; to: 0; duration: 260; easing.type: Easing.OutCubic }
-                    NumberAnimation { target: tarj; property: "opacity"; to: 1; duration: 200 }
+                    NumberAnimation { target: tarj; property: "x"; to: 0; duration: EstiloPanel.normal; easing.type: Easing.OutCubic }
+                    NumberAnimation { target: tarj; property: "opacity"; to: 1; duration: EstiloPanel.normal }
                 }
             }
         }

@@ -11,6 +11,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y lua5.4
       - name: Motor de políticas
         run: lua5.4 tests/test_politicas.lua
+      - name: Apariencia y paleta
+        run: lua5.4 tests/test_apariencia.lua
       - name: Regresiones de checkpoints, replay y bloqueo
         run: python3 -m unittest discover -s tests -v
       - name: Sintaxis

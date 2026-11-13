@@ -21,7 +21,7 @@ WlSessionLockSurface {
         anchors.fill: parent
         opacity: 0
         Component.onCompleted: opacity = 1
-        Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
         states: State { when: superficie.estado.saliendo; PropertyChanges { target: todo; opacity: 0 } }
 
         // ── Fondo: el wallpaper desenfocado y oscurecido ──
@@ -56,15 +56,15 @@ WlSessionLockSurface {
                 text: (h < 6 ? "Dulces sueños" : h < 13 ? "Buenos días" : h < 20 ? "Buenas tardes" : "Buenas noches")
                       + ", <b>" + Quickshell.env("USER") + "</b>"
                 textFormat: Text.StyledText
-                color: Qt.alpha(Paleta.texto, 0.7)
+                color: EstiloPanel.tenue
                 font { family: Paleta.fuente; pixelSize: 20; italic: true }
             }
 
             // Hora naranja y minutos azules, con resplandor de su color
             Repeater {
                 model: [
-                    { txt: Qt.formatTime(reloj.date, "HH"), col: Paleta.naranja },
-                    { txt: Qt.formatTime(reloj.date, "mm"), col: Paleta.azul }
+                    { txt: Qt.formatTime(reloj.date, "HH"), col: Paleta.acento },
+                    { txt: Qt.formatTime(reloj.date, "mm"), col: Paleta.acento2 }
                 ]
                 Text {
                     required property var modelData
@@ -87,11 +87,11 @@ WlSessionLockSurface {
             Rectangle {   // rayita naranja → azul
                 Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 10
-                implicitWidth: 70; implicitHeight: 4; radius: 2
+                implicitWidth: 70; implicitHeight: 4; radius: height / 2
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Paleta.naranja }
-                    GradientStop { position: 1; color: Paleta.azul }
+                    GradientStop { position: 0; color: Paleta.acento }
+                    GradientStop { position: 1; color: Paleta.acento2 }
                 }
             }
 
@@ -99,8 +99,8 @@ WlSessionLockSurface {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 22
                 text: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd  ·  dd MMMM").toUpperCase()
-                color: Qt.alpha(Paleta.texto, 0.8)
-                font { family: Paleta.fuente; pixelSize: 15; bold: true; letterSpacing: 4 }
+                color: EstiloPanel.secundario
+                font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 4 }
             }
 
             // ── Campo de contraseña: píldora con borde naranja → azul ──
@@ -131,17 +131,17 @@ WlSessionLockSurface {
                     radius: height / 2
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0; color: superficie.estado.error ? Paleta.rojo
-                                                         : superficie.estado.comprobando ? Paleta.amarillo
-                                                         : superficie.estado.bloqMayus ? Paleta.verde : Paleta.naranja }
-                        GradientStop { position: 1; color: superficie.estado.error ? "#f07178"
-                                                         : superficie.estado.comprobando ? Paleta.naranja : Paleta.azul }
+                        GradientStop { position: 0; color: superficie.estado.error ? Paleta.peligro
+                                                         : superficie.estado.comprobando ? Paleta.aviso
+                                                         : superficie.estado.bloqMayus ? Paleta.exito : Paleta.acento }
+                        GradientStop { position: 1; color: superficie.estado.error ? Paleta.peligro
+                                                         : superficie.estado.comprobando ? Paleta.acento : Paleta.acento2 }
                     }
                 }
                 Rectangle {   // cristal oscuro
                     anchors { fill: parent; margins: 2 }
                     radius: height / 2
-                    color: Qt.alpha("#0b0e14", 0.88)
+                    color: Qt.alpha(Qt.darker(Paleta.fondo, 1.3), 0.88)
 
                     // Puntos de la contraseña
                     Row {
@@ -150,11 +150,11 @@ WlSessionLockSurface {
                         Repeater {
                             model: Math.min(superficie.estado.clave.length, 22)
                             Rectangle {
-                                width: 11; height: 11; radius: 6
+                                width: 11; height: 11; radius: 8
                                 color: Paleta.texto
                                 scale: 0
                                 Component.onCompleted: scale = 1
-                                Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutBack } }
+                                Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutBack } }
                             }
                         }
                     }
@@ -165,7 +165,7 @@ WlSessionLockSurface {
                         text: superficie.estado.comprobando ? "<i>comprobando…</i>"
                             : superficie.estado.error ? "<b>Contraseña incorrecta</b>  <i>(" + superficie.estado.intentos + ")</i>"
                             : "<i>  contraseña…</i>"
-                        color: superficie.estado.error ? "#f07178" : Paleta.gris
+                        color: superficie.estado.error ? Paleta.peligro : Paleta.gris
                         font { family: Paleta.fuente; pixelSize: 14 }
                     }
                 }
@@ -192,9 +192,9 @@ WlSessionLockSurface {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 14
                 opacity: superficie.estado.bloqMayus ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 200 } }
+                Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
                 text: String.fromCodePoint(0xF0A9B) + "  Bloq Mayús activado"
-                color: Paleta.verde
+                color: Paleta.exito
                 font { family: Paleta.fuente; pixelSize: 13 }
             }
         }
@@ -206,15 +206,15 @@ WlSessionLockSurface {
             readonly property int pct: Math.round(bat ? (bat.percentage > 1 ? bat.percentage : bat.percentage * 100) : 0)
             visible: bat?.isLaptopBattery ?? false
             textFormat: Text.StyledText
-            text: `<font color="${Paleta.verde}">${String.fromCodePoint(0xF0079)}</font> ${pct}%    <font color="${Paleta.azul}">${String.fromCodePoint(0xF030C)}</font> latam`
-            color: Qt.alpha(Paleta.texto, 0.7)
+            text: `<font color="${Paleta.exito}">${String.fromCodePoint(0xF0079)}</font> ${pct}%    <font color="${Paleta.acento2}">${String.fromCodePoint(0xF030C)}</font> latam`
+            color: EstiloPanel.tenue
             font { family: Paleta.fuente; pixelSize: 14 }
         }
         Text {
             anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 40 }
             textFormat: Text.StyledText
-            text: `<font color="${Paleta.naranja}">${String.fromCodePoint(0xF033E)}</font>  BLOQUEADO`
-            color: Qt.alpha(Paleta.texto, 0.5)
+            text: `<font color="${Paleta.acento}">${String.fromCodePoint(0xF033E)}</font>  BLOQUEADO`
+            color: EstiloPanel.apagado
             font { family: Paleta.fuente; pixelSize: 13; bold: true; letterSpacing: 3 }
         }
         Text {
@@ -224,8 +224,8 @@ WlSessionLockSurface {
             width: Math.min(implicitWidth, 420)
             elide: Text.ElideRight
             textFormat: Text.StyledText
-            text: j ? `<font color="${Paleta.naranja}">${String.fromCodePoint(0xF075A)}</font>  <i>${j.trackArtist} — ${j.trackTitle}</i>` : ""
-            color: Qt.alpha(Paleta.texto, 0.7)
+            text: j ? `<font color="${Paleta.acento}">${String.fromCodePoint(0xF075A)}</font>  <i>${j.trackArtist} — ${j.trackTitle}</i>` : ""
+            color: EstiloPanel.tenue
             font { family: Paleta.fuente; pixelSize: 14 }
         }
     }
