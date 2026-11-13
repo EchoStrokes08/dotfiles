@@ -16,7 +16,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("qs")               -- Quickshell: barra superior + dashboard SUPER+D (~/.config/quickshell)
     -- hl.exec_cmd("swayosd-server")   -- sustituido por el OSD de Quickshell (OSD.qml)
     hl.exec_cmd("hyprsunset")   -- luz nocturna: horario en ~/.config/hypr/hyprsunset.conf
-    hl.exec_cmd("hypridle")   -- escucha "lock-session" y bloquea por inactividad
+    hl.exec_cmd("~/.config/hypr/scripts/inactividad.sh")   -- hypridle: bloquea por inactividad (más pronto con batería)
     -- (las notificaciones las sirve Quickshell; swaync está enmascarado: systemctl --user mask swaync)
 
     -- Servicios

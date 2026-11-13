@@ -1,8 +1,13 @@
-/* Firefox — Ayu Dark Glass (a juego con waybar y GTK)
+/* Firefox — a juego con el escritorio (Quickshell y GTK)
  * La interfaz de Firefox está hecha con HTML/CSS: aquí se redefinen sus variables de color.
  * Nombres sacados de Firefox 159 (pueden cambiar entre versiones: si algo deja de pintarse,
  * Herramientas del navegador → Ctrl+Shift+Alt+I para inspeccionar la propia interfaz).
+ *
+ * Colores: los de abajo son Ayu (respaldo). tema.sh genera ~/.local/state/tema/firefox.css con la paleta
+ * activa (Ayu o la del wallpaper) y lo importa aquí; ese archivo gana. Se ve al reiniciar Firefox.
  */
+@import url("file:///home/oscar/.local/state/tema/firefox.css");
+
 :root, :root[lwtheme] {
   --ayu-fondo:     #0e1419;
   --ayu-hondo:     #0a0e12;   /* fila de pestañas, un poco más oscura */

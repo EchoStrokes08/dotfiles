@@ -406,8 +406,9 @@ Funciona sin internet, en español e inglés.
   `sudo` en la terminal hace lo mismo y comparte la longitud aprendida (función en `~/.zshrc`).
 - `ALT+F4` abre el menú de apagar / reiniciar / cerrar sesión.
 - `SUPER+M` abre el mismo menú de apagado que `ALT+F4` (ya no sale sin preguntar).
-- Si no tocas el equipo: a los 29,5 min baja el brillo, a los 30 se bloquea, a los 30,5 se apaga la pantalla y a
-  la hora se suspende.
+- Si no tocas el equipo, **enchufado**: a los 8 min baja el brillo, a los 10 se bloquea, a los 15 se apaga la
+  pantalla y a la hora se suspende. **Con batería**: 3, 5 y 6 min, y se suspende a los 15. Cambia solo al enchufar o
+  desenchufar (`~/.config/hypr/hypridle.conf` y `hypridle-bateria.conf`).
 
 ## 16. Cambiar la configuración
 

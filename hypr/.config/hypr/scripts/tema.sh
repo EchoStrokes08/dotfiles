@@ -49,6 +49,7 @@ generar() {
     echo "$modo" > "$OUT/modo"
     echo "$variante" > "$OUT/variante"
     pintar_hyprlock
+    "$HOME/.config/hypr/scripts/pintar-apps.py"     # Firefox (y lo que pueda leer un archivo de fuera)
     # GTK y todo lo que pregunta "¿claro u oscuro?" por el portal (Firefox, apps libadwaita, webs)
     if [ "$variante" = claro ]; then
         gsettings set org.gnome.desktop.interface color-scheme prefer-light

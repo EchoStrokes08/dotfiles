@@ -1,6 +1,6 @@
 // Cargador: reacciona al enchufar / desenchufar el portátil.
-//   Desenchufar → perfil "Ahorro de energía" + sin blur ni sombras (modulos/bateria.lua)
-//   Enchufar    → vuelve el perfil que tenías antes + apariencia normal
+//   Desenchufar → perfil "Ahorro de energía" + sin blur ni sombras (modulos/bateria.lua) + bloqueo a los 5 min
+//   Enchufar    → vuelve el perfil que tenías antes + apariencia normal + bloqueo a los 10 min
 // Solo actúa en el CAMBIO: si con batería eliges otro perfil a mano, se respeta.
 //   qs ipc call cargador estado      → "batería" / "cargador"   (el IpcHandler está en shell.qml)
 //   qs ipc call cargador simular bat → prueba sin desenchufar (o "ac")
@@ -21,11 +21,13 @@ Singleton {
         leerPerfil.running = true;   // guarda el actual y luego pone ahorro (ver abajo)
         sh("hyprctl dispatch 'bateria.ahorro() or hl.dsp.no_op()'");
         sh("qs ipc call osd mensaje 'Batería · modo ahorro' f0079");
+        sh("~/.config/hypr/scripts/inactividad.sh bateria");   // inactividad más corta
     }
     function alEnchufar() {
         sh(`powerprofilesctl set ${c.perfilAntes}`);
         sh("hyprctl dispatch 'bateria.normal() or hl.dsp.no_op()'");
         sh("qs ipc call osd mensaje 'Cargando · modo normal' f0084");
+        sh("~/.config/hypr/scripts/inactividad.sh red");
     }
 
     Process {
