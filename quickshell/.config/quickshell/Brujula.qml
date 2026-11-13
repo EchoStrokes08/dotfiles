@@ -352,6 +352,26 @@ Superpuesta {
                             }
                         }
                     }
+                    // el último proyecto guardado (lo que antes traía el resumen del día)
+                    Rectangle {
+                        visible: Continuidad.ultimo !== null
+                        Layout.fillWidth: true; implicitHeight: 64; radius: 16
+                        color: EstiloPanel.relleno; border { width: 1; color: Qt.alpha(Paleta.acento, .3) }
+                        RowLayout {
+                            anchors { fill: parent; leftMargin: 16; rightMargin: 12 } spacing: 12
+                            Text { text: br.g("f0e1b"); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 20 } }
+                            ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; spacing: 2
+                                Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
+                                       text: EstadoEscritorio.privacidad ? "Proyecto disponible para continuar" : "Continuar · " + (Continuidad.ultimo?.nombre ?? "") }
+                                Text { Layout.fillWidth: true; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 }
+                                       text: EstadoEscritorio.privacidad ? "Detalles ocultos por privacidad" : (Continuidad.ultimo?.siguiente || "Abre sus apps en sus espacios") }
+                            }
+                            BotonCompacto {
+                                text: "Retomar"; destacado: true
+                                onClicked: { br.abierto = false; br.lanzar([br.scripts + "flujo.py", "proyecto", "retomar", "--id=" + Continuidad.ultimo.id]); }
+                            }
+                        }
+                    }
                     Etiqueta { text: "IDEAS PARA HOY"; visible: (br.hoy?.sugerencias?.length ?? 0) > 0; Layout.topMargin: 2 }
                     Repeater {
                         model: br.hoy?.sugerencias ?? []

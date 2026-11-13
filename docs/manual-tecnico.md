@@ -539,7 +539,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `qs ipc call brujula toggle` · `abrir hoy\|linea\|contexto\|sesion\|salud` · `cerrar` | Brújula (`dashboard` sigue como alias de Brújula › Hoy) |
 | `qs ipc call dashboard irA 3` | Ir al workspace 3 |
 | `qs ipc call ia abrir <accion> "pregunta"` · `estado` | Panel del asistente (lo normal es usar `ia.sh`) |
-| `qs ipc call nota abrir` · `resumen mostrar` | Nota rápida / resumen del día |
+| `qs ipc call nota abrir` · `resumen mostrar` | Nota rápida / resumen del día (abre Brújula › Hoy) |
 | `qs ipc call actualizaciones refrescar` · `estado` · `pausas estado` | Volver a comprobar actualizaciones / minutos seguidos de uso |
 | `qs ipc call escritorio toggle` · `estado` | Esconder / mostrar los widgets de escritorio |
 | `qs ipc call menu shaders` · `sonido <perfil>` | Menús de filtro de pantalla y de sonido |

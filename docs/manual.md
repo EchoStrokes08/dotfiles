@@ -750,8 +750,8 @@ Los puertos de Syncthing y la interfaz de Tailscale se abren en el cortafuegos c
 
 ### Automatizaciones
 
-- **Resumen del día**: aparece solo la primera vez que usas el equipo cada día. A mano: «Resumen del
-  día» en el lanzador.
+- **Resumen del día**: la primera vez que usas el equipo cada día se abre sola Brújula › Hoy. A mano:
+  «Resumen del día» en el lanzador o SUPER+D.
 - **Actualizaciones**: un paquete con el número en la barra cuando hay pendientes. Rojo = hay
   noticias de Arch sin leer (se muestran antes de actualizar). Clic = actualizar.
 - **Pausas**: aviso tras 50 minutos seguidos. Cambiar el tiempo: `minutos` en `Pausas.qml`.
@@ -967,8 +967,8 @@ Escribe un nombre y el siguiente paso que quieres recordar. Puedes añadir una c
 proyecto y hasta doce recursos existentes, una ruta absoluta o `~/…` por línea. **Guardar**
 recuerda esos datos, el perfil visual actual y las aplicaciones compatibles con sus espacios.
 
-Al volver, incluso después de reiniciar, el proyecto aparece en el panel. El resumen del día
-incluye una tarjeta para revisarlo. No se abren aplicaciones automáticamente al iniciar sesión.
+Al volver, incluso después de reiniciar, el proyecto aparece en el panel. Brújula › Hoy
+muestra una tarjeta «Continuar» con el último proyecto y un botón para retomarlo. No se abren aplicaciones automáticamente al iniciar sesión.
 La privacidad oculta los detalles del proyecto y deshabilita su edición en pantalla.
 
 **Retomar** aplica el perfil guardado y solicita abrir las aplicaciones que falten. Terminal,
@@ -1278,9 +1278,9 @@ El recordatorio de descanso aparece tras **50 min** de interacción sin una paus
 No bloquea las apps. Sin tocar teclado o ratón durante tres minutos, el contador vuelve a cero;
 ver un vídeo sin interacción cuenta como pausa. Con No molestar espera a que termine el silencio.
 
-El **Resumen del día** aparece una vez al día desde las **5:00**, con clima, calendario,
-recordatorios, batería, actualizaciones y acceso al último proyecto. Puedes abrirlo desde el
-lanzador o con `qs ipc call resumen mostrar`. Enter, Escape o clic fuera lo cierran.
+El **Resumen del día** es Brújula › Hoy abierta sola una vez al día desde las **5:00**: clima, agenda,
+recordatorios, sistema, tiempo de pantalla y el último proyecto. Puedes abrirlo desde el lanzador, con
+SUPER+D o con `qs ipc call resumen mostrar`.
 Es distinto de las sugerencias de **Hoy** de Brújula, que empiezan desde las **6:00**.
 
 ### Reglas al cambiar de Wi-Fi
