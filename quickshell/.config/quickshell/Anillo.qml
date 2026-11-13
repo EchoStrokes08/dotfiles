@@ -61,7 +61,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             text: anillo.etiqueta
             color: anillo.color
-            font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1 }
+            font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1 }
         }
     }
 }

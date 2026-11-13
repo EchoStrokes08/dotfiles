@@ -92,7 +92,7 @@ Superpuesta {
                 Rectangle {   // borrar todo
                     implicitWidth: 92; implicitHeight: 26; radius: 8
                     color: zonaWipe.containsMouse ? Qt.alpha(Paleta.rojo, 0.25) : Qt.alpha(Paleta.texto, 0.07)
-                    Text { anchors.centerIn: parent; text: "Borrar todo"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
+                    Text { anchors.centerIn: parent; text: "Borrar todo"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                     MouseArea { id: zonaWipe; anchors.fill: parent; hoverEnabled: true; onClicked: { pp.sh("cliphist wipe"); pp.entradas = []; } }
                 }
             }

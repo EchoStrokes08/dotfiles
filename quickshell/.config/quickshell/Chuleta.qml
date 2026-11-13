@@ -144,7 +144,7 @@ Superpuesta {
                                             text: modelData.texto
                                             wrapMode: Text.WordWrap
                                             color: Qt.alpha(Paleta.texto, 0.85)
-                                            font { family: Paleta.fuente; pixelSize: 10 }
+                                            font { family: Paleta.fuente; pixelSize: 11 }
                                             topPadding: 3
                                         }
                                     }

@@ -277,7 +277,7 @@ Superpuesta {
             ColumnLayout {
                 spacing: 1
                 Layout.fillWidth: true; Layout.minimumWidth: 0   // cede sitio al selector de modelo
-                Text { text: "ASISTENTE · EN TU EQUIPO"; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
+                Text { text: "ASISTENTE · EN TU EQUIPO"; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
                 Text { text: "¿En qué te ayudo?"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 22; bold: true } }
                 Text {
                     Layout.fillWidth: true; elide: Text.ElideRight
@@ -420,12 +420,12 @@ Superpuesta {
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.leftMargin: 4; Layout.topMargin: 2
-                        Text { text: "CONVERSACIONES"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
+                        Text { text: "CONVERSACIONES"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
                         Rectangle {
                             visible: ag.historial.length > 0
                             implicitWidth: Math.max(20, cuentaHist.implicitWidth + 12); implicitHeight: 18; radius: 9
                             color: Qt.alpha(Paleta.morado, .2)
-                            Text { id: cuentaHist; anchors.centerIn: parent; text: ag.historial.length; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
+                            Text { id: cuentaHist; anchors.centerIn: parent; text: ag.historial.length; color: Paleta.morado; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                         }
                         Item { Layout.fillWidth: true }
                         // Borrar todas las conversaciones (doble clic de seguridad)
@@ -479,7 +479,7 @@ Superpuesta {
                                 anchors { left: parent.left; leftMargin: 8; top: parent.top; topMargin: conv.index === 0 ? 4 : 10 }
                                 text: conv.grupo
                                 color: Qt.alpha(Paleta.texto, .55)
-                                font { family: Paleta.fuente; pixelSize: 10; bold: true }
+                                font { family: Paleta.fuente; pixelSize: 11; bold: true }
                             }
                             Rectangle {
                                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
@@ -511,7 +511,7 @@ Superpuesta {
                                         text: ag.cuandoFue(conv.modelData.actualizada) + " · " + conv.modelData.n + (conv.modelData.n === 1 ? " mensaje" : " mensajes")
                                         elide: Text.ElideRight
                                         color: Paleta.gris
-                                        font { family: Paleta.fuente; pixelSize: 10 }
+                                        font { family: Paleta.fuente; pixelSize: 11 }
                                     }
                                 }
                                 MouseArea {
@@ -550,11 +550,11 @@ Superpuesta {
                         visible: ag.historial.length > 1
                         text: "⌃↑ ⌃↓ moverse entre ellas"
                         color: Qt.alpha(Paleta.gris, .8)
-                        font { family: Paleta.fuente; pixelSize: 9 }
+                        font { family: Paleta.fuente; pixelSize: 11 }
                     }
 
                     // ── permisos del agente ──
-                    Text { Layout.topMargin: 6; text: "PERMISOS"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
+                    Text { Layout.topMargin: 6; text: "PERMISOS"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
                     ComboBox {
                         id: selPermisos
                         readonly property var actual: ag.nivelDe(ag.permisos)
@@ -585,7 +585,7 @@ Superpuesta {
                             ColumnLayout {
                                 Layout.fillWidth: true; spacing: 1
                                 Text { text: selPermisos.actual.nombre; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
-                                Text { Layout.fillWidth: true; text: selPermisos.actual.resumen; elide: Text.ElideRight; color: Qt.alpha(Paleta.texto, .6); font { family: Paleta.fuente; pixelSize: 10 } }
+                                Text { Layout.fillWidth: true; text: selPermisos.actual.resumen; elide: Text.ElideRight; color: Qt.alpha(Paleta.texto, .6); font { family: Paleta.fuente; pixelSize: 11 } }
                             }
                         }
                         indicator: Text {
@@ -632,7 +632,7 @@ Superpuesta {
                                         Text { Layout.fillWidth: true; Layout.minimumWidth: 0; elide: Text.ElideRight; text: "· " + opcionNivel.modelData.resumen; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
                                         Text { visible: opcionNivel.elegido; text: "✓"; color: opcionNivel.modelData.color; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
                                     }
-                                    Text { Layout.fillWidth: true; text: opcionNivel.modelData.detalle; wrapMode: Text.Wrap; color: Qt.alpha(Paleta.texto, .6); font { family: Paleta.fuente; pixelSize: 10 } }
+                                    Text { Layout.fillWidth: true; text: opcionNivel.modelData.detalle; wrapMode: Text.Wrap; color: Qt.alpha(Paleta.texto, .6); font { family: Paleta.fuente; pixelSize: 11 } }
                                 }
                             }
                         }
@@ -640,7 +640,7 @@ Superpuesta {
                     Text {
                         Layout.fillWidth: true; Layout.leftMargin: 4
                         text: "Lo de administrador (sudo, pacman) siempre te lo pregunta."
-                        wrapMode: Text.Wrap; color: Qt.alpha(Paleta.gris, .8); font { family: Paleta.fuente; pixelSize: 9 }
+                        wrapMode: Text.Wrap; color: Qt.alpha(Paleta.gris, .8); font { family: Paleta.fuente; pixelSize: 11 }
                     }
                 }
             }
@@ -851,7 +851,7 @@ Superpuesta {
                     color: Qt.alpha(Paleta.azul, zf.containsMouse ? .2 : .08); border { width: 1; color: Qt.alpha(Paleta.azul, .3) }
                     Text { id: ft; anchors { fill: parent; leftMargin: 10; rightMargin: 10 } verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
                         text: `[${fu.index + 1}] ` + ag.g(({ documento: "f0219", web: "f059f", linea: "f0954" })[fu.modelData.tipo] ?? "f0219") + " " + fu.modelData.titulo
-                        color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 10 } }
+                        color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 } }
                     MouseArea {
                         id: zf; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                         onClicked: {
@@ -878,7 +878,7 @@ Superpuesta {
                 anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 14 } spacing: 12
                 Text { text: ag.g(parent.parent.m.resuelto === "si" ? "f012c" : parent.parent.m.resuelto === "no" ? "f0156" : "f02d7"); color: parent.parent.m.resuelto === "no" ? Paleta.gris : Paleta.verde; font { family: Paleta.fuente; pixelSize: 20 } }
                 ColumnLayout { Layout.fillWidth: true; spacing: 1
-                    Text { text: parent.parent.parent.m.resuelto === "si" ? "HECHO" : parent.parent.parent.m.resuelto === "no" ? "NO SE HIZO" : "¿LO HAGO?"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 9; bold: true; letterSpacing: 1.4 } }
+                    Text { text: parent.parent.parent.m.resuelto === "si" ? "HECHO" : parent.parent.parent.m.resuelto === "no" ? "NO SE HIZO" : "¿LO HAGO?"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
                     Text { Layout.fillWidth: true; wrapMode: Text.Wrap; text: parent.parent.parent.m.texto; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
                 }
                 Boton { visible: !parent.parent.m.resuelto; text: "Sí, hazlo  S"; destacado: true; acento: Paleta.verde; enabled: !proceso.running; onClicked: ag.responder(true) }

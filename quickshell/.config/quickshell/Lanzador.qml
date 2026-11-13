@@ -429,7 +429,7 @@ PanelWindow {
         Behavior on opacity { NumberAnimation { duration: 180 } }
         Behavior on scale   { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
         color: "transparent"
-        FondoPanel { anchors.fill: parent; radio: 24; opacidad: .86 }
+        FondoPanel { anchors.fill: parent; radio: 24 }
         MouseArea { anchors.fill: parent }
 
         ColumnLayout {
@@ -495,7 +495,7 @@ PanelWindow {
                         implicitWidth: numResultados.implicitWidth + 16; implicitHeight: 22; radius: 11
                         color: Qt.alpha(Paleta.texto, .07)
                         border { width: 1; color: Qt.alpha(Paleta.texto, .08) }
-                        Text { id: numResultados; anchors.centerIn: parent; text: ventana.resultados.length; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
+                        Text { id: numResultados; anchors.centerIn: parent; text: ventana.resultados.length; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                     }
                 }
             }
@@ -527,7 +527,7 @@ PanelWindow {
                         anchors { left: parent.left; leftMargin: 16; top: parent.top; topMargin: 8 }
                         text: (fila.modelData.grupo ?? "").toUpperCase()
                         color: Paleta.gris
-                        font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.5 }
+                        font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 }
                     }
                     Item {
                         anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2 }
@@ -597,7 +597,8 @@ PanelWindow {
                                 Layout.fillWidth: true
                                 visible: text !== ""
                                 text: fila.modelData.detalle ?? ""
-                                color: Paleta.gris
+                                // gris puro se perdía sobre el resaltado; tenue (texto al 68 %) se lee en ambos casos
+                                color: fila.actual ? Qt.alpha(Paleta.texto, .85) : EstiloPanel.tenue
                                 elide: Text.ElideMiddle
                                 font { family: Paleta.fuente; pixelSize: 11 }
                             }
@@ -630,7 +631,7 @@ PanelWindow {
                 lineHeight: 1.3
                 text: "=calc  g/yt/w web  :emoji  /archivos  recordar  ·  v ventanas  n notas  c copiado  t pestañas  p claves  d documentos  h historial  a atajos  l línea  s ajustes  ·  ia …  nota …"
                 color: Qt.alpha(Paleta.gris, 0.8)
-                font { family: Paleta.fuente; pixelSize: 10 }
+                font { family: Paleta.fuente; pixelSize: 11 }
             }
         }
     }

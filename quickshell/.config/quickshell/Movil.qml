@@ -85,7 +85,7 @@ Superpuesta {
         background: FondoBoton { tinte: bt.acento; destacado: bt.destacado; encima: bt.hovered; pulsado: bt.down; foco: bt.activeFocus; radio: 10 }
         contentItem: Text { text: bt.text; color: !bt.enabled ? Paleta.gris : bt.destacado || bt.hovered ? Paleta.texto : Qt.tint(Paleta.texto, Qt.alpha(Paleta.fondo, .2)); horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 12; bold: bt.destacado } }
     }
-    component Etiqueta: Text { color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
+    component Etiqueta: Text { color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
     component Accion: Rectangle {
         id: ac
         property string glifo: "f011c"
@@ -203,7 +203,7 @@ Superpuesta {
                 RowLayout {
                     Etiqueta { text: "AVISOS DEL MÓVIL" }
                     Rectangle { visible: (mv.d?.notificaciones?.length ?? 0) > 0; implicitWidth: cn.implicitWidth + 12; implicitHeight: 16; radius: 8; color: Qt.alpha(Paleta.naranja, .2)
-                        Text { id: cn; anchors.centerIn: parent; text: mv.d?.notificaciones?.length ?? 0; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 9; bold: true } } }
+                        Text { id: cn; anchors.centerIn: parent; text: mv.d?.notificaciones?.length ?? 0; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true } } }
                 }
                 ListView {
                     id: avisos
@@ -289,7 +289,7 @@ Superpuesta {
                         Layout.fillWidth: true; spacing: 10
                         ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 0
                             Text { text: fn.modelData.nombre; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12; bold: true } }
-                            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: fn.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 } }
+                            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: fn.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
                         }
                         Interruptor { activo: fn.modelData.activa; opacity: mv.d?.conectado ? 1 : .4; onAlternado: if (mv.d?.conectado) mv.orden(["funcion", fn.modelData.id, fn.modelData.activa ? "off" : "on"]) }
                     }
@@ -297,7 +297,7 @@ Superpuesta {
                 Item { Layout.fillHeight: true }
                 RowLayout {
                     Layout.fillWidth: true; spacing: 8
-                    Text { Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 }
+                    Text { Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
                         text: (mv.d?.mandos_nuestros ?? 0) > 0 ? `${mv.d.mandos_nuestros} mandos del PC en el móvil: KDE Connect → «Ejecutar orden».` : "Controla el PC desde el móvil: diapositivas, música, bloquear…" }
                     Boton { text: (mv.d?.mandos_nuestros ?? 0) > 0 ? "Actualizar mandos" : "Instalar mandos"; destacado: (mv.d?.mandos_nuestros ?? 0) === 0; onClicked: mv.orden(["comandos"]) }
                 }

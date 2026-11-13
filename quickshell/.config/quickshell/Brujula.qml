@@ -130,7 +130,7 @@ Superpuesta {
         border { width: 1; color: Qt.alpha(md.acento, .45) }
         Text { anchors.centerIn: parent; text: br.g(md.glifo); color: Qt.lighter(md.acento, 1.15); font { family: Paleta.fuente; pixelSize: md.lado * .47 } }
     }
-    component Etiqueta: Text { color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1.6 } }
+    component Etiqueta: Text { color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
     component Cifra: Rectangle {
         id: cf
         property string titulo: ""
@@ -526,7 +526,7 @@ Superpuesta {
                             required property var modelData
                             x: cinta.pos(modelData)
                             Rectangle { y: 40; width: 1; height: 5; color: Qt.alpha(Paleta.texto, .25) }
-                            Text { y: 46; x: -width / 2; text: new Date(parent.modelData * 1000).getHours() + ":00"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 9 } }
+                            Text { y: 46; x: -width / 2; text: new Date(parent.modelData * 1000).getHours() + ":00"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
                         }
                     }
                     // archivos abiertos: un rombo sobre la cinta
@@ -608,7 +608,7 @@ Superpuesta {
                                 RowLayout { spacing: 8
                                     Text { text: bloque.modelData.nombre; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
                                     Rectangle { visible: !!bloque.modelData.contexto; implicitHeight: 18; implicitWidth: cx.implicitWidth + 12; radius: 9; color: Qt.alpha(Paleta.verde, .14)
-                                        Text { id: cx; anchors.centerIn: parent; text: bloque.modelData.contexto; color: Paleta.verde; font { family: Paleta.fuente; pixelSize: 9; bold: true } } }
+                                        Text { id: cx; anchors.centerIn: parent; text: bloque.modelData.contexto; color: Paleta.verde; font { family: Paleta.fuente; pixelSize: 11; bold: true } } }
                                 }
                                 Text {
                                     Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
@@ -636,7 +636,7 @@ Superpuesta {
                         required property string modelData
                         width: 118; height: 70; radius: 8; clip: true; color: Qt.alpha(Paleta.texto, .05)
                         Image { anchors.fill: parent; source: "file://" + parent.modelData; fillMode: Image.PreserveAspectCrop; asynchronous: true; sourceSize.width: 236 }
-                        Text { anchors { right: parent.right; bottom: parent.bottom; margins: 4 } text: parent.modelData.split("/").pop().replace(/(\d\d)(\d\d)\d\d\.jpg/, "$1:$2"); color: "white"; style: Text.Outline; styleColor: "black"; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
+                        Text { anchors { right: parent.right; bottom: parent.bottom; margins: 4 } text: parent.modelData.split("/").pop().replace(/(\d\d)(\d\d)\d\d\.jpg/, "$1:$2"); color: "white"; style: Text.Outline; styleColor: "black"; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["xdg-open", parent.modelData]) }
                     }
                 }
@@ -685,7 +685,7 @@ Superpuesta {
                                     Rectangle {
                                         implicitHeight: 18; implicitWidth: est.implicitWidth + 14; radius: 9
                                         color: Qt.alpha(regla.acento, .15)
-                                        Text { id: est; anchors.centerIn: parent; color: regla.acento; font { family: Paleta.fuente; pixelSize: 9; bold: true }
+                                        Text { id: est; anchors.centerIn: parent; color: regla.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true }
                                             text: regla.modelData.desactivada ? "DESACTIVADA" : regla.modelData.activa ? "ACTIVA · desde " + br.hora(regla.modelData.desde) : "EN ESPERA" }
                                     }
                                 }
@@ -699,7 +699,7 @@ Superpuesta {
                 RowLayout {
                     Layout.fillWidth: true; spacing: 10
                     Text {
-                        Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 }
+                        Layout.fillWidth: true; wrapMode: Text.Wrap; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
                         text: "Línea de tiempo: " + (br.estado?.linea?.guardar ? "activa" : "apagada") + (br.estado?.linea?.titulos ? ", con títulos" : ", sin títulos")
                               + (br.estado?.linea?.capturas ? ", con capturas" : "") + ` · se borra a los ${br.estado?.linea?.dias ?? 30} días · nada sale del equipo · con privacidad activa no se guardan títulos.`
                     }
@@ -766,7 +766,7 @@ Superpuesta {
                                 Icono { nombre: app.modelData.icono; clase: app.modelData.clase; lado: 26 }
                                 ColumnLayout { Layout.fillWidth: true; spacing: 0
                                     Text { text: app.modelData.nombre; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
-                                    Text { text: app.modelData.abierta ? "Ya está abierta" : (app.modelData.geo ? `Flotante ${app.modelData.geo.w}×${app.modelData.geo.h} · ` : "") + (app.modelData.titulo || app.modelData.clase); color: Paleta.gris; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 10 } }
+                                    Text { text: app.modelData.abierta ? "Ya está abierta" : (app.modelData.geo ? `Flotante ${app.modelData.geo.w}×${app.modelData.geo.h} · ` : "") + (app.modelData.titulo || app.modelData.clase); color: Paleta.gris; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 11 } }
                                 }
                                 Rectangle { implicitHeight: 22; implicitWidth: 34; radius: 7; color: Qt.alpha(Paleta.azul, .15)
                                     Text { anchors.centerIn: parent; text: app.modelData.ws; color: Paleta.azul; font { family: Paleta.fuente; pixelSize: 11; bold: true } } }
@@ -844,7 +844,7 @@ Superpuesta {
                                         Text { text: chk.modelData.valor; color: chk.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                                     }
                                     Text { Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight; lineHeight: 1.1
-                                        text: chk.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 10 } }
+                                        text: chk.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
                                 }
                                 Boton { visible: !!chk.modelData.accion; text: chk.modelData.accion?.texto ?? ""; acento: chk.acento; implicitHeight: 28
                                         onClicked: { Quickshell.execDetached(chk.modelData.accion.cmd); br.abierto = false; } }

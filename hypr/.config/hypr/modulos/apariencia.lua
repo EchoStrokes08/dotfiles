@@ -34,10 +34,12 @@ hl.config({
             color        = "0xee" .. c.fondo,
         },
 
+        -- Blur fuerte: detrás de un panel no se debe poder leer nada. Con batería se apaga solo (politicas.lua).
         blur = {
             enabled  = true,
-            size     = 3,
-            passes   = 1,
+            size     = 8,
+            passes   = 3,
+            noise    = 0.02,     -- grano fino: evita bandas en los degradados
             vibrancy = 0.1696,
         },
     },

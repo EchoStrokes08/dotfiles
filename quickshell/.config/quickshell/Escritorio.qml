@@ -201,6 +201,18 @@ PanelWindow {
         return ev.concat(re).sort((a, b) => a.t - b.t).slice(0, 4);
     }
 
+    // Velo inferior: oscurece el 45 % de abajo del wallpaper para que el texto se lea en fondos claros
+    Rectangle {
+        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+        height: parent.height * 0.45
+        opacity: v.mostrar ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: v.mostrar ? 600 : 180; easing.type: Easing.OutCubic } }
+        gradient: Gradient {
+            GradientStop { position: 0; color: "transparent" }
+            GradientStop { position: 1; color: Qt.alpha("black", 0.45) }
+        }
+    }
+
     Item {
         id: todo
         anchors.fill: parent
@@ -235,16 +247,18 @@ PanelWindow {
             }
             Text {
                 Layout.topMargin: -8
-                text: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd, d 'de' MMMM")
+                // Solo la primera letra en mayúscula: «Viernes, 13 de noviembre» (Font.Capitalize daba «De Noviembre»)
+                readonly property string fecha: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd, d 'de' MMMM")
+                text: fecha.charAt(0).toUpperCase() + fecha.slice(1)
                 color: v.claro
-                font { family: Paleta.fuente; pixelSize: 20; capitalization: Font.Capitalize }
+                font { family: Paleta.fuente; pixelSize: 20 }
             }
             Text {   // clima (solo cuando ya llegó el dato)
                 Layout.topMargin: 8
                 visible: Clima.listo
                 text: `${Clima.icono(Clima.codigo, Clima.deDia)}  ${Math.round(Clima.temp)}°  ${Clima.texto(Clima.codigo)} en ${Clima.lugar}`
                       + (Clima.lluviaHoy >= 30 ? `  ·  lluvia ${Clima.lluviaHoy} %` : "")
-                color: Qt.alpha(v.claro, 0.8)
+                color: Qt.alpha(v.claro, 0.92)
                 font { family: Paleta.fuente; pixelSize: 13 }
             }
             Rectangle {   // rayita naranja
@@ -262,8 +276,8 @@ PanelWindow {
             Text {
                 Layout.topMargin: 6
                 text: "— " + v.frase[1]
-                color: Qt.alpha(v.claro, 0.6)
-                font { family: Paleta.fuente; pixelSize: 11 }
+                color: Qt.alpha(v.claro, 0.8)
+                font { family: Paleta.fuente; pixelSize: 12 }
             }
         }
 
@@ -297,8 +311,8 @@ PanelWindow {
                         Text {
                             Layout.alignment: Qt.AlignRight
                             text: modelData.cuando
-                            color: Qt.alpha(v.claro, 0.65)
-                            font { family: Paleta.fuente; pixelSize: 11 }
+                            color: Qt.alpha(v.claro, 0.8)
+                            font { family: Paleta.fuente; pixelSize: 12 }
                         }
                     }
                     Text { text: String.fromCodePoint(modelData.icono); color: Paleta.azul

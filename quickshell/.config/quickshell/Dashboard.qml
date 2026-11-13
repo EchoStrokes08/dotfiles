@@ -58,7 +58,7 @@ PanelWindow {
         height: contenido.implicitHeight + 52
         anchors.horizontalCenter: parent.horizontalCenter
         color: "transparent"
-        FondoPanel { anchors.fill: parent; radio: 26; opacidad: .84 }
+        FondoPanel { anchors.fill: parent; radio: 26 }
 
         // Entrada: baja 40 px y aparece; salida: al revés
         y: ventana.abierto ? 52 : 14
@@ -117,7 +117,7 @@ PanelWindow {
                         Text {
                             text: `${Clima.lugar} · máx ${Math.round(Clima.max)}° · mín ${Math.round(Clima.min)}° · lluvia ${Clima.lluviaHoy}%`
                             color: Paleta.gris
-                            font { family: Paleta.fuente; pixelSize: 10 }
+                            font { family: Paleta.fuente; pixelSize: 11 }
                         }
                         Row {   // próximas horas: hora + probabilidad de lluvia (azul si ≥ 40 %)
                             spacing: 10
@@ -127,7 +127,7 @@ PanelWindow {
                                     required property var modelData
                                     text: `${modelData.hora}h ${modelData.lluvia}%`
                                     color: modelData.lluvia >= 40 ? Paleta.azul : Qt.alpha(Paleta.gris, 0.8)
-                                    font { family: Paleta.fuente; pixelSize: 9 }
+                                    font { family: Paleta.fuente; pixelSize: 11 }
                                 }
                             }
                         }
@@ -203,14 +203,14 @@ PanelWindow {
                                 Text {
                                     text: modelData.cuando
                                     color: modelData.rec ? Paleta.morado : modelData.tarea ? Paleta.verde : Paleta.azul
-                                    font { family: Paleta.fuente; pixelSize: 10; bold: true }
+                                    font { family: Paleta.fuente; pixelSize: 11; bold: true }
                                 }
                                 Text {
                                     Layout.fillWidth: true
                                     text: modelData.texto
                                     elide: Text.ElideRight
                                     color: Paleta.texto
-                                    font { family: Paleta.fuente; pixelSize: 10 }
+                                    font { family: Paleta.fuente; pixelSize: 11 }
                                     MouseArea {   // clic en un recordatorio = borrarlo · en una tarea = marcarla hecha
                                         anchors.fill: parent
                                         enabled: !!modelData.rec || !!modelData.tarea

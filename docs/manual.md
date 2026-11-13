@@ -401,7 +401,7 @@ Funciona sin internet, en español e inglés.
   larga, fallará una vez a la longitud vieja: escríbela entera + Enter y ya queda aprendida.
   `sudo` en la terminal hace lo mismo y comparte la longitud aprendida (función en `~/.zshrc`).
 - `ALT+F4` abre el menú de apagar / reiniciar / cerrar sesión.
-- `SUPER+M` sale de Hyprland **sin preguntar**: cuidado.
+- `SUPER+M` abre el mismo menú de apagado que `ALT+F4` (ya no sale sin preguntar).
 - Si no tocas el equipo: a los 29,5 min baja el brillo, a los 30 se bloquea, a los 30,5 se apaga la pantalla y a
   la hora se suspende.
 
@@ -1558,7 +1558,7 @@ Actualiza aquí los atajos cuando cambie su configuración.
 | Atajo | Acción |
 |---|---|
 | `SUPER+L` | Bloquear la pantalla |
-| `SUPER+M` | Salir de Hyprland (sin confirmar) |
+| `SUPER+M` | Menú de apagado: bloquear, cerrar sesión, reiniciar, apagar |
 | `ALT+F4` | Menú de apagado (wlogout) |
 | `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |

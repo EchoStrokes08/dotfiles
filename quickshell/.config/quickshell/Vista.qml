@@ -142,7 +142,7 @@ Superpuesta {
                     Text {
                         text: "VISTA GENERAL"
                         color: Paleta.naranja
-                        font { family: EstiloPanel.fuente; pixelSize: 10; weight: Font.Bold; letterSpacing: 1.6 }
+                        font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 }
                     }
                     Text {
                         text: buscar.text
@@ -360,7 +360,7 @@ Superpuesta {
                                                     text: EstadoEscritorio.privacidad ? vista.nombreApp(ventanita.modelData) : ventanita.modelData.title
                                                     color: "white"
                                                     elide: Text.ElideRight
-                                                    font { family: EstiloPanel.fuente; pixelSize: 10; weight: Font.Medium }
+                                                    font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Medium }
                                                 }
                                             }
                                         }

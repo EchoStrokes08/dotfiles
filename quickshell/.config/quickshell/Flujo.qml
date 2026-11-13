@@ -126,7 +126,7 @@ Superpuesta {
             }
             ColumnLayout {
                 Layout.fillWidth:true; Layout.fillHeight:true; spacing:8
-                Text { text: "PROYECTO"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10; letterSpacing: 1.5; bold: true } }
+                Text { text: "PROYECTO"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11; letterSpacing: 1.4; bold: true } }
                 Campo { id:nombre; placeholderText:"Nombre del proyecto" }
                 Campo { id:siguiente; placeholderText:"¿Cuál es tu siguiente paso?" }
                 Campo { id:carpeta; placeholderText:"Carpeta del proyecto (opcional): ~/proyectos/…" }
@@ -134,7 +134,7 @@ Superpuesta {
                     Layout.fillWidth:true; Layout.fillHeight:true; clip:true
                     TextArea { id:recursos; padding:12; placeholderTextColor:EstiloPanel.tenue; selectionColor:Qt.alpha(Paleta.morado,.35); placeholderText:"Recursos que quieres reabrir: una ruta absoluta por línea.\nSolo se guardan los que añadas aquí."; color:Paleta.texto; wrapMode:TextEdit.Wrap; font { family:EstiloPanel.fuente; pixelSize:12 } onTextChanged:if(!flujo.cargando) flujo.cambios=true; background:Rectangle { radius:8; color:Qt.alpha(Paleta.texto,.035) } }
                 }
-                Text { Layout.fillWidth:true; text:"Guardar recuerda las aplicaciones compatibles y sus espacios actuales. No lee títulos ni documentos."; wrapMode:Text.Wrap; color:EstiloPanel.tenue; font { family:EstiloPanel.fuente; pixelSize:10 } }
+                Text { Layout.fillWidth:true; text:"Guardar recuerda las aplicaciones compatibles y sus espacios actuales. No lee títulos ni documentos."; wrapMode:Text.Wrap; color:EstiloPanel.tenue; font { family:EstiloPanel.fuente; pixelSize: 11 } }
                 RowLayout {
                     Layout.fillWidth:true
                     Boton { text:flujo.cambios ? "Guardar cambios" : "Guardar proyecto"; destacado:true; onClicked:flujo.guardar() }
@@ -165,7 +165,7 @@ Superpuesta {
             }
             Rectangle {
                 Layout.fillWidth:true; Layout.fillHeight:true; radius:14; color:EstiloPanel.superficie; border { width:1; color:EstiloPanel.borde }
-                Text { anchors { bottom:parent.bottom; bottomMargin:12; horizontalCenter:parent.horizontalCenter } text:flujo.plan ? "✓  Distribución verificada" : "VISTA ORIENTATIVA"; color:flujo.plan ? Paleta.verde : EstiloPanel.tenue; font { family:EstiloPanel.fuente; pixelSize:10; letterSpacing:1.5 } }
+                Text { anchors { bottom:parent.bottom; bottomMargin:12; horizontalCenter:parent.horizontalCenter } text:flujo.plan ? "✓  Distribución verificada" : "VISTA ORIENTATIVA"; color:flujo.plan ? Paleta.verde : EstiloPanel.tenue; font { family:EstiloPanel.fuente; pixelSize: 11; letterSpacing: 1.4 } }
                 Row {
                     anchors { fill:parent; margins:24; bottomMargin:40 } spacing:12
                     Repeater {
@@ -192,7 +192,7 @@ Superpuesta {
                 Boton { text:"Aplicar al espacio actual"; destacado:true; enabled:!!flujo.plan && !accion.running; onClicked:flujo.ejecutar(["organizar","aplicar","--token="+flujo.plan.token]) }
                 Boton { text:"Volver al layout anterior"; onClicked:flujo.ejecutar(["organizar","volver"]) }
             }
-            Text { Layout.fillWidth:true; text:"No cierra ni traslada ventanas. Volver recupera el layout, no la geometría exacta de su árbol."; color:EstiloPanel.tenue; wrapMode:Text.Wrap; font { family:EstiloPanel.fuente; pixelSize:10 } }
+            Text { Layout.fillWidth:true; text:"No cierra ni traslada ventanas. Volver recupera el layout, no la geometría exacta de su árbol."; color:EstiloPanel.tenue; wrapMode:Text.Wrap; font { family:EstiloPanel.fuente; pixelSize: 11 } }
         }
         ColumnLayout {
             visible:flujo.pagina===2
@@ -214,7 +214,7 @@ Superpuesta {
                 Boton { text:"Capturar de nuevo"; onClicked:flujo.ejecutar(["seleccion","capturar"]) }
                 Boton { text:"Abrir URL o recurso"; enabled:!!flujo.seleccion.recurso && !accion.running; onClicked:flujo.actuar("abrir",true) }
             }
-            Text { Layout.fillWidth:true; text:"Se usa la captura revisada. Solo la acción Abrir puede contactar una web; la IA configurada funciona en este equipo."; color:EstiloPanel.tenue; wrapMode:Text.Wrap; font { family:EstiloPanel.fuente; pixelSize:10 } }
+            Text { Layout.fillWidth:true; text:"Se usa la captura revisada. Solo la acción Abrir puede contactar una web; la IA configurada funciona en este equipo."; color:EstiloPanel.tenue; wrapMode:Text.Wrap; font { family:EstiloPanel.fuente; pixelSize: 11 } }
         }
         EstadoPanel { mensaje:flujo.mensaje; error:flujo.error; ocupado:accion.running }
     }

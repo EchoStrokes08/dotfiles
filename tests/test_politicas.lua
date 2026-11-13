@@ -27,7 +27,12 @@ for perfil in pairs(motor.perfiles) do
 end
 assert(motor.base.decoration.blur.enabled, 'El resolver mutó la configuración base')
 assert(motor.resolver({perfil='cristal', juego='no'}).config.animations.enabled)
-assert(motor.resolver({perfil='desconocido'}).config.decoration.active_opacity == 0.8)
+-- Un perfil desconocido cae en cristal; las ventanas son opacas en todos los perfiles.
+assert(motor.resolver({perfil='desconocido'}).config.decoration.blur.enabled)
+for perfil in pairs(motor.perfiles) do
+    local d = motor.resolver({perfil=perfil, juego='no'}).config.decoration
+    assert(d.active_opacity == 1 and d.inactive_opacity == 1, 'ventanas translúcidas en ' .. perfil)
+end
 -- Salir de juego no debe cancelar presentación ni ahorro por batería.
 local r = motor.resolver({perfil='lectura', juego='no', presentacion=true, bateria=true})
 assert(r.no_molestar and not r.config.decoration.blur.enabled)

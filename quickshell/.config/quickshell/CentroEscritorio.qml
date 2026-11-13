@@ -42,7 +42,7 @@ Superpuesta {
     }
     component Seccion: Text {
         color: EstiloPanel.tenue
-        font { family: EstiloPanel.fuente; pixelSize: 10; weight: Font.Bold; letterSpacing: 1.5 }
+        font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 }
     }
     ColumnLayout {
         width: parent.width
@@ -52,7 +52,7 @@ Superpuesta {
             Layout.fillWidth: true
             Rectangle { width: 7; height: 7; radius: 4; color: Paleta.verde }
             Text { Layout.fillWidth: true; text: EstadoEscritorio.motivos; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 12 } }
-            Text { text: "Alt + 1…4"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 10 } }
+            Text { text: "Alt + 1…4"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
         }
         RowLayout {
             id: perfiles
@@ -82,7 +82,7 @@ Superpuesta {
                             Text { text: perfil.destacado ? "✓" : ""; color: perfil.tinte; font.pixelSize: 14 }
                         }
                         Text { Layout.fillWidth: true; text: perfil.text; elide: Text.ElideRight; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 14; weight: Font.DemiBold } }
-                        Text { Layout.fillWidth: true; text: perfil.modelData.detalle; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10 } }
+                        Text { Layout.fillWidth: true; text: perfil.modelData.detalle; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                     }
                     onClicked: centro.ejecutar(["perfil", modelData.id])
                 }

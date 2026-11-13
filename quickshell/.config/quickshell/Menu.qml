@@ -70,7 +70,7 @@ Superpuesta {
                         Layout.rightMargin: 12
                         text: index + 1
                         color: Paleta.gris
-                        font { family: Paleta.fuente; pixelSize: 10 }
+                        font { family: Paleta.fuente; pixelSize: 11 }
                     }
                 }
                 MouseArea {

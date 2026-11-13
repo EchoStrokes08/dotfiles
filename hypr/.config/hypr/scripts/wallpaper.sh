@@ -44,7 +44,9 @@ aplicar() {   # aplicar <ruta> [estilo]
     pintar "$1" "${2:-cursor}"
     mkdir -p "$HOME/.local/state/tema"; ln -sf "$1" "$HOME/.local/state/tema/wallpaper"
     [ "$("$TEMA" modo)" = wallpaper ] && "$TEMA" aplicar "$1"
-    notify-send -a Wallpaper -i "$MINIS/$(basename "${1%.*}").png" "Wallpaper" "$(basename "$1")"
+    # Solo se avisa al elegirlo a mano: la rotación automática (barrido) cambia en silencio
+    [ "${2:-cursor}" = cursor ] && notify-send -a Wallpaper -i "$MINIS/$(basename "${1%.*}").png" "Wallpaper" "$(basename "$1")"
+    return 0
 }
 
 if [ "$1" = restaurar ]; then   # autostart: espera a que awww-daemon esté listo (máx. 5 s)

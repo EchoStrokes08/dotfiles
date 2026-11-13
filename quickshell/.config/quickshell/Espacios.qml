@@ -72,7 +72,7 @@ Flow {
                                 anchors.centerIn: parent
                                 text: (parent.parent.clase.split(".").pop()[0] ?? "?").toUpperCase()
                                 color: Paleta.texto
-                                font { family: Paleta.fuente; pixelSize: 10; bold: true }
+                                font { family: Paleta.fuente; pixelSize: 11; bold: true }
                             }
                         }
                     }

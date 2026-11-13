@@ -140,7 +140,7 @@ Rectangle {
                 text: Eventos.diaTexto(n.fecha) + (n.esTarea ? "" : n.horaNormal && n.horaNormal !== "?" ? " · " + n.horaNormal : " · todo el día")
                 elide: Text.ElideRight
                 color: Paleta.gris
-                font { family: Paleta.fuente; pixelSize: 10 }
+                font { family: Paleta.fuente; pixelSize: 11 }
                 ToolTip.visible: diaRaton.containsMouse
                 ToolTip.text: "Para otro día: ciérralo y elige el día en el calendario"
                 MouseArea { id: diaRaton; anchors.fill: parent; hoverEnabled: true }

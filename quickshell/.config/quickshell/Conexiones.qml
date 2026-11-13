@@ -264,7 +264,7 @@ Superpuesta {
                                 text: fila.esWifi ? cx.detalleRed(fila.modelData) : cx.detalleBt(fila.modelData)
                                 color: fila.conError ? Paleta.rojo : Paleta.gris
                                 elide: Text.ElideRight
-                                font { family: Paleta.fuente; pixelSize: 10 }
+                                font { family: Paleta.fuente; pixelSize: 11 }
                             }
                         }
                         Text {   // olvidar (solo guardados, al pasar el ratón)

@@ -14,7 +14,7 @@ Item {
     property color acento: Paleta.naranja
     property color acento2: Paleta.morado
     property real radio: 22
-    property real opacidad: 0.84          // con el blur de Hyprland detrás, < 0.9 se ve "cristal"
+    property real opacidad: EstiloPanel.opacidadPanel   // 0.93 con blur detrás, 1 sin él
     property bool luces: EstiloPanel.efectos
 
     // Sombra y halo: fuera de la tarjeta (no recortan)

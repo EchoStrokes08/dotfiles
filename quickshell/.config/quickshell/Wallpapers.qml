@@ -143,7 +143,7 @@ Superpuesta {
                             text: (celda.esActual ? "  " : "") + celda.fileName
                             color: celda.esActual ? Paleta.naranja : Paleta.texto
                             elide: Text.ElideMiddle
-                            font { family: Paleta.fuente; pixelSize: 10 }
+                            font { family: Paleta.fuente; pixelSize: 11 }
                         }
                     }
                 }

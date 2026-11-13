@@ -59,7 +59,7 @@ ColumnLayout {
     Text {
         text: "HOY EN PANTALLA"
         color: Paleta.gris
-        font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1 }
+        font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1 }
     }
     Text {
         text: tiempo.total > 0 ? tiempo.formato(tiempo.total) : "—"
@@ -86,7 +86,7 @@ ColumnLayout {
                 Text {
                     text: tiempo.formato(modelData.seg)
                     color: Paleta.gris
-                    font { family: Paleta.fuente; pixelSize: 10 }
+                    font { family: Paleta.fuente; pixelSize: 11 }
                 }
             }
             Rectangle {
@@ -109,7 +109,7 @@ ColumnLayout {
         Text {
             text: "ÚLTIMOS 7 DÍAS"
             color: Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 1 }
+            font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1 }
         }
         Item { Layout.fillWidth: true }
         Text {   // detalle del día bajo el ratón, o la media
@@ -117,7 +117,7 @@ ColumnLayout {
             readonly property real media: tiempo.dias.length ? tiempo.dias.reduce((a, x) => a + x.total, 0) / tiempo.dias.length : 0
             text: d ? `${tiempo.formato(d.total)}${d.top ? " · " + d.top : ""}` : `media ${tiempo.formato(media)}`
             color: d ? Paleta.texto : Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 10 }
+            font { family: Paleta.fuente; pixelSize: 11 }
         }
     }
     RowLayout {
@@ -154,7 +154,7 @@ ColumnLayout {
                     Layout.alignment: Qt.AlignHCenter
                     text: ["D", "L", "M", "X", "J", "V", "S"][new Date(modelData.dia + "T12:00").getDay()]
                     color: esHoy ? Paleta.naranja : Paleta.gris
-                    font { family: Paleta.fuente; pixelSize: 9; bold: esHoy }
+                    font { family: Paleta.fuente; pixelSize: 11; bold: esHoy }
                 }
             }
         }

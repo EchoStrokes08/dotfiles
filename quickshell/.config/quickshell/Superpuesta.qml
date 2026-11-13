@@ -15,7 +15,7 @@ PanelWindow {
     property bool abierto: false
     property bool mostrar: false
     property string espacio: "superpuesta"     // namespace: quickshell-<espacio> (para el blur)
-    property real opacidadTarjeta: 0.92      // el blur de Hyprland es suave: por debajo de ~0.9 se lee el texto de detrás
+    property real opacidadTarjeta: EstiloPanel.opacidadPanel   // un panel puede pedir más (1 = opaco), nunca menos
     property real anchoTarjeta: 560
     property real alturaRelativa: 0.14         // dónde empieza la tarjeta (fracción del alto)
     default property alias contenido: caja.data
@@ -77,7 +77,7 @@ PanelWindow {
             anchors.fill: parent
             acento: v.acentoPanel
             radio: v.panelCuidado ? 24 : 20
-            opacidad: Math.min(v.opacidadTarjeta, .95)
+            opacidad: Math.max(v.opacidadTarjeta, EstiloPanel.opacidadPanel)
         }
         MouseArea { anchors.fill: parent }
 

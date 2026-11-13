@@ -138,7 +138,7 @@ Superpuesta {
             visible: ia.respuesta !== "" && !ia.pensando
             text: "Enter: copiar y cerrar  ·  Ctrl+Enter: escribirla donde estabas  ·  Esc: cerrar"
             color: Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 10 }
+            font { family: Paleta.fuente; pixelSize: 11 }
         }
     }
 }

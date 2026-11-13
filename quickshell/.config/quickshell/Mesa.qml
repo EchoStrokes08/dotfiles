@@ -353,7 +353,7 @@ Superpuesta {
                                     spacing: 8
                                     Image { source: mesa.icono(mesa.elegida); sourceSize { width: 40; height: 40 } Layout.preferredWidth: 20; Layout.preferredHeight: 20; asynchronous: true }
                                     Text { Layout.fillWidth: true; text: mesa.nombreApp(mesa.elegida); color: Paleta.texto; elide: Text.ElideRight; font { family: EstiloPanel.fuente; pixelSize: 13; weight: Font.DemiBold } }
-                                    Text { text: mesa.elegida?.lastIpcObject?.floating ? "flotante" : "mosaico"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10 } }
+                                    Text { text: mesa.elegida?.lastIpcObject?.floating ? "flotante" : "mosaico"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                                 }
                             }
                         }
@@ -368,7 +368,7 @@ Superpuesta {
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 6
-                        Text { text: "MOVER A"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10; weight: Font.Bold; letterSpacing: 1.2 } Layout.rightMargin: 6 }
+                        Text { text: "MOVER A"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.2 } Layout.rightMargin: 6 }
                         Repeater {
                             model: 10
                             Rectangle {
@@ -412,7 +412,7 @@ Superpuesta {
                             Layout.fillWidth: true; Layout.fillHeight: true; clip: true
                             TextArea { id: texto; padding: 12; placeholderTextColor: EstiloPanel.tenue; selectionColor: Qt.alpha(Paleta.azul,.35); placeholderText: "Escribe un texto reutilizable…"; color: Paleta.texto; wrapMode: TextEdit.Wrap; font { family: EstiloPanel.fuente; pixelSize: 12 } onTextChanged: if (!mesa.cargando) mesa.cambios = true; background: Rectangle { color: Qt.alpha(Paleta.texto,.035); radius: 7 } }
                         }
-                        Text { text: "{{fecha}} · {{hora}} · {{usuario}}"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10 } }
+                        Text { text: "{{fecha}} · {{hora}} · {{usuario}}"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                         RowLayout {
                             Layout.fillWidth: true
                             Boton { text: mesa.cambios ? "Guardar cambios" : "Guardar"; acento: true; onClicked: mesa.ejecutar(["plantilla","guardar","--id=" + mesa.plantillaId,"--titulo=" + titulo.text,"--texto=" + texto.text]) }
@@ -436,7 +436,7 @@ Superpuesta {
                             anchors { fill: parent; margins: 16; bottomMargin: 22 }
                             ColumnLayout {
                                 Layout.fillWidth: true; spacing: 6
-                                Text { text: Reunion.activa ? "ESTÁS EN REUNIÓN" : "PRESENTA CON TRANQUILIDAD"; color: Reunion.activa ? Paleta.verde : Paleta.azul; font { family: EstiloPanel.fuente; pixelSize: 10; weight: Font.Bold; letterSpacing: 1.5 } }
+                                Text { text: Reunion.activa ? "ESTÁS EN REUNIÓN" : "PRESENTA CON TRANQUILIDAD"; color: Reunion.activa ? Paleta.verde : Paleta.azul; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 } }
                                 Text { text: "Un espacio sin interrupciones"; color: Paleta.texto; font { family: EstiloPanel.fuente; pixelSize: 18; weight: Font.DemiBold } }
                                 Text { text: "Privacidad · No molestar · Replay en pausa"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                             }
@@ -462,7 +462,7 @@ Superpuesta {
                         Boton { text: "Silenciar micrófono"; onClicked: mesa.ejecutar(["microfono","silenciar"]) }
                         Boton { text: "Activar micrófono"; onClicked: mesa.ejecutar(["microfono","activar"]) }
                     }
-                    Text { Layout.fillWidth: true; text: "Al terminar se retira solo el motivo reunión. Tus otros modos y el estado del micrófono se conservan."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 10 } }
+                    Text { Layout.fillWidth: true; text: "Al terminar se retira solo el motivo reunión. Tus otros modos y el estado del micrófono se conservan."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                     Item { Layout.fillHeight: true }
                 }
                 // ── Rutinas: tarjetas para empezar cada modo ──────────────────
@@ -513,7 +513,7 @@ Superpuesta {
                                                     anchors.centerIn: parent
                                                     spacing: 5
                                                     IconoApp { anchors.verticalCenter: parent.verticalCenter; app: chipApp.modelData; lado: 14 }
-                                                    Text { anchors.verticalCenter: parent.verticalCenter; text: chipApp.modelData.ws; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
+                                                    Text { anchors.verticalCenter: parent.verticalCenter; text: chipApp.modelData.ws; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                                                 }
                                             }
                                         }
@@ -534,7 +534,7 @@ Superpuesta {
                             }
                         }
                     }
-                    Text { Layout.fillWidth: true; text: "Puedes devolver las ventanas a sus espacios anteriores desde el checkpoint del centro del escritorio. No se cierran aplicaciones."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 10 } }
+                    Text { Layout.fillWidth: true; text: "Puedes devolver las ventanas a sus espacios anteriores desde el checkpoint del centro del escritorio. No se cierran aplicaciones."; color: EstiloPanel.tenue; wrapMode: Text.Wrap; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                     Item { Layout.fillHeight: true }
                 }
 
@@ -553,7 +553,7 @@ Superpuesta {
                             visible: mesa.sesiones[mesa.editando]?.personalizada ?? false
                             implicitWidth: etiquetaPropia.implicitWidth + 16; implicitHeight: 22; radius: 7
                             color: Qt.alpha(Paleta.azul, .14)
-                            Text { id: etiquetaPropia; anchors.centerIn: parent; text: "a tu medida"; color: Paleta.azul; font { family: EstiloPanel.fuente; pixelSize: 10; bold: true } }
+                            Text { id: etiquetaPropia; anchors.centerIn: parent; text: "a tu medida"; color: Paleta.azul; font { family: EstiloPanel.fuente; pixelSize: 11; bold: true } }
                         }
                     }
                     RowLayout {
@@ -567,7 +567,7 @@ Superpuesta {
                             ColumnLayout {
                                 anchors { fill: parent; margins: 10 }
                                 spacing: 6
-                                Text { text: "SE ABRIRÁN"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10; weight: Font.Bold; letterSpacing: 1.2 } }
+                                Text { text: "SE ABRIRÁN"; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.2 } }
                                 ListView {
                                     Layout.fillWidth: true; Layout.fillHeight: true
                                     clip: true; spacing: 5
@@ -586,7 +586,7 @@ Superpuesta {
                                             IconoApp { app: elegidaApp.modelData; lado: 24 }
                                             Text { Layout.fillWidth: true; text: mesa.nombreDe(elegidaApp.modelData); color: Paleta.texto; elide: Text.ElideRight; font { family: EstiloPanel.fuente; pixelSize: 12; weight: Font.Medium } }
                                             // espacio: ‹ n ›
-                                            Text { text: "esp."; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 10 } }
+                                            Text { text: "esp."; color: EstiloPanel.tenue; font { family: EstiloPanel.fuente; pixelSize: 11 } }
                                             Rectangle {
                                                 implicitWidth: 74; implicitHeight: 28; radius: 8
                                                 color: Qt.alpha(Paleta.texto, .06)

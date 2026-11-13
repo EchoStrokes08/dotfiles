@@ -30,7 +30,6 @@ Rectangle {
         visible: tarjeta.emergente
         anchors.fill: parent
         radio: 16
-        opacidad: .9
         acento: tarjeta.colorUrgencia
     }
 
@@ -94,12 +93,12 @@ Rectangle {
                     text: tarjeta.noti.appName || "Aviso"
                     color: tarjeta.colorUrgencia
                     elide: Text.ElideRight
-                    font { family: Paleta.fuente; pixelSize: 10; bold: true; letterSpacing: 0.5; capitalization: Font.AllUppercase }
+                    font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 0.5; capitalization: Font.AllUppercase }
                 }
                 Text {
                     text: { Notificaciones.pulso; return Notificaciones.haceCuanto(tarjeta.noti); }
                     color: Paleta.gris
-                    font { family: Paleta.fuente; pixelSize: 10 }
+                    font { family: Paleta.fuente; pixelSize: 11 }
                 }
                 // Cerrar
                 Text {

@@ -5,7 +5,8 @@ M.base = {
     general = { gaps_in = 3.5, gaps_out = 7.5, border_size = 4 },
     animations = { enabled = true },
     decoration = {
-        rounding = 3, active_opacity = 0.80, inactive_opacity = 0.70,
+        -- Ventanas opacas: el cristal es para los paneles, no para el contenido (kitty lleva su propio fondo translúcido)
+        rounding = 3, active_opacity = 1.0, inactive_opacity = 1.0,
         shadow = { enabled = true }, blur = { enabled = true },
     },
 }

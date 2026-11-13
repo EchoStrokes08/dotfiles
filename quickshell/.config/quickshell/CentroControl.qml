@@ -88,7 +88,7 @@ PanelWindow {
         x: ventana.abierto ? parent.width - width - 8 : parent.width + 10
         Behavior on x { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
         color: "transparent"
-        FondoPanel { anchors.fill: parent; radio: 22; opacidad: .86 }
+        FondoPanel { anchors.fill: parent; radio: 22 }
         MouseArea { anchors.fill: parent }
         focus: ventana.abierto
         Keys.onEscapePressed: ventana.abierto = false
@@ -116,7 +116,7 @@ PanelWindow {
                     Text {
                         text: relojCC.date.toLocaleDateString(Qt.locale("es_ES"), "dddd d 'de' MMMM").toUpperCase()
                         color: Paleta.naranja
-                        font { family: EstiloPanel.fuente; pixelSize: 9; bold: true; letterSpacing: 1.8 }
+                        font { family: EstiloPanel.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 }
                     }
                     Text {
                         Layout.fillWidth: true
@@ -183,7 +183,7 @@ PanelWindow {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: boton.modelData.nombre
                                 color: boton.encendido ? Paleta.texto : Paleta.gris
-                                font { family: Paleta.fuente; pixelSize: 9; bold: boton.encendido }
+                                font { family: Paleta.fuente; pixelSize: 11; bold: boton.encendido }
                             }
                         }
                         MouseArea {
@@ -255,7 +255,7 @@ PanelWindow {
                                 Text {
                                     text: (modelData.nickname || modelData.description || modelData.name).replace(/ (Analog|Digital) Stereo$/, "")
                                     color: actual ? Paleta.texto : Paleta.gris
-                                    font { family: Paleta.fuente; pixelSize: 10; bold: actual }
+                                    font { family: Paleta.fuente; pixelSize: 11; bold: actual }
                                 }
                             }
                             MouseArea { id: zonaSalida; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -322,12 +322,12 @@ PanelWindow {
             RowLayout {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
-                Text { text: "NOTIFICACIONES"; color: Paleta.gris; font { family: EstiloPanel.fuente; pixelSize: 10; bold: true; letterSpacing: 1.8 } }
+                Text { text: "NOTIFICACIONES"; color: Paleta.gris; font { family: EstiloPanel.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 } }
                 Rectangle {
                     visible: Notificaciones.lista.length > 0
                     implicitWidth: Math.max(20, cuenta.implicitWidth + 12); implicitHeight: 18; radius: 9
                     color: Qt.alpha(Paleta.naranja, .2)
-                    Text { id: cuenta; anchors.centerIn: parent; text: Notificaciones.lista.length; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 10; bold: true } }
+                    Text { id: cuenta; anchors.centerIn: parent; text: Notificaciones.lista.length; color: Paleta.naranja; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
                 }
                 Rectangle { Layout.fillWidth: true; height: 1; color: Qt.alpha(Paleta.texto, 0.08) }
             }

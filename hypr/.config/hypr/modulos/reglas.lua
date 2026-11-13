@@ -30,13 +30,6 @@ hl.window_rule({
     immediate = true,
 })
 
--- Navegador, juegos y video siempre 100 % opacos (ignoran active/inactive_opacity)
-hl.window_rule({
-    name   = "opaco-navegador-juegos-video",
-    match  = { class = "^(firefox|org.vinegarhq.Sober|mpv|vlc)$" },
-    opaque = true,
-})
-
 -- Blur detrás de las tarjetas de Quickshell (el velo y la sombra quedan por debajo de 0.3 → ignore_alpha)
 hl.layer_rule({
     name         = "quickshell-blur",

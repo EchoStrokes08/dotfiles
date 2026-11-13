@@ -131,7 +131,7 @@ Scope {
             width: fila.implicitWidth + 36
             height: 60
             color: "transparent"
-            FondoPanel { anchors.fill: parent; radio: 30; opacidad: .86; acento: osd.apagado ? Paleta.gris : Paleta.naranja }
+            FondoPanel { anchors.fill: parent; radio: 30; acento: osd.apagado ? Paleta.gris : Paleta.naranja }
 
             opacity: osd.activo ? 1 : 0
             scale: osd.activo ? 1 : 0.92
