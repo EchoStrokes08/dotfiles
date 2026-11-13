@@ -148,7 +148,7 @@ RowLayout {
         property int carga: -1
         property bool cargando: false
         function leer() { if (!lectorMovil.running) lectorMovil.running = true; }
-        Timer { interval: 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: movil.leer() }
+        Timer { interval: 120000; running: true; repeat: true; triggeredOnStart: true; onTriggered: movil.leer() }
         Process {
             id: lectorMovil
             command: ["sh", "-c", "~/.config/hypr/scripts/movil.sh estado"]
@@ -290,7 +290,14 @@ RowLayout {
         property string nombre: ""
         property string detalle: ""
         function leer() { if (!lectorRed.running) lectorRed.running = true; }
-        Timer { interval: 10000; running: true; repeat: true; triggeredOnStart: true; onTriggered: red.leer() }
+        Timer { interval: 30000; running: true; repeat: true; triggeredOnStart: true; onTriggered: red.leer() }
+        // Por eventos: NetworkManager avisa de cada cambio (conectar, desconectar, cambiar de red)
+        Process {
+            running: true
+            command: ["nmcli", "monitor"]
+            stdout: SplitParser { onRead: (linea) => { if (/connect|disconnect|unavailable|using connection/i.test(linea)) esperaRed.restart(); } }
+        }
+        Timer { id: esperaRed; interval: 800; onTriggered: red.leer() }   // agrupa la ráfaga de mensajes de un cambio
         Process {
             id: lectorRed
             command: ["sh", "-c", "nmcli -t -f TYPE,STATE,CONNECTION,DEVICE device | grep ':connected:' | head -1 | " +
