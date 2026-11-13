@@ -4,7 +4,7 @@
 #   movil.sh sonar      → hace sonar el móvil (para encontrarlo)
 #   movil.sh enviar F…  → manda archivos al móvil
 #   movil.sh app        → la ventana de KDE Connect (emparejar, ajustes)
-#   movil.sh menu       → panel «PC + móvil» (SUPER+ALT+M, clic en el móvil de la barra); el menú, de respaldo
+#   movil.sh menu       → centro de control › Móvil (qs ipc call movil toggle); el menú, de respaldo
 #   movil.sh portapapeles → manda al móvil lo que tengas copiado
 #   movil.sh elegir     → eliges un archivo y lo manda
 #   movil.sh navegar    → abre los archivos del móvil en Thunar

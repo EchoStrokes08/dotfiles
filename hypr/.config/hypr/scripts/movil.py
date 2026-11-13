@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PC y móvil como uno solo (KDE Connect). Lo usa el panel Movil.qml (SUPER+ALT+M).
+"""PC y móvil como uno solo (KDE Connect). Lo usan el centro de control › Móvil y el panel de avisos Movil.qml.
 
     movil.py estado                       JSON: móvil, batería, red, notificaciones, música, funciones
     movil.py responder <id> <texto>       contestar una notificación del móvil (WhatsApp, Telegram, SMS…)

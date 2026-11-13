@@ -174,7 +174,7 @@ personales. Una VM sirve para validar instalación; no demuestra batería, GPU, 
 | `tema` | Paletas Ayu (oscura y clara) y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper; `SUPER+CTRL+T` entre claro y oscuro (oscuro siempre, salvo que actives el horario con `tema.sh auto on`) |
 | `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (los scripts vuelven a fuzzel si Quickshell no responde) |
 | `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
-| `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, brillo, batería, energía, CPU, RAM, modo juego, notificaciones), **dashboard** SUPER+D (reloj, clima, calendario con Google Calendar, sistema, tiempo de pantalla semanal, música con letra), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús, **widgets de escritorio** (reloj, clima, frase del día y lo próximo, solo con el workspace vacío), **asistente de IA local** SUPER+ALT+A, **agente con memoria** SUPER+O, **nota rápida** SUPER+SHIFT+O, **resumen del día** y aviso de **actualizaciones** en la barra |
+| `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, batería y avisos fijos; energía, CPU, RAM y modo juego solo cuando importan), **Brújula** SUPER+D (hoy: reloj, clima, calendario con Google Calendar, sistema y tiempo de pantalla; línea de tiempo; salud), **centro de control** SUPER+N (perfiles, sonido, música, avisos, conexiones, móvil), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús, **widgets de escritorio** (reloj, clima, frase del día y lo próximo, solo con el workspace vacío), **asistente de IA local** SUPER+ALT+A, **agente con memoria** SUPER+O, **nota rápida** SUPER+SHIFT+O, **resumen del día** y aviso de **actualizaciones** en la barra |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide, atuin (historial) y fastfetch |
 | `yazi` | Gestor de archivos en la terminal (SUPER+SHIFT+E o `y`), con el acento de la paleta |
 | `lugares` | Reglas por lugar: qué cambia al conectarte a cada Wi-Fi (`~/.config/lugares.conf`) |
@@ -272,11 +272,11 @@ No se debe usar una captura o una prueba simulada como evidencia de bloqueo fís
 |---|---|
 | Entrada y ventanas | `shell.qml`, `Lanzador.qml`, `Chuleta.qml`, `Vista.qml` |
 | Barra | `Barra.qml`, `BarraEspacios.qml`, `BarraDerecha.qml`, `Modulo.qml` |
-| Dashboard | `Dashboard.qml`, `Calendario.qml`, `Tiempo.qml`, `Musica.qml`, `Sistema.qml` |
+| Brújula › Hoy | `HoyCabecera.qml`, `HoyPaneles.qml`, `Calendario.qml`, `Tiempo.qml`, `Sistema.qml` |
 | Servicios comunes | `Notificaciones.qml`, `Eventos.qml`, `Recordatorios.qml`, `Clima.qml` |
-| Control y hardware | `CentroControl.qml`, `Conexiones.qml`, `Cargador.qml`, `Audifonos.qml`, `Movil.qml` |
+| Control y hardware | `CentroControl.qml`, `ListaConexiones.qml`, `Musica.qml`, `Cargador.qml`, `Audifonos.qml`, `Movil.qml` (avisos) |
 | Productividad | `Mesa.qml`, `Reunion.qml`, `Flujo.qml`, `Continuidad.qml`, `Brujula.qml`, `Concentracion.qml` |
-| Estado y perfiles | `EstadoEscritorio.qml`, `CentroEscritorio.qml` |
+| Estado y perfiles | `EstadoEscritorio.qml` (los perfiles se eligen en `CentroControl.qml`) |
 | Texto y resumen | `IA.qml`, `Agente.qml`, `NotaRapida.qml`, `Resumen.qml`, `Pausas.qml`, `Actualizaciones.qml` |
 | Seguridad | `Bloqueo.qml`, `PantallaBloqueo.qml` |
 | Selectores y avisos | `Portapapeles.qml`, `Wallpapers.qml`, `Menu.qml`, `OSD.qml`, `Emergentes.qml`, `NotiTarjeta.qml` |
@@ -293,7 +293,7 @@ Al editar los QML a mano conviene escribir en el mismo archivo: reemplazarlo (`s
 Quickshell deje de vigilarlo hasta la siguiente recarga.
 
 El aspecto de cristal es común: `FondoPanel.qml` (sombra, degradado, luces radiales del acento y
-filo de luz) es el fondo de `Superpuesta`, el dashboard, el lanzador, el centro de control, el OSD
+filo de luz) es el fondo de `Superpuesta`, el lanzador, el centro de control, el OSD
 y las notificaciones emergentes. `FondoBoton.qml` es el fondo de todos los botones,
 `TarjetaPanel.qml` agrupa secciones dentro de un panel e `Interruptor.qml` es el conmutador sí/no.
 La barra superior es transparente (42 px) con tres islas `IslaBarra.qml`: espacios y perfil (más
@@ -536,7 +536,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 
 | Comando | Qué hace |
 |---|---|
-| `qs ipc call dashboard toggle` · `abrir` · `cerrar` | Dashboard |
+| `qs ipc call brujula toggle` · `abrir hoy\|linea\|contexto\|sesion\|salud` · `cerrar` | Brújula (`dashboard` sigue como alias de Brújula › Hoy) |
 | `qs ipc call dashboard irA 3` | Ir al workspace 3 |
 | `qs ipc call ia abrir <accion> "pregunta"` · `estado` | Panel del asistente (lo normal es usar `ia.sh`) |
 | `qs ipc call nota abrir` · `resumen mostrar` | Nota rápida / resumen del día |

@@ -1,4 +1,4 @@
-// ListaConexiones: Wi-Fi y Bluetooth dentro del centro de control (antes era un panel aparte, SUPER+K).
+// ListaConexiones: Wi-Fi y Bluetooth dentro del centro de control (antes era un panel aparte).
 //   ↑↓ elegir · Enter conectar/desconectar · Supr olvidar · Tab cambia de pestaña
 //   Wi-Fi: las redes con candado y sin guardar piden la contraseña en la misma fila.
 //   Bluetooth: clic en un dispositivo nuevo = emparejar + confiar + conectar.

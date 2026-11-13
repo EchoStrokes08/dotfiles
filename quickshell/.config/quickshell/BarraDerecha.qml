@@ -166,7 +166,7 @@ RowLayout {
         icono: derecha.g(0xF011C)
         texto: carga >= 0 ? carga + "%" : ""
         color: cargando ? Paleta.exito : carga >= 0 && carga <= 15 ? Paleta.peligro : Paleta.texto
-        ayuda: nombre + (cargando ? " · cargando" : "") + "\nClic: menú del móvil (SUPER+ALT+M) · clic derecho: hacer sonar"
+        ayuda: nombre + (cargando ? " · cargando" : "") + "\nClic: centro de control › Móvil · clic derecho: hacer sonar"
         onClic: (b) => derecha.ejecutar("~/.config/hypr/scripts/movil.sh " + (b === Qt.RightButton ? "sonar" : "menu"))
     }
 

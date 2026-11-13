@@ -14,9 +14,9 @@ Aquí encontrarás cómo usar cada herramienta, qué guarda y cómo salir de un 
 
 1. Abre una terminal con **SUPER+Q** y el navegador desde **SUPER+R**, escribiendo `firefox`.
 2. Usa **SUPER+1** y **SUPER+2** para cambiar de espacio; **SUPER+ESPACIO** muestra las ventanas.
-3. Abre **SUPER+N** para ajustar sonido y brillo; **SUPER+K** conecta Wi-Fi o Bluetooth.
+3. Abre **SUPER+N** para ajustar sonido y brillo; su pestaña **Conexiones** conecta Wi-Fi o Bluetooth.
 4. Busca cualquier función en **SUPER+R**. Si olvidas una tecla, consulta **SUPER+H**.
-5. Explora **SUPER+ALT+ESPACIO** para preparar una rutina y **SUPER+CTRL+B** para consultar tu día.
+5. Escribe «empezar» en el lanzador (**SUPER+R**) para lanzar una rutina y abre **SUPER+D** para consultar tu día.
 6. Al alejarte, **SUPER+L** bloquea. Guarda tu trabajo antes de cerrar sesión.
 
 > **Para empezar:** aprende seis teclas: Q, R, E, N, H y L con SUPER.
@@ -36,7 +36,7 @@ Aquí encontrarás cómo usar cada herramienta, qué guarda y cómo salir de un 
 - [7. Grupos: ventanas en pestañas](#7-grupos-ventanas-en-pestañas)
 - [8. Scratchpads: apps que aparecen y desaparecen](#8-scratchpads-apps-que-aparecen-y-desaparecen)
 - [9. Gestos del touchpad](#9-gestos-del-touchpad)
-- [10. Barra, dashboard y notificaciones](#10-barra-dashboard-y-notificaciones)
+- [10. Barra, Brújula y centro de control](#10-barra-brújula-y-centro-de-control)
 - [11. Portapapeles, wallpapers y colores](#11-portapapeles-wallpapers-y-colores)
 - [12. Capturas y grabación](#12-capturas-y-grabación)
 - [13. Modos: juego, concentración, energía y No molestar](#13-modos-juego-concentración-energía-y-no-molestar)
@@ -111,10 +111,9 @@ manual (apéndice A).
 | `SUPER+O` | Agente: preguntas, memoria y acciones del escritorio |
 | `SUPER+CTRL+SHIFT+O` | Notas en un scratchpad |
 | `SUPER+SHIFT+E` | Archivos (yazi) |
-| `SUPER+D` | Dashboard |
+| `SUPER+D` | Brújula: tu día |
 | `SUPER+N` | Centro de control |
 | `SUPER+SHIFT+V` | Portapapeles |
-| `SUPER+K` | Wi-Fi y Bluetooth |
 | `PRINT` | Captura de una región |
 | `SUPER+SHIFT+X` | Copiar texto de la pantalla (OCR) |
 | `SUPER+ALT+R` | Grabar la pantalla |
@@ -269,7 +268,7 @@ Regla: **3 dedos = navegar · 4 dedos = mover la ventana · con SUPER = lo delic
 |---|---|
 | 3 dedos ← → | Cambiar de workspace |
 | 3 dedos ↑ | Scratchpad «magic» |
-| 3 dedos ↓ | Dashboard |
+| 3 dedos ↓ | Brújula › Hoy |
 | Abrir 3 dedos | Pantalla completa (otra vez = salir) |
 | Juntar 3 dedos | Flotante ↔ mosaico |
 | 4 dedos | Mover la ventana |
@@ -282,25 +281,26 @@ Los gestos siguen a los dedos: si sueltas a medias, se cancelan.
 **Clics del touchpad**: tocar = clic. Al hundirlo, cuenta el número de dedos: 1 = clic, 2 = clic derecho,
 3 = clic central. Mientras escribes, el touchpad se ignora.
 
-## 10. Barra, dashboard y notificaciones
+## 10. Barra, Brújula y centro de control
 
 **Barra** (arriba). Casi todo se puede pulsar:
 
 | Zona | Clic | Otros |
 |---|---|---|
 | Números de workspace | Ir | Rueda = siguiente / anterior |
-| Reloj | Dashboard | Al pasar el ratón: la fecha |
+| Reloj | Brújula › Hoy | Al pasar el ratón: la fecha |
 | Volumen | Silenciar | Rueda = volumen |
 | Brillo | — | Rueda = brillo |
 | Red | Panel Wi-Fi/Bluetooth | Derecho = nmtui |
 | Energía | Cambiar modo | |
-| CPU / RAM | Abre btop | |
+| CPU / RAM (solo por encima del 85 %) | Abre btop | |
 | Buds | Cambiar modo | Derecho = ANC / apagado · central = Buds Manager |
-| Mando | Modo juego | |
+| Mando (solo con el modo juego activo) | Modo juego | |
 | Campana | Centro de control | Derecho = No molestar |
 
-**Dashboard** (`SUPER+D` o 3 dedos hacia abajo): reloj, **clima de Bogotá** (y la probabilidad de lluvia de las
-próximas horas), workspaces, calendario, estado del sistema, tiempo de pantalla y la música que suena.
+**Brújula › Hoy** (`SUPER+D`, clic en el reloj o 3 dedos hacia abajo; antes era el dashboard): reloj, **clima de Bogotá** (y la probabilidad de lluvia de las
+próximas horas), la frase del asistente, ideas para hoy, calendario, estado del sistema y tiempo de pantalla.
+Las otras dos pestañas: **Línea de tiempo** (el día, las reglas automáticas y la sesión anterior) y **Salud**.
 - **Calendario**: flechas o rueda cambian de mes y un clic en el título vuelve a hoy. Un **puntito** bajo un día =
   tienes algo en tu Google Calendar (evento o tarea). Clic en un día = elegirlo. Debajo, **«＋ Nuevo evento o
   tarea»** lo crea en tu Google Calendar / Google Tasks ese día (hora vacía = todo el día; el botón de la duración
@@ -308,16 +308,20 @@ próximas horas), workspaces, calendario, estado del sistema, tiempo de pantalla
   una tarea = marcarla hecha). 10 minutos antes de cada evento sale un aviso.
   También desde el lanzador: `evento mañana 15:00 dentista`, `evento viernes clase`, `tarea 20/11 entregar informe`.
 - **Tiempo de pantalla**: hoy por app y, debajo, **los últimos 7 días** (pasa el ratón por una barra).
-- **Música**: con la **letra sincronizada** de la canción a la derecha (si lrclib.net la tiene).
 
-**Barra**, además: unas **barras de colores** que bailan con la música (clic = dashboard), un **punto rojo con el
+**Barra**, además: unas **barras de colores** que bailan con la música (clic = centro de control, con los controles de la música), un **punto rojo con el
 tiempo** mientras grabas la pantalla (clic = parar), un **micrófono rojo** mientras dictas, y la **batería del
 móvil** cuando está conectado por KDE Connect.
 
-**Centro de control** (`SUPER+N`): botones rápidos (Wi-Fi, Bluetooth…), volumen, brillo, música y el historial
-de notificaciones. Clic derecho en Wi-Fi o Bluetooth abre su lista.
+**Centro de control** (`SUPER+N`): todo lo que se ajusta. Arriba, botones rápidos (Wi-Fi, Bluetooth…) y los
+cuatro **perfiles** (cristal, lectura, mínimo, rendimiento). Debajo, cuatro pestañas:
+- **Inicio**: volumen (general y por app), micrófono, brillo, música y las notificaciones con «No molestar».
+- **Conexiones**: Wi-Fi y Bluetooth (también con clic derecho en sus botones o clic en la red de la barra).
+- **Móvil**: batería y acciones del móvil (sonar, abrir lo copiado, enviar archivo, sus archivos, SMS) y
+  «Avisos y respuestas». Sin conexión, un botón para abrir KDE Connect.
+- **Más**: checkpoints de ventanas, privacidad, juego automático, diagnóstico y replay.
 
-**Wi-Fi y Bluetooth** (`SUPER+K`): dos pestañas (`Tab` cambia). Mientras está abierto busca redes y dispositivos.
+**Wi-Fi y Bluetooth** (centro de control › pestaña **Conexiones**, o clic en la red de la barra): dos pestañas (`Tab` cambia). Mientras está a la vista busca redes y dispositivos.
 - `Enter` o clic: conectar / desconectar. Si la red tiene candado y no está guardada, pide la contraseña en la
   misma fila (el ojo la muestra). Si falla, lo dice en rojo ("Contraseña incorrecta"…).
 - Bluetooth: clic en un dispositivo **nuevo** lo empareja, lo marca de confianza y lo conecta.
@@ -468,7 +472,7 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 | La barra/atajos de Quickshell no responden (`qs ipc call …` dice «Not ready to accept queries yet») | Pasa tras muchas recargas en caliente: `pkill -x qs; qs &` (o cerrar sesión y entrar). Si vuelve a pasar justo al arrancar, revisa que ningún archivo que lea un singleton falte |
 | El dictado no escribe nada | ¿Micrófono correcto? Prueba `dictado.sh` dos veces y mira la notificación. La primera vez tarda más (carga el modelo) |
 | El móvil no aparece en KDE Connect | Mismo Wi-Fi, app KDE Connect abierta en el móvil y el firewall abierto (sección 20) |
-| No salen eventos en el dashboard | `~/.config/hypr/scripts/eventos.py --lista`: si no lista nada, revisa la dirección de `~/.config/calendario/url` |
+| No salen eventos en Brújula › Hoy | `~/.config/hypr/scripts/eventos.py --lista`: si no lista nada, revisa la dirección de `~/.config/calendario/url` |
 | No deja crear eventos o tareas («No se pudo guardar») | `~/.config/hypr/scripts/gcal.py estado`. Si `conectado` es `false` o la sesión caducó: `gcal.py conectar`. Si la app de Google Cloud sigue «En prueba», la sesión caduca cada 7 días: publícala |
 | Reinstalar todo en otro equipo | `bash <(curl -fsSL https://raw.githubusercontent.com/EchoStrokes08/dotfiles/main/instalar.sh)` |
 
@@ -550,9 +554,9 @@ notificación y queda copiada. Otro idioma → español; si ya está en español
 | `recordar mañana 7:00 examen` | Mañana a esa hora |
 
 Avisa con notificación y sonido. Se guardan en disco: si el equipo estaba apagado a esa hora, avisa al encender.
-Los próximos se ven en el dashboard (clic en uno = borrarlo).
+Los próximos se ven en Brújula › Hoy, en «Próximo» (clic en uno = borrarlo).
 
-**Tiempo de pantalla**: el dashboard muestra hoy y los últimos 7 días. Para ponerte **límites**, edita
+**Tiempo de pantalla**: Brújula › Hoy muestra hoy y los últimos 7 días. Para ponerte **límites**, edita
 `~/.config/tiempo-pantalla/limites.json` (minutos al día por *class* de la ventana; `SUPER+I` te dice la class):
 
 ```
@@ -583,7 +587,7 @@ mando o ratón, y hacerlo sonar cuando no lo encuentras.
 
 **Uso**: la batería del móvil sale en la barra (clic = panel del móvil, clic derecho = hacerlo sonar).
 
-### PC + móvil como uno solo (`SUPER+ALT+M`)
+### PC + móvil como uno solo (centro de control › Móvil)
 
 El panel del móvil (`Movil.qml`, datos de `scripts/movil.py`) junta todo en un sitio:
 
@@ -733,7 +737,7 @@ contraseña donde esté el cursor, sin pasar por el portapapeles.
 
 ### Móvil, Syncthing y Tailscale
 
-- **Móvil** (`SUPER+ALT+M`, o clic en su batería en la barra): hacerlo sonar, enviarle lo copiado o un
+- **Móvil** (centro de control › pestaña **Móvil**): hacerlo sonar, enviarle lo copiado o un
   archivo, ver sus archivos. Antes hay que emparejarlo en la app KDE Connect.
 - **Syncthing** (carpetas sincronizadas sin nube): abre http://127.0.0.1:8384, instala Syncthing en
   el móvil, escanea el código QR de «Acciones → Mostrar ID» y comparte una carpeta.
@@ -759,7 +763,7 @@ Los puertos de Syncthing y la interfaz de Tailscale se abren en el cortafuegos c
 
 ## Tres recorridos para el día a día
 
-**Preparar una tarde de estudio.** Abre Mesa con SUPER+ALT+ESPACIO, elige Rutinas y Estudiar.
+**Preparar una tarde de estudio.** Abre el lanzador (SUPER+R), escribe «empezar» y elige «Empezar a estudiar».
 Revisa las apps abiertas y añade un recordatorio con `recordar 50m revisar apuntes` en el lanzador.
 Guarda un proyecto con SUPER+CTRL+Enter y escribe el próximo paso antes de dejarlo.
 
@@ -768,13 +772,13 @@ Comprueba el micrófono con sus botones explícitos. Si necesitas enseñar una v
 en tu aplicación de videollamada: la privacidad del escritorio no oculta su contenido compartido.
 Al terminar, finaliza la reunión; el silencio que necesiten otros modos se conserva.
 
-**Retomar el día anterior.** Abre Brújula con SUPER+CTRL+B. Si buscas tus apps de antes del reinicio,
+**Retomar el día anterior.** Abre Brújula con SUPER+D. Si buscas tus apps de antes del reinicio,
 revisa Sesión y elige cuáles reabrir. Si quieres continuar una tarea concreta, abre tu proyecto y
 lee su próximo paso. Cuando necesites un archivo, búscalo desde SUPER+R con `d tema`.
 
 ## 23. Centro del escritorio
 
-**SUPER+CTRL+ESPACIO** abre perfiles, privacidad, checkpoints y diagnóstico.
+Los perfiles están en el **centro de control** (SUPER+N), bajo los botones rápidos; privacidad, checkpoints, replay y diagnóstico, en su pestaña **Más**.
 También puedes pulsar el perfil de la barra o buscar el centro en el lanzador.
 
 ### Empezar a usarlo
@@ -849,7 +853,7 @@ en `replay.log` bajo el directorio runtime privado de la instancia.
 
 ## 24. Mesa de trabajo
 
-**SUPER+ALT+ESPACIO** abre ventanas, plantillas, reuniones y rutinas en el monitor enfocado.
+Abre Mesa desde el lanzador (acción «Mesa de trabajo»): ventanas, plantillas, reuniones y rutinas en el monitor enfocado. Las plantillas (prefijo `pl`) y las rutinas («empezar») también salen directamente en el lanzador.
 **SUPER+CTRL+V** abre directamente las plantillas. Dentro, **Ctrl+1…4** cambia de pestaña;
 Tab/Shift+Tab recorre controles y Escape cierra. «Proyectos y acciones» abre las herramientas
 explicadas en el capítulo siguiente.
@@ -1046,7 +1050,7 @@ Copiar un resultado puede incorporarlo al historial habitual del portapapeles de
 
 ## 26. Brújula
 
-**SUPER+CTRL+B** reúne Hoy, Línea de tiempo, Contexto, Sesión y Salud.
+**SUPER+D** reúne tres pestañas: Hoy, Línea de tiempo (con El día, Reglas automáticas y Sesión anterior) y Salud.
 **Ctrl+1…5** o **Ctrl+Tab** cambia de pestaña; en la línea, ←/→ cambia de día.
 Las reglas y el estado se procesan localmente; servicios como calendario, webs abiertas y
 actualizaciones sí necesitan red. La configuración se edita desde «Editar reglas» en Contexto.
@@ -1484,6 +1488,8 @@ si estás mostrando la pantalla. Para limpiar el índice o diagnosticar modelos,
 
 ### Atajos de teclado
 
+Los marcados con ★ son los quince esenciales: la chuleta (`SUPER+H`) abre mostrando solo esos.
+
 Esta es la referencia central: la leen la chuleta (`SUPER+H`) y la búsqueda del lanzador.
 Actualiza aquí los atajos cuando cambie su configuración.
 
@@ -1491,24 +1497,24 @@ Actualiza aquí los atajos cuando cambie su configuración.
 
 | Atajo | Acción |
 |---|---|
-| `SUPER+Q` | Terminal (kitty) |
+| ★ `SUPER+Q` | Terminal (kitty) |
 | `SUPER+E` | Archivos (Thunar) |
-| `SUPER+R` | Lanzador: apps, acciones, calculadora, web, emojis, archivos y recordatorios (ver «El lanzador») |
+| ★ `SUPER+R` | Lanzador: apps, acciones, calculadora, web, emojis, archivos y recordatorios (ver «El lanzador») |
 | `SUPER+H` | Chuleta: todos estos atajos, con buscador |
-| `SUPER+ESPACIO` | Vista general: todas las ventanas en miniatura (clic = ir · arrastrar = mover de workspace) |
+| ★ `SUPER+ESPACIO` | Vista general: todas las ventanas en miniatura (clic = ir · arrastrar = mover de workspace) |
 | `SUPER+W` | WhatsApp (lo enfoca si ya está abierto) |
 | `SUPER+G` | Roblox (Sober, con gamemode) |
 | `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
-| `SUPER+D` | Dashboard: reloj, espacios, calendario, sistema, tiempo de pantalla y música |
+| ★ `SUPER+D` | Brújula: tu día (reloj, clima, agenda, sistema y tiempo de pantalla), línea de tiempo y salud |
 | `SUPER+A`, luego una letra | Modo lanzar: `F` Firefox · `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify. Cualquier otra tecla cancela |
 
 #### Ventanas
 
 | Atajo | Acción |
 |---|---|
-| `SUPER+C` | Cerrar la ventana |
-| `SUPER+V` | Flotante / en mosaico |
-| `SUPER+F` | Pantalla completa |
+| ★ `SUPER+C` | Cerrar la ventana |
+| ★ `SUPER+V` | Flotante / en mosaico |
+| ★ `SUPER+F` | Pantalla completa |
 | `SUPER+P` | Pseudo-mosaico |
 | `SUPER+J` | Cambiar la dirección de la división (dwindle) |
 | `SUPER+TAB` | Layout del workspace: dwindle → master → scrolling → monocle |
@@ -1528,22 +1534,21 @@ Actualiza aquí los atajos cuando cambie su configuración.
 | Atajo | Acción |
 |---|---|
 | `SUPER+ALT+Enter` | Sesiones de trabajo: universidad / programar / descanso, cada app en su workspace (`modulos/sesiones.lua`) |
-| `SUPER+O` | Agente del escritorio: agenda, memoria, equipo y propuestas de acciones |
+| ★ `SUPER+O` | Agente del escritorio: agenda, memoria, equipo y propuestas de acciones |
 | `SUPER+ALT+A` | Asistente local (IA) sobre el texto seleccionado: resumir, corregir, redactar mejor, explicar, traducir o preguntar |
 | `SUPER+SHIFT+O` | Nota rápida: una línea con fecha a `~/Documents/notas.md` |
 | `SUPER+ALT+O` | Guardar en las notas el texto seleccionado |
-| `SUPER+ALT+M` | PC + móvil: avisos del móvil con respuesta, música, sonar, abrir lo copiado, archivos, captura, mandos |
 
 #### Workspaces y monitores
 
 | Atajo | Acción |
 |---|---|
-| `SUPER+1` … `SUPER+0` | Ir al workspace 1-10 (el mismo otra vez = volver al anterior) |
+| ★ `SUPER+1` … `SUPER+0` | Ir al workspace 1-10 (el mismo otra vez = volver al anterior) |
 | `SUPER+\|` (tecla a la izquierda del 1) | Saltar a la última ventana enfocada |
 | `ALT+TAB` / `ALT+SHIFT+TAB` | Recorrer las ventanas del workspace (y traerla al frente) |
-| `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | Mover la ventana al workspace 1-10 |
+| ★ `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | Mover la ventana al workspace 1-10 |
 | `SUPER+rueda del ratón` | Workspace siguiente / anterior |
-| `SUPER+S` | Mostrar / ocultar el scratchpad (workspace especial «magic») |
+| ★ `SUPER+S` | Mostrar / ocultar el scratchpad (workspace especial «magic») |
 | `SUPER+SHIFT+S` | Mandar la ventana al scratchpad |
 | `SUPER+Return` | Terminal flotante (scratchpad; se abre sola la primera vez) |
 | `SUPER+Y` | Música: Spotify en su scratchpad (si ya estaba abierto, lo trae) |
@@ -1557,18 +1562,15 @@ Actualiza aquí los atajos cuando cambie su configuración.
 
 | Atajo | Acción |
 |---|---|
-| `SUPER+L` | Bloquear la pantalla |
+| ★ `SUPER+L` | Bloquear la pantalla |
 | `SUPER+M` | Menú de apagado: bloquear, cerrar sesión, reiniciar, apagar |
 | `ALT+F4` | Menú de apagado (wlogout) |
-| `SUPER+N` | Centro de control (botones, volumen, brillo, música, notificaciones) |
+| ★ `SUPER+N` | Centro de control: botones, perfiles, sonido, música, avisos, Wi-Fi y Bluetooth, móvil y más |
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
-| `SUPER+ALT+ESPACIO` | Mesa de trabajo: ventanas, aparcado, plantillas, reuniones y rutinas |
 | `SUPER+CTRL+V` | Biblioteca de plantillas de texto con fecha y hora |
 | `SUPER+CTRL+Enter` | Continuidad: guardar y retomar proyectos y su próxima tarea |
 | `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
 | `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
-| `SUPER+CTRL+ESPACIO` | Centro del escritorio: perfiles, privacidad, checkpoints, replay y diagnóstico |
-| `SUPER+CTRL+B` | Brújula: hoy, línea de tiempo, contexto automático, sesión anterior y salud del sistema |
 | `SUPER+SHIFT+Z` | Reabrir la última ventana cerrada (en su espacio y, si flotaba, con su tamaño) |
 | `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
@@ -1582,8 +1584,7 @@ Actualiza aquí los atajos cuando cambie su configuración.
 | `SUPER+ALT+E` | Sonido de las bocinas: perfil música / voz / sin efectos (EasyEffects) |
 | `SUPER+SHIFT+W` | Selector de wallpapers |
 | `SUPER+CTRL+W` | Wallpaper al azar |
-| `SUPER+SHIFT+V` | Historial del portapapeles |
-| `SUPER+K` | Wi-Fi y Bluetooth (también: clic en la red de la barra, clic derecho en los botones del centro de control) |
+| ★ `SUPER+SHIFT+V` | Historial del portapapeles |
 | `SUPER+SHIFT+B` | Buds: cambiar de modo (ANC → transparencia → apagado) |
 | `SUPER+ALT+P` | Pantalla externa: duplicar / extender / solo la externa / solo el portátil |
 
@@ -1591,7 +1592,7 @@ Actualiza aquí los atajos cuando cambie su configuración.
 
 | Atajo | Acción |
 |---|---|
-| `PRINT` | Captura de una región → `~/Imágenes/screenshots` + portapapeles |
+| ★ `PRINT` | Captura de una región → `~/Imágenes/screenshots` + portapapeles |
 | `SUPER+PRINT` | Captura de toda la pantalla |
 | `SHIFT+PRINT` | Menú: región, pantalla, ventana activa, pantalla en 5 s o región y anotar |
 | `SUPER+SHIFT+A` | Capturar una región y anotarla (satty): flechas, texto, números, resaltar, difuminar. `Enter` copia, guarda y sale |
@@ -1636,10 +1637,10 @@ Actualiza aquí los atajos cuando cambie su configuración.
 | Dónde | Acción |
 |---|---|
 | Barra: número de workspace | Clic = ir · rueda = siguiente / anterior |
-| Barra: barras de colores (solo con música) | Visualizador de audio · clic = dashboard |
+| Barra: barras de colores (solo con música) | Visualizador de audio · clic = centro de control |
 | Barra: punto rojo con tiempo / micrófono rojo | Grabando la pantalla / dictando · clic = parar |
 | Barra: móvil (solo si está conectado) | Batería del móvil · clic = panel PC + móvil · derecho = hacerlo sonar |
-| Barra: reloj | Al pasar el ratón muestra la fecha · clic = dashboard |
+| Barra: reloj | Al pasar el ratón muestra la fecha · clic = Brújula › Hoy |
 | Barra: bandeja | Clic = abrir · clic derecho = menú · clic central = acción secundaria |
 | Barra: Buds | Clic = cambiar modo · derecho = ANC / apagado · central = Buds Manager |
 | Barra: volumen | Clic = silenciar · rueda = volumen |
@@ -1650,11 +1651,10 @@ Actualiza aquí los atajos cuando cambie su configuración.
 | Barra: concentración (solo en sesión) | Clic = +10 min o terminar |
 | Barra: mando | Clic = modo juego |
 | Barra: campana | Clic = centro de control · derecho = No molestar |
-| Dashboard: píldoras de workspaces | Clic = ir a ese workspace |
-| Dashboard: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · clic en un día = elegirlo · puntito = hay eventos o tareas ese día |
-| Dashboard: «＋ Nuevo evento o tarea» | Crea en Google el evento/tarea del día elegido · Enter guarda · duración: clic = más, derecho = menos |
-| Dashboard: «Próximo» | Eventos de Google Calendar, tareas y recordatorios · clic en un recordatorio = borrarlo · en una tarea = hecha |
-| Dashboard: últimos 7 días | Pasa el ratón por una barra: total y app principal de ese día |
+| Brújula › Hoy: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · clic en un día = elegirlo · puntito = hay eventos o tareas ese día |
+| Brújula › Hoy: «＋ Nuevo evento o tarea» | Crea en Google el evento/tarea del día elegido · Enter guarda · duración: clic = más, derecho = menos |
+| Brújula › Hoy: «Próximo» | Eventos de Google Calendar, tareas y recordatorios · clic en un recordatorio = borrarlo · en una tarea = hecha |
+| Brújula › Hoy: últimos 7 días | Pasa el ratón por una barra: total y app principal de ese día |
 | Centro de control: Wi-Fi / Bluetooth | Clic = encender/apagar · derecho = abrir su lista |
 | Centro de control: Conservar · Luz noche | Batería hasta ~80 % · pantalla cálida |
 | Centro de control: salidas de audio | Un botón por salida (altavoces, Buds, HDMI): clic = sonar por ahí |
@@ -1717,7 +1717,7 @@ Con tres letras sin prefijo, el lanzador añade resultados de varias fuentes a l
 |---|---|
 | 3 dedos ← → | Cambiar de workspace |
 | 3 dedos ↑ | Mostrar / ocultar el scratchpad |
-| 3 dedos ↓ | Dashboard |
+| 3 dedos ↓ | Brújula › Hoy |
 | Abrir 3 dedos | Pantalla completa (otra vez = salir) |
 | Juntar 3 dedos | Flotante ↔ mosaico |
 | 4 dedos (cualquier dirección) | Mover la ventana |

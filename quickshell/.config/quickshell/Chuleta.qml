@@ -1,6 +1,7 @@
 // Chuleta de atajos (SUPER+H): todos los atajos, agrupados y con buscador.
 // NO tiene una lista propia: lee las tablas del manual de usuario (desde "### Atajos de teclado"
 // hasta "### Comportamiento automático"). Así, al documentar un atajo nuevo en el manual, aparece aquí solo.
+//   Al abrir muestra solo los esenciales (filas marcadas con ★ en el manual); al escribir busca entre todos.
 //   escribe para filtrar (busca en tecla y descripción, sin tildes) · Esc cierra
 import QtQuick
 import QtQuick.Layouts
@@ -47,14 +48,18 @@ Superpuesta {
             const texto = celdas.length > 2
                 ? celdas.slice(1).map((c, i) => c && c !== "—" ? `${cabeceras[i + 1]}: ${limpio(c)}` : "").filter(x => x).join("  ·  ")
                 : limpio(celdas[1] ?? "");
-            grupo.filas.push({ tecla: limpio(celdas[0]), texto: texto });
+            const tecla = limpio(celdas[0]);
+            grupo.filas.push({ tecla: tecla.replace(/^★\s*/, ""), texto: texto, esencial: tecla.startsWith("★") });
         }
         grupos = res.filter(g => g.filas.length > 0);
     }
 
+    // Sin buscar: un solo grupo con los esenciales, en el orden del manual
+    readonly property var esenciales: [{ titulo: "Los esenciales", filas: grupos.reduce((a, g) => a.concat(g.filas.filter(f => f.esencial)), []) }]
+    readonly property int totalTodos: grupos.reduce((n, g) => n + g.filas.length, 0)
     readonly property var filtrados: {
         const q = sinTildes(buscador.text.trim());
-        if (!q) return grupos;
+        if (!q) return esenciales;
         return grupos.map(g => ({ titulo: g.titulo, filas: g.filas.filter(f => sinTildes(f.tecla + " " + f.texto + " " + g.titulo).includes(q)) }))
                      .filter(g => g.filas.length > 0);
     }
@@ -83,7 +88,7 @@ Superpuesta {
                     Text { anchors.verticalCenter: parent.verticalCenter; visible: !parent.text; text: "Buscar atajo… (p. ej. captura, workspace, volumen)"; color: Paleta.gris; font: parent.font }
                     Keys.onEscapePressed: ch.abierto = false
                 }
-                Text { text: ch.total + " atajos"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
+                Text { text: buscador.text.trim() ? ch.total + " de " + ch.totalTodos + " atajos" : ch.total + " esenciales · " + ch.totalTodos + " en total"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
             }
         }
 
@@ -101,6 +106,11 @@ Superpuesta {
                 spacing: 16
                 readonly property var reparto: {
                     const cols = [[], [], []], alto = [0, 0, 0];
+                    // los esenciales son un solo grupo: se reparten sus filas en las 3 columnas
+                    if (!buscador.text.trim()) {
+                        const f = ch.esenciales[0].filas, n = Math.ceil(f.length / 3);
+                        return [0, 1, 2].map(i => [{ titulo: i === 0 ? "Los esenciales" : " ", filas: f.slice(i * n, (i + 1) * n) }]);
+                    }
                     for (const g of ch.filtrados) {
                         const i = alto.indexOf(Math.min(...alto));
                         cols[i].push(g); alto[i] += g.filas.length + 2.5;
@@ -165,7 +175,7 @@ Superpuesta {
         }
         PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            atajos: [["", "escribe para buscar"], ["rueda", "desplazar"], ["Esc", "cerrar"], ["", "sale del manual de usuario"]]
+            atajos: [["", "escribe para buscar entre todos"], ["rueda", "desplazar"], ["Esc", "cerrar"]]
         }
     }
 }

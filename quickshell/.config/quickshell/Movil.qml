@@ -1,5 +1,5 @@
 // Móvil › avisos y respuestas (KDE Connect). Las acciones rápidas (sonar, enviar archivo…) y la batería
-// están en el centro de control › Móvil (SUPER+ALT+M); aquí se llega desde allí o al pulsar «Responder».
+// están en el centro de control › Móvil (SUPER+N); aquí se llega desde allí o al pulsar «Responder».
 //   · avisos del móvil, con respuesta (WhatsApp, Telegram, SMS…) y descartar
 //   · música que suena en el móvil · funciones de «uno solo» · mandos del PC en el móvil
 // Datos y órdenes: ~/.config/hypr/scripts/movil.py. «Responder» en una notificación del PC abre

@@ -1,4 +1,4 @@
-// Brújula (SUPER+CTRL+B): el escritorio que se anticipa. Cuatro pestañas:
+// Brújula (SUPER+D, clic en el reloj): el escritorio que se anticipa. Tres pestañas: Hoy · Línea de tiempo · Salud
 //   Hoy        saludo, frase del asistente local y sugerencias de un clic (scripts/sugerencias.py)
 //   Línea      qué tuviste delante y cuándo: cinta del día, resumen y bloques (scripts/brujula.py linea)
 //   Contexto   reglas automáticas (~/.config/hypr/brujula.json): cuáles están activas, pausar, activar/desactivar

@@ -15,7 +15,7 @@ u.atajos({
     { mod .. " + R", exec(p.menu) },
     { mod .. " + W", u.enfocar_o_abrir("com.rtosta.zapzap", p.whatsapp) },
     { mod .. " + G", exec(p.roblox) },
-    { mod .. " + D", exec("qs ipc call dashboard toggle") },   -- dashboard de Quickshell
+    { mod .. " + D", exec("qs ipc call brujula toggle") },   -- Brújula: tu día, línea de tiempo y salud
 
     -- Ventanas
     { mod .. " + C", hl.dsp.window.close() },
@@ -60,14 +60,11 @@ u.atajos({
     { "ALT + F4",    exec("wlogout") },
 
     -- Notificaciones (Quickshell: Notificaciones.qml / CentroControl.qml)
-    { mod .. " + N",         exec("qs ipc call notificaciones toggle") },      -- abrir/cerrar el centro de control
+    { mod .. " + N",         exec("qs ipc call notificaciones toggle") },      -- centro de control: ajustes, avisos, conexiones, móvil
     { mod .. " + SHIFT + N", exec("qs ipc call notificaciones noMolestar") },  -- No molestar
 
     -- Portapapeles
     { mod .. " + SHIFT + V", exec("qs ipc call portapapeles toggle") },
-
-    -- Wi-Fi y Bluetooth (Quickshell: Conexiones.qml). Tab cambia de pestaña dentro del panel
-    { mod .. " + K", exec("qs ipc call conexiones toggle") },
 
     -- Chuleta: todos los atajos con buscador (Quickshell: Chuleta.qml, lee las tablas del README)
     { mod .. " + H", exec("qs ipc call chuleta toggle") },
@@ -94,8 +91,6 @@ u.atajos({
     -- Notas rápidas: una línea con fecha a ~/Documents/notas.md, sin abrir el editor / la selección
     { mod .. " + SHIFT + O", exec("qs ipc call nota abrir") },
     { mod .. " + ALT + O",   exec("~/.config/hypr/scripts/nota.sh seleccion") },
-    -- Móvil (KDE Connect): sonar, enviar lo copiado o un archivo, ver sus archivos
-    { mod .. " + ALT + M",   exec("~/.config/hypr/scripts/movil.sh menu") },
 
     -- Wallpapers: menú con miniaturas / uno al azar
     { mod .. " + SHIFT + W",  exec("~/.config/hypr/scripts/wallpaper.sh") },

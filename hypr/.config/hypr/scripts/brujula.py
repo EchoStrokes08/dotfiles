@@ -16,7 +16,7 @@ Uso
   brujula.py regla <id> on|off          activar o desactivar una regla
   brujula.py linea [--dia AAAA-MM-DD]   JSON: bloques del día y resumen por app
   brujula.py sesion [restaurar [--solo 0,2] | descartar]
-  brujula.py abrir [hoy|linea|contexto|sesion]   panel de Quickshell (SUPER+CTRL+B)
+  brujula.py abrir [hoy|linea|contexto|sesion]   panel de Quickshell (SUPER+D)
 """
 import argparse
 import datetime as dt

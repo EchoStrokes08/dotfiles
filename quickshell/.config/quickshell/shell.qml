@@ -133,7 +133,7 @@ ShellRoot {
         function estado(): string { return JSON.stringify({ abierto: agente.abierto, pensando: agente.pensando, listo: agente.listo, mensajes: agente.mensajes.length }); }
     }
 
-    // toggle (SUPER+ALT+M, el móvil de la barra) → centro de control › Móvil · avisos → el panel de avisos y respuestas
+    // toggle (el móvil de la barra, movil.sh menu) → centro de control › Móvil · avisos → el panel de avisos y respuestas
     IpcHandler {
         target: "movil"
         function toggle(): void { const a = centro.abierto && centro.seccion === "movil"; cerrarTodo(); if (!a) centro.abrirEn("movil"); }
@@ -261,7 +261,7 @@ ShellRoot {
         }
     }
 
-    // Wi-Fi y Bluetooth (SUPER+K, clic en la red de la barra, clic derecho en los botones del centro):
+    // Wi-Fi y Bluetooth (clic en la red de la barra, clic derecho en los botones del centro):
     // la pestaña Conexiones del centro de control.  qs ipc call conexiones toggle · wifi · bluetooth · estado
     IpcHandler {
         target: "conexiones"

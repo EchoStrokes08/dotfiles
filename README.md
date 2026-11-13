@@ -39,7 +39,7 @@ y los requisitos que dependen de cada máquina. El respaldo externo se instala p
 
 ## Qué incluye
 
-Ventanas en mosaico, cuatro layouts, grupos, scratchpads, gestos y vista general; barra, dashboard,
+Ventanas en mosaico, cuatro layouts, grupos, scratchpads, gestos y vista general; barra, Brújula, centro de control,
 lanzador, notificaciones y bloqueo; perfiles coordinados, privacidad, captura y replay; Mesa con
 plantillas y reuniones; continuidad de proyectos; Brújula con contexto, agenda, búsqueda, sesión
 y salud; dictado, OCR, IA local y agente con memoria semántica, integración móvil y herramientas de recuperación.
