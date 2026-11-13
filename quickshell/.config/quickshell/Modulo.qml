@@ -1,4 +1,4 @@
-// Modulo: una "caja" de la barra (icono + texto), como cada módulo de waybar.
+// Modulo: una "caja" de la barra (icono + texto).
 //   Modulo { icono: "…"; texto: "42%"; color: Paleta.acento2; ayuda: "tooltip"
 //            onClic: (boton) => …;  onRueda: (arriba) => … }
 // El tooltip lo pinta Ayuda.qml (una sola ventana emergente para todos los módulos).

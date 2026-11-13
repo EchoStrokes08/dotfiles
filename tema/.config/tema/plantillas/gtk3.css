@@ -1,6 +1,6 @@
 /* Ayu Dark para apps GTK3 (thunar, etc.) sobre el tema adw-gtk3-dark.
  * adw-gtk3 usa los mismos "colores con nombre" que libadwaita: basta con redefinirlos.
- * Paleta: la misma de ~/.config/waybar/ayu.css
+ * Paleta: la misma de ~/.config/tema/<modo>/colores.css
  */
 @define-color accent_color        {{colors.primary.default.hex}};  /* naranja Ayu */
 @define-color accent_bg_color     {{colors.primary.default.hex}};

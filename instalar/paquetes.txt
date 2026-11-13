@@ -130,8 +130,6 @@ starship
 steam
 stow
 sudo
-swaync
-swayosd
 syncthing
 systembus-notify
 tailscale
@@ -151,7 +149,6 @@ unicode-emoji
 unzip
 vulkan-radeon
 vulkan-tools
-waybar
 wf-recorder
 wget
 wine

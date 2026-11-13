@@ -88,16 +88,6 @@ hl.window_rule({
     center = true,
 })
 
--- Calendario al hacer clic en la hora de waybar (~/.config/hypr/scripts/calendario.sh):
--- flotante, en todos los workspaces, centrado arriba justo debajo de la barra
-hl.window_rule({
-    name  = "calendario-waybar",
-    match = { class = "^zenity$", title = "^Calendario$" },
-    float = true,
-    pin   = true,
-    move  = "(monitor_w*0.5)-(window_w*0.5) 44",
-})
-
 -- ---------- Nivel 6: workspaces con propósito ----------
 -- Cada app abre siempre en "su" workspace (y te lleva ahí). Con " silent" detrás abriría sin llevarte.
 --   1 terminal · 2 navegador · 9 chats   (Spotify vive en su scratchpad: SUPER+Y)

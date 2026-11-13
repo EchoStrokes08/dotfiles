@@ -404,7 +404,7 @@ RowLayout {
         Component.onCompleted: leer()
         Process {
             id: lectorJuego
-            command: ["sh", "-c", "~/.config/hypr/scripts/modo-juego-waybar.sh"]
+            command: ["sh", "-c", "~/.config/hypr/scripts/modo-juego-estado.sh"]
             stdout: StdioCollector {
                 onStreamFinished: {
                     let d = {};

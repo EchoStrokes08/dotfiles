@@ -118,7 +118,7 @@ paso_flatpak() {
 }
 
 # ── 5. Dotfiles con stow ────────────────────────────────────────────────
-STOW=(zsh kitty hypr waybar swaync swayosd fuzzel gtk tema btop nvim vscode wallpapers quickshell udiskie yazi satty lugares)
+STOW=(zsh kitty hypr fuzzel gtk tema btop nvim vscode wallpapers quickshell udiskie yazi satty lugares)
 STOW_SIN_PLEGAR=(vesktop spicetify easyeffects)   # solo enlaza archivos: la app escribe caché en su carpeta
 
 respaldar() {  # respaldar PAQUETE [opciones de stow]: aparta los archivos reales que estorban
@@ -204,8 +204,6 @@ paso_sistema() {
         run sudo chsh -s /usr/bin/zsh "$USER" && ok "zsh como shell"
     else ok "zsh ya es tu shell"; fi
     run xdg-user-dirs-update
-    # Las notificaciones las sirve Quickshell: que D-Bus no arranque swaync en su lugar
-    run systemctl --user mask swaync.service && ok "swaync enmascarado (notificaciones en Quickshell)"
     # Lo que leen GTK4, los portales y Firefox (nwg-look guarda esto mismo)
     local g=org.gnome.desktop.interface
     { run gsettings set $g gtk-theme 'adw-gtk3-dark' &&

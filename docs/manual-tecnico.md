@@ -172,8 +172,7 @@ personales. Una VM sirve para validar instalación; no demuestra batería, GPU, 
 |---|---|
 | `hypr` | Hyprland en Lua, partido en módulos (`modulos/`), scripts, filtros de pantalla (`shaders/`), hyprlock, hypridle y los temas de arranque (`temas-arranque/`: SDDM, GRUB y Plymouth) |
 | `tema` | Paletas Ayu (oscura y clara) y plantillas de matugen. `SUPER+SHIFT+T` cambia entre Ayu y los colores del wallpaper; `SUPER+CTRL+T` entre claro y oscuro (oscuro siempre, salvo que actives el horario con `tema.sh auto on`) |
-| `swaync` · `swayosd` · `fuzzel` | De respaldo: Quickshell ya hace sus funciones (los scripts vuelven a fuzzel si Quickshell no responde) |
-| `waybar` | La barra anterior, de respaldo (ya no arranca; ver `modulos/autostart.lua`) |
+| `fuzzel` | De respaldo: los scripts vuelven a él si Quickshell no responde |
 | `quickshell` | Todo el escritorio propio en QML: **barra** (workspaces, ventana, reloj, visualizador de audio, grabación, móvil, bandeja, Buds, volumen, red, batería y avisos fijos; energía, CPU, RAM y modo juego solo cuando importan), **Brújula** SUPER+D (hoy: reloj, clima, calendario con Google Calendar, sistema y tiempo de pantalla; línea de tiempo; salud), **centro de control** SUPER+N (perfiles, sonido, música, avisos, conexiones, móvil), **lanzador** SUPER+R (apps, cálculos, web, emojis, archivos, recordatorios), **chuleta** SUPER+H, **vista general** SUPER+ESPACIO, **OSD**, **notificaciones** y centro de control SUPER+N, **Wi-Fi/Bluetooth** SUPER+K, **pantalla de bloqueo**, selectores de **wallpapers**, **portapapeles** y menús, **widgets de escritorio** (reloj, clima, frase del día y lo próximo, solo con el workspace vacío), **asistente de IA local** SUPER+ALT+A, **agente con memoria** SUPER+O, **nota rápida** SUPER+SHIFT+O, **resumen del día** y aviso de **actualizaciones** en la barra |
 | `kitty` · `zsh` | Terminal, prompt starship, plugins de zsh, fzf, zoxide, atuin (historial) y fastfetch |
 | `yazi` | Gestor de archivos en la terminal (SUPER+SHIFT+E o `y`), con el acento de la paleta |
@@ -331,7 +330,7 @@ Todos viven en `hypr/.config/hypr/scripts/` salvo donde se indique otra ruta.
 | Sesión | `bloquear.sh`, `desbloqueo-emergencia.sh`, `inspector.sh`, `menu.sh` | Bloqueo, inspección y menús de acciones |
 | Tiempo y calendario | `tiempo-pantalla.py`, `eventos.py` | Uso por app, límites y lectura iCal |
 | Actualizar | `actualizaciones.sh`, `actualizar.py` | Consulta de pendientes y flujo interactivo de actualización |
-| Compatibilidad | `modo-juego-waybar.sh`, `calendario.sh` | Integraciones de la barra anterior |
+| Barra | `modo-juego-estado.sh` | Estado del modo juego para la barra de Quickshell |
 
 ### Brújula y búsqueda universal
 
@@ -616,7 +615,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `eventos.py --lista` | Tus próximos eventos de Google Calendar (dirección en `~/.config/calendario/url`, privada) |
 | `movil.sh estado` · `sonar` · `enviar archivo` · `app` | Móvil por KDE Connect |
 | `tiempo-pantalla.py` | El demonio que lo mide (arranca solo) |
-| `modo-juego-waybar.sh` · `calendario.sh` | Restos de waybar (se usan si vuelves a ella) |
+| `modo-juego-estado.sh` | Estado del modo juego en JSON (lo lee `BarraDerecha.qml`) |
 
 ### Instalación y mantenimiento
 
@@ -629,7 +628,6 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `~/dotfiles/instalar/sistema-base.sh [--simular]` | Snapshots (snapper + GRUB), zram, firewall, USB/celular, visores, llavero, caché, hub USB, earlyoom, vigilancia del SSD, firmware, GRUB rápido, botón de conservación de batería y DNS cifrado |
 | `sudo ~/.config/hypr/temas-arranque/instalar.sh` | Temas de SDDM y GRUB |
 | `sudo ~/.config/hypr/temas-arranque/instalar-plymouth-osd.sh` | Plymouth (pantalla de arranque) |
-| `systemctl --user unmask swaync` | Volver a swaync (y cerrar Quickshell) |
 
 
 

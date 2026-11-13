@@ -6,7 +6,6 @@
 # <cosa>: wifi | bluetooth | replay | rendimiento | conservacion | luz
 #   conservacion: modo conservación de Lenovo (la batería para en ~80 %; off = carga al 100 %)
 #   luz: luz nocturna (hyprsunset)
-# (Antes vivía en ~/.config/swaync/scripts/toggle.sh)
 
 CONSERV=$(echo /sys/bus/platform/drivers/ideapad_acpi/*/conservation_mode)   # escribible por wheel (tmpfiles)
 

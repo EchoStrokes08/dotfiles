@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Instala swayosd (indicador de volumen/brillo) y Plymouth con el tema Ayu Glass.
+# Instala Plymouth con el tema Ayu Glass (el indicador de volumen y brillo es el OSD de Quickshell).
 # Uso:  sudo ~/.config/hypr/temas-arranque/instalar-plymouth-osd.sh
 #
 # Qué toca (con copia .bak-FECHA de cada archivo de /etc):
@@ -13,10 +13,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 stamp=$(date +%Y%m%d-%H%M%S)
 
 echo "==> Paquetes"
-pacman -S --needed --noconfirm plymouth swayosd
-
-echo "==> swayosd: backend de libinput (detecta Bloq Mayús y teclas especiales)"
-systemctl enable --now swayosd-libinput-backend.service
+pacman -S --needed --noconfirm plymouth
 
 echo "==> Tema de Plymouth"
 rm -rf /usr/share/plymouth/themes/ayu-glass

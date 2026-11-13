@@ -1,4 +1,4 @@
-// Barra superior hecha en Quickshell (sustituirá a waybar módulo a módulo).
+// Barra superior hecha en Quickshell.
 // Izquierda: workspaces + ventana activa · centro: reloj · derecha: BarraDerecha.qml
 // Una barra por pantalla: shell.qml la crea con Variants { model: Quickshell.screens }.
 import QtQuick
@@ -13,7 +13,7 @@ PanelWindow {
     signal relojPulsado()               // shell.qml lo conecta con el dashboard
 
     // Barra transparente con tres «islas» de cristal (IslaBarra.qml): izquierda, reloj y derecha
-    anchors { top: true; left: true; right: true }   // 3 bordes → reserva su alto (como waybar)
+    anchors { top: true; left: true; right: true }   // 3 bordes → reserva su alto
     implicitHeight: 42
     color: "transparent"
     WlrLayershell.namespace: "quickshell-barra"

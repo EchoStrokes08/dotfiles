@@ -1,4 +1,4 @@
-// Notificaciones: Quickshell hace de SERVIDOR de notificaciones (lo que antes hacía swaync).
+// Notificaciones: Quickshell hace de SERVIDOR de notificaciones.
 // Cualquier app que llame a notify-send / libnotify acaba aquí.
 //   lista        → todas las guardadas (historial del centro de control)
 //   emergentes   → las que se ven ahora mismo arriba a la derecha

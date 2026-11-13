@@ -1,5 +1,5 @@
 /* Ayu Dark para apps GTK4 / libadwaita (Nautilus, ajustes de GNOME, etc.).
- * libadwaita 1.6+ usa variables CSS en :root. Paleta: ~/.config/waybar/ayu.css
+ * libadwaita 1.6+ usa variables CSS en :root. Paleta: ~/.config/tema/<modo>/colores.css
  */
 :root {
   --accent-bg-color: {{colors.primary.default.hex}};

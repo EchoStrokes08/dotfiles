@@ -3,7 +3,7 @@
     "workbench.colorTheme": "Ayu Dark",
     "workbench.iconTheme": "ayu",
 
-    // Misma fuente que kitty y waybar
+    // Misma fuente que kitty
     "editor.fontFamily": "'JetBrainsMono Nerd Font', monospace",
     "editor.fontLigatures": true,
     "editor.fontSize": 14,
