@@ -104,6 +104,21 @@ class Bloqueo(unittest.TestCase):
         self.assertEqual(self.ejecutar_bloqueo('libre'), (0, True))
 
 
+class Portapapeles(unittest.TestCase):
+    def probar(self, texto):
+        r = subprocess.run(['bash', str(SCRIPTS / 'portapapeles-guardar.sh'), 'probar'], input=texto, capture_output=True, text=True, timeout=5)
+        return r.stdout.strip()
+
+    def test_los_secretos_no_se_guardan(self):
+        for t in ('gsk_' + 'a' * 24, 'AIza' + 'b' * 35, 'ghp_' + 'c' * 36, 'clave=sk-' + 'd' * 24,
+                  'AKIA' + 'E' * 16, '-----BEGIN OPENSSH PRIVATE KEY-----\nabc'):
+            self.assertEqual(self.probar(t), 'secreto: no se guarda', t[:12])
+
+    def test_el_texto_normal_se_guarda(self):
+        for t in ('hola mundo', 'sudo pacman -Syu', 'https://github.com/usuario/repo', 'task-force-skill', 'el método de dos fases'):
+            self.assertEqual(self.probar(t), 'se guarda', t)
+
+
 class Operaciones(unittest.TestCase):
     def test_checkpoint_registra_deshacer_antes_de_mover(self):
         import tempfile

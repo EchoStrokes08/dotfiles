@@ -18,8 +18,9 @@ hl.on("hyprland.start", function()
     -- (las notificaciones las sirve Quickshell: Notificaciones.qml)
 
     -- Servicios
-    hl.exec_cmd("wl-paste --type text --watch cliphist store")    -- historial del portapapeles
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
+    -- historial del portapapeles, sin secretos (claves de API, tokens, lo que marca el gestor de contraseñas)
+    hl.exec_cmd("wl-paste --type text --watch ~/.config/hypr/scripts/portapapeles-guardar.sh texto")
+    hl.exec_cmd("wl-paste --type image --watch ~/.config/hypr/scripts/portapapeles-guardar.sh imagen")
     hl.exec_cmd("systemctl --user start hyprpolkitagent")        -- ventana de contraseña de admin
     hl.exec_cmd("systembus-notify")                               -- pasa a notificaciones los avisos del sistema (earlyoom)
     hl.exec_cmd("kdeconnect-indicator")                           -- KDE Connect: móvil (icono en la bandeja)
