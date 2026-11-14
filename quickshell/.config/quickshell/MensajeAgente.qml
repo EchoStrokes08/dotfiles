@@ -14,9 +14,23 @@ ColumnLayout {
     property string solicitud: ""
     property bool terminado: true
     property bool mostrandoOriginal: false
+    property bool copiado: false
+    // Acciones solo cuando interesan: al pasar el ratón o con el foco en ellas (ORION 5.6)
+    readonly property bool activo: sobre.hovered || botonCopiar.activeFocus || botonOriginal.activeFocus
+    // Enlaces citados en el texto, como chips con el dominio (sin repetir y como mucho cuatro)
+    readonly property var enlaces: {
+        const vistos = [];
+        for (const m of (texto.match(/https?:\/\/[^\s<>()\[\]"'`]+/g) || [])) {
+            const u = m.replace(/[.,;:!?]+$/, "");
+            if (!vistos.includes(u)) vistos.push(u);
+        }
+        return vistos.slice(0, 4);
+    }
+    function dominio(u) { const m = u.match(/^https?:\/\/([^\/?#]+)/i); return m ? m[1].replace(/^www\./, "") : u; }
     readonly property string firma: JSON.stringify({texto: texto, color: Paleta.texto.toString(), ancho: Math.floor(width)})
     signal enlace(string url)
     spacing: 4
+    HoverHandler { id: sobre }
     onFirmaChanged: demora.restart()
     onTerminadoChanged: demora.restart()
     Timer { id: demora; interval: raiz.terminado ? 100 : 650; onTriggered: raiz.preparar() }
@@ -62,16 +76,48 @@ ColumnLayout {
         Layout.fillWidth: true; visible: text !== ""
         text: raiz.aviso; color: Paleta.peligro; wrapMode: Text.Wrap; font.pixelSize: 11
     }
+    Flow {
+        Layout.fillWidth: true
+        visible: raiz.enlaces.length > 0
+        spacing: 4
+        Repeater {
+            model: raiz.enlaces
+            Rectangle {
+                id: chip
+                required property string modelData
+                implicitHeight: 24; implicitWidth: Math.min(260, etiquetaChip.implicitWidth + 20); radius: height / 2
+                color: zonaChip.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+                border { width: 1; color: zonaChip.containsMouse ? EstiloPanel.bordeSeleccion : EstiloPanel.bordeFuerte }
+                Text {
+                    id: etiquetaChip
+                    anchors { fill: parent; leftMargin: 8; rightMargin: 8 }
+                    verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
+                    text: String.fromCodePoint(0xF059F) + "  " + raiz.dominio(chip.modelData)
+                    color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11 }
+                }
+                MouseArea { id: zonaChip; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: raiz.enlace(chip.modelData) }
+                ToolTip.visible: zonaChip.containsMouse; ToolTip.delay: 400; ToolTip.text: chip.modelData
+                Accessible.role: Accessible.Link; Accessible.name: "Abrir " + raiz.dominio(chip.modelData)
+            }
+        }
+    }
     RowLayout {
-        spacing: 8
+        spacing: 4
+        opacity: raiz.activo ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
         BotonCompacto {
-            text: "Copiar texto"; onClicked: { copia.running = true; }
+            id: botonCopiar
+            text: raiz.copiado ? "Copiado" : "Copiar"
+            onClicked: { copia.running = true; raiz.copiado = true; olvidarCopia.restart(); }
         }
         BotonCompacto {
+            id: botonOriginal
+            visible: raiz.html !== ""
             text: raiz.mostrandoOriginal ? "Ver formato" : "Ver original"
             onClicked: raiz.mostrandoOriginal = !raiz.mostrandoOriginal
         }
     }
+    Timer { id: olvidarCopia; interval: 1500; onTriggered: raiz.copiado = false }
     Process {
         id: copia; command: ["wl-copy"]; stdinEnabled: true
         onStarted: { write(raiz.texto); stdinEnabled = false; }

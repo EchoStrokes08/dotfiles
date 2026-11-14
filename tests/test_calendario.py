@@ -179,5 +179,31 @@ class Repeticion(unittest.TestCase):
         self.assertTrue(all(e["repeticion"]=="diario" for e in datos))
 
 
+class ErroresDeGoogle(unittest.TestCase):
+    """gcal.py explica el fallo con un código estable y una salida, sin filtrar tokens."""
+    def test_api_desactivada_da_enlace_a_google_cloud(self):
+        e = gcal.clasificar(403, "Google Tasks API has not been used in project 123456 before or it is disabled.",
+                            "https://tasks.googleapis.com/tasks/v1/lists/@default/tasks")
+        self.assertEqual(e.codigo, "api_desactivada")
+        self.assertIn("Google Tasks", str(e))
+        self.assertEqual(e.enlace, "https://console.cloud.google.com/apis/library/tasks.googleapis.com?project=123456")
+        self.assertIn("Habilitar", e.ayuda)
+
+    def test_permiso_servicio_y_otros(self):
+        self.assertEqual(gcal.clasificar(401, "Invalid Credentials", gcal.CAL).codigo, "sin_permiso")
+        self.assertEqual(gcal.clasificar(403, "Insufficient Permission", gcal.CAL).codigo, "sin_permiso")
+        self.assertEqual(gcal.clasificar(503, "", gcal.TASKS).codigo, "servicio")
+        self.assertEqual(gcal.clasificar(400, "Bad Request", gcal.TASKS).codigo, "error")
+
+    def test_main_imprime_codigo_y_ayuda(self):
+        salida = io.StringIO()
+        with patch.object(gcal, "tareas", side_effect=gcal.Error("Sin conexión con Google", "sin_red", "Se reintentará")):
+            with redirect_stdout(salida):
+                self.assertEqual(gcal.main(["tareas"]), 1)
+        d = json.loads(salida.getvalue())
+        self.assertEqual((d["ok"], d["codigo"], d["ayuda"]), (False, "sin_red", "Se reintentará"))
+        self.assertNotIn("enlace", d)
+
+
 if __name__ == "__main__":
     unittest.main()

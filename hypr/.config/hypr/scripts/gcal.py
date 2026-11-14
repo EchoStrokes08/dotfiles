@@ -26,6 +26,7 @@ import secrets
 import subprocess
 import sys
 import time
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -42,7 +43,34 @@ TASKS = "https://tasks.googleapis.com/tasks/v1/lists/@default/tasks"
 
 
 class Error(Exception):
-    pass
+    """Fallo con un código estable para la interfaz y una salida que la persona pueda seguir."""
+    def __init__(self, mensaje, codigo="error", ayuda="", enlace=""):
+        super().__init__(mensaje)
+        self.codigo, self.ayuda, self.enlace = codigo, ayuda, enlace
+
+    def json(self):
+        d = {"ok": False, "error": str(self), "codigo": self.codigo}
+        if self.ayuda: d["ayuda"] = self.ayuda
+        if self.enlace: d["enlace"] = self.enlace
+        return d
+
+
+def clasificar(codigo_http, detalle, url=""):
+    """Traduce una respuesta de Google a código + salida. No incluye tokens ni la URL pedida."""
+    texto = str(detalle)
+    api = "Google Tasks" if "tasks" in url else "Google Calendar"
+    servicio = "tasks.googleapis.com" if "tasks" in url else "calendar-json.googleapis.com"
+    if codigo_http == 403 and re.search(r"has not been used|is disabled|SERVICE_DISABLED|accessNotConfigured", texto):
+        m = re.search(r"project[= ](\d+)", texto)
+        enlace = f"https://console.cloud.google.com/apis/library/{servicio}" + (f"?project={m.group(1)}" if m else "")
+        return Error(f"La API de {api} está desactivada en tu proyecto de Google Cloud", "api_desactivada",
+                     "Ábrela en Google Cloud, pulsa «Habilitar» y espera unos minutos.", enlace)
+    if codigo_http in (401, 403):
+        return Error(f"Google no da permiso para usar {api}", "sin_permiso",
+                     "Vuelve a conectar la cuenta: gcal.py conectar")
+    if codigo_http == 429 or codigo_http >= 500:
+        return Error(f"Google no responde ahora ({codigo_http})", "servicio", "Se reintentará solo; no hace falta hacer nada.")
+    return Error(f"Google respondió {codigo_http}: {texto[:200]}")
 
 
 def _leer(ruta, defecto=None):
@@ -131,7 +159,7 @@ def conectar(abrir=True):
 def acceso():
     t = _leer(TOKEN)
     if not t or "refresh_token" not in t:
-        raise Error("No has conectado tu cuenta de Google: ejecuta gcal.py conectar")
+        raise Error("No has conectado tu cuenta de Google", "sin_conectar", "Conéctala con: gcal.py conectar")
     if t.get("expira", 0) > time.time():
         return t["access_token"]
     c = cliente()
@@ -139,7 +167,7 @@ def acceso():
         n = _post_form(c["token_uri"], {"client_id": c["client_id"], "client_secret": c["client_secret"],
                                         "refresh_token": t["refresh_token"], "grant_type": "refresh_token"})
     except Error as e:
-        raise Error("La sesión de Google caducó: vuelve a ejecutar gcal.py conectar") from e
+        raise Error("La sesión de Google caducó", "sin_permiso", "Vuelve a conectar la cuenta: gcal.py conectar") from e
     t.update(n)
     t["expira"] = time.time() + n.get("expires_in", 3600) - 60
     _guardar(TOKEN, t, privado=True)
@@ -159,9 +187,9 @@ def api(metodo, url, cuerpo=None):
             detalle = json.loads(detalle)["error"]["message"]
         except (ValueError, KeyError, TypeError):
             pass
-        raise Error(f"Google respondió {e.code}: {str(detalle)[:200]}") from e
+        raise clasificar(e.code, detalle, url) from e
     except urllib.error.URLError as e:
-        raise Error(f"Sin conexión con Google ({e.reason})") from e
+        raise Error("Sin conexión con Google", "sin_red", "Se reintentará al volver la red.") from e
 
 
 # ── Eventos ────────────────────────────────────────────────────────────────────────────────────────
@@ -255,8 +283,11 @@ def main(argv):
         else:
             print(__doc__)
             return 2
-    except (Error, ValueError) as e:
-        print(json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False))
+    except Error as e:
+        print(json.dumps(e.json(), ensure_ascii=False))
+        return 1
+    except ValueError as e:
+        print(json.dumps({"ok": False, "error": str(e), "codigo": "error"}, ensure_ascii=False))
         return 1
     print(json.dumps(res, ensure_ascii=False))
     return 0

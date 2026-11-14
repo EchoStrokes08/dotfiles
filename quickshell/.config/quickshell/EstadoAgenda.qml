@@ -20,6 +20,11 @@ RowLayout {
         Accessible.name: text
     }
     BotonCompacto {
+        visible: Eventos.enlaceTareas !== ""
+        text: "Abrir Google Cloud"
+        onClicked: Qt.openUrlExternally(Eventos.enlaceTareas)
+    }
+    BotonCompacto {
         text: Eventos.leyendo ? "Sincronizando…" : parent.problema || Eventos.errorTareas ? "Reintentar" : "Actualizar"
         enabled: !Eventos.leyendo && Eventos.estadoAgenda !== "sin_configurar"
         onClicked: Eventos.actualizar()

@@ -16,6 +16,7 @@ Singleton {
     property bool conectado: false    // ¿hay sesión de Google para escribir?
     property bool hayCliente: false   // ¿existe cliente.json?
     property string errorTareas: ""
+    property string enlaceTareas: ""   // p. ej. la página de Google Cloud para activar la API
     property bool ocupado: false      // guardando algo
     property string estadoAgenda: "cargando"
     property string errorAgenda: ""
@@ -75,8 +76,14 @@ Singleton {
             onStreamFinished: {
                 try {
                     const l = JSON.parse(this.text);
-                    if (!Array.isArray(l)) throw new Error("No se pudieron consultar las tareas");
-                    ev.errorTareas="";
+                    if (!Array.isArray(l)) {
+                        // gcal.py explica el fallo: causa, qué hacer y, si existe, dónde hacerlo
+                        ev.errorTareas = (l?.error || "Las tareas no se pudieron actualizar") + "."
+                            + (l?.ayuda ? " " + l.ayuda : "") + " Se conservan los últimos datos.";
+                        ev.enlaceTareas = l?.enlace || "";
+                        return;
+                    }
+                    ev.errorTareas=""; ev.enlaceTareas="";
                     ev.tareas = l.map(t => ({ id: t.id, titulo: t.titulo,
                         fecha: t.fecha ? new Date(+t.fecha.slice(0, 4), +t.fecha.slice(5, 7) - 1, +t.fecha.slice(8, 10)) : null }));
                 } catch (x) { ev.errorTareas="Las tareas no se pudieron actualizar. Se conservan los últimos datos."; }
