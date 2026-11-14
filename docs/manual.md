@@ -900,7 +900,8 @@ va directo y **Tab** recorre los controles. En **Inicio**: Wi-Fi y Bluetooth con
 dispositivo conectado (la flecha de la tarjeta abre su lista), hasta dos controles fijados con ★,
 volumen y brillo (el botón junto al volumen abre el mezclador por app y las salidas), la música,
 **No molestar** en una fila (interruptor y «Pausar…» 30 min, 1 h o hasta desactivar) y los avisos
-agrupados por app. El **perfil visual** se elige en **Más › Apariencia**:
+agrupados por app: cada grupo es una fila con el número y el último asunto; un clic (o Enter) lo
+despliega con sus acciones y respuestas. Los avisos críticos se ven siempre completos. El **perfil visual** se elige en **Más › Apariencia**:
 
 | Perfil | Cómo se ve |
 |---|---|
@@ -979,7 +980,9 @@ de webs. Nunca obtiene permisos de administrador por su cuenta. Lee siempre la p
 ### Memoria y conversaciones
 
 Busca por significado en tus documentos, la línea de tiempo (60 días) y el historial de Firefox
-(90 días), y cita sus fuentes con fichas que se abren con un clic. No indexa el portapapeles.
+(90 días), y cita sus fuentes con fichas que se abren con un clic. Del historial no guarda resultados
+de buscadores, páginas de cuentas o contraseñas, bandejas de correo, chats temporales o de incógnito
+ni direcciones que lleven un correo electrónico. No indexa el portapapeles.
 Guarda tus últimas 100 conversaciones a la izquierda (Hoy, Ayer…); **Ctrl+L** empieza otra.
 
 **Memoria** (botón de la cabecera del agente, o «memoria del agente» en el lanzador): cuánto recuerda
