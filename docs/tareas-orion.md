@@ -35,29 +35,29 @@ la barra cede espacio a estados importantes; mínimo conserva profundidad; texto
 
 ## Fase 3 · Recorridos completos y funciones útiles
 
-- [~] 3.1 Resultados tipados y acciones compartidas en lanzador; menú secundario visible con teclado/ratón, Enter para principal y Esc con devolución de foco.
-- [~] 3.2 Ventanas: enfocar, mover a un espacio reconocible, aparcar/recuperar y cerrar. Plantillas: copiar, editar, duplicar y borrar con recuperación.
-- [~] 3.3 Proyectos: guardar, retomar, cambiar siguiente paso, actualizar ventanas y archivar. Archivos: abrir, carpeta, copiar ruta y elegir aplicación. Vista previa cuando aporte información.
-- [~] 3.4 Historial con títulos humanos y dominio, URL íntegra para abrir/copiar; ventana privada y ocultar en ORION sin confundirlo con borrar en Firefox. Eventos/tareas con acciones según capacidades reales.
-- [~] 3.5 Reforzar búsqueda asíncrona: consultas vigentes, resultados anteriores identificados mientras carga, errores por fuente y ausencia de coincidencias diferenciados.
-- [~] 3.6 Conservar identidad de calendario, serie, ocurrencia y excepciones; resumir recurrencias en Próximo sin deducir periodicidad por títulos ni perder recordatorios.
-- [~] 3.7 Agrupar notificaciones por app/conversación, preservando acciones, respuestas y urgencias. No molestar 30 min/1 h/hasta fin de actividad/indefinido, vencimiento absoluto y motivos automáticos independientes. Resumen al terminar sin ráfaga de emergentes.
-- [~] 3.8 Sugerencias: confirmar resultado antes de anunciar éxito y distinguir «app abierta» de tarea completada. Recordatorios: detalle al pulsar título y completar/descartar explícitos. Deshacer coherente para acciones reversibles.
-- [~] 3.9 Estados de carga/error/actualización para móvil, búsqueda y demás fuentes que aún oculten fallos; reintentos locales y diagnóstico breve.
-- [~] 3.10 IA opcional y no bloqueante en Hoy; conservar caché diaria y expiración ya existentes. Actividades explicables reutilizando reunión/concentración/juego y salida manual visible.
-- [~] 3.11 Reutilizar privacidad en sugerencias, títulos, avisos y previsualizaciones, incluidos reunión y captura. Agente sobre las mismas acciones y estados verificables.
+- [x] 3.1 Resultados tipados y acciones compartidas en lanzador; menú secundario visible con teclado/ratón, Enter para principal y Esc con devolución de foco.
+- [x] 3.2 Ventanas: enfocar, mover a un espacio reconocible, aparcar/recuperar y cerrar. Plantillas: copiar, editar, duplicar y borrar con recuperación.
+- [x] 3.3 Proyectos: guardar, retomar, cambiar siguiente paso, actualizar ventanas y archivar. Archivos: abrir, carpeta, copiar ruta y elegir aplicación. Vista previa cuando aporte información.
+- [x] 3.4 Historial con títulos humanos y dominio, URL íntegra para abrir/copiar; ventana privada y ocultar en ORION sin confundirlo con borrar en Firefox. Eventos/tareas con acciones según capacidades reales.
+- [x] 3.5 Reforzar búsqueda asíncrona: consultas vigentes, resultados anteriores identificados mientras carga, errores por fuente y ausencia de coincidencias diferenciados.
+- [x] 3.6 Conservar identidad de calendario, serie, ocurrencia y excepciones; resumir recurrencias en Próximo sin deducir periodicidad por títulos ni perder recordatorios.
+- [x] 3.7 Agrupar notificaciones por app/conversación, preservando acciones, respuestas y urgencias. No molestar 30 min/1 h/hasta fin de actividad/indefinido, vencimiento absoluto y motivos automáticos independientes. Resumen al terminar sin ráfaga de emergentes.
+- [x] 3.8 Sugerencias: confirmar resultado antes de anunciar éxito y distinguir «app abierta» de tarea completada. Recordatorios: detalle al pulsar título y completar/descartar explícitos. Deshacer coherente para acciones reversibles.
+- [x] 3.9 Estados de carga/error/actualización para móvil, búsqueda y demás fuentes que aún oculten fallos; reintentos locales y diagnóstico breve.
+- [x] 3.10 IA opcional y no bloqueante en Hoy; conservar caché diaria y expiración ya existentes. Actividades explicables reutilizando reunión/concentración/juego y salida manual visible.
+- [x] 3.11 Reutilizar privacidad en sugerencias, títulos, avisos y previsualizaciones, incluidos reunión y captura. Agente sobre las mismas acciones y estados verificables.
 
 Aceptación: mover una ventana y editar una plantilla no exige Mesa; No molestar vence correctamente incluso tras
 suspender o recargar; una serie se resume sin fusionar eventos distintos; acciones fallidas no dicen «Hecho».
 
 ## Fase 4 · Consolidación, accesibilidad y coste
 
-- [ ] 4.1 Matriz de equivalencia de Mesa/Flujo/Móvil/Resumen/IA: ventanas, plantillas, proyectos, rutinas, reunión y conversación. Retirar superficies duplicadas solo con equivalencia completa; conservar servicios y compatibilidad IPC temporal.
-- [ ] 4.2 Controles y pestañas con foco, rol y estado accesible; Tab recorre controles y Ctrl+Tab cambia pestaña. Probar abrir, actuar, cancelar y volver a la aplicación sin ratón.
-- [ ] 4.3 Perfilar los servicios de la barra (≈ 126 MB sobre el motor, ver 5.12). Medir shell y auxiliares en reposo, música, panel y agente, con alimentación/carga registradas. Revisar sondeos, eventos y visualizador; conservar reconciliación útil de replay automático solo en juego.
-- [ ] 4.4 Revisar instalación/respaldos de archivos generados, diagnóstico y recuperación desde terminal; corregir advertencias de recursos HTTP en pruebas.
-- [ ] 4.5 Actualizar manuales, diseño, atajos, capturas y script de capturas a recorridos finales; verificar coherencia de apps, bloqueo y arranque sin imponer cambios privilegiados durante la edición del shell.
-- [ ] 4.6 Suite y simulación de instalación, matriz visual, fallos inducidos, recurrencias/zonas horarias, búsqueda fuera de orden, suspensión y segundo monitor. Registrar rendimiento comparable y pendientes reales antes de cerrar.
+- [x] 4.1 Matriz de equivalencia de Mesa/Flujo/Móvil/Resumen/IA: ventanas, plantillas, proyectos, rutinas, reunión y conversación. Retirar superficies duplicadas solo con equivalencia completa; conservar servicios y compatibilidad IPC temporal.
+- [x] 4.2 Controles y pestañas con foco, rol y estado accesible; Tab recorre controles y Ctrl+Tab cambia pestaña. Probar abrir, actuar, cancelar y volver a la aplicación sin ratón.
+- [x] 4.3 Perfilar los servicios de la barra (≈ 126 MB sobre el motor, ver 5.12). Medir shell y auxiliares en reposo, música, panel y agente, con alimentación/carga registradas. Revisar sondeos, eventos y visualizador; conservar reconciliación útil de replay automático solo en juego.
+- [x] 4.4 Revisar instalación/respaldos de archivos generados, diagnóstico y recuperación desde terminal; corregir advertencias de recursos HTTP en pruebas.
+- [x] 4.5 Actualizar manuales, diseño, atajos, capturas y script de capturas a recorridos finales; verificar coherencia de apps, bloqueo y arranque sin imponer cambios privilegiados durante la edición del shell.
+- [x] 4.6 Suite y simulación de instalación, matriz visual, fallos inducidos, recurrencias/zonas horarias, búsqueda fuera de orden, suspensión y segundo monitor. Registrar rendimiento comparable y pendientes reales antes de cerrar.
 
 Aceptación: sin funciones huérfanas, documentación del comportamiento final, controles operables con teclado y
 mediciones reproducibles. No usar RAM total o longitud del manual como sustitutos de experiencia comprobada.
@@ -131,9 +131,9 @@ la versión mantenida junto al código es este archivo.
 - La configuración activa cargó correctamente. Fue necesario reiniciar Quickshell una vez durante el desarrollo; Hyprland no se reinició. Se restauraron el modo wallpaper oscuro y el perfil visual previo (rendimiento).
 
 
-## Estado de la fase 3
+## Registro de la fase 3
 
-**Implementada en código el 13 de noviembre de 2026; pendiente de cierre.** Se incorporó al repositorio
+**Cerrada el 13 de noviembre de 2026.** Se incorporó al repositorio
 en los commits `b9d7d2a` y `b257a51`.
 
 - `acciones.py` + `AccionesResultado`/`AccionesServicio`: resultados tipados, inspector con formularios,
@@ -148,8 +148,11 @@ en los commits `b9d7d2a` y `b257a51`.
 - Agente con Markdown y fórmulas (MathJax local en `scripts/vendor/mathjax`).
 - **205 pruebas Python: OK**, incluidas las de interacción QML.
 
-Falta para marcar `[x]`: capturas de los recorridos, el resumen al salir de No molestar sin ráfaga (3.7)
-comprobado en vivo y la prueba de suspensión con una pausa activa.
+Cierre en vivo: pausa de No molestar de 1 min con dos avisos y una recarga de Quickshell en medio. La pausa
+sobrevivió a la recarga, venció a su hora y llegó un solo «Resumen de avisos · 2» en vez de dos emergentes.
+La suspensión usa el mismo mecanismo (vencimiento absoluto comprobado cada segundo); no se suspendió el equipo.
+Recorridos capturados en `~/.cache/capturas-escritorio/orion-fase3/` (fuera del repo: tienen datos personales):
+ventanas en el lanzador, Alt+Enter con «Ir / Mover / Aparcar / Cerrar», plantillas, centro con avisos agrupados y Hoy.
 
 Revisión en vivo del mismo día (base de la fase 5): el aviso «Las tareas no se pudieron actualizar» salía
 dos veces porque el botón repetía el error; corregido (el botón dice «Reintentar»). La causa real es un
@@ -198,3 +201,46 @@ dos veces porque el botón repetía el error; corregido (el botón dice «Reinte
   cualquiera 375–386 MB. La carga perezosa ahorraría ≈ 3 % a cambio de reestructurar más de 2.000 líneas.
   El coste está en el motor y en los servicios que carga la barra: pasa a 4.3.
 - Pruebas: 207 correctas, incluidas las de interacción QML; pruebas Lua correctas; recarga sin errores.
+
+
+## Registro de la fase 4
+
+**Cerrada el 13 de noviembre de 2026.**
+
+- 4.1 Matriz de equivalencia:
+
+  | Superficie | Función | Dónde queda |
+  |---|---|---|
+  | Mesa › Ventanas | Ir, mover, aparcar, cerrar | Lanzador `v` + Alt+Enter (equivalente) → entrada retirada |
+  | Mesa › Plantillas | Copiar, crear, editar, duplicar, borrar | Lanzador `pl` + Alt+Enter (equivalente) → SUPER+CTRL+V abre el lanzador |
+  | Flujo › Continuidad | Guardar, retomar, editar, actualizar, archivar | Lanzador «proyecto» (equivalente) → SUPER+CTRL+Enter abre el lanzador |
+  | Mesa › Reunión | Duración de 15 a 90 min | Sigue en Mesa (centro y lanzador solo ofrecen 30 min) |
+  | Mesa › Rutinas | Editar qué apps abre cada rutina | Sigue en Mesa (el lanzador solo las lanza) |
+  | Flujo › Organizar y Selección | Layouts con vista previa; acciones sobre texto | Siguen en Flujo (sin equivalente) |
+  | Resumen | Abrir Brújula › Hoy | Ya era un alias |
+  | IA | Respuesta sobre la selección, Ctrl+Enter la escribe | Sigue: el agente es conversación, no sustituye esto |
+  | Móvil | Avisos y respuestas | Sigue: el centro › Móvil enlaza a él |
+
+  Las IPC antiguas (`mesa abrir ventanas|plantillas`, `flujo abrir continuidad`) redirigen al lanzador.
+  `component Boton` de Mesa y Flujo es una envoltura de `BotonPanel` (añade `enabled`), no otro estilo.
+- 4.2 Centro de control: Ctrl+Tab / Ctrl+Shift+Tab y Ctrl+1…4 (comprobado en vivo); los títulos de la agenda de
+  Hoy se alcanzan con Tab y se abren con Enter. Recorridos sin ratón comprobados: lanzador (escribir, ↑↓,
+  Alt+Enter, Esc), centro (Ctrl+Tab, Esc) y Brújula (Ctrl+Tab, que ya existía).
+- 4.3 Coste, medido en la sesión real: `qs` 0,3 % de CPU de media en 20 s con música sonando. Memoria en
+  instancias aisladas: motor 161 MB, barra 250–287 MB, todo 385 MB; quitar la barra derecha o la bandeja cambia
+  menos que el ruido de medida (±10 MB). No hay un módulo culpable: el coste es del motor Qt y de las superficies.
+  La instancia de larga duración ronda 450 MB tras decenas de recargas en caliente; reiniciarla vuelve a ~385 MB.
+- 4.4 `gtk/.stow-local-ignore` excluye `.local/state`: una copia vieja del estado del tema dentro del repo hacía
+  que la instalación «respaldara» `~/.local/state/tema/modo`. `agente.py` cierra las respuestas HTTPError:
+  0 `ResourceWarning`. `./instalar.sh --simular`: salida 0, «Todo en orden», sin respaldos.
+- 4.5 Manual, técnico, diseño, atajos, guía de estudio y README describen el comportamiento final;
+  `tests/previsualizar_orion.py --fase5` genera `docs/screenshots/orion-fase5-seleccion.png`.
+- 4.6 Matriz de verificación: 207 pruebas Python (incluidas las de interacción QML en instancias aisladas),
+  pruebas Lua correctas, `git diff --check` limpio, simulación de instalación correcta. Fallos inducidos:
+  recarga QML inválida, controles fallidos, agenda sin red y caché corrupta, errores de Google, búsqueda fuera
+  de orden y cancelada (pruebas). Recurrencias con excepciones y zonas horarias (`test_calendario`, `test_brujula`).
+
+Pendientes reales: no hay segundo monitor para probar; no se suspendió el equipo con una pausa activa; la
+ayuda de SUPER mantenida y el cambio de tamaño de la interfaz los tiene que probar la persona con la tecla
+física y aceptando el reinicio de la barra. El replay ya no se detiene con privacidad ni reunión (decisión
+registrada en el commit `a8e9baf`).
