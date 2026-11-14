@@ -68,9 +68,9 @@ Añadida tras la revisión en vivo del 13 de noviembre de 2026 (21:45, sesión r
 modo wallpaper oscuro, juego abierto). Ataca lo que todavía se nota cada día.
 
 - [ ] 5.1 Agenda que explica sus fallos: `gcal.py` devuelve un código (`api_desactivada`, `sin_permiso`, `sin_red`) y `EstadoAgenda` muestra la causa y la salida («Activa Google Tasks API en tu proyecto»), sin exponer URL ni claves. Un evento en curso dice «Ahora · termina 21:45», no «Próximo».
-- [ ] 5.2 Hoy sin huecos: si la agenda del día tiene menos de tres elementos, la columna izquierda muestra «Próximos días» (3 días) y tareas pendientes. El botón «Hoy» solo aparece con otro día elegido. Fuera «Tu día, a tu ritmo» y el subtítulo «Tu día». Una serie diaria no pone punto en todos los días del calendario: puntos solo para eventos no diarios, o intensidad por número de eventos.
-- [ ] 5.3 Selección sin tinte turbio: con fondos cálidos u oscuros el acento tintado se vuelve marrón (pestaña activa, fila del lanzador, burbuja del agente, tarjetas activas). Selección = superficie `elevada` neutra + indicador o borde de 2 px de `acento`; sin el brillo central en degradado de `FondoBoton.qml` ni en pestañas. `tema.py` garantiza croma mínima del acento y `test_tema_orion.py` lo comprueba con una paleta de atardecer.
-- [ ] 5.4 Centro · Inicio con avisos visibles: hoy la lista queda reducida a «Avisos · 5» al fondo. Reservar al menos tres grupos visibles; Wi-Fi y Bluetooth como botón dividido (flecha dentro de la misma tarjeta) que muestre red o dispositivo en lugar de «Activado»; «Más controles» en filas de 48 px con la estrella integrada; la ayuda emergente de la barra no tapa un panel abierto.
+- [x] 5.2 Hoy sin huecos: si la agenda del día tiene menos de tres elementos, la columna izquierda muestra «Próximos días» (3 días) y tareas pendientes. El botón «Hoy» solo aparece con otro día elegido. Fuera «Tu día, a tu ritmo» y el subtítulo «Tu día». Una serie diaria no pone punto en todos los días del calendario: puntos solo para eventos no diarios, o intensidad por número de eventos.
+- [x] 5.3 Selección sin tinte turbio: con fondos cálidos u oscuros el acento tintado se vuelve marrón (pestaña activa, fila del lanzador, burbuja del agente, tarjetas activas). Selección = superficie `elevada` neutra + indicador o borde de 2 px de `acento`; sin el brillo central en degradado de `FondoBoton.qml` ni en pestañas. `tema.py` garantiza croma mínima del acento y `test_tema_orion.py` lo comprueba con una paleta de atardecer.
+- [x] 5.4 Centro · Inicio con avisos visibles: hoy la lista queda reducida a «Avisos · 5» al fondo. Reservar al menos tres grupos visibles; Wi-Fi y Bluetooth como botón dividido (flecha dentro de la misma tarjeta) que muestre red o dispositivo en lugar de «Activado»; «Más controles» en filas de 48 px con la estrella integrada; la ayuda emergente de la barra no tapa un panel abierto.
 - [ ] 5.5 Lanzador en reposo útil: secciones «Recientes» y «Sugerido ahora» (según hora y actividad), con encabezado; pie con «Enter abrir · Alt+Enter acciones · Tab prefijos»; icono de respaldo para entradas sin icono (p. ej. Buds Manager).
 - [ ] 5.6 Agente más limpio: «Copiar texto» y «Ver original» solo al pasar el ratón, con foco o con atajo; fuentes como chips con dominio que se abren; burbuja del usuario en superficie neutra.
 - [ ] 5.7 Barra: Buds en una sola cápsula (I/D/estuche dentro, mismos datos y la misma preferencia); chip de próxima cita junto a la hora cuando falten 30 min o menos.
@@ -154,3 +154,21 @@ comprobado en vivo y la prueba de suspensión con una pausa activa.
 Revisión en vivo del mismo día (base de la fase 5): el aviso «Las tareas no se pudieron actualizar» salía
 dos veces porque el botón repetía el error; corregido (el botón dice «Reintentar»). La causa real es un
 403 de Google: la API de Google Tasks no está activada en el proyecto de Cloud del usuario.
+
+## Registro de la fase 5 (en curso)
+
+**5.2, 5.3 y 5.4 hechas el 13 de noviembre de 2026.**
+
+- 5.3: `FondoSeleccion.qml` y los tokens `seleccionado`, `seleccionadoEncima` y `bordeSeleccion` de `EstiloPanel`.
+  La selección es una superficie neutra con un borde de acento; sin degradados ni resplandor de color en
+  `FondoBoton`, pestañas (`NavegacionPanel`, Brújula), fila del lanzador, conversación actual y medallas.
+  La burbuja del usuario del agente usa `elevada`. Comprobado en vista aislada con un acento cálido (`#f2a68c`).
+- 5.4: Wi-Fi y Bluetooth en tarjetas compactas de 52 px con la flecha dentro y la red o el dispositivo
+  conectado como estado; favoritos en la misma rejilla; perfil visual movido a «Más · Apariencia»; mezclador
+  como botón junto al volumen; No molestar en una fila; la lista de avisos tiene un mínimo de 180 px.
+  «Más controles» en filas compactas con estrella de 40 px.
+- 5.2: sin eslogan ni subtítulo en Hoy; «Volver a hoy» solo con otro día elegido; «Ahora · termina HH:mm»
+  para el evento en curso; tareas vencidas visibles con su fecha; tarjeta «Próximos días» cuando el día tiene
+  menos de tres elementos; los puntos del calendario ignoran las series diarias (`Eventos.marcaEn`).
+- Pruebas: 204 correctas. La configuración activa recargó sin errores; Hoy y la pestaña «Más» se revisaron
+  en la sesión real. La comprobación de 5.3 sin efectos (perfil mínimo) y en modo claro queda para 4.6.

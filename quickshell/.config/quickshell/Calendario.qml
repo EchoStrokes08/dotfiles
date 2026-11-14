@@ -98,9 +98,9 @@ ColumnLayout {
                     color: parent.esHoy ? Paleta.sobreAcento : Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 12; bold: parent.esHoy }
                 }
-                // puntito = ese día hay algo en tu Google Calendar (Eventos.qml)
+                // puntito = ese día hay algo fuera de la rutina diaria (Eventos.marcaEn)
                 Rectangle {
-                    visible: dia > 0 && (Eventos.hayEn(parent.fecha) || Eventos.tareas.some(t => t.fecha && t.fecha.getTime() === parent.fecha.getTime()))
+                    visible: dia > 0 && Eventos.marcaEn(parent.fecha)
                     width: 4; height: 4; radius: height / 2
                     anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 2 }
                     color: parent.esHoy ? Paleta.sobreAcento : Paleta.acento2

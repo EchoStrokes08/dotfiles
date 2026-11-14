@@ -13,9 +13,4 @@ RowLayout {
         color: Paleta.texto
         font { family: Paleta.fuente; pixelSize: 20; bold: true }
     }
-    Text {
-        text: "Tu día, a tu ritmo"
-        color: EstiloPanel.tenue
-        font { family: Paleta.fuente; pixelSize: 12 }
-    }
 }

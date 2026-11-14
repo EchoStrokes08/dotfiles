@@ -38,17 +38,9 @@ Rectangle {
             visible: EstiloPanel.efectos
             radius: 12
             offset.y: 4; blur: 16; spread: -6
-            color: Qt.alpha(nav.tinte, .38)
+            color: Qt.alpha("black", .28)
         }
-        Rectangle {
-            anchors.fill: parent
-            radius: 12
-            gradient: Gradient {
-                GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Qt.lighter(nav.tinte, 1.1), .40)) }
-                GradientStop { position: 1; color: Qt.tint(Paleta.fondo, Qt.alpha(nav.tinte, .20)) }
-            }
-            border { width: 1; color: Qt.alpha(nav.tinte, .55) }
-        }
+        FondoSeleccion { anchors.fill: parent; tinte: nav.tinte }
         Rectangle {
             x: 8; y: 1; width: parent.width - 16; height: 1
             gradient: Gradient {

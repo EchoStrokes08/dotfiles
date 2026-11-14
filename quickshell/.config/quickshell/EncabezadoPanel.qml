@@ -18,8 +18,8 @@ RowLayout {
     Rectangle {
         implicitWidth: 40; implicitHeight: 40
         radius: 12
-        color: Qt.alpha(cabecera.tinte, .22)
-        border { width: 1; color: Qt.alpha(cabecera.tinte, .5) }
+        color: EstiloPanel.elevada
+        border { width: 1; color: Qt.alpha(cabecera.tinte, .8) }
         Text {
             anchors.centerIn: parent
             text: cabecera.simbolo

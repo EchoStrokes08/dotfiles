@@ -714,24 +714,9 @@ PanelWindow {
                             anchors.fill: parent
                             visible: EstiloPanel.efectos
                             radius: 16; offset.y: 4; blur: 18; spread: -8
-                            color: Qt.alpha(Paleta.acento, .4)
+                            color: Qt.alpha("black", .28)
                         }
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 16
-                            gradient: Gradient {
-                                orientation: Gradient.Horizontal
-                                GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .26) }
-                                GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .07) }
-                            }
-                            border { width: 1; color: Qt.alpha(Paleta.acento, .35) }
-                        }
-                        Rectangle {
-                            width: 3; height: parent.height - 20
-                            anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
-                            radius: 4
-                            color: Paleta.acento
-                        }
+                        FondoSeleccion { anchors.fill: parent; radius: 16; marca: true }
                     }
 
                     RowLayout {

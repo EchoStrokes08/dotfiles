@@ -55,6 +55,11 @@ Singleton {
     readonly property color tenue: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, fondoClaro ? .82 : .68))
     readonly property color superficie: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .035))
     readonly property color elevada: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .065))
+    // Selección: superficie neutra con un susurro del acento y un borde de acento. Un tinte fuerte
+    // del acento sobre un fondo oscuro se vuelve marrón con acentos cálidos (fase 5.3 de ORION).
+    readonly property color seleccionado: Qt.tint(elevada, Qt.alpha(Paleta.acento, .07))
+    readonly property color seleccionadoEncima: Qt.tint(Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .10)), Qt.alpha(Paleta.acento, .09))
+    readonly property color bordeSeleccion: Qt.alpha(Paleta.acento, .8)
 
     // ── Efectos según el perfil ────────────────────────────────────────
     readonly property bool movimiento: !Paleta.reducirMovimiento && EstadoEscritorio.perfil !== "minimo"

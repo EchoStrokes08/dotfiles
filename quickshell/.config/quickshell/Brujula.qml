@@ -176,8 +176,8 @@ Superpuesta {
             Layout.fillWidth: true; spacing: 12
             Rectangle {
                 implicitWidth: 40; implicitHeight: 40; radius: 12
-                color: Qt.alpha(Paleta.acento, .22)
-                border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
+                color: EstiloPanel.elevada
+                border { width: 1; color: EstiloPanel.bordeSeleccion }
                 Text {
                     anchors.centerIn: parent; text: br.g("f018b"); color: Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 20 }
@@ -187,11 +187,12 @@ Superpuesta {
             }
             ColumnLayout {
                 spacing: 0; Layout.fillWidth: true
-                Text { text: "Brújula"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
+                Text { Layout.fillWidth: true; text: "Brújula"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
                 Text {
                     Layout.fillWidth: true; elide: Text.ElideRight; color: EstiloPanel.tenue
                     font { family: Paleta.fuente; pixelSize: 12 }
-                    text: ["Tu día", "Lo que tuviste delante", "Reglas automáticas", "La sesión anterior", "Salud del equipo"][br.pagina]
+                    visible: text !== ""
+                    text: ["", "Lo que tuviste delante", "Reglas automáticas", "La sesión anterior", "Salud del equipo"][br.pagina]
                 }
             }
             // contextos activos ahora mismo
@@ -209,7 +210,7 @@ Superpuesta {
                     }
                 }
             }
-            BotonCompacto { text: "󰅖"; Accessible.name: "Cerrar"; onClicked: br.abierto = false; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; acento: Paleta.peligro; background: FondoBoton { tinte: Paleta.peligro; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
+            BotonCompacto { Layout.fillWidth: false; text: "󰅖"; Accessible.name: "Cerrar"; onClicked: br.abierto = false; implicitWidth: 38; implicitHeight: 38; leftPadding: 0; rightPadding: 0; acento: Paleta.peligro; background: FondoBoton { tinte: Paleta.peligro; encima: parent.hovered; foco: parent.activeFocus; radio: 19 } }
         }
 
         // ── pestañas (con indicador que se desliza) ──────────────────────
@@ -234,16 +235,9 @@ Superpuesta {
                 RectangularShadow {
                     anchors.fill: parent; visible: EstiloPanel.efectos
                     radius: 12; offset.y: 4; blur: 18; spread: -6
-                    color: Qt.alpha(Paleta.acento, .45)
+                    color: Qt.alpha("black", .28)
                 }
-                Rectangle {
-                    anchors.fill: parent; radius: 12
-                    gradient: Gradient {
-                        GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Qt.lighter(Paleta.acento, 1.1), .40)) }
-                        GradientStop { position: 1; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.acento, .20)) }
-                    }
-                    border { width: 1; color: Qt.alpha(Paleta.acento, .55) }
-                }
+                FondoSeleccion { anchors.fill: parent }
             }
             Row {
                 anchors { fill: parent; margins: 4 }

@@ -90,8 +90,8 @@ Superpuesta {
             Layout.fillWidth: true; spacing: 12
             Rectangle {
                 implicitWidth: 40; implicitHeight: 40; radius: 12
-                color: Qt.alpha(Paleta.acento, .22)
-                border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
+                color: EstiloPanel.elevada
+                border { width: 1; color: EstiloPanel.bordeSeleccion }
                 Text { anchors.centerIn: parent; text: mv.g("f011c"); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20 } }
             }
             ColumnLayout {

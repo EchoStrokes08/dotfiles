@@ -255,8 +255,8 @@ Superpuesta {
             Layout.fillWidth: true; spacing: 12
             Rectangle {
                 implicitWidth: 40; implicitHeight: 40; radius: height / 2
-                color: Qt.alpha(Paleta.acento, .22)
-                border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
+                color: EstiloPanel.elevada
+                border { width: 1; color: EstiloPanel.bordeSeleccion }
                 Text { anchors.centerIn: parent; text: "✦"; color: Paleta.texto; font { pixelSize: 16 }
                     RotationAnimation on rotation { running: ag.pensando || calentador.running; loops: Animation.Infinite; from: 0; to: 360; duration: 2400 } }
                 // halo mientras piensa
@@ -522,10 +522,10 @@ Superpuesta {
                                 height: 50; radius: 12
                                 gradient: Gradient {
                                     orientation: Gradient.Horizontal
-                                    GradientStop { position: 0; color: conv.actual ? Qt.alpha(Paleta.acento, .26) : Qt.alpha(Paleta.texto, zonaConv.containsMouse ? .07 : 0) }
-                                    GradientStop { position: 1; color: conv.actual ? Qt.alpha(Paleta.acento, .07) : Qt.alpha(Paleta.texto, zonaConv.containsMouse ? .03 : 0) }
+                                    GradientStop { position: 0; color: conv.actual ? EstiloPanel.seleccionado : Qt.alpha(Paleta.texto, zonaConv.containsMouse ? .07 : 0) }
+                                    GradientStop { position: 1; color: conv.actual ? EstiloPanel.seleccionado : Qt.alpha(Paleta.texto, zonaConv.containsMouse ? .03 : 0) }
                                 }
-                                border { width: conv.actual ? 1 : 0; color: Qt.alpha(Paleta.acento, .4) }
+                                border { width: conv.actual ? 1 : 0; color: EstiloPanel.bordeSeleccion }
                                 Rectangle {
                                     visible: conv.actual
                                     width: 3; height: parent.height - 20; radius: 4
@@ -821,12 +821,8 @@ Superpuesta {
                 anchors.right: parent.right
                 width: parent.width * .78; implicitHeight: tt.implicitHeight + 24
                 radius: 16; bottomRightRadius: 6   // «cola» hacia el lado de quien habla
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .24) }
-                    GradientStop { position: 1; color: Qt.alpha(Qt.tint(Paleta.acento, Qt.alpha(Paleta.acento, .35)), .16) }
-                }
-                border { width: 1; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.2), .32) }
+                color: EstiloPanel.elevada
+                border { width: 1; color: EstiloPanel.bordeFuerte }
                 MensajeAgente {
                     id: tt
                     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
