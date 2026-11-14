@@ -1,0 +1,11 @@
+[Unit]
+Description=Agente: probar los modelos de la nube cada día
+
+[Timer]
+OnCalendar=daily
+OnBootSec=5min
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

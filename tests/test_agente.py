@@ -125,14 +125,17 @@ class FechasHumanas(unittest.TestCase):
         self.assertTrue(r.startswith("Mirando la agenda: hoy, "), r)
 
 
-class ModelosGoogle(unittest.TestCase):
+class ModelosNube(unittest.TestCase):
+    G = {"nombre": "google", "grupo": "Google", "url": "https://x/v1beta/openai", "modelos": "todos", "preferido": "gemini-4-hydrogen"}
+
     def test_filtro_y_orden_de_claves(self):
-        for no in ("gemini-3.8-flash-tts", "gemini-3-pro-image", "lyria-3.5", "gemini-3.5-transcribe", "deep-research-preview-04-2026"):
+        for no in ("gemini-3.8-flash-tts", "gemini-3-pro-image", "lyria-3.5", "gemini-3.5-transcribe", "deep-research-preview-04-2026",
+                   "meta/llama-guard-4-12b", "nvidia/nemotron-3.5-embed-8b", "whisper-large-v3", "nvidia/riva-translate-4b-instruct-v2"):
             self.assertRegex(no, agente.NO_CHAT)
-        self.assertIsNone(agente.NO_CHAT.search("gemini-3.5-flash"))
-        p = {"nombre": "google", "url": "https://x/v1beta/openai", "modelos": "todos", "preferido": "gemini-4-hydrogen"}
-        with patch.object(agente, "modelos_google", lambda url, claves: [("gemini-3.5-flash", "Gemini 3.5 Flash", {}), ("gemini-4-hydrogen", "Gemini 4 Hydrogen", {})]):
-            e = agente.expandir(p, ["principal", "respaldo"])
+        for si in ("gemini-3.5-flash", "nvidia/nemotron-3-ultra-550b-a55b", "openai/gpt-oss-120b"):
+            self.assertIsNone(agente.NO_CHAT.search(si))
+        with patch.object(agente, "modelos_nube", lambda p, claves: [("gemini-3.5-flash", "Gemini 3.5 Flash", {}), ("gemini-4-hydrogen", "Gemini 4 Hydrogen", {})]):
+            e = agente.expandir(self.G, ["principal", "respaldo"])
         self.assertEqual([(x["modelo"], x["clave"]) for x in e],
                          [("gemini-4-hydrogen", "principal"), ("gemini-4-hydrogen", "respaldo"),
                           ("gemini-3.5-flash", "principal"), ("gemini-3.5-flash", "respaldo")])
@@ -154,20 +157,46 @@ class ModelosGoogle(unittest.TestCase):
                  ((pago, "ok"), "respaldo"),             # de pago en un proyecto, gratis en el otro
                  ((pago, pago), None),                   # de pago en todos: fuera
                  (((404, ""), "ok"), None),              # retirado: fuera
-                 (("timeout", (500, "")), "falla")]      # no tanto: se queda, al final
+                 (("timeout", (500, "")), "falla")]      # falla hoy: no entra en la lista
         for por_clave, esperado in casos:
             with patch.object(agente.urllib.request, "urlopen", respuestas(*por_clave)):
-                e = agente.probar_google("https://x/v1beta", ["principal", "respaldo"], "m")
+                e = agente.probar(self.G, ["principal", "respaldo"], "m")
             self.assertEqual(e and e["estado"], esperado, por_clave)
         self.assertEqual(agente.estado_legible({"estado": "falla", "motivo": "no contesta"}), "Falló en la prueba: no contesta")
 
-    def test_orden_del_que_mejor_al_que_peor(self):
-        p = {"nombre": "google", "url": "https://x/v1beta/openai", "modelos": "todos", "preferido": "gemini-4-hydrogen"}
-        probados = [("gemma", "Gemma", {"estado": "falla"}), ("lenta", "Lenta", {"estado": "lento"}),
+    def test_proveedor_openai_se_prueba_con_herramientas(self):
+        p = {"nombre": "nvidia", "grupo": "NVIDIA", "url": "https://x/v1", "modelos": "todos"}
+        vistos = []
+
+        def abrir(req, timeout):
+            vistos.append(req)
+            if req.full_url.endswith("/models"):
+                return io.BytesIO(json.dumps({"data": [{"id": "va"}, {"id": "sin-herramientas"}, {"id": "lento"},
+                                                       {"id": "meta/llama-guard-4"}]}).encode())
+            modelo = json.loads(req.data)["model"]
+            if modelo == "sin-herramientas":
+                raise agente.urllib.error.HTTPError(req.full_url, 400, "", {}, io.BytesIO(b""))
+            if modelo == "lento":
+                raise TimeoutError("timed out")
+            return io.BytesIO(b"{}")
+        with tempfile.TemporaryDirectory() as d, patch.object(agente, "DIR", Path(d)), \
+                patch.object(agente.urllib.request, "urlopen", abrir):
+            lista = agente.modelos_nube(p, ["k"], refrescar=True)
+            self.assertEqual([m[0] for m in lista], ["va"])          # solo los que funcionan
+            self.assertEqual(json.loads((Path(d) / "modelos-nvidia.json").read_text())["modelos"][0][0], "va")
+        cuerpo = json.loads(next(r for r in vistos if r.data).data)
+        self.assertTrue(cuerpo["tools"])   # se prueba como lo usa el agente
+        self.assertEqual(vistos[0].headers["Authorization"], "Bearer k")
+
+    def test_orden_y_preferidos_que_no_funcionan(self):
+        p = {**self.G, "preferido": ["gemini-4-hydrogen", "retirado"]}
+        probados = [("lenta", "Lenta", {"estado": "lento"}),
                     ("gemini-4-hydrogen", "Hydrogen", {"estado": "rapido"}), ("flash", "Flash", {"estado": "rapido"})]
-        with patch.object(agente, "modelos_google", lambda url, claves: probados):
+        with patch.object(agente, "modelos_nube", lambda p, claves: probados):
             e = agente.expandir(p, ["k"])
-        self.assertEqual([x["modelo"] for x in e], ["gemini-4-hydrogen", "flash", "lenta", "gemma"])
+        self.assertEqual([x["modelo"] for x in e], ["gemini-4-hydrogen", "flash", "lenta"])   # «retirado» no entra
+        with patch.object(agente, "modelos_nube", lambda p, claves: []):                    # aún sin probar: a ciegas
+            self.assertEqual([x["modelo"] for x in agente.expandir(p, ["k"])], ["gemini-4-hydrogen", "retirado"])
 
 class Agente(unittest.TestCase):
     def setUp(self):

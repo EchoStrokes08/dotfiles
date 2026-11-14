@@ -119,7 +119,7 @@ paso_flatpak() {
 
 # ── 5. Dotfiles con stow ────────────────────────────────────────────────
 STOW=(zsh kitty hypr fuzzel gtk tema btop nvim vscode wallpapers quickshell udiskie yazi satty lugares)
-STOW_SIN_PLEGAR=(vesktop spicetify easyeffects)   # solo enlaza archivos: la app escribe caché en su carpeta
+STOW_SIN_PLEGAR=(vesktop spicetify easyeffects servicios)   # solo enlaza archivos: la app (o systemctl enable) escribe en su carpeta
 
 respaldar() {  # respaldar PAQUETE [opciones de stow]: aparta los archivos reales que estorban
     local pkg=$1; shift
@@ -152,6 +152,10 @@ paso_dotfiles() {
         respaldar "$pkg" --no-folding
         run stow -R --no-folding -d "$DOT" -t "$HOME" "$pkg" && ok "stow $pkg (sin plegar)"
     done
+
+    # Servicios de usuario (paquete «servicios»): la prueba diaria de los modelos del agente
+    run systemctl --user daemon-reload
+    run systemctl --user enable --now agente-modelos.timer && ok "agente-modelos.timer (prueba diaria de modelos)"
 
     # Firefox: el perfil se llama distinto en cada equipo → enlazar a mano en el que haya
     local src="$DOT/firefox/.config/mozilla/firefox/skxgxs8p.default-release" perfil

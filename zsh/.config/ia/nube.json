@@ -13,46 +13,29 @@
       "preferido": "gemini-4-hydrogen"
     },
     {
-      "nombre": "groq-gpt-oss-120b",
-      "clave": "groq",
+      "nombre": "groq",
+      "grupo": "Groq",
+      "claves": [
+        "groq",
+        "groq2"
+      ],
       "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-120b",
-      "grupo": "Groq"
+      "modelos": "todos",
+      "preferido": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.8-27b",
+        "openai/gpt-oss-20b"
+      ]
     },
     {
-      "nombre": "groq-gpt-oss-120b-2",
-      "clave": "groq2",
-      "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-120b",
-      "grupo": "Groq"
-    },
-    {
-      "nombre": "groq-qwen3.8-27b",
-      "clave": "groq",
-      "url": "https://api.groq.com/openai/v1",
-      "modelo": "qwen/qwen3.8-27b",
-      "grupo": "Groq"
-    },
-    {
-      "nombre": "groq-qwen3.8-27b-2",
-      "clave": "groq2",
-      "url": "https://api.groq.com/openai/v1",
-      "modelo": "qwen/qwen3.8-27b",
-      "grupo": "Groq"
-    },
-    {
-      "nombre": "groq-gpt-oss-20b",
-      "clave": "groq",
-      "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-20b",
-      "grupo": "Groq"
-    },
-    {
-      "nombre": "groq-gpt-oss-20b-2",
-      "clave": "groq2",
-      "url": "https://api.groq.com/openai/v1",
-      "modelo": "openai/gpt-oss-20b",
-      "grupo": "Groq"
+      "nombre": "nvidia",
+      "grupo": "NVIDIA",
+      "claves": [
+        "nvidia"
+      ],
+      "url": "https://integrate.api.nvidia.com/v1",
+      "modelos": "todos",
+      "preferido": "nvidia/nemotron-3-ultra-550b-a55b"
     }
   ]
 }

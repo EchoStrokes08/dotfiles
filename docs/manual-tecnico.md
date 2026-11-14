@@ -406,6 +406,15 @@ casi enteros (3 000 caracteres) y los anteriores se recortan a 400. `opciones` y
 `elegir modelo|esfuerzo|permisos VALOR` alimentan los selectores del panel; modelo y esfuerzo se
 guardan en `~/.local/state/brujula/agente/eleccion.json`. `borrar-todo` vacía el historial.
 
+Un proveedor con `"modelos": "todos"` y `"claves": [principal, respaldo]` (Google, Groq, NVIDIA) no
+fija modelo: `refrescar-modelos` pide su lista (`/models`), descarta lo que no es chat (`NO_CHAT`) y
+prueba cada modelo como lo usa el agente (en los compatibles con OpenAI, con una herramienta y
+`reasoning_effort`). En el selector solo quedan los que respondieron, ordenados de rápido a lento,
+en `~/.local/state/brujula/agente/modelos-NOMBRE.json`. La prueba la lanza cada día
+`agente-modelos.timer` (paquete `servicios`, enlazado sin plegar) y también el panel si la caché
+tiene más de un día. En la cadena «auto» solo entran los `preferido` (uno o una lista) que pasaron
+la prueba; si aún no hay prueba, se usan a ciegas.
+
 **Navegador del agente:** `agente_navegador.py` mantiene un Chromium (Playwright) con ventana de
 clase `agente-navegador`, que la regla de `modulos/scratchpads.lua` envía al scratchpad oculto
 `special:agente`. `buscar` usa DuckDuckGo HTML y devuelve título, enlace y resumen de cada

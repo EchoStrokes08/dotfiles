@@ -1,0 +1,12 @@
+# Prueba diaria de los modelos de la nube del agente (SUPER+O): lista los de cada proveedor de
+# ~/.config/ia/nube.json con «modelos": "todos"», prueba cada uno y deja en el selector solo los que funcionan.
+[Unit]
+Description=Agente: probar qué modelos de la nube funcionan
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.config/hypr/scripts/agente.py refrescar-modelos
+Nice=10
+TimeoutStartSec=15min
