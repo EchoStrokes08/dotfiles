@@ -825,6 +825,15 @@ se incluyen en los avisos ni en el registro de fallos de sincronización.
 por aviso: `t`, `app`, `titulo`, `cuerpo`; recortado a 500). No guarda avisos transitorios, los que
 llegan con privacidad ni los que parecen códigos de verificación. El lanzador lo lee con `!`.
 
+`memoria.py resumen|fuentes|olvidar|recordar|excluir|incluir|pausar|reanudar|borrar-todo` sirve a
+`MemoriaAgente.qml`. Las decisiones viven en `~/.local/state/brujula/memoria-ajustes.json` (pausa,
+dominios, carpetas y claves olvidadas); `indexar` las respeta y borra lo que deja de estar permitido.
+
+`almacenamiento.py estado|grandes|limpiar papelera|cache|firefox|a-papelera RUTA` sirve a
+`Almacenamiento.qml` (Brújula › Salud). Solo limpia cachés regenerables (`CACHE_SEGURA`); lo que
+requiere administrador (`paccache -rk2`, `journalctl --vacuum-size=200M`) se abre en kitty y nunca
+corre en segundo plano. «Archivos grandes» ignora las carpetas ocultas de las apps.
+
 `scripts/shell.sh` arranca Quickshell (lo llama `autostart.lua`) con `QT_SCALE_FACTOR` según
 `escala` de `~/.local/state/quickshell/preferencias.json` (1, 1.1 o 1.25); `shell.sh reiniciar`
 cierra la instancia y la vuelve a abrir. Si la escala deja algo mal, edita ese archivo y ejecuta

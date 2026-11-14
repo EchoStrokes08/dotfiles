@@ -847,7 +847,12 @@ Dos paneles quedan para tareas más largas, solo con lo que no cabe en el lanzad
 - **Línea de tiempo**: *El día* (qué tuviste delante y cuándo, ←/→ cambia de día), *Reglas
   automáticas* y *Sesión anterior*.
 - **Salud**: copias, disco, espacio, snapshots, actualizaciones, servicios, temperatura y batería,
-  cada una con su acción.
+  cada una con su acción. Debajo de las métricas, **Almacenamiento** (también «almacenamiento» en el
+  lanzador): una barra del SSD por categorías y, al pasar el ratón por cada una, su acción. «Limpiar lo
+  seguro» solo borra cachés que se regeneran (compilación, pip, AUR, miniaturas); nunca el navegador
+  del agente, el modelo de dictado, la memoria ni el portapapeles. La caché de Firefox pide cerrarlo.
+  Paquetes viejos y registro del sistema abren una terminal que pide tu contraseña. **Archivos
+  grandes** lista los de más de 100 MB de tus carpetas, con «Abrir carpeta» y «A la papelera».
 
 ### Ideas para hoy
 
@@ -974,6 +979,11 @@ de webs. Nunca obtiene permisos de administrador por su cuenta. Lee siempre la p
 Busca por significado en tus documentos, la línea de tiempo (60 días) y el historial de Firefox
 (90 días), y cita sus fuentes con fichas que se abren con un clic. No indexa el portapapeles.
 Guarda tus últimas 100 conversaciones a la izquierda (Hoy, Ayer…); **Ctrl+L** empieza otra.
+
+**Memoria** (botón de la cabecera del agente, o «memoria del agente» en el lanzador): cuánto recuerda
+de cada tipo, qué dominios y carpetas pesan más (con «Excluir»), un buscador sobre lo guardado con
+«Abrir» y «Olvidar» (con deshacer), los dominios y carpetas que no se guardan, **Pausar** y **Borrar
+toda la memoria** (escribiendo BORRAR). Lo excluido u olvidado se borra al momento y no vuelve.
 Borrar una conversación no borra lo indexado. La privacidad no borra datos ya indexados: revisa
 qué compartes si muestras la pantalla.
 

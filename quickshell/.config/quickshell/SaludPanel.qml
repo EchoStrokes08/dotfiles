@@ -105,6 +105,11 @@ Flickable {
                 }
             }
         }
+        // Almacenamiento del SSD: qué ocupa y cómo recuperarlo (Almacenamiento.qml)
+        Almacenamiento {
+            Layout.fillWidth: true
+            onEjecutar: (comando) => salud.ejecutar(comando)
+        }
         TarjetaPanel {
             Layout.fillWidth: true
             visible: salud.mantenimiento
