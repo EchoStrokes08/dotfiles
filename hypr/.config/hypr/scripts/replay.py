@@ -8,7 +8,7 @@ import signal
 import subprocess
 import sys
 import time
-from escritorio import atomico, directorio
+from escritorio import atomico, directorio, estado
 
 DESTINO = Path.home() / "Videos/Replays"
 
@@ -83,7 +83,9 @@ def main():
         dato = buscar(archivo)
         if accion == 'detalle':
             preferencia = modo.read_text().strip() if modo.exists() else 'no'
-            texto = 'Grabando los últimos 30 s' if dato else 'Replay desactivado'
+            texto = ('Grabando los últimos 30 s' if dato else
+                     'Pausado por privacidad' if preferencia == 'si' and estado().get('privacidad_activa') == 'true'
+                     else 'Replay desactivado')
             print(json.dumps({'grabando': bool(dato), 'politica': preferencia, 'texto': texto}, ensure_ascii=False))
             return
         if accion == 'estado':
@@ -97,8 +99,10 @@ def main():
         if accion in ('start', 'stop', 'toggle'):
             modo.write_text({'start': 'si', 'stop': 'no', 'toggle': 'no' if dato else 'si'}[accion])
         preferencia = modo.read_text().strip() if modo.exists() else 'no'
-        # Solo graba cuando se enciende a mano.
-        deseado = preferencia == 'si'
+        # Solo graba cuando se enciende a mano, y la privacidad (también la de una reunión) siempre gana:
+        # mientras dure se detiene, y vuelve solo al terminar si seguía encendido.
+        privado = estado().get('privacidad_activa') == 'true'
+        deseado = preferencia == 'si' and not privado
         if dato and not deseado:
             os.kill(dato['pid'], signal.SIGINT)
             for _ in range(30):

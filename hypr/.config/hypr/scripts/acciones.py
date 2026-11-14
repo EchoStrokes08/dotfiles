@@ -154,7 +154,7 @@ def opciones(ref):
         vista=ident
     elif tipo=='actividad':
         acciones=[accion('iniciar','Iniciar actividad',[campo('minutos','Duración en minutos','30')]),accion('terminar','Terminar actividad')]
-        vista='Reunión activa privacidad y No molestar.' if ident=='reunion' else 'Concentración oculta distracciones hasta terminar.'
+        vista='Reunión activa privacidad y No molestar, y pausa el replay.' if ident=='reunion' else 'Concentración oculta distracciones hasta terminar.'
     elif tipo=='recordatorio':
         acciones=[accion('descartar','Descartar · se puede deshacer'),accion('posponer','Posponer',[campo('fecha','Nueva fecha y hora (AAAA-MM-DD HH:MM)',dt.datetime.fromtimestamp(d['cuando']/1000).strftime('%Y-%m-%d %H:%M'))])]
         vista=d['texto']+'\n'+dt.datetime.fromtimestamp(d['cuando']/1000).strftime('%d/%m/%Y %H:%M')

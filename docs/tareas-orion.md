@@ -242,5 +242,5 @@ dos veces porque el botón repetía el error; corregido (el botón dice «Reinte
 
 Pendientes reales: no hay segundo monitor para probar; no se suspendió el equipo con una pausa activa; la
 ayuda de SUPER mantenida y el cambio de tamaño de la interfaz los tiene que probar la persona con la tecla
-física y aceptando el reinicio de la barra. El replay ya no se detiene con privacidad ni reunión (decisión
-registrada en el commit `a8e9baf`).
+física y aceptando el reinicio de la barra. El replay quedó solo manual (`a8e9baf`) y, a petición del usuario, la privacidad
+(también la de una reunión) vuelve a pausarlo y lo devuelve al terminar; comprobado en vivo.

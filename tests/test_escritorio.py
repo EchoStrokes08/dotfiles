@@ -137,13 +137,27 @@ class Operaciones(unittest.TestCase):
     def test_replay_solo_arranca_a_mano(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            base = (patch.object(replay, 'directorio', return_value=(Path(tmp), 'prueba')), patch.object(replay, 'buscar', return_value=None))
-            with base[0], base[1], patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'reconciliar']):
+            base = (patch.object(replay, 'directorio', return_value=(Path(tmp), 'prueba')), patch.object(replay, 'buscar', return_value=None),
+                    patch.object(replay, 'estado', return_value={'privacidad_activa': 'false'}))
+            with base[0], base[1], base[2], patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'reconciliar']):
                 replay.main()
                 iniciar.assert_not_called()
-            with base[0], base[1], patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'start']):
+            with base[0], base[1], base[2], patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'start']):
                 replay.main()
                 iniciar.assert_called_once()
+
+    def test_privacidad_pausa_el_replay_y_lo_devuelve_al_terminar(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            dirs = patch.object(replay, 'directorio', return_value=(Path(tmp), 'prueba'))
+            with dirs, patch.object(replay, 'buscar', return_value=None), patch.object(replay, 'estado', return_value={'privacidad_activa': 'true'}), \
+                 patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'start']):
+                replay.main()
+                iniciar.assert_not_called()          # encendido a mano, pero con privacidad no graba
+            with dirs, patch.object(replay, 'buscar', return_value=None), patch.object(replay, 'estado', return_value={'privacidad_activa': 'false'}), \
+                 patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'reconciliar']):
+                replay.main()
+                iniciar.assert_called_once()         # al terminar la privacidad vuelve solo, porque seguía encendido
 
 
 if __name__ == '__main__':

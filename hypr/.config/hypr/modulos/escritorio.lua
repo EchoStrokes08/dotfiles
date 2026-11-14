@@ -51,11 +51,19 @@ local function guardar(r)
     f:close()
     os.rename(archivo .. ".tmp", archivo)
 end
+local privacidad_anterior = nil
 function M.sincronizar()
     local r = motor.resolver(e)
     hl.config(r.config)
     guardar(r)
     hl.exec_cmd("qs ipc call notificaciones automatico " .. (r.no_molestar and "true" or "false"))
+    -- La privacidad (también la de una reunión) pausa el replay y lo devuelve al terminar.
+    -- Solo al cambiar: sincronizar también corre en cada cambio de ventanas.
+    local privado = e.privacidad == true or e.reunion == true
+    if privado ~= privacidad_anterior then
+        privacidad_anterior = privado
+        hl.exec_cmd("~/.config/hypr/scripts/replay.sh reconciliar")
+    end
     hl.exec_cmd("qs ipc call barra refrescar modo-juego")
 end
 function M.perfil(nombre)

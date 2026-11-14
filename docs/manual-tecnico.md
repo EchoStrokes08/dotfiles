@@ -245,7 +245,9 @@ se consultan de nuevo. Reunión se guarda con caducidad y supervisor de systemd 
 ### Replay y grabación explícita
 
 `replay.sh` delega en `replay.py`. El replay solo graba cuando se enciende a mano y sigue hasta
-apagarlo; ni juego, batería, perfil, privacidad ni reunión lo cambian. El estado vive en el runtime,
+apagarlo; juego, batería y perfil no lo cambian. La privacidad (también la de una reunión) siempre
+gana: `escritorio.lua` llama a `replay.sh reconciliar` cuando cambia `privacidad_activa`, el replay se
+detiene («Pausado por privacidad») y vuelve solo al terminar si seguía encendido. El estado vive en el runtime,
 así que tras reiniciar la sesión queda apagado.
 
 El gestor usa bloqueo de archivo y verifica usuario, ejecutable, destino y tiempo de inicio para

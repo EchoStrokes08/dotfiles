@@ -355,7 +355,7 @@ usado cada app hoy.
 | `SUPER+ALT+PRINT` | Encender / apagar esa grabación continua (replay) |
 
 Las capturas van a `~/Imágenes/screenshots` y además al portapapeles (se pueden pegar directamente).
-Los replays van a `~/Videos/Replays`. Solo graba cuando lo enciendes a mano.
+Los replays van a `~/Videos/Replays`. Solo graba cuando lo enciendes a mano, y nunca con la privacidad activa.
 Centro de control › Más › **Juego automático** lo devuelve a automático después de alternarlo a mano.
 
 **Grabar la pantalla** (`SUPER+ALT+R`): menú con *Región*, *Pantalla completa*, *con audio* (lo que suena en el
@@ -829,7 +829,7 @@ Antes guarda un checkpoint de tus ventanas. Qué apps abre cada una se elige en 
 
 Dos paneles quedan para tareas más largas, solo con lo que no cabe en el lanzador:
 
-- **Mesa › Reunión**: 15 a 90 min con No molestar, títulos ocultos y sin
+- **Mesa › Reunión**: 15 a 90 min con No molestar, replay en pausa, títulos ocultos y sin
   suspensión. Al terminar solo se retira lo que puso la reunión. No toca micrófono ni cámara.
 - **Organizar por tarea** (SUPER+CTRL+O): reparte las ventanas del espacio para comparar,
   programar, investigar o concentrarte, con vista previa y **Volver al layout anterior**.
@@ -917,7 +917,7 @@ Debajo, cuatro pestañas:
 
 Batería, juego, concentración, reunión, privacidad y las reglas por lugar se suman sin pisarse:
 salir de uno no quita el silencio que otro todavía necesita. La batería quita blur y sombras; el
-juego quita efectos y huecos y silencia; la privacidad oculta títulos, silencia
+juego quita efectos y huecos y silencia; la privacidad oculta títulos, silencia, pausa el replay
 **y apaga la nube del agente**. El perfil visual no cambia el modo de energía del procesador.
 
 ### Checkpoints
@@ -930,7 +930,8 @@ no reabren apps ni guardan documentos.
 
 Graba en memoria los últimos 30 s para guardarlos si pasa algo que valga la pena. Solo graba
 cuando lo enciendes a mano (SUPER+ALT+PRINT o **Encender**) y sigue hasta que lo apagas;
-**Guardar ahora** (o SUPER+SHIFT+PRINT) guarda lo último. Al reiniciar la sesión queda apagado.
+**Guardar ahora** (o SUPER+SHIFT+PRINT) guarda lo último. La privacidad (también la de una reunión)
+lo pausa y, al terminar, vuelve solo si seguía encendido. Al reiniciar la sesión queda apagado.
 
 ## 27. Agente: pedir
 

@@ -523,7 +523,7 @@ PanelWindow {
                     width: parent.width
                     spacing: 8
                     Etiqueta { text: "ACTIVIDADES" }
-                    Text { Layout.fillWidth: true; text: "La reunión activa privacidad y No molestar. Concentración oculta distracciones. Terminar restaura sus políticas."; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Text { Layout.fillWidth: true; text: "La reunión activa privacidad y No molestar, y pausa el replay. Concentración oculta distracciones. Terminar restaura sus políticas."; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
                     RowLayout {
                         Layout.fillWidth: true
                         BotonPanel { text: Reunion.activa ? "Terminar reunión" : "Reunión · 30 min"; onClicked: AccionesServicio.ejecutar({tipo:"actividad",id:"reunion"},Reunion.activa ? "terminar" : "iniciar",{minutos:30}) }
@@ -606,7 +606,7 @@ PanelWindow {
                     Text {
                         Layout.fillWidth: true
                         Layout.topMargin: 4
-                        text: "La privacidad oculta títulos y silencia los avisos. Los checkpoints duran esta sesión."
+                        text: "La privacidad oculta títulos, silencia los avisos y pausa el replay. Los checkpoints duran esta sesión."
                         wrapMode: Text.Wrap
                         color: EstiloPanel.tenue
                         font { family: Paleta.fuente; pixelSize: 11 }
