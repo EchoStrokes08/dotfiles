@@ -1,7 +1,8 @@
 # ORION · Lista de tareas
 
 Plan de implementación derivado de la auditoría del 13 de noviembre de 2026.
-Cuatro fases: confianza, diseño, recorridos y consolidación. `[x]` significa implementado y verificado;
+Cinco fases: confianza, diseño, recorridos, consolidación y pulido. `[x]` significa implementado y verificado;
+`[~]` implementado y con pruebas, pendiente del cierre (capturas y comprobación en el escritorio);
 las limitaciones de comprobación se anotan en el cierre de cada fase. La configuración activa enlaza a este repositorio.
 
 ## Fase 1 · Estados fiables y recuperación
@@ -34,17 +35,17 @@ la barra cede espacio a estados importantes; mínimo conserva profundidad; texto
 
 ## Fase 3 · Recorridos completos y funciones útiles
 
-- [ ] 3.1 Resultados tipados y acciones compartidas en lanzador; menú secundario visible con teclado/ratón, Enter para principal y Esc con devolución de foco.
-- [ ] 3.2 Ventanas: enfocar, mover a un espacio reconocible, aparcar/recuperar y cerrar. Plantillas: copiar, editar, duplicar y borrar con recuperación.
-- [ ] 3.3 Proyectos: guardar, retomar, cambiar siguiente paso, actualizar ventanas y archivar. Archivos: abrir, carpeta, copiar ruta y elegir aplicación. Vista previa cuando aporte información.
-- [ ] 3.4 Historial con títulos humanos y dominio, URL íntegra para abrir/copiar; ventana privada y ocultar en ORION sin confundirlo con borrar en Firefox. Eventos/tareas con acciones según capacidades reales.
-- [ ] 3.5 Reforzar búsqueda asíncrona: consultas vigentes, resultados anteriores identificados mientras carga, errores por fuente y ausencia de coincidencias diferenciados.
-- [ ] 3.6 Conservar identidad de calendario, serie, ocurrencia y excepciones; resumir recurrencias en Próximo sin deducir periodicidad por títulos ni perder recordatorios.
-- [ ] 3.7 Agrupar notificaciones por app/conversación, preservando acciones, respuestas y urgencias. No molestar 30 min/1 h/hasta fin de actividad/indefinido, vencimiento absoluto y motivos automáticos independientes. Resumen al terminar sin ráfaga de emergentes.
-- [ ] 3.8 Sugerencias: confirmar resultado antes de anunciar éxito y distinguir «app abierta» de tarea completada. Recordatorios: detalle al pulsar título y completar/descartar explícitos. Deshacer coherente para acciones reversibles.
-- [ ] 3.9 Estados de carga/error/actualización para móvil, búsqueda y demás fuentes que aún oculten fallos; reintentos locales y diagnóstico breve.
-- [ ] 3.10 IA opcional y no bloqueante en Hoy; conservar caché diaria y expiración ya existentes. Actividades explicables reutilizando reunión/concentración/juego y salida manual visible.
-- [ ] 3.11 Reutilizar privacidad en sugerencias, títulos, avisos y previsualizaciones, incluidos reunión y captura. Agente sobre las mismas acciones y estados verificables.
+- [~] 3.1 Resultados tipados y acciones compartidas en lanzador; menú secundario visible con teclado/ratón, Enter para principal y Esc con devolución de foco.
+- [~] 3.2 Ventanas: enfocar, mover a un espacio reconocible, aparcar/recuperar y cerrar. Plantillas: copiar, editar, duplicar y borrar con recuperación.
+- [~] 3.3 Proyectos: guardar, retomar, cambiar siguiente paso, actualizar ventanas y archivar. Archivos: abrir, carpeta, copiar ruta y elegir aplicación. Vista previa cuando aporte información.
+- [~] 3.4 Historial con títulos humanos y dominio, URL íntegra para abrir/copiar; ventana privada y ocultar en ORION sin confundirlo con borrar en Firefox. Eventos/tareas con acciones según capacidades reales.
+- [~] 3.5 Reforzar búsqueda asíncrona: consultas vigentes, resultados anteriores identificados mientras carga, errores por fuente y ausencia de coincidencias diferenciados.
+- [~] 3.6 Conservar identidad de calendario, serie, ocurrencia y excepciones; resumir recurrencias en Próximo sin deducir periodicidad por títulos ni perder recordatorios.
+- [~] 3.7 Agrupar notificaciones por app/conversación, preservando acciones, respuestas y urgencias. No molestar 30 min/1 h/hasta fin de actividad/indefinido, vencimiento absoluto y motivos automáticos independientes. Resumen al terminar sin ráfaga de emergentes.
+- [~] 3.8 Sugerencias: confirmar resultado antes de anunciar éxito y distinguir «app abierta» de tarea completada. Recordatorios: detalle al pulsar título y completar/descartar explícitos. Deshacer coherente para acciones reversibles.
+- [~] 3.9 Estados de carga/error/actualización para móvil, búsqueda y demás fuentes que aún oculten fallos; reintentos locales y diagnóstico breve.
+- [~] 3.10 IA opcional y no bloqueante en Hoy; conservar caché diaria y expiración ya existentes. Actividades explicables reutilizando reunión/concentración/juego y salida manual visible.
+- [~] 3.11 Reutilizar privacidad en sugerencias, títulos, avisos y previsualizaciones, incluidos reunión y captura. Agente sobre las mismas acciones y estados verificables.
 
 Aceptación: mover una ventana y editar una plantilla no exige Mesa; No molestar vence correctamente incluso tras
 suspender o recargar; una serie se resume sin fusionar eventos distintos; acciones fallidas no dicen «Hecho».
@@ -60,6 +61,28 @@ suspender o recargar; una serie se resume sin fusionar eventos distintos; accion
 
 Aceptación: sin funciones huérfanas, documentación del comportamiento final, controles operables con teclado y
 mediciones reproducibles. No usar RAM total o longitud del manual como sustitutos de experiencia comprobada.
+
+## Fase 5 · Pulido visible y funciones nuevas
+
+Añadida tras la revisión en vivo del 13 de noviembre de 2026 (21:45, sesión real a 1280×720 lógicos,
+modo wallpaper oscuro, juego abierto). Ataca lo que todavía se nota cada día.
+
+- [ ] 5.1 Agenda que explica sus fallos: `gcal.py` devuelve un código (`api_desactivada`, `sin_permiso`, `sin_red`) y `EstadoAgenda` muestra la causa y la salida («Activa Google Tasks API en tu proyecto»), sin exponer URL ni claves. Un evento en curso dice «Ahora · termina 21:45», no «Próximo».
+- [ ] 5.2 Hoy sin huecos: si la agenda del día tiene menos de tres elementos, la columna izquierda muestra «Próximos días» (3 días) y tareas pendientes. El botón «Hoy» solo aparece con otro día elegido. Fuera «Tu día, a tu ritmo» y el subtítulo «Tu día». Una serie diaria no pone punto en todos los días del calendario: puntos solo para eventos no diarios, o intensidad por número de eventos.
+- [ ] 5.3 Selección sin tinte turbio: con fondos cálidos u oscuros el acento tintado se vuelve marrón (pestaña activa, fila del lanzador, burbuja del agente, tarjetas activas). Selección = superficie `elevada` neutra + indicador o borde de 2 px de `acento`; sin el brillo central en degradado de `FondoBoton.qml` ni en pestañas. `tema.py` garantiza croma mínima del acento y `test_tema_orion.py` lo comprueba con una paleta de atardecer.
+- [ ] 5.4 Centro · Inicio con avisos visibles: hoy la lista queda reducida a «Avisos · 5» al fondo. Reservar al menos tres grupos visibles; Wi-Fi y Bluetooth como botón dividido (flecha dentro de la misma tarjeta) que muestre red o dispositivo en lugar de «Activado»; «Más controles» en filas de 48 px con la estrella integrada; la ayuda emergente de la barra no tapa un panel abierto.
+- [ ] 5.5 Lanzador en reposo útil: secciones «Recientes» y «Sugerido ahora» (según hora y actividad), con encabezado; pie con «Enter abrir · Alt+Enter acciones · Tab prefijos»; icono de respaldo para entradas sin icono (p. ej. Buds Manager).
+- [ ] 5.6 Agente más limpio: «Copiar texto» y «Ver original» solo al pasar el ratón, con foco o con atajo; fuentes como chips con dominio que se abren; burbuja del usuario en superficie neutra.
+- [ ] 5.7 Barra: Buds en una sola cápsula (I/D/estuche dentro, mismos datos y la misma preferencia); chip de próxima cita junto a la hora cuando falten 30 min o menos.
+- [ ] 5.8 Ajustes desde el lanzador: «oscuro», «brillo 40», «wifi», «no molestar 1 h», «reunión» como resultados tipados que reutilizan `conmutadores.py`, el control confirmado y sus estados de error.
+- [ ] 5.9 Ayuda al mantener SUPER: tras 0,6 s, una capa con los atajos esenciales y los del modo o ventana activa; desaparece al soltar. Sustituye la necesidad de abrir la chuleta para lo común.
+- [ ] 5.10 Historial de avisos buscable desde el lanzador (prefijo `!`) y escala de interfaz 100/110/125 % en preferencias, aplicada por `EstiloPanel`.
+- [ ] 5.11 IPC con nombres ciertos: `dashboard irA` cambia de **espacio**, no de pestaña de Brújula. Crear `espacios ir` y `brujula pagina`, mantener el alias antiguo un tiempo y documentarlo.
+- [ ] 5.12 Carga perezosa de paneles: `shell.qml` instancia 18 superficies al arrancar; `qs` ocupaba 425 MB RSS durante la revisión. Cargar con `Loader` los paneles grandes al abrirlos (Agente, Mesa, Flujo, Brújula, Vista) y medir antes/después con el método de 4.3.
+
+Aceptación: con la agenda vacía Hoy no deja la mitad del panel en blanco; un fallo de Google dice qué hacer;
+ninguna selección se ve marrón con el wallpaper más cálido; el centro enseña avisos sin desplazarse;
+un ajuste común se cambia desde el lanzador sin abrir el centro.
 
 ## Registro de la fase 1
 
@@ -106,3 +129,28 @@ la versión mantenida junto al código es este archivo.
 - Contraste probado sobre fondo, selección, tarjeta, elevación y selección tintada, además de texto sobre acento sólido; colores extremos también se corrigen.
 - [Captura final de Salud](screenshots/orion-fase2-salud.png). Las capturas con agenda/reproductor se mantienen fuera del repositorio.
 - La configuración activa cargó correctamente. Fue necesario reiniciar Quickshell una vez durante el desarrollo; Hyprland no se reinició. Se restauraron el modo wallpaper oscuro y el perfil visual previo (rendimiento).
+
+
+## Estado de la fase 3
+
+**Implementada en código el 13 de noviembre de 2026; pendiente de cierre.** Se incorporó al repositorio
+en los commits `b9d7d2a` y `b257a51`.
+
+- `acciones.py` + `AccionesResultado`/`AccionesServicio`: resultados tipados, inspector con formularios,
+  deshacer con token y revisión, rechazo de referencias inyectadas. Ventanas, plantillas, proyectos,
+  archivos, historial web (ocultar en ORION sin tocar Firefox), eventos y tareas.
+- `buscar.py`: resultados por fuente a medida que llegan, errores por fuente y cancelación del proceso hijo.
+- `eventos.py`: calendario, serie, ocurrencia y excepción conservados; la regla se describe solo si existe.
+- `NotificacionesLogica.js`: grupos por app y conversación; No molestar con vencimiento absoluto,
+  «hasta terminar» actividad y motivos automáticos independientes.
+- Sugerencias que dicen «Solicitud enviada» y no «Hecho»; recordatorios con descarte explícito y recuperable;
+  frase de IA solo desde caché al abrir Hoy; captura privada con expiración y liberación por dueño.
+- Agente con Markdown y fórmulas (MathJax local en `scripts/vendor/mathjax`).
+- **205 pruebas Python: OK**, incluidas las de interacción QML.
+
+Falta para marcar `[x]`: capturas de los recorridos, el resumen al salir de No molestar sin ráfaga (3.7)
+comprobado en vivo y la prueba de suspensión con una pausa activa.
+
+Revisión en vivo del mismo día (base de la fase 5): el aviso «Las tareas no se pudieron actualizar» salía
+dos veces porque el botón repetía el error; corregido (el botón dice «Reintentar»). La causa real es un
+403 de Google: la API de Google Tasks no está activada en el proyecto de Cloud del usuario.
