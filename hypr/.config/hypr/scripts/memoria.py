@@ -183,6 +183,22 @@ def fuente_linea():
         yield (f"linea:{dia.isoformat()}", f"{st.st_mtime}:{st.st_size}", leer)
 
 
+# Páginas que no se guardan: resultados de buscadores (ruido), cuentas y contraseñas, bandejas de correo
+# (el título de la pestaña es el asunto del mensaje), chats temporales o de incógnito y cualquier dirección
+# que lleve un correo electrónico.
+NO_WEB_URL = re.compile(r"(login|signin|sign-in|log-in|password|contrasen|contraseñ|recuperar|reset|token=|auth|oauth|/checkout"
+                        r"|incognito|temporary-chat|private=|privado"     # chats temporales: la intención era no dejar rastro
+                        r"|@|%40|^https?://(accounts|login|auth|id|myaccount)\.|^https?://mail\.|^https?://outlook\.(live|office)"
+                        r"|^https?://(www\.)?(google\.[a-z.]+/search|bing\.com/search|duckduckgo\.com/\?|search\.brave\.com|youtube\.com/results))", re.I)
+NO_WEB_TITULO = re.compile(r"(iniciar sesi[oó]n|sign ?in|log ?in|inbox|bandeja de entrada|recuperar contrase|reset password"
+                           r"|[\w.+-]+@[\w-]+\.[\w.]+)", re.I)
+
+
+def web_util(url, titulo):
+    """¿Vale la pena recordar esta página? Nunca cuentas, correo ni resultados de búsqueda."""
+    return not NO_WEB_URL.search(url) and not NO_WEB_TITULO.search(titulo or "")
+
+
 def fuente_web():
     desde = (time.time() - DIAS_WEB * 86400) * 1_000_000
     for db in (HOME / ".config/mozilla/firefox").glob("*/places.sqlite"):
@@ -195,7 +211,7 @@ def fuente_web():
         except sqlite3.Error:
             continue
         for url, titulo, visita in filas:
-            if re.search(r"(login|signin|password|token=|auth|oauth|/checkout)", url, re.I):
+            if not web_util(url, titulo):
                 continue
             limpia = url.split("#")[0]
             yield (f"web:{limpia}", titulo,

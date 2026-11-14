@@ -53,6 +53,19 @@ class Memoria(unittest.TestCase):
                 yield f"doc:{ruta}", "v1", lambda r=ruta: [("documento", Path(r).name, r, 0, "Apuntes del método simplex " * 5)]
         return {"web": web, "documentos": docs}
 
+    def test_web_no_guarda_busquedas_cuentas_ni_correo(self):
+        fuera = [("https://www.google.com/search?q=vlan", "vlan - Google Search"),
+                 ("https://mail.google.com/mail/u/0/", "Factura de abril - Gmail"),
+                 ("https://site.example/RecuperarContrasena?email=a%40b.com", "Recuperar"),
+                 ("https://accounts.google.com/x", "Cuenta"), ("https://ejemplo.org/x", "Iniciar sesión"),
+                 ("https://ejemplo.org/perfil", "Perfil de ana@correo.com"),
+                 ("https://claude.ai/chat/abc?incognito", "Charla"), ("https://chatgpt.com/?temporary-chat=true", "Charla")]
+        for url, titulo in fuera:
+            self.assertFalse(memoria.web_util(url, titulo), url)
+        for url, titulo in [("https://es.wikipedia.org/wiki/VLAN", "VLAN - Wikipedia"), ("https://github.com/a/b", "a/b"),
+                            ("https://www.google.com/maps/place/Bogota", "Bogotá - Google Maps")]:
+            self.assertTrue(memoria.web_util(url, titulo), url)
+
     def test_gestion_excluir_olvidar_pausar_y_recordar(self):
         with patch.object(memoria, "FUENTES", self._fuentes()):
             memoria.indexar()
