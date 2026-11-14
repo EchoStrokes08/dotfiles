@@ -119,7 +119,12 @@ ShellRoot {
 
     IpcHandler {
         target: "mesa"
-        function abrir(que: string): void { cerrarTodo(); mesa.abrir(que); }
+        // Ventanas y plantillas viven en el lanzador (ORION 4.1); el IPC antiguo sigue funcionando y redirige.
+        function abrir(que: string): void {
+            cerrarTodo();
+            if (que === "ventanas" || que === "plantillas" || que === "") lanzador.abrirCon(que === "plantillas" ? "pl " : "v ");
+            else mesa.abrir(que);
+        }
         function cerrar(): void { mesa.abierto = false; }
         // Editar las apps de un modo: estudiar | programar | descansar
         function apps(que: string): void { cerrarTodo(); mesa.abrir("rutinas"); const r = mesa.rutinas.find(x => x.id === que); if (r) mesa.editar(r); }
@@ -156,7 +161,12 @@ ShellRoot {
 
     IpcHandler {
         target: "flujo"
-        function abrir(pagina: string): void { cerrarTodo(); flujo.abrir(pagina); }
+        // Continuidad (proyectos) vive en el lanzador (ORION 4.1); organizar y selección siguen en Flujo.
+        function abrir(pagina: string): void {
+            cerrarTodo();
+            if (pagina === "continuidad" || pagina === "proyectos") lanzador.abrirCon("proyecto");
+            else flujo.abrir(pagina);
+        }
         function cerrar(): void { flujo.abierto = false; }
         function estado(): string { return JSON.stringify({abierto:flujo.abierto,pagina:flujo.pagina,ocupado:flujo.ocupado,proyectos:flujo.proyectos.length,seleccion:!!flujo.seleccion.token}); }
     }
