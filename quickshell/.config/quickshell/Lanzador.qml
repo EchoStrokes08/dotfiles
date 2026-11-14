@@ -3,6 +3,7 @@
 //   2*(3+4) · 5 km a mi · 100 USD a COP · 30 °C a °F      calculadora y conversor (qalc) → Enter copia
 //   g método simplex · yt … · w … · gh …                   buscar en Google / YouTube / Wikipedia / GitHub
 //   :fuego · :sigma · :≤                                   emojis y símbolos → Enter los escribe
+//   !texto                                                 avisos pasados (historial local, máx. 500) → Enter copia el texto
 //   /apuntes   (solo «/» = recientes)                      archivos de tu carpeta personal → Enter los abre
 //   recordar 20m entregar el taller · recordar 18:30 …     recordatorio (ver Recordatorios.qml)
 //   evento mañana 15:00 dentista · tarea 20/11 informe     a tu Google Calendar / Tasks (ver Eventos.qml)
@@ -49,6 +50,7 @@ PanelWindow {
             lista.currentIndex = 0;
             buscador.forceActiveFocus();
             recientes.reload();
+            historialAvisos.reload();
             if (!leerProyectos.running) leerProyectos.running = true;
             if (!leerPlantillas.running) leerPlantillas.running = true;
         } else cierre.restart();
@@ -312,6 +314,21 @@ PanelWindow {
             }
         }
     }
+    FileView { id: historialAvisos; path: Notificaciones.archivoHistorial; printErrors: false }
+    function buscarAvisos(q) {
+        if (EstadoEscritorio.privacidad) return [{ nombre: "Historial oculto por privacidad", detalle: "Desactiva privacidad para consultar avisos pasados.", accion: null }];
+        const filas = [];
+        for (const l of (historialAvisos.text() || "").split("\n").reverse()) {
+            if (!l.trim()) continue;
+            try { filas.push(JSON.parse(l)); } catch (e) {}
+            if (filas.length >= 500) break;
+        }
+        const hallados = filas.filter(a => !q || normalizar(a.app + " " + a.titulo + " " + a.cuerpo).includes(q)).slice(0, 40);
+        if (!hallados.length) return [{ nombre: filas.length ? "Ningún aviso coincide" : "Aún no hay avisos guardados", detalle: "Se guardan los que llegan a partir de ahora (máx. 500)", glifo: 0xF009A, accion: null }];
+        return hallados.map(a => ({ nombre: a.titulo || a.app, glifo: 0xF009A,
+            detalle: a.app + " · " + new Date(a.t).toLocaleString(Qt.locale("es_ES"), "d MMM HH:mm") + (a.cuerpo ? " · " + a.cuerpo : ""),
+            accion: () => Quickshell.execDetached(["wl-copy", (a.titulo ? a.titulo + "\n" : "") + a.cuerpo]) }));
+    }
     FileView { id: recientes; path: Quickshell.env("HOME") + "/.local/share/recently-used.xbel" }
     function listaRecientes() {
         const res = [], re = /<bookmark href="file:\/\/([^"]+)"[^>]*modified="([^"]+)"/g;
@@ -392,6 +409,7 @@ PanelWindow {
         if (/^pl(\s|$)/i.test(t)) return "plantillas";
         const pe = t.match(/^(\w+)\s/);
         if (pe && externosTipos[pe[1].toLowerCase()]) return "externo";
+        if (t.startsWith("!")) return "avisos";
         if (t.startsWith(":")) return "emoji";
         if (t.startsWith("/")) return "archivos";
         const p = t.match(/^(\w+)\s+\S/);
@@ -435,6 +453,7 @@ PanelWindow {
             return [{ nombre: nota, detalle: "Apuntarlo en ~/Documents/notas.md", glifo: 0xF039A,
                       accion: () => Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/nota.sh", nota]) }];
         }
+        if (modo === "avisos") return buscarAvisos(normalizar(t.slice(1).trim()));
         if (EstadoEscritorio.privacidad && ["externo","archivos","plantillas"].includes(modo)) return [{nombre:"Detalles ocultos por privacidad",detalle:"Desactiva privacidad para consultar archivos, historial o textos personales.",accion:null}];
         if (modo === "externo") {
             const tipo = externosTipos[t.match(/^(\w+)/)[1].toLowerCase()];
@@ -718,7 +737,7 @@ PanelWindow {
                         const todos = [["=", "calcular"], ["g", "web"], ["/", "archivos"], ["v", "ventanas"], ["c", "copiado"], ["pl", "plantillas"],
                                        ["recordar", "recordatorio"], ["evento", "calendario"], [":", "emoji"], ["n", "notas"], ["d", "documentos"],
                                        ["t", "pestañas"], ["h", "historial"], ["p", "contraseñas"], ["a", "atajos"], ["l", "línea de tiempo"],
-                                       ["s", "ajustes"], ["ia", "preguntar"], ["nota", "apuntar"], ["b", "todo"]];
+                                       ["s", "ajustes"], ["!", "avisos"], ["ia", "preguntar"], ["nota", "apuntar"], ["b", "todo"]];
                         return ventana.todosPrefijos ? todos : todos.slice(0, 6).concat([["+", "más"]]);
                     }
                     Rectangle {

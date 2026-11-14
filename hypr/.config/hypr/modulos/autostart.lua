@@ -12,7 +12,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("~/.config/hypr/scripts/wallpaper.sh restaurar")   -- vuelve a poner el último wallpaper elegido
     hl.exec_cmd("~/.config/hypr/scripts/tiempo-pantalla.py")   -- escucha eventos: tiempo de pantalla por app
     hl.exec_cmd("~/.config/hypr/scripts/brujula.py vigilar")   -- contexto automático, línea de tiempo y sesión (Brújula, SUPER+D)
-    hl.exec_cmd("qs")               -- Quickshell: barra superior + dashboard SUPER+D (~/.config/quickshell)
+    hl.exec_cmd("~/.config/hypr/scripts/shell.sh")   -- Quickshell (con la escala de interfaz elegida): barra superior + dashboard SUPER+D (~/.config/quickshell)
     hl.exec_cmd("hyprsunset")   -- luz nocturna: horario en ~/.config/hypr/hyprsunset.conf
     hl.exec_cmd("~/.config/hypr/scripts/inactividad.sh")   -- hypridle: bloquea por inactividad (más pronto con batería)
     -- (las notificaciones las sirve Quickshell: Notificaciones.qml)

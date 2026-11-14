@@ -23,5 +23,20 @@ ColumnLayout {
         Text { Layout.fillWidth: true; text: "Reducir movimiento de la interfaz"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
         Interruptor { activo: Paleta.reducirMovimiento; onAlternado: PreferenciasUI.cambiarTema(["movimiento", activo ? "normal" : "reducir"]) }
     }
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: 8
+        Text { Layout.fillWidth: true; text: "Tamaño de la interfaz"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
+        Repeater {
+            model: [[1, "100 %"], [1.1, "110 %"], [1.25, "125 %"]]
+            BotonCompacto {
+                required property var modelData
+                text: modelData[1]
+                destacado: Math.abs(PreferenciasUI.escalaActiva - modelData[0]) < .01
+                onClicked: if (!destacado) PreferenciasUI.fijarEscala(modelData[0])
+            }
+        }
+    }
+    Text { Layout.fillWidth: true; text: "Cambiar el tamaño reinicia la barra y los paneles unos segundos."; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
     Text { visible: PreferenciasUI.errorTema !== ""; Layout.fillWidth: true; text: PreferenciasUI.errorTema; wrapMode: Text.Wrap; color: Paleta.peligro; font { family: Paleta.fuente; pixelSize: 12 } }
 }

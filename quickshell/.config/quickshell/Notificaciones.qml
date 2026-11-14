@@ -94,11 +94,25 @@ Singleton {
             h[n.id] = Date.now();
             raiz.horas = h;
             if (n.lastGeneration) return;    // traída de antes de recargar: no volver a mostrarla
+            raiz.registrar(n);
             if (raiz.noMolestar && n.urgency !== NotificationUrgency.Critical) persistente.retenidas++;
             if (!raiz.noMolestar || n.urgency === NotificationUrgency.Critical)
                 raiz.emergentes = [n, ...raiz.emergentes].slice(0, 5);
             n.closed.connect(() => raiz.quitarEmergente(n));
         }
+    }
+
+    // Historial buscable (lanzador, prefijo «!»): JSON por línea, como mucho 500. No guarda avisos
+    // llegados con privacidad activa ni los que parecen códigos de verificación o contraseñas.
+    readonly property string archivoHistorial: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/quickshell/avisos.jsonl"
+    function registrar(n) {
+        if (EstadoEscritorio.privacidad || n.transient) return;
+        const quitar = (x) => String(x ?? "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+        const titulo = quitar(n.summary), cuerpo = quitar(n.body);
+        if (/(c[oó]digo|code|otp|verificaci|contraseña|password|2fa)/i.test(titulo + " " + cuerpo) && /\b\d{4,8}\b/.test(cuerpo)) return;
+        const linea = JSON.stringify({ t: Date.now(), app: quitar(n.appName) || "Aplicación", titulo: titulo.slice(0, 160), cuerpo: cuerpo.slice(0, 280) });
+        Quickshell.execDetached(["sh", "-c", 'mkdir -p "$(dirname "$1")"; printf "%s\\n" "$2" >> "$1"; ' +
+            'if [ $(wc -l < "$1") -gt 550 ]; then tail -n 500 "$1" > "$1.tmp" && mv "$1.tmp" "$1"; fi', "_", archivoHistorial, linea]);
     }
 
     // Cuánto dura una emergente: lo que pida la app, o 3 s (baja) / 6 s (normal) / fija (crítica)

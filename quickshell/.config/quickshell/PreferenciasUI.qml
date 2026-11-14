@@ -7,13 +7,23 @@ Singleton {
     id: ajustes
     property var favoritosControles: []
     property var favoritosBandeja: []
+    property real escala: 1                 // tamaño de la interfaz: 1, 1.1 o 1.25 (QT_SCALE_FACTOR al arrancar)
+    readonly property real escalaActiva: Number(Quickshell.env("QT_SCALE_FACTOR") || 1)
+    function guardar() {
+        archivo.setText(JSON.stringify({controles:favoritosControles,bandeja:favoritosBandeja,escala:escala}));
+    }
+    // Cambiar la escala reinicia la barra y los paneles (unos 2 s); los avisos abiertos se pierden.
+    function fijarEscala(v) {
+        escala = v; guardar();
+        Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/shell.sh", "reiniciar"]);
+    }
     property string errorTema: ""
     readonly property bool cambiandoTema: tema.running
     function alternarFavorito(tipo, id) {
         const lista = tipo === "control" ? favoritosControles : favoritosBandeja;
         const nueva = lista.includes(id) ? lista.filter(x => x !== id) : [...lista,id];
         if (tipo === "control") favoritosControles = nueva.slice(-2); else favoritosBandeja = nueva;
-        archivo.setText(JSON.stringify({controles:favoritosControles,bandeja:favoritosBandeja}));
+        guardar();
     }
     function cambiarTema(args) {
         if (tema.running) return;
@@ -29,7 +39,7 @@ Singleton {
         id: archivo
         printErrors: false
         onLoaded: {
-            try { const p = JSON.parse(text()); ajustes.favoritosControles = p.controles || []; ajustes.favoritosBandeja = p.bandeja || []; } catch (e) { }
+            try { const p = JSON.parse(text()); ajustes.favoritosControles = p.controles || []; ajustes.favoritosBandeja = p.bandeja || []; ajustes.escala = Number(p.escala) || 1; } catch (e) { }
         }
     }
     Process {
