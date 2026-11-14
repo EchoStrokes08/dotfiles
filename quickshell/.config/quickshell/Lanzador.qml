@@ -680,15 +680,12 @@ PanelWindow {
                     spacing: 12
                     Rectangle {   // pastilla del modo
                         implicitWidth: 36; implicitHeight: 36; radius: 12
-                        gradient: Gradient {
-                            GradientStop { position: 0; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.15), .38) }
-                            GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .12) }
-                        }
-                        border { width: 1; color: Qt.alpha(Paleta.acento, .45) }
+                        color: EstiloPanel.elevada
+                        border { width: 1; color: EstiloPanel.bordeSeleccion }
                     Text {   // el icono cambia según el modo
                         anchors.centerIn: parent
-                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A, plantillas: 0xF0219 })[ventana.modo] ?? 0xF0349)
-                        color: Qt.lighter(Paleta.acento, 1.2)
+                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A, plantillas: 0xF0219, avisos: 0xF009A })[ventana.modo] ?? 0xF0349)
+                        color: Paleta.acento
                         font { family: Paleta.mono; pixelSize: 16 }
                     }
                     }
