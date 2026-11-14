@@ -100,6 +100,8 @@ ShellRoot {
         function noMolestar(): void { Notificaciones.alternarNoMolestar(); }
         function noMolestarSi(): void { Notificaciones.pausar("siempre"); }
         function noMolestarNo(): void { Notificaciones.pausar("off"); }
+        // modo: minutos («30», «60»), «siempre», «off», «concentracion» o «reunion»
+        function pausar(modo: string): void { Notificaciones.pausar(modo); }
         function motivo(nombre: string, activo: bool): void { Notificaciones.motivo(nombre, activo); }
         function automatico(activo: bool): void { Notificaciones.automatico = activo; }
         function estado(): string { return Notificaciones.noMolestar ? "activo" : "inactivo"; }

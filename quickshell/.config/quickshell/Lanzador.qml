@@ -497,6 +497,7 @@ PanelWindow {
                     ...apps.filter(r => !ids.includes(r.app.id)).sort((a, b) => a.app.name.localeCompare(b.app.name))
                            .map(r => itemApp(r, "Todas las apps"))];
         }
+        if (modo === "apps") res.push(...ajustesDirectos(q.trim()));
         const accs = acciones.map(a => ({ a: a, p: puntajeAccion(a, q) })).filter(r => r.p > 0);
         // proyectos: por su nombre, o todos con «proyecto» / «retomar»
         const todosProy = q.length >= 3 && ("proyectos".startsWith(q) || "retomar".startsWith(q));
@@ -513,7 +514,7 @@ PanelWindow {
             .sort((a, b) => b.p - a.p || a.item.nombre.localeCompare(b.item.nombre)).slice(0, 40).map(x => x.item);
         // lo universal solo vale si es de lo que hay escrito ahora (no de una búsqueda anterior)
         const universal = !EstadoEscritorio.privacidad && (todosDe === t || cargandoBusqueda) && q.length >= 3 ? todos : [];
-        if (universal.length && mezcla.length) mezcla.forEach(x => x.grupo = "Apps y acciones");
+        if ((universal.length || res.some(x => x.grupo === "Ajustes")) && mezcla.length) mezcla.forEach(x => x.grupo = "Apps y acciones");
         res.push(...mezcla);
         res.push(...universal.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo, referencia:x.referencia,
                                           accion: x.cmd && x.cmd.length ? () => ventana.ejecutarResultado(x) : null })));
@@ -521,6 +522,56 @@ PanelWindow {
             res.push({ nombre: t.trim(), detalle: "Buscar en Google", glifo: 0xF059F,
                        accion: () => Quickshell.execDetached(["xdg-open", webs.g[1] + encodeURIComponent(t.trim())]) });
         return res;
+    }
+
+    // ── Ajustes directos sin prefijo (ORION 5.8) ─────────────────────────
+    // «brillo 40», «volumen 30», «wifi», «bluetooth off», «no molestar 1 h», «oscuro», «reunión»…
+    // Los interruptores usan conmutadores.sh: solo se anuncia el cambio cuando el servicio lo confirma.
+    readonly property var controlesDirectos: ({
+        "wifi": ["wifi", "Wi-Fi", 0xF0928], "wi-fi": ["wifi", "Wi-Fi", 0xF0928], "bluetooth": ["bluetooth", "Bluetooth", 0xF00AF],
+        "bt": ["bluetooth", "Bluetooth", 0xF00AF], "luz nocturna": ["luz", "Luz nocturna", 0xF0594], "replay": ["replay", "Replay", 0xF044A],
+        "energia alta": ["rendimiento", "Energía alta", 0xF0425], "conservar bateria": ["conservacion", "Conservar batería", 0xF12A6]
+    })
+    function confirmarControl(cosa, nombre, encender) {
+        const sc = Quickshell.env("HOME") + "/.config/hypr/scripts/conmutadores.sh";
+        const ok = nombre + (encender ? " activado" : " desactivado");
+        sh(`if "${sc}" ${cosa} ${encender ? "on" : "off"} >/dev/null 2>&1; then qs ipc call osd mensaje "${ok}" ""; `
+           + `else notify-send -a ORION -u normal "${nombre}: no se confirmó el cambio" "Revisa el servicio en el centro de control."; fi`);
+    }
+    function ajustesDirectos(q) {
+        if (q.length < 2) return [];
+        let m;
+        const r = [], num = (x) => Math.max(0, Math.min(100, parseInt(x)));
+        if ((m = q.match(/^(brillo|volumen)\s+(\d{1,3})\s*%?$/))) {
+            const v = num(m[2]), brillo = m[1] === "brillo";
+            r.push({ nombre: (brillo ? "Brillo al " : "Volumen al ") + v + " %", detalle: "Ajuste · Enter para aplicarlo", glifo: brillo ? 0xF00E0 : 0xF057E,
+                     accion: () => sh(brillo ? `brightnessctl set ${Math.max(5, v)}% >/dev/null && qs ipc call osd brillo`
+                                             : `wpctl set-volume @DEFAULT_AUDIO_SINK@ ${v}% && qs ipc call osd media`) });
+        }
+        if ((m = q.match(/^([a-z -]+?)(?:\s+(on|off|encender|apagar|activar|desactivar))?$/)) && controlesDirectos[m[1].trim()]) {
+            const [cosa, nombre, glifo] = controlesDirectos[m[1].trim()];
+            const quiere = m[2] ? /on|encender|activar/.test(m[2]) && !/desactivar/.test(m[2]) : null;
+            for (const encender of quiere === null ? [true, false] : [quiere])
+                r.push({ nombre: (encender ? "Activar " : "Desactivar ") + nombre, detalle: "Ajuste · se confirma con el servicio", glifo: glifo,
+                         accion: () => confirmarControl(cosa, nombre, encender) });
+        }
+        if ((m = q.match(/^(no molestar|silencio|dnd)(?:\s+(\d+)\s*(m|min|minutos|h|hora|horas))?$/))) {
+            const opciones = m[2] ? [[String(parseInt(m[2]) * (/^h/.test(m[3]) ? 60 : 1)), m[2] + (/^h/.test(m[3]) ? " h" : " min")]]
+                                  : [["30", "30 min"], ["60", "1 hora"], ["siempre", "hasta desactivar"], ["off", "quitar la pausa"]];
+            for (const [modo, texto] of opciones)
+                r.push({ nombre: "No molestar · " + texto, detalle: modo === "off" ? "Vuelven las emergentes; las automáticas (juego, reunión) siguen" : "Las notificaciones se guardan para después", glifo: 0xF009B,
+                         accion: () => sh(`qs ipc call notificaciones pausar ${modo}`) });
+        }
+        if ((m = q.match(/^(?:modo |tema )?(oscuro|claro)$/)))
+            r.push({ nombre: "Tema " + m[1], detalle: "Ajuste · cambia los colores ahora", glifo: m[1] === "oscuro" ? 0xF0594 : 0xF05A8,
+                     accion: () => sh(Quickshell.env("HOME") + "/.config/hypr/scripts/tema.sh " + m[1]) });
+        if ((m = q.match(/^(reunion|concentracion)$/))) {
+            const reu = m[1] === "reunion", activa = reu ? Reunion.activa : Concentracion.activo;
+            r.push({ nombre: activa ? (reu ? "Terminar reunión" : "Terminar concentración") : (reu ? "Empezar reunión · 30 min" : "Empezar concentración · 25 min"),
+                     detalle: reu ? "Privacidad y replay en pausa mientras dure" : "Oculta distracciones mientras dure", glifo: reu ? 0xF0570 : 0xF0E1B,
+                     accion: () => AccionesServicio.ejecutar({ tipo: "actividad", id: m[1] }, activa ? "terminar" : "iniciar", { minutos: reu ? 30 : 25 }) });
+        }
+        return r.map(x => Object.assign(x, { grupo: "Ajustes" }));
     }
 
     // Hasta tres atajos según el momento: compromiso cercano, proyecto en curso y tareas pendientes
@@ -772,7 +823,7 @@ PanelWindow {
                                 visible: !!fila.modelData.icono && iconoFila.status === Image.Error
                                 text: (fila.modelData.nombre || "?").charAt(0).toUpperCase()
                                 color: Paleta.acento2
-                                font { family: Paleta.fuente; pixelSize: 18; bold: true }
+                                font { family: Paleta.fuente; pixelSize: 16; bold: true }
                             }
                             Text {
                                 anchors.centerIn: parent
