@@ -82,7 +82,9 @@ Regla para recordar los atajos de ventanas:
 
 ## 2. Chuleta: los atajos que más se usan
 
-`SUPER+H` abre en pantalla **todos** los atajos, con buscador. La lista completa también está al final de este
+**Mantén SUPER** un momento sin pulsar nada más y verás los esenciales y las teclas de la ventana
+o del modo actual; desaparecen al soltar. `SUPER+H` abre la chuleta con los esenciales; **Ver los 153**
+(o Ctrl+T) muestra todos los atajos agrupados, y al escribir busca entre todos. La lista completa también está al final de este
 manual (apéndice A).
 
 | Atajo | Acción |

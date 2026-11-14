@@ -15,9 +15,10 @@ Superpuesta {
     alturaRelativa: 0.06
 
     property var grupos: []        // [{ titulo, filas: [{ tecla, texto }] }]
+    property bool todos: false     // «Ver todos»: sin buscar, todos los grupos en lugar de los esenciales
 
     onAbriendose: { readme.reload(); buscador.forceActiveFocus(); }
-    onAbiertoChanged: if (!abierto) buscador.text = ""
+    onAbiertoChanged: if (!abierto) { buscador.text = ""; todos = false; }
 
     function buscar(t) { buscador.text = t; }
     function sinTildes(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
@@ -59,7 +60,7 @@ Superpuesta {
     readonly property int totalTodos: grupos.reduce((n, g) => n + g.filas.length, 0)
     readonly property var filtrados: {
         const q = sinTildes(buscador.text.trim());
-        if (!q) return esenciales;
+        if (!q) return todos ? grupos : esenciales;
         return grupos.map(g => ({ titulo: g.titulo, filas: g.filas.filter(f => sinTildes(f.tecla + " " + f.texto + " " + g.titulo).includes(q)) }))
                      .filter(g => g.filas.length > 0);
     }
@@ -87,8 +88,16 @@ Superpuesta {
                     font { family: Paleta.fuente; pixelSize: 14 }
                     Text { anchors.verticalCenter: parent.verticalCenter; visible: !parent.text; text: "Buscar atajo… (p. ej. captura, workspace, volumen)"; color: Paleta.gris; font: parent.font }
                     Keys.onEscapePressed: ch.abierto = false
+                    Keys.onPressed: (e) => { if (e.key === Qt.Key_T && (e.modifiers & Qt.ControlModifier)) { ch.todos = !ch.todos; e.accepted = true; } }
                 }
-                Text { text: buscador.text.trim() ? ch.total + " de " + ch.totalTodos + " atajos" : ch.total + " esenciales · " + ch.totalTodos + " en total"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
+                Text { text: buscador.text.trim() ? ch.total + " de " + ch.totalTodos + " atajos" : ch.todos ? ch.totalTodos + " atajos" : ch.total + " esenciales · " + ch.totalTodos + " en total"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
+                BotonCompacto {
+                    visible: !buscador.text.trim()
+                    text: ch.todos ? "Ver solo los esenciales" : "Ver los " + ch.totalTodos
+                    destacado: ch.todos
+                    Accessible.name: ch.todos ? "Ver solo los atajos esenciales" : "Ver todos los atajos"
+                    onClicked: { ch.todos = !ch.todos; buscador.forceActiveFocus(); }
+                }
             }
         }
 
@@ -107,7 +116,7 @@ Superpuesta {
                 readonly property var reparto: {
                     const cols = [[], [], []], alto = [0, 0, 0];
                     // los esenciales son un solo grupo: se reparten sus filas en las 3 columnas
-                    if (!buscador.text.trim()) {
+                    if (!buscador.text.trim() && !ch.todos) {
                         const f = ch.esenciales[0].filas, n = Math.ceil(f.length / 3);
                         return [0, 1, 2].map(i => [{ titulo: i === 0 ? "Los esenciales" : " ", filas: f.slice(i * n, (i + 1) * n) }]);
                     }
@@ -175,7 +184,7 @@ Superpuesta {
         }
         PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            atajos: [["", "escribe para buscar entre todos"], ["rueda", "desplazar"], ["Esc", "cerrar"]]
+            atajos: [["", "escribe para buscar entre todos"], ["Ctrl+T", ch.todos ? "solo esenciales" : "ver todos"], ["rueda", "desplazar"], ["Esc", "cerrar"]]
         }
     }
 }

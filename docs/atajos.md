@@ -85,8 +85,8 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `ALT+F4` | Menú de apagado (wlogout) |
 | ★ `SUPER+N` | Centro de control: botones, perfiles, sonido, música, avisos, Wi-Fi y Bluetooth, móvil y más |
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
-| `SUPER+CTRL+V` | Biblioteca de plantillas de texto con fecha y hora |
-| `SUPER+CTRL+Enter` | Continuidad: guardar y retomar proyectos y su próxima tarea |
+| `SUPER+CTRL+V` | Plantillas de texto en el lanzador (`pl`): copiar con fecha y hora; Alt+Enter para editar |
+| `SUPER+CTRL+Enter` | Proyectos en el lanzador: guardar, retomar y cambiar su próxima tarea |
 | `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
 | `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
 | `SUPER+SHIFT+Z` | Reabrir la última ventana cerrada (en su espacio y, si flotaba, con su tamaño) |
