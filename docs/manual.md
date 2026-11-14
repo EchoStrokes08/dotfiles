@@ -353,7 +353,7 @@ usado cada app hoy.
 | `SUPER+ALT+PRINT` | Encender / apagar esa grabación continua (replay) |
 
 Las capturas van a `~/Imágenes/screenshots` y además al portapapeles (se pueden pegar directamente).
-Los replays van a `~/Videos/Replays`. El modo automático pausa con batería, privacidad o perfil Mínimo.
+Los replays van a `~/Videos/Replays`. Solo graba cuando lo enciendes a mano.
 Centro de control › Más › **Juego automático** lo devuelve a automático después de alternarlo a mano.
 
 **Grabar la pantalla** (`SUPER+ALT+R`): menú con *Región*, *Pantalla completa*, *con audio* (lo que suena en el
@@ -909,9 +909,9 @@ no reabren apps ni guardan documentos.
 
 ### Replay
 
-Graba en memoria los últimos 30 s para guardarlos si pasa algo que valga la pena. En
-**Automático** solo graba con el **modo juego** activo; **Guardar ahora** (o SUPER+SHIFT+PRINT)
-guarda lo último y SUPER+ALT+PRINT lo enciende o apaga a mano. La privacidad siempre lo para.
+Graba en memoria los últimos 30 s para guardarlos si pasa algo que valga la pena. Solo graba
+cuando lo enciendes a mano (SUPER+ALT+PRINT o **Encender**) y sigue hasta que lo apagas;
+**Guardar ahora** (o SUPER+SHIFT+PRINT) guarda lo último. Al reiniciar la sesión queda apagado.
 
 ## 27. Agente: pedir
 

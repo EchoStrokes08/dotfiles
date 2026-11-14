@@ -141,7 +141,7 @@ def main():
     perf.add_argument("nombre", choices=["cristal", "lectura", "minimo", "rendimiento"])
     sub.add_parser("privacidad")
     rp = sub.add_parser("replay")
-    rp.add_argument("modo", choices=["auto", "start", "stop", "save", "estado"])
+    rp.add_argument("modo", choices=["start", "stop", "save", "estado"])
     j = sub.add_parser("juego")
     j.add_argument("modo", choices=["automatico", "si", "no"])
     cp = sub.add_parser("checkpoint")

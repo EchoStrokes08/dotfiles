@@ -244,9 +244,9 @@ se consultan de nuevo. Reunión se guarda con caducidad y supervisor de systemd 
 
 ### Replay y grabación explícita
 
-`replay.sh` delega en `replay.py`. Automático permite captura con cargador, salvo condiciones de
-pausa; el encendido manual puede superar el ahorro por batería. Privacidad y reunión impiden
-replay incluso si se pidió manualmente. Apagar o salir de un motivo respeta la preferencia previa.
+`replay.sh` delega en `replay.py`. El replay solo graba cuando se enciende a mano y sigue hasta
+apagarlo; ni juego, batería, perfil, privacidad ni reunión lo cambian. El estado vive en el runtime,
+así que tras reiniciar la sesión queda apagado.
 
 El gestor usa bloqueo de archivo y verifica usuario, ejecutable, destino y tiempo de inicio para
 no matar grabadores ajenos. `replay.log` queda en el runtime de la instancia. Guardar solicita el
@@ -599,7 +599,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `wallpaper.sh` · `aleatorio` · `poner <ruta>` | Selector / uno al azar / poner ese |
 | `capturas.sh` · `region` · `pantalla` · `ventana` · `temporizador` · `anotar` | Menú / captura directa / región al editor |
 | `capturas.sh editar <archivo>` | Abrir una captura ya hecha en el editor (satty) |
-| `replay.sh auto` · `start` · `stop` · `save` · `toggle` · `estado` | Replay: automático / encendido manual / apagado manual / guardar 30 s / alternar / consultar |
+| `replay.sh start` · `stop` · `save` · `toggle` · `estado` | Replay: encender / apagar / guardar 30 s / alternar / consultar |
 | `conmutadores.sh todos` | Estado de Wi-Fi, Bluetooth, replay y rendimiento |
 | `conmutadores.sh wifi on` · `off` · `estado` | Igual para `bluetooth`, `replay`, `rendimiento`, `conservacion` (batería hasta ~80 %), `luz` |
 | `dns-cifrado.sh on` · `off` · `estado` | DNS cifrado (alias `dns-cifrado` en zsh) |

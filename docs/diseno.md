@@ -144,7 +144,7 @@ y revisiones sobrias: no usa anillos ni medallas de colores. Los avisos van prim
 rutina se despliega sin perder comprobaciones ni acciones. Se usa un desplazamiento por vista.
 
 El centro separa **Perfil visual** de **Energía alta**. Los estados globales explican políticas
-y el replay explica si graba, espera un juego o está pausado. Favoritos de controles:
+y el replay explica si graba o está desactivado. Favoritos de controles:
 máximo dos, para conservar espacio para los avisos. La bandeja conserva iconos originales,
 ofrece favoritos y mantiene las solicitudes de atención visibles. Buds conserva los iconos y porcentajes de I/D en la barra, más estuche cuando esté disponible,
 por preferencia explícita del usuario; desconocido se representa con «—».

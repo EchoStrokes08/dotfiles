@@ -18,13 +18,12 @@ def estado(activo=False, disponible=True, error=""):
 
 
 class Lectura(unittest.TestCase):
-    def test_replay_automatico_en_espera_no_parece_error(self):
-        dato = {"grabando": False, "politica": "auto", "texto": "Automático · esperando un juego"}
+    def test_replay_desactivado_no_parece_error(self):
+        dato = {"grabando": False, "politica": "no", "texto": "Replay desactivado"}
         with patch.object(c, "ejecutar", return_value=json.dumps(dato)):
             r = c.leer("replay")
         self.assertTrue(r["disponible"])
-        self.assertEqual(r["etiqueta"], "Automático")
-        self.assertIn("esperando", r["detalle"])
+        self.assertEqual(r["etiqueta"], "Desactivado")
 
     def test_wifi_apagado_sigue_disponible(self):
         with patch.object(c, "ejecutar", side_effect=["ethernet\nwifi", "disabled"]):

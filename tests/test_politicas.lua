@@ -11,7 +11,6 @@ for perfil in pairs(motor.perfiles) do
             local g = juego == 'si' or (juego == 'automatico' and e.juego_auto)
             assert(r.juego == g)
             assert(r.no_molestar == (g or e.presentacion or e.concentracion or e.privacidad or e.reunion))
-            assert(r.pausar_replay == (e.bateria or e.privacidad or perfil == 'minimo' or e.reunion))
             if e.bateria or g or perfil == 'minimo' or perfil == 'rendimiento' then
                 assert(not r.config.decoration.blur.enabled)
                 assert(not r.config.decoration.shadow.enabled)

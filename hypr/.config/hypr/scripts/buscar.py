@@ -270,7 +270,7 @@ def ajustes(q):
         *[(f"Modo juego: {n}", d, "juego gaming " + n, [esc, "juego", v], 0xF0297)
           for n, d, v in [("automático", "Se activa solo con un juego abierto", "automatico"), ("siempre", "Activado ya", "si"), ("nunca", "Desactivado", "no")]],
         *[(f"Replay: {n}", "Últimos 30 s de pantalla en memoria", "replay grabar clip " + k, [esc, "replay", v], 0xF044A)
-          for n, v, k in [("automático", "auto", "auto"), ("encender", "start", "on"), ("apagar", "stop", "off")]],
+          for n, v, k in [("encender", "start", "on"), ("apagar", "stop", "off")]],
         *[(f"Sonido de las bocinas: {n}", d, "sonido audio ecualizador easyeffects " + k, [S + "/sonido.sh", v], 0xF057E)
           for n, d, v, k in [("música", "Más cuerpo y brillo", "Portatil", "musica"), ("voz", "Clases, vídeos y llamadas", "Voz", "voz"),
                              ("sin efectos", "EasyEffects apagado", "off", "off")]],

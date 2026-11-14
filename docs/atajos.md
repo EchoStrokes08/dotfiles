@@ -89,7 +89,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+CTRL+O` | Organizar el espacio por tarea, con previsualización y vuelta al layout anterior |
 | `SUPER+ALT+C` | Capturar una selección y elegir acciones sobre ese texto |
 | `SUPER+SHIFT+Z` | Reabrir la última ventana cerrada (en su espacio y, si flotaba, con su tamaño) |
-| `SUPER+CTRL+P` | Privacidad: pausa replay, oculta títulos de la barra y activa No molestar |
+| `SUPER+CTRL+P` | Privacidad: oculta títulos de la barra y activa No molestar |
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
 | `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
 | `SUPER+SHIFT+C` | Selector de color: clic en un píxel → hex copiado |

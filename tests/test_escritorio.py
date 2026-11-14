@@ -134,19 +134,16 @@ class Operaciones(unittest.TestCase):
                     escritorio.checkpoint('deshacer')
                     self.assertIn('workspace=5', run.call_args.args[0][2])
 
-    def test_privacidad_impide_encendido_manual_de_replay(self):
+    def test_replay_solo_arranca_a_mano(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            with patch.object(replay, 'directorio', return_value=(Path(tmp), 'prueba')), patch.object(replay, 'estado', return_value={'privacidad':'true'}), patch.object(replay, 'buscar', return_value=None), patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py','start']):
+            base = (patch.object(replay, 'directorio', return_value=(Path(tmp), 'prueba')), patch.object(replay, 'buscar', return_value=None))
+            with base[0], base[1], patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'reconciliar']):
                 replay.main()
                 iniciar.assert_not_called()
-
-    def test_auto_pausa_replay_por_bateria(self):
-        import tempfile
-        with tempfile.TemporaryDirectory() as tmp:
-            with patch.object(replay, 'directorio', return_value=(Path(tmp), 'prueba')), patch.object(replay, 'estado', return_value={'pausar_replay':'true'}), patch.object(replay, 'buscar', return_value=None), patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py','auto']):
+            with base[0], base[1], patch.object(replay, 'iniciar') as iniciar, patch.object(sys, 'argv', ['replay.py', 'start']):
                 replay.main()
-                iniciar.assert_not_called()
+                iniciar.assert_called_once()
 
 
 if __name__ == '__main__':

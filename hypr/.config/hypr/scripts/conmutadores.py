@@ -49,7 +49,7 @@ def leer(cosa):
         elif cosa == "replay":
             detalle = json.loads(ejecutar("python3", str(SCRIPTS / "replay.py"), "detalle"))
             activo = detalle["grabando"]
-            etiqueta = "Grabando" if activo else "Pausado" if "pausado" in detalle["texto"].lower() else "Automático" if detalle["politica"] == "auto" else "Desactivado"
+            etiqueta = "Grabando" if activo else "Desactivado"
             extra = {"etiqueta": etiqueta, "detalle": detalle["texto"]}
         elif cosa == "rendimiento":
             if "performance:" not in ejecutar("powerprofilesctl", "list"):

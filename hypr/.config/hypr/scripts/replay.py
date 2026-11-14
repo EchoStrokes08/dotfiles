@@ -8,7 +8,7 @@ import signal
 import subprocess
 import sys
 import time
-from escritorio import atomico, directorio, estado
+from escritorio import atomico, directorio
 
 DESTINO = Path.home() / "Videos/Replays"
 
@@ -67,7 +67,7 @@ def iniciar(archivo, log):
 
 def main():
     accion = sys.argv[1] if len(sys.argv) > 1 else 'estado'
-    if accion not in ('start', 'stop', 'toggle', 'save', 'auto', 'reconciliar', 'estado', 'detalle'):
+    if accion not in ('start', 'stop', 'toggle', 'save', 'reconciliar', 'estado', 'detalle'):
         # Callback del grabador: no ejecutar texto recibido, solo notificar archivo existente.
         if Path(accion).is_file():
             subprocess.run(['notify-send', '-a', 'Replay', 'Replay guardado', Path(accion).name], timeout=3)
@@ -81,14 +81,9 @@ def main():
         archivo = carpeta / 'proceso.json'
         modo = carpeta / 'modo'
         dato = buscar(archivo)
-        e = estado()
         if accion == 'detalle':
-            preferencia = modo.read_text().strip() if modo.exists() else 'auto'
-            privacidad = e.get('privacidad_activa', e.get('privacidad')) == 'true'
-            pausado = e.get('pausar_replay') == 'true'
-            texto = ('Grabando los últimos 30 s' if dato else 'Pausado por privacidad' if privacidad else
-                     'Automático · pausado por batería, perfil o reunión' if preferencia == 'auto' and pausado else
-                     'Automático · esperando un juego' if preferencia == 'auto' else 'Replay desactivado')
+            preferencia = modo.read_text().strip() if modo.exists() else 'no'
+            texto = 'Grabando los últimos 30 s' if dato else 'Replay desactivado'
             print(json.dumps({'grabando': bool(dato), 'politica': preferencia, 'texto': texto}, ensure_ascii=False))
             return
         if accion == 'estado':
@@ -99,14 +94,11 @@ def main():
                 raise ValueError('Replay apagado')
             os.kill(dato['pid'], signal.SIGUSR1)
             return
-        if accion in ('start', 'stop', 'toggle', 'auto'):
-            modo.write_text({'start': 'si', 'stop': 'no', 'auto': 'auto', 'toggle': 'no' if dato else 'si'}[accion])
-        preferencia = modo.read_text().strip() if modo.exists() else 'auto'
-        # «auto» solo graba jugando (el replay es para guardar jugadas); fuera del juego, solo si lo enciendes
-        deseado = preferencia == 'si' or (preferencia == 'auto' and e.get('juego_activo') == 'true'
-                                          and e.get('pausar_replay') == 'false')
-        # Privacidad siempre gana, incluso sobre el encendido manual.
-        deseado = deseado and e.get('privacidad_activa', e.get('privacidad')) != 'true'
+        if accion in ('start', 'stop', 'toggle'):
+            modo.write_text({'start': 'si', 'stop': 'no', 'toggle': 'no' if dato else 'si'}[accion])
+        preferencia = modo.read_text().strip() if modo.exists() else 'no'
+        # Solo graba cuando se enciende a mano.
+        deseado = preferencia == 'si'
         if dato and not deseado:
             os.kill(dato['pid'], signal.SIGINT)
             for _ in range(30):
