@@ -816,7 +816,7 @@ Acciones del lanzador que abren un panel para tareas más largas:
 
 - **Mesa de trabajo › Ventanas**: buscar una ventana, ir a ella, **aparcarla** (se esconde sin
   cerrarse y se recupera luego), pasarla a flotante o moverla a otro espacio.
-- **Mesa › Reunión**: 15 a 90 min con No molestar, replay en pausa, títulos ocultos y sin
+- **Mesa › Reunión**: 15 a 90 min con No molestar, títulos ocultos y sin
   suspensión. Al terminar solo se retira lo que puso la reunión. No toca micrófono ni cámara.
 - **Organizar por tarea** (SUPER+CTRL+O): reparte las ventanas del espacio para comparar,
   programar, investigar o concentrarte, con vista previa y **Volver al layout anterior**.
@@ -898,7 +898,7 @@ Debajo, cuatro pestañas:
 
 Batería, juego, concentración, reunión, privacidad y las reglas por lugar se suman sin pisarse:
 salir de uno no quita el silencio que otro todavía necesita. La batería quita blur y sombras; el
-juego quita efectos y huecos y silencia; la privacidad oculta títulos, silencia, pausa el replay
+juego quita efectos y huecos y silencia; la privacidad oculta títulos, silencia
 **y apaga la nube del agente**. El perfil visual no cambia el modo de energía del procesador.
 
 ### Checkpoints

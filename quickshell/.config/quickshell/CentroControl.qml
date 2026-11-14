@@ -187,6 +187,12 @@ PanelWindow {
         MouseArea { anchors.fill: parent }
         focus: ventana.abierto
         Keys.onEscapePressed: ventana.abierto = false
+        // Teclado (ORION 4.2): Ctrl+Tab / Ctrl+Shift+Tab cambian de sección, Ctrl+1…4 van directo; Tab recorre controles
+        readonly property var secciones: ["notificaciones", "conexiones", "movil", "mas"]
+        function irSeccion(paso) { const i = secciones.indexOf(ventana.seccion); ventana.seccion = secciones[(i + paso + secciones.length) % secciones.length]; }
+        Shortcut { sequences: ["Ctrl+Tab"]; enabled: ventana.abierto; onActivated: panel.irSeccion(1) }
+        Shortcut { sequences: ["Ctrl+Shift+Tab", "Ctrl+Backtab"]; enabled: ventana.abierto; onActivated: panel.irSeccion(-1) }
+        Repeater { model: 4; Item { required property int index; Shortcut { sequence: "Ctrl+" + (index + 1); enabled: ventana.abierto; onActivated: ventana.seccion = panel.secciones[index] } } }
 
         ColumnLayout {
             anchors { fill: parent; margins: 16 }
@@ -517,7 +523,7 @@ PanelWindow {
                     width: parent.width
                     spacing: 8
                     Etiqueta { text: "ACTIVIDADES" }
-                    Text { Layout.fillWidth: true; text: "La reunión activa privacidad y pausa el replay. Concentración oculta distracciones. Terminar restaura sus políticas."; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Text { Layout.fillWidth: true; text: "La reunión activa privacidad y No molestar. Concentración oculta distracciones. Terminar restaura sus políticas."; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
                     RowLayout {
                         Layout.fillWidth: true
                         BotonPanel { text: Reunion.activa ? "Terminar reunión" : "Reunión · 30 min"; onClicked: AccionesServicio.ejecutar({tipo:"actividad",id:"reunion"},Reunion.activa ? "terminar" : "iniciar",{minutos:30}) }
@@ -600,7 +606,7 @@ PanelWindow {
                     Text {
                         Layout.fillWidth: true
                         Layout.topMargin: 4
-                        text: "La privacidad oculta títulos y pausa el replay. Los checkpoints duran esta sesión."
+                        text: "La privacidad oculta títulos y silencia los avisos. Los checkpoints duran esta sesión."
                         wrapMode: Text.Wrap
                         color: EstiloPanel.tenue
                         font { family: Paleta.fuente; pixelSize: 11 }

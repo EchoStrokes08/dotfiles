@@ -587,7 +587,7 @@ PanelWindow {
         if ((m = q.match(/^(reunion|concentracion)$/))) {
             const reu = m[1] === "reunion", activa = reu ? Reunion.activa : Concentracion.activo;
             r.push({ nombre: activa ? (reu ? "Terminar reunión" : "Terminar concentración") : (reu ? "Empezar reunión · 30 min" : "Empezar concentración · 25 min"),
-                     detalle: reu ? "Privacidad y replay en pausa mientras dure" : "Oculta distracciones mientras dure", glifo: reu ? 0xF0570 : 0xF0E1B,
+                     detalle: reu ? "Privacidad y No molestar mientras dure" : "Oculta distracciones mientras dure", glifo: reu ? 0xF0570 : 0xF0E1B,
                      accion: () => AccionesServicio.ejecutar({ tipo: "actividad", id: m[1] }, activa ? "terminar" : "iniciar", { minutos: reu ? 30 : 25 }) });
         }
         return r.map(x => Object.assign(x, { grupo: "Ajustes" }));

@@ -103,7 +103,13 @@ Item {
                         Layout.fillWidth: true
                         Layout.minimumWidth: 0
                         spacing: 2
-                        Text { Layout.fillWidth: true; text: EstadoEscritorio.privacidad ? "Compromiso privado" : modelData.titulo; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
+                        Text {   // título: clic o Tab + Enter abren su detalle y acciones (ORION 4.2)
+                            Layout.fillWidth: true; text: EstadoEscritorio.privacidad ? "Compromiso privado" : modelData.titulo; elide: Text.ElideRight; color: activeFocus ? Paleta.acento : Paleta.texto
+                            font { family: Paleta.fuente; pixelSize: 14; bold: true; underline: activeFocus }
+                            activeFocusOnTab: true
+                            Accessible.role: Accessible.Button; Accessible.name: "Detalle de " + text
+                            Keys.onReturnPressed: detalleAgenda.abrir(modelData.referencia)
+                            Keys.onSpacePressed: detalleAgenda.abrir(modelData.referencia)
                             MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: detalleAgenda.abrir(modelData.referencia) }
                         }
                         Text { text: modelData.detalle; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
