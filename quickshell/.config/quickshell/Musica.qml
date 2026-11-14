@@ -12,6 +12,7 @@ RowLayout {
     id: musica
     spacing: 16
     property bool mostrarLetras: false
+    property bool compacto: false
 
     // El que esté sonando; si ninguno, el primero que haya
     readonly property var jugador: {
@@ -81,8 +82,8 @@ RowLayout {
 
     // Carátula (o una nota si no hay)
     ClippingRectangle {
-        Layout.preferredWidth: 84
-        Layout.preferredHeight: 84
+        Layout.preferredWidth: musica.compacto ? 36 : 84
+        Layout.preferredHeight: musica.compacto ? 36 : 84
         radius: 12
         color: Paleta.seleccion
         Text {
@@ -113,6 +114,7 @@ RowLayout {
         }
         Text {
             Layout.fillWidth: true
+            visible: !musica.compacto
             text: musica.jugador ? (musica.jugador.trackArtist || musica.jugador.identity) : "pon algo en Spotify o Firefox"
             color: Paleta.gris
             elide: Text.ElideRight
@@ -147,7 +149,7 @@ RowLayout {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
-            visible: (musica.jugador?.lengthSupported ?? false) && musica.jugador.length > 0
+            visible: !musica.compacto && (musica.jugador?.lengthSupported ?? false) && musica.jugador.length > 0
             Text {
                 text: musica.mmss(musica.jugador?.position ?? 0)
                 color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; features: { "tnum": 1 } }

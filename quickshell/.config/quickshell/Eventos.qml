@@ -15,23 +15,46 @@ Singleton {
     property var tareas: []           // [{ id, titulo, fecha: Date|null }] pendientes de Google Tasks
     property bool conectado: false    // ¿hay sesión de Google para escribir?
     property bool hayCliente: false   // ¿existe cliente.json?
+    property string errorTareas: ""
     property bool ocupado: false      // guardando algo
+    property string estadoAgenda: "cargando"
+    property string errorAgenda: ""
+    property real sincronizadoEn: 0
+    readonly property bool leyendo: leer.running
     readonly property string gcal: Quickshell.env("HOME") + "/.config/hypr/scripts/gcal.py"
 
     Process {
         id: leer
-        command: ["python3", "-I", Quickshell.env("HOME") + "/.config/hypr/scripts/eventos.py"]
+        property bool respondio: false
+        command: ["python3", "-I", Quickshell.env("HOME") + "/.config/hypr/scripts/eventos.py", "--estado"]
+        onRunningChanged: if (running) respondio = false
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
-                    ev.lista = JSON.parse(this.text).map(e => ({ inicio: new Date(e.inicio), fin: new Date(e.fin),
-                        titulo: e.titulo, lugar: e.lugar, todoDia: e.todoDia }));
-                } catch (e) { }
+                    const r = JSON.parse(text);
+                    if (!Array.isArray(r.eventos) || !["actualizado", "desactualizado", "sin_configurar", "error"].includes(r.estado))
+                        throw new Error("Respuesta no válida");
+                    const datos = r.eventos.map(e => ({ inicio: new Date(e.inicio), fin: new Date(e.fin),
+                        titulo: e.titulo, lugar: e.lugar, todoDia: e.todoDia, uid: e.uid, calendario:e.calendario || "", serie:e.serie || "", ocurrencia:e.ocurrencia || e.inicio, repeticion:e.repeticion || "", excepcion:!!e.excepcion }));
+                    if (datos.some(e => isNaN(e.inicio.getTime()) || isNaN(e.fin.getTime()))) throw new Error("Fecha no válida");
+                    // Un fallo sin caché no borra una agenda válida que aún vive en memoria.
+                    if (r.estado !== "error" || !ev.lista.length) ev.lista = datos;
+                    ev.estadoAgenda = r.estado;
+                    ev.errorAgenda = r.error || "";
+                    if (r.actualizado) ev.sincronizadoEn = r.actualizado;
+                    else if (r.estado === "sin_configurar") ev.sincronizadoEn = 0;
+                    leer.respondio = true;
+                } catch (e) { ev.falloLectura(); }
             }
         }
+        onExited: (codigo, estadoSalida) => { if (codigo !== 0 || estadoSalida !== 0 || !respondio) ev.falloLectura(); }
     }
-    Timer { interval: 15 * 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: leer.running = true }
-    function actualizar() { leer.running = true; if (conectado) leerTareas.running = true; }
+    function falloLectura() {
+        estadoAgenda = sincronizadoEn ? "desactualizado" : "error";
+        errorAgenda = "No se pudo leer la agenda. Reintenta la sincronización.";
+    }
+    Timer { interval: 15 * 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: if (!leer.running) leer.running = true }
+    function actualizar() { if (!leer.running) leer.running = true; if (conectado && !leerTareas.running) leerTareas.running = true; }
 
     // ── Escribir en Google (gcal.py) ──
     Process {
@@ -52,9 +75,11 @@ Singleton {
             onStreamFinished: {
                 try {
                     const l = JSON.parse(this.text);
-                    if (Array.isArray(l)) ev.tareas = l.map(t => ({ id: t.id, titulo: t.titulo,
+                    if (!Array.isArray(l)) throw new Error("No se pudieron consultar las tareas");
+                    ev.errorTareas="";
+                    ev.tareas = l.map(t => ({ id: t.id, titulo: t.titulo,
                         fecha: t.fecha ? new Date(+t.fecha.slice(0, 4), +t.fecha.slice(5, 7) - 1, +t.fecha.slice(8, 10)) : null }));
-                } catch (x) { }
+                } catch (x) { ev.errorTareas="Las tareas no se pudieron actualizar. Se conservan los últimos datos."; }
             }
         }
     }
@@ -65,22 +90,19 @@ Singleton {
     Process {
         id: escribir
         property string que: ""
-        stdout: StdioCollector {
-            onStreamFinished: {
-                let r = {};
-                try { r = JSON.parse(this.text); } catch (x) { r = { ok: false, error: "gcal.py no respondió" }; }
-                if (r.ok === false)
-                    Quickshell.execDetached(["notify-send", "-a", "Calendario", "-i", "dialog-error", "No se pudo guardar", r.error]);
-                else if (escribir.que)
-                    Quickshell.execDetached(["notify-send", "-a", "Calendario", "-u", "low", "-i", "x-office-calendar", escribir.que]);
-            }
+        property var respuesta: null
+        stdout: StdioCollector { onStreamFinished: { try { escribir.respuesta=JSON.parse(text); } catch(x) { escribir.respuesta=null; } } }
+        onExited: (codigo,estado) => {
+            const r=respuesta;
+            if (codigo!==0 || estado!==0 || r?.ok !== true) Quickshell.execDetached(["notify-send","-a","Calendario","No se pudo guardar",r?.error || "No se pudo confirmar la operación. Reintenta."]);
+            else if (que) Quickshell.execDetached(["notify-send","-a","Calendario",que]);
+            ev.ocupado=false;ev.actualizar();Qt.callLater(ev.siguiente);
         }
-        onExited: { ev.ocupado = false; ev.actualizar(); ev.siguiente(); }
     }
     function siguiente() {
         if (escribir.running || cola.length === 0) return;
         const [orden, aviso] = cola[0]; cola = cola.slice(1);
-        ocupado = true; escribir.que = aviso;
+        ocupado = true; escribir.respuesta=null; escribir.que = aviso;
         escribir.command = ["python3", "-I", gcal, ...orden];
         escribir.running = true;
     }
@@ -101,7 +123,6 @@ Singleton {
         encolar(["tarea", titulo, fecha ? iso(fecha) : ""], `Tarea: ${titulo}`);
     }
     function completar(id) {
-        tareas = tareas.filter(t => t.id !== id);          // se quita ya; si falla, vuelve al refrescar
         encolar(["hecha", id], "");
     }
     function conectar() {
@@ -153,7 +174,13 @@ Singleton {
     // Los próximos n (los de todo el día de hoy incluidos)
     function proximos(n) {
         const ahora = new Date(), hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-        return lista.filter(e => e.todoDia ? e.fin > hoy : e.fin > ahora).slice(0, n);
+        const vistos = new Set();
+        return lista.filter(e => e.todoDia ? e.fin > hoy : e.fin > ahora).filter(e => {
+            const clave=e.serie && !e.excepcion ? e.serie : [e.calendario,e.uid,e.ocurrencia].join(":");
+            if (!e.uid && !e.serie) return true;
+            if (vistos.has(clave)) return false;
+            vistos.add(clave); return true;
+        }).slice(0,n);
     }
     function cuando(e) {
         const hoy = new Date(), man = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1);
@@ -170,7 +197,7 @@ Singleton {
             const ahora = Date.now();
             for (const e of ev.lista) {
                 if (e.todoDia) continue;
-                const falta = e.inicio.getTime() - ahora, clave = e.inicio.getTime() + e.titulo;
+                const falta = e.inicio.getTime() - ahora, clave = [e.calendario,e.uid,e.ocurrencia,e.inicio.getTime()].join(":");
                 if (falta > 0 && falta <= 10 * 60000 && !ev.avisados[clave]) {
                     const a = Object.assign({}, ev.avisados); a[clave] = true; ev.avisados = a;
                     Quickshell.execDetached(["notify-send", "-a", "Calendario", "-i", "x-office-calendar",

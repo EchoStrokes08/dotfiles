@@ -1,125 +1,171 @@
-// HoyPaneles: la fila de tarjetas de Brújula › Hoy.
-//   Calendario con «Próximo» (eventos, recordatorios, tareas) · anillos del sistema · tiempo de pantalla
+// Agenda y calendario comparten fecha. Todo el contenido usa el desplazamiento de Hoy.
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Services.UPower
+import Quickshell
 
-RowLayout {
+Item {
     id: paneles
-    spacing: 12
+    readonly property int columns: width >= 760 ? 2 : 1
+    implicitHeight: columnas.implicitHeight
+    property date fecha: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+    property bool todos: false
+    signal retomar()
+    signal soltarFoco()
+    readonly property var siguiente: Eventos.proximos(1)[0]
+    readonly property var diaEventos: Eventos.lista.filter(e => e.inicio < new Date(fecha.getFullYear(),fecha.getMonth(),fecha.getDate()+1) && e.fin > fecha)
+    readonly property var diaTareas: Eventos.tareas.filter(t => !t.fecha || t.fecha.toDateString() === fecha.toDateString())
+    readonly property var diaRecordatorios: Recordatorios.lista.filter(r => new Date(r.cuando).toDateString() === fecha.toDateString())
+    readonly property var items: [
+        ...diaEventos.map(e => ({titulo:e.titulo, detalle:(e === paneles.siguiente ? "Próximo · " : "") + (e.todoDia ? "Todo el día" : Qt.formatTime(e.inicio,"HH:mm") + " – " + Qt.formatTime(e.fin,"HH:mm")) + (e.excepcion ? " · excepción" : e.repeticion ? " · " + e.repeticion : ""), orden:e.inicio.getTime(), tipo:"evento", referencia:{tipo:"evento",id:e.uid || "",inicio:e.inicio.getTime(),calendario:e.calendario || ""}})),
+        ...diaTareas.map(t => ({titulo:t.titulo, detalle:"Tarea", orden:0, tipo:"tarea", id:t.id, referencia:{tipo:"tarea",id:t.id}})),
+        ...diaRecordatorios.map(r => ({titulo:r.texto, detalle:"Recordatorio · " + Recordatorios.hora(r.cuando), orden:r.cuando, tipo:"recordatorio", id:r.id, referencia:{tipo:"recordatorio",id:r.id}}))
+    ].sort((a,b) => a.orden-b.orden)
+    onFechaChanged: { todos = false; Qt.callLater(() => calendario.elegido = fecha); }
+    function volverHoy() {
+        const d = new Date(); fecha = new Date(d.getFullYear(),d.getMonth(),d.getDate());
+        calendario.desfase = 0;
+    }
+    function crear(tarea) { formulario.esTarea = tarea; formulario.abrir(); }
 
-    readonly property var bateria: UPower.displayDevice
-    // percentage puede venir de 0 a 1 o de 0 a 100 según la versión: se normaliza
-    readonly property real carga: bateria ? (bateria.percentage > 1 ? bateria.percentage / 100 : bateria.percentage) : 0
-    readonly property bool cargando: bateria?.state === UPowerDeviceState.Charging
-
-    TarjetaPanel {
-        Layout.fillHeight: true
-        Layout.preferredWidth: 262
-        // El formulario «nuevo evento/tarea» se abre ENCIMA del calendario (no agranda la tarjeta)
-        Item {
+    GridLayout {
+        id: columnas
+        width: parent.width
+        columns: paneles.columns
+        columnSpacing: 16
+        rowSpacing: 12
+    ColumnLayout {
+        Layout.fillWidth: true
+        Layout.minimumWidth: 0
+        Layout.alignment: Qt.AlignTop
+        spacing: 12
+        TarjetaPanel {
             Layout.fillWidth: true
-            implicitWidth: columnaCal.implicitWidth
-            implicitHeight: columnaCal.implicitHeight
-            ColumnLayout {
-                id: columnaCal
-                anchors { left: parent.left; right: parent.right }
-                spacing: 4
-                Calendario {
-                    id: calendario
-                    conMas: Eventos.hayCliente
-                    onNuevo: formulario.abrir()
-                }
-                // Próximo: eventos de Google Calendar + recordatorios + tareas
-                ColumnLayout {
+            relleno: 16
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                Text {
                     Layout.fillWidth: true
-                    spacing: 4
-                    readonly property var items: [
-                        ...Eventos.proximos(4).map(e => ({ cuando: Eventos.cuando(e), texto: e.titulo, ms: e.inicio.getTime(), rec: null })),
-                        ...Recordatorios.lista.slice(0, 3).map(r => ({ cuando: "⏰ " + Recordatorios.cuandoTexto(r.cuando).split(" · ")[0], texto: r.texto, ms: r.cuando, rec: r.id })),
-                        // tareas: las vencidas o sin fecha cuentan como de hoy
-                        ...Eventos.tareas.slice(0, 3).map(t => ({ cuando: "☐ " + (t.fecha ? Eventos.diaTexto(t.fecha < new Date() ? new Date() : t.fecha).split(" ").slice(0, 2).join(" ") : "tarea"),
-                            texto: t.titulo, ms: t.fecha ? Math.max(t.fecha.getTime(), Date.now() - 1) : Date.now() - 1, tarea: t.id }))
-                    ].sort((a, b) => a.ms - b.ms).slice(0, 4)
-                    visible: items.length > 0
-                    Etiqueta { text: "PRÓXIMO"; color: Paleta.acento }
-                    Repeater {
-                        model: parent.items
-                        RowLayout {
-                            required property var modelData
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text {
-                                text: modelData.cuando
-                                color: modelData.rec ? Paleta.serie[4] : modelData.tarea ? Paleta.exito : Paleta.acento2
-                                font { family: Paleta.fuente; pixelSize: 11; bold: true }
-                            }
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.texto
-                                elide: Text.ElideRight
-                                color: Paleta.texto
-                                font { family: Paleta.fuente; pixelSize: 11 }
-                                MouseArea {   // clic en un recordatorio = borrarlo · en una tarea = marcarla hecha
-                                    anchors.fill: parent
-                                    enabled: !!modelData.rec || !!modelData.tarea
-                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                    onClicked: modelData.tarea ? Eventos.completar(modelData.tarea) : Recordatorios.borrar(modelData.rec)
-                                }
-                            }
+                    text: "Agenda · " + Eventos.diaTexto(paneles.fecha)
+                    color: Paleta.texto
+                    font { family: Paleta.fuente; pixelSize: 16; bold: true }
+                    elide: Text.ElideRight
+                }
+                BotonCompacto { text: "Hoy"; onClicked: paneles.volverHoy() }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                BotonCompacto { text: "+ Evento"; onClicked: paneles.crear(false) }
+                BotonCompacto { text: "+ Tarea"; onClicked: paneles.crear(true) }
+                Text { text: "Google Calendar / Tasks"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+            }
+            Text {
+                visible: paneles.items.length === 0
+                Layout.fillWidth: true
+                text: "Sin compromisos para este día."
+                color: EstiloPanel.tenue
+                font { family: Paleta.fuente; pixelSize: 13 }
+            }
+            Repeater {
+                model: paneles.todos ? paneles.items : paneles.items.slice(0,4)
+                RowLayout {
+                    required property var modelData
+                    Layout.fillWidth: true
+                    spacing: 12
+                    Rectangle { implicitWidth: 4; implicitHeight: 32; radius: 4; color: modelData.tipo === "evento" ? Paleta.acento : Paleta.acento2 }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        spacing: 2
+                        Text { Layout.fillWidth: true; text: EstadoEscritorio.privacidad ? "Compromiso privado" : modelData.titulo; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
+                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: detalleAgenda.abrir(modelData.referencia) }
                         }
+                        Text { text: modelData.detalle; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    }
+                    BotonCompacto {
+                        visible: modelData.tipo === "tarea"
+                        text: "Completar"
+                        onClicked: Eventos.completar(modelData.id)
                     }
                 }
             }
-            // Crear evento/tarea en Google (el día elegido en el calendario)
-            NuevoEvento {
-                id: formulario
-                anchors.fill: parent
-                anchors.margins: -8
-                fecha: calendario.elegido
+            BotonCompacto {
+                visible: paneles.items.length > 4
+                text: paneles.todos ? "Mostrar menos" : "Ver los " + paneles.items.length + " elementos"
+                onClicked: paneles.todos = !paneles.todos
             }
         }
-    }
-
-    TarjetaPanel {
-        Layout.fillHeight: true
-        Item { Layout.fillHeight: true }
-        GridLayout {
-            Layout.alignment: Qt.AlignHCenter
-            columns: 2
-            columnSpacing: 16
-            rowSpacing: 12
-            Anillo {
-                valor: Sistema.cpu; color: Paleta.acento2
-                etiqueta: "CPU"; texto: Math.round(Sistema.cpu * 100) + "%"
-            }
-            Anillo {
-                valor: Sistema.ram; color: Paleta.acento2
-                etiqueta: "RAM"; texto: Math.round(Sistema.ram * 100) + "%"
-            }
-            Anillo {
-                // 30 °C = vacío, 95 °C = lleno; peligro a partir de 80
-                valor: (Sistema.temp - 30) / 65
-                color: Sistema.temp >= 80 ? Paleta.peligro : Paleta.acento2
-                etiqueta: "TEMP"; texto: Math.round(Sistema.temp) + "°"
-            }
-            Anillo {
-                valor: paneles.carga
-                color: paneles.cargando ? Paleta.exito : paneles.carga < 0.2 ? Paleta.peligro : Paleta.acento2
-                etiqueta: paneles.cargando ? " BAT" : "BAT"
-                texto: Math.round(paneles.carga * 100) + "%"
-            }
-        }
-        Item { Layout.fillHeight: true }
-    }
-
-    TarjetaPanel {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        Tiempo {
+        TarjetaPanel {
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
+            visible: Continuidad.ultimo !== null
+            relleno: 12
+            RowLayout {
+                Layout.fillWidth: true
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    Text { Layout.fillWidth: true; text: EstadoEscritorio.privacidad ? "Proyecto disponible" : "Continuar · " + (Continuidad.ultimo?.nombre ?? ""); elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
+                    Text { Layout.fillWidth: true; text: EstadoEscritorio.privacidad ? "Detalles ocultos" : Continuidad.ultimo?.siguiente || "Tu siguiente paso"; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                }
+                BotonCompacto { text: "Retomar"; destacado: true; onClicked: paneles.retomar() }
+            }
         }
-        Item { Layout.fillHeight: true }
+    }
+    ColumnLayout {
+        Layout.preferredWidth: paneles.columns === 2 ? 300 : -1
+        Layout.fillWidth: paneles.columns === 1
+        Layout.minimumWidth: 252
+        Layout.alignment: Qt.AlignTop
+        spacing: 12
+        TarjetaPanel {
+            Layout.fillWidth: true
+            relleno: 12
+            Calendario {
+                id: calendario
+                Layout.alignment: Qt.AlignHCenter
+                elegido: paneles.fecha
+                onElegidoChanged: if (elegido.getTime() !== paneles.fecha.getTime()) paneles.fecha = elegido
+            }
+        }
+        TarjetaPanel {
+            Layout.fillWidth: true
+            relleno: 12
+            RowLayout {
+                Layout.fillWidth: true
+                Text { text: Clima.icono(Clima.codigo,Clima.deDia); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 26 } }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Text { Layout.fillWidth: true; text: Clima.listo ? Math.round(Clima.temp) + "° · " + Clima.texto(Clima.codigo) : "Cargando clima…"; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
+                    Text { text: Clima.lugar + " · lluvia " + Clima.lluviaHoy + "%"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                }
+            }
+        }
+        TarjetaPanel { Layout.fillWidth: true; relleno: 12; Tiempo { Layout.fillWidth: true; compacto: true } }
+    }
+    } // columnas
+    Rectangle {
+        visible: detalleAgenda.referencia !== null
+        x: Math.max(0,(paneles.width-width)/2); y: 0
+        width: Math.min(560,paneles.width); height: detalleAgenda.implicitHeight+32
+        z: 20
+        radius: EstiloPanel.rTarjeta; color: Paleta.fondo; border { width: 1; color: EstiloPanel.bordeFuerte }
+        MouseArea { anchors.fill: parent }
+        AccionesResultado {
+            id: detalleAgenda
+            anchors { fill: parent; margins: 16 }
+            onCerrar: referencia=null
+            onSoltarFoco: paneles.soltarFoco()
+            onActualizado: Eventos.actualizar()
+        }
+    }
+    // El formulario es modal dentro del área de Hoy y no altera las columnas.
+    NuevoEvento {
+        id: formulario
+        parent: paneles
+        x: Math.max(0,(paneles.width-width)/2); y: 0
+        width: Math.min(420,paneles.width); height: 290
+        z: 10
+        fecha: paneles.fecha
     }
 }

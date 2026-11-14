@@ -11,3 +11,5 @@
 @define-color peligro   #ff5c57;   /* fijo: error, batería baja, borrar */
 @define-color seleccion {{colors.surface_container_highest.default.hex}};
 @define-color gris      {{colors.outline.default.hex}};   /* neutro apagado */
+
+@define-color sobreAcento #121519;

@@ -19,6 +19,9 @@ matugen permite generar colores desde el fondo de pantalla.
 **Empieza con SUPER+R** para buscar una función y **SUPER+H** para consultar atajos.
 La referencia de teclado vive en el manual de usuario y alimenta esas dos herramientas.
 
+El [plan de evolución de ORION](docs/tareas-orion.md) organiza las mejoras de experiencia y diseño
+en cuatro fases e incluye el registro de implementación y verificación.
+
 ## Instalar
 
 Desde un Arch instalado, con internet y un usuario con sudo:

@@ -15,7 +15,13 @@ editar() {   # abre el editor sobre una imagen; lo anotado se guarda al lado com
 }
 
 guardar() {  # recibe la geometría de grim ("" = pantalla completa)
+    if [ -n "$ORION_CAPTURA_TOKEN" ]; then
+        python3 "$(dirname "$0")/captura_privada.py" comprobar "$ORION_CAPTURA_TOKEN" || exit 1
+    fi
     if [ -n "$1" ]; then grim -g "$1" "$archivo"; else grim "$archivo"; fi || exit 1
+    if [ -n "$ORION_CAPTURA_TOKEN" ]; then
+        python3 "$(dirname "$0")/captura_privada.py" liberar "$ORION_CAPTURA_TOKEN"
+    fi
     wl-copy < "$archivo"
     accion=$(notify-send -a Capturas -i "$archivo" -A anotar=Anotar -A abrir=Abrir -A carpeta="Ver carpeta" \
              "Captura guardada" "$(basename "$archivo") · copiada al portapapeles")

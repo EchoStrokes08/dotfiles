@@ -119,7 +119,10 @@ def escritorio():
         lineas = Path(runtime, f"hypr-escritorio-{firma}.state").read_text().splitlines()
     except OSError:
         return {}
-    return dict(l.split("=", 1) for l in lineas if "=" in l)
+    datos=dict(l.split("=", 1) for l in lineas if "=" in l)
+    from captura_privada import leer, vigente
+    if vigente(leer()):datos["privacidad_activa"]="true"
+    return datos
 
 
 def despachar(expr):

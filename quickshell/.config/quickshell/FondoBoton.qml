@@ -29,28 +29,17 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: f.radio
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: f.destacado ? Qt.alpha(f.tinte, f.pulsado ? .30 : f.encima ? .44 : .34)
-                     : Qt.alpha(f.encima ? Qt.tint(Paleta.texto, Qt.alpha(f.tinte, .25)) : Paleta.texto, f.pulsado ? .05 : f.encima ? .11 : .062)
-                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
-            }
-            GradientStop {
-                position: 1
-                color: f.destacado ? Qt.alpha(f.tinte, f.encima ? .24 : .15)
-                     : Qt.alpha(Paleta.texto, f.encima ? .055 : .022)
-                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
-            }
-        }
+        color: f.destacado ? Qt.tint(Paleta.fondo,Qt.alpha(f.tinte,f.pulsado ? .24 : f.encima ? .22 : .16))
+            : f.encima ? EstiloPanel.rellenoActivo : EstiloPanel.superficie
         border.width: f.foco ? 2 : 1
         border.color: f.foco ? f.tinte
             : f.destacado ? Qt.alpha(f.tinte, f.encima ? .75 : .55)
             : Qt.alpha(f.encima ? f.tinte : Paleta.texto, f.encima ? .38 : .085)
         Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
     }
-    // filo de luz superior
+    // Un filo solo en cristal; las superficies sólidas ya tienen jerarquía tonal.
     Rectangle {
+        visible: EstiloPanel.efectos
         x: f.radio * .7; y: 1
         width: parent.width - f.radio * 1.4; height: 1
         opacity: f.destacado ? .9 : f.encima ? .7 : .45

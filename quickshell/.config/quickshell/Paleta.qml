@@ -17,15 +17,24 @@ Singleton {
     id: root
 
     // Valores de partida: Ayu (por si el archivo aún no existe)
-    property color fondo:     "#0e1419"
-    property color texto:     "#e5e1cf"
+    property color fondo:     "#121519"
+    property color texto:     "#edf0f5"
     property color acento:    "#f19618"
     property color acento2:   "#36a3d9"
     property color exito:     "#b8cc52"
     property color aviso:     "#e6c446"
     property color peligro:   "#ff3333"
     property color seleccion: "#243340"
-    property color gris:      "#78818b"
+    property color gris:      "#aab3c0"
+    property color sobreAcento: "#121519"
+    property string modo: "ayu"
+    property string variante: "oscuro"
+    property bool fijado: false
+    property bool reducirMovimiento: false
+    property bool permitirTransicion: true
+    readonly property bool animarColor: permitirTransicion && !reducirMovimiento && EstadoEscritorio.perfil !== "minimo" && EstadoEscritorio.perfil !== "rendimiento"
+    Behavior on acento { ColorAnimation { duration: root.animarColor ? 500 : 0 } }
+    Behavior on acento2 { ColorAnimation { duration: root.animarColor ? 500 : 0 } }
     // Serie para DATOS por categoría (gráficas, contextos de Brújula): empieza por los colores del tema
     // y sigue con tonos Ayu fijos. No es decoración: fuera de gráficas y etiquetas de categoría, usar acento.
     readonly property var serie: [acento, acento2, exito, aviso, "#d2a6ff", "#95e6cb", "#f07178", "#ffb454"]
@@ -38,17 +47,41 @@ Singleton {
     readonly property var antiguos: ({ naranja: "acento", azul: "acento2", verde: "exito", amarillo: "aviso", rojo: "peligro" })
 
     FileView {
+        id: colores
         path: Quickshell.env("HOME") + "/.local/state/tema/colores.css"
         watchChanges: true
         onFileChanged: reload()
         onLoaded: {
             // Cada línea es:  @define-color acento   #f19618;
             const re = /@define-color\s+(\w+)\s+(#[0-9a-fA-F]{6})/g;
+            const nuevoFondo = text().match(/@define-color\s+fondo\s+(#[0-9a-fA-F]{6})/);
+            // Cambiar de luminosidad es inmediato: no mezclar texto claro con un acento anterior claro.
+            root.permitirTransicion = !nuevoFondo || nuevoFondo[1].toLowerCase() === root.fondo.toString().toLowerCase();
             let m;
             while ((m = re.exec(text())) !== null) {
                 const nombre = root.antiguos[m[1]] ?? m[1];
                 if (nombre in root) root[nombre] = m[2];
             }
+        }
+    }
+    FileView {
+        path: Quickshell.env("HOME") + "/.local/state/tema/version"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: { reload(); colores.reload(); preferencias.reload(); }
+    }
+    FileView {
+        id: preferencias
+        path: Quickshell.env("HOME") + "/.local/state/tema/preferencias.json"
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: {
+            try {
+                const p = JSON.parse(text());
+                root.modo = p.modo; root.variante = p.variante;
+                root.fijado = !!p.fijado; root.reducirMovimiento = !!p.reducirMovimiento;
+            } catch (e) { }
         }
     }
 }

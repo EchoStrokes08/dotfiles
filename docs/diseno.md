@@ -115,3 +115,36 @@ Un panel no define su propio botón (`component X: Button`). Si falta una varian
 ## Hyprland
 
 Bordes, sombras y pestañas de grupo toman sus colores de `modulos/colores.lua` (misma paleta, mismos nombres). Al cambiar de tema, `tema.sh` llama en caliente a `colores_tema()` (definida en `apariencia.lua`) en lugar de `hyprctl reload`.
+
+## ORION · Fase 2
+
+El acento viene de Ayu o del wallpaper. Las superficies son neutras en ambos modos:
+oscuro `#121519` y claro `#f5f6f8`, con texto `#edf0f5` / `#262c35`. El motor ajusta
+acentos y estados hasta 4,5:1 sobre el fondo. `sobreAcento` es exclusivamente el texto
+sobre una selección de acento **sólida**; en una selección tintada se usa `texto`.
+Las tarjetas usan `superficie`, los controles `elevada` y bordes neutros. El cristal
+conserva sombra y una luz muy tenue; mínimo conserva la jerarquía tonal sin efectos.
+
+`tema.py` extrae JSON con matugen en modo `--dry-run`, rellena los roles de las plantillas,
+valida y prepara una generación completa. Los archivos públicos apuntan a `actual/`;
+un cambio de enlace publica la generación y `version` avisa a Paleta. Se cachea por
+imagen/fecha/variante/plantillas. Un cerrojo impide mezclar generaciones y un identificador
+de petición descarta resultados obsoletos. Las generaciones viven en el directorio de
+estado: limpiar la caché del usuario no rompe los enlaces activos. Un fallo conserva
+la generación anterior y avisa una sola vez hasta recuperarse.
+
+El acento se funde en **500 ms** al seguir un fondo nuevo. Cambiar claro/oscuro es
+inmediato para evitar contrastes transitorios incorrectos. Mínimo, rendimiento y la
+preferencia **Reducir movimiento** desactivan el fundido. Esta preferencia es independiente
+de estar enchufado o usar batería; batería/juego siguen gobernando los efectos costosos.
+
+Hoy reserva el primer nivel a agenda y calendario vinculados, clima y resumen de pantalla.
+La frase, sugerencias y cierre viven en «Más de tu día». Salud usa cuatro métricas compactas
+y revisiones sobrias: no usa anillos ni medallas de colores. Los avisos van primero y la
+rutina se despliega sin perder comprobaciones ni acciones. Se usa un desplazamiento por vista.
+
+El centro separa **Perfil visual** de **Energía alta**. Los estados globales explican políticas
+y el replay explica si graba, espera un juego o está pausado. Favoritos de controles:
+máximo dos, para conservar espacio para los avisos. La bandeja conserva iconos originales,
+ofrece favoritos y mantiene las solicitudes de atención visibles. Buds conserva los iconos y porcentajes de I/D en la barra, más estuche cuando esté disponible,
+por preferencia explícita del usuario; desconocido se representa con «—».

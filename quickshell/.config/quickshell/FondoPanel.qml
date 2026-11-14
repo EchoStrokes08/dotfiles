@@ -32,7 +32,7 @@ Item {
         radius: f.radio
         blur: 70
         spread: -20
-        color: Qt.alpha(f.acento, .14)
+        color: Qt.alpha("black", .10)
     }
 
     Shape {
@@ -41,10 +41,10 @@ Item {
         // Cuerpo: degradado vertical
         ShapePath {
             strokeWidth: 1
-            strokeColor: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(f.acento, .55)), .16)
+            strokeColor: EstiloPanel.bordeFuerte
             fillGradient: LinearGradient {
                 x1: 0; y1: 0; x2: 0; y2: f.height
-                GradientStop { position: 0;   color: Qt.alpha(Qt.tint(Paleta.fondo, Qt.alpha(f.acento, .09)), f.opacidad) }
+                GradientStop { position: 0;   color: Qt.alpha(EstiloPanel.superficie, f.opacidad) }
                 GradientStop { position: .38; color: Qt.alpha(Paleta.fondo, f.opacidad) }
                 GradientStop { position: 1;   color: Qt.alpha(Qt.tint(Paleta.fondo, EstiloPanel.relleno), Math.min(1, f.opacidad + .05)) }
             }
@@ -58,8 +58,8 @@ Item {
                 centerX: f.width * .16; centerY: -f.height * .05
                 centerRadius: Math.max(260, Math.min(f.width, 900) * .62)
                 focalX: centerX; focalY: centerY
-                GradientStop { position: 0;   color: Qt.alpha(f.acento, f.luces ? .17 : .08) }
-                GradientStop { position: .55; color: Qt.alpha(f.acento, f.luces ? .05 : .02) }
+                GradientStop { position: 0;   color: Qt.alpha(f.acento, f.luces ? .035 : 0) }
+                GradientStop { position: .55; color: Qt.alpha(f.acento, f.luces ? .012 : 0) }
                 GradientStop { position: 1;   color: "transparent" }
             }
             PathRectangle { x: 1; y: 1; width: f.width - 2; height: f.height - 2; radius: f.radio - 1 }

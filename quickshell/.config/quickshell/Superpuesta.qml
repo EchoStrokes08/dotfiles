@@ -23,6 +23,11 @@ PanelWindow {
     readonly property real posicionPanel: tarjeta.y
     signal abriendose()
 
+    Connections {
+        target: EstadoEscritorio
+        function onCapturaPrivadaChanged() { if (EstadoEscritorio.capturaPrivada) v.abierto=false; }
+    }
+
     onAbiertoChanged: {
         if (abierto) { cierre.stop(); mostrar = true; abriendose(); }
         else cierre.restart();

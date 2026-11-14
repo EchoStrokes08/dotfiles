@@ -100,5 +100,84 @@ class Mezclar(Base):
         self.assertIs(eventos.mezclar_creados(feed, self.creados), feed)
 
 
+class FrescuraAgenda(Base):
+    def setUp(self):
+        super().setUp()
+        self.cache = self.root / "eventos.json"
+        self.conf = self.root / "url"
+        self.conf.write_text("https://ejemplo.invalid/privado\n")
+        for nombre, valor in (("CACHE", str(self.cache)), ("CONF", str(self.conf)), ("CREADOS", self.creados)):
+            p = patch.object(eventos, nombre, valor)
+            p.start()
+            self.parches.append(p)
+
+    def test_exito_actualiza_fecha_incluso_sin_eventos(self):
+        with patch.object(eventos, "eventos", return_value=[]):
+            r = eventos.leer_resultado()
+        self.assertEqual(r["estado"], "actualizado")
+        self.assertEqual(r["eventos"], [])
+        self.assertEqual(r["actualizado"], self.cache.stat().st_mtime)
+
+    def test_fallo_conserva_cache_y_su_fecha(self):
+        self.cache.write_text("[]")
+        fecha = self.cache.stat().st_mtime
+        with patch.object(eventos, "eventos", side_effect=OSError("Sin red")):
+            r = eventos.leer_resultado()
+        self.assertEqual(r["estado"], "desactualizado")
+        self.assertEqual(r["actualizado"], fecha)
+        self.assertEqual(self.cache.stat().st_mtime, fecha)
+
+    def test_cache_corrupta_no_revienta_ni_finge_agenda_vacia_actualizada(self):
+        for contenido in ("{mal", "{}", '[{"inicio":"fecha inválida"}]'):
+            self.cache.write_text(contenido)
+            with self.subTest(contenido=contenido), patch.object(eventos, "eventos", side_effect=OSError("Sin red")):
+                self.assertEqual(eventos.leer_resultado()["estado"], "error")
+
+    def test_sin_configuracion_no_descarga(self):
+        self.conf.unlink()
+        with patch.object(eventos, "eventos") as descargar:
+            self.assertEqual(eventos.leer_resultado()["estado"], "sin_configurar")
+        descargar.assert_not_called()
+
+    def test_fallo_no_expone_url_secreta(self):
+        from contextlib import redirect_stderr
+        err = io.StringIO()
+        secreto = "https://servidor/calendario/token-privado"
+        with patch.object(eventos, "eventos", side_effect=OSError(secreto)), redirect_stderr(err):
+            r = eventos.leer_resultado()
+        self.assertNotIn(secreto, err.getvalue() + json.dumps(r))
+
+    def test_recuperacion_sustituye_cache_antigua(self):
+        self.cache.write_text("[]")
+        with patch.object(eventos, "eventos", side_effect=OSError("Sin red")):
+            self.assertEqual(eventos.leer_resultado()["estado"], "desactualizado")
+        with patch.object(eventos, "eventos", return_value=[]):
+            self.assertEqual(eventos.leer_resultado()["estado"], "actualizado")
+
+
+class Repeticion(unittest.TestCase):
+    def test_describe_reglas_sin_inferir_por_titulos(self):
+        self.assertEqual(eventos.repeticion("FREQ=DAILY;COUNT=3"),"diario")
+        self.assertIn("lun",eventos.repeticion("FREQ=WEEKLY;BYDAY=MO,WE"))
+        self.assertEqual(eventos.repeticion("FREQ=DAILY;INTERVAL=2"),"se repite")
+        self.assertEqual(eventos.repeticion(""),"")
+
+    def test_calendarios_y_excepciones_conservan_identidad(self):
+        import importlib.util
+        if not importlib.util.find_spec("icalendar") or not importlib.util.find_spec("recurring_ical_events"):
+            self.skipTest("Requiere las dependencias opcionales de calendario")
+        d=dt.date.today()+dt.timedelta(days=1);otra=d+dt.timedelta(days=1)
+        formato=lambda x:x.strftime("%Y%m%d")
+        ics=("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:serie\r\nDTSTART:"+formato(d)+"T213000Z\r\nDTEND:"+formato(d)+"T220000Z\r\nRRULE:FREQ=DAILY;COUNT=3\r\nSUMMARY:Clase\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:serie\r\nRECURRENCE-ID:"+formato(otra)+"T213000Z\r\nDTSTART:"+formato(otra)+"T223000Z\r\nDTEND:"+formato(otra)+"T230000Z\r\nSUMMARY:Clase movida\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n").encode()
+        with tempfile.TemporaryDirectory() as tmp:
+            conf=Path(tmp)/"url";conf.write_text("https://ejemplo.invalid/a\nhttps://ejemplo.invalid/b\n")
+            with patch.object(eventos,"CONF",str(conf)),patch.object(eventos,"descargar",return_value=ics):
+                datos=eventos.eventos()
+        self.assertEqual(len(datos),6)
+        self.assertEqual(len({e["serie"] for e in datos}),2)
+        self.assertEqual(sum(e["excepcion"] for e in datos),2)
+        self.assertTrue(all(e["repeticion"]=="diario" for e in datos))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -309,6 +309,10 @@ def frase():
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "frase":
-        print(json.dumps({"frase": frase()}, ensure_ascii=False))
+        if "--solo-cache" in sys.argv:
+            cache=b.ESTADO / f"frase-{dt.date.today().isoformat()}.txt"
+            texto=cache.read_text() if cache.is_file() else ""
+        else: texto=frase()
+        print(json.dumps({"frase":texto}, ensure_ascii=False))
     else:
         print(json.dumps(calcular(), ensure_ascii=False))

@@ -25,6 +25,7 @@ Superpuesta {
     readonly property var paginas: ["hoy", "linea", "contexto", "sesion", "salud"]
     property int pagina: 0
     property var hoy: null
+    property bool detallesHoy: false
     property string frase: ""
     property bool fraseCargando: false
     property var linea: null
@@ -43,7 +44,7 @@ Superpuesta {
     function abrir(nombre) { pagina = Math.max(0, paginas.indexOf(nombre)); abierto = true; cargar(); }
     function abrirDia(d) { dia = d; pagina = 1; abierto = true; cargar(); }
     function cargar() {
-        if (pagina === 0) { correr(pHoy, [scripts + "sugerencias.py"]); if (!frase && !pFrase.running) { fraseCargando = true; pFrase.running = true; } }
+        if (pagina === 0) { correr(pHoy, [scripts + "sugerencias.py"]); if (!pFrase.running) { pFrase.command=[scripts+"sugerencias.py","frase","--solo-cache"];pFrase.running=true; } }
         if (pagina === 1) correr(pLinea, [scripts + "brujula.py", "linea"].concat(dia ? ["--dia", dia] : []));
         if (pagina === 2) correr(pEstado, [scripts + "brujula.py", "estado"]);
         if (pagina === 3) correr(pSesion, [scripts + "brujula.py", "sesion"]);
@@ -100,7 +101,7 @@ Superpuesta {
     Lector { id: pFrase; command: [br.scripts + "sugerencias.py", "frase"]; alLeer: function(d) { br.frase = d.frase; br.fraseCargando = false; } onExited: br.fraseCargando = false }
     Lector { id: pLinea; alLeer: function(d) { br.linea = d; } }
     Lector { id: pEstado; alLeer: function(d) { br.estado = d; } }
-    Lector { id: pSalud; alLeer: function(d) { br.salud = d; Qt.callLater(() => rejillaSalud.positionViewAtBeginning()); } }
+    Lector { id: pSalud; alLeer: function(d) { br.salud = d; Qt.callLater(() => saludVista.contentY = 0); } }
     Lector { id: pSesion; alLeer: function(d) { br.sesion = d; const e = {}; (d.anterior?.apps || []).forEach((a, i) => e[i] = !a.abierta); br.elegidas = e; } }
     Lector {
         id: pOrden
@@ -216,7 +217,7 @@ Superpuesta {
             id: pestanas
             Layout.fillWidth: true; implicitHeight: 46
             focus: true
-            Keys.onTabPressed: br.irPestana((br.pestana + 1) % 3)
+            Keys.onTabPressed: (event) => event.accepted = false
             Rectangle {
                 anchors.fill: parent; radius: 16
                 gradient: Gradient {
@@ -254,7 +255,7 @@ Superpuesta {
                         width: parent.width / 3; height: parent.height
                         Text {
                             anchors.centerIn: parent
-                            text: br.g(parent.modelData[0]) + "  " + parent.modelData[1] + "  " + "⌃" + (parent.index + 1)
+                            text: br.g(parent.modelData[0]) + "  " + parent.modelData[1]
                             color: br.pestana === parent.index ? Paleta.texto : Paleta.gris
                             font { family: Paleta.fuente; pixelSize: 12; bold: br.pestana === parent.index }
                             Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
@@ -289,7 +290,7 @@ Superpuesta {
         Item {
             Layout.fillWidth: true
             // Alto disponible bajo cabecera y pestañas (pantalla de 720 px lógicos → 520)
-            implicitHeight: Math.max(400, Math.min(600, (br.screen?.height ?? 720) - 200)) - (br.pestana === 1 ? 42 : 0)   // 42: fila de secciones
+            implicitHeight: Math.max(160, Math.min(600, (br.screen?.height ?? 720) - 210)) - (br.pestana === 1 ? 42 : 0)   // 42: fila de secciones
             clip: true
 
             // ═══ HOY ═════════════════════════════════════════════════════
@@ -301,12 +302,27 @@ Superpuesta {
                 boundsBehavior: Flickable.StopAtBounds
                 ColumnLayout {
                     id: hoyCol; width: parent.width; spacing: 12
-                    // reloj, clima y saludo (lo que era el dashboard)
                     HoyCabecera { Layout.fillWidth: true }
+                    EstadoAgenda { Layout.fillWidth: true }
+                    HoyPaneles {
+                        Layout.fillWidth: true
+                        onSoltarFoco: br.abierto=false
+                        onRetomar: { br.abierto = false; br.lanzar([br.scripts + "flujo.py", "proyecto", "retomar", "--id=" + Continuidad.ultimo.id]); }
+                    }
+                    BotonCompacto { text: br.detallesHoy ? "Menos detalles" : "Más de tu día · sugerencias y cierre"; onClicked: br.detallesHoy = !br.detallesHoy }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        visible: br.detallesHoy
+                        spacing: 12
+                    BotonCompacto {
+                        text: br.fraseCargando ? "Generando resumen local…" : "Generar resumen local a petición"
+                        enabled: !pFrase.running && !EstadoEscritorio.privacidad
+                        onClicked: { br.fraseCargando=true;pFrase.command=[br.scripts+"sugerencias.py","frase"];pFrase.running=true; }
+                    }
                     // frase del asistente local
                     RowLayout {
                         Layout.fillWidth: true; spacing: 8
-                        visible: br.frase !== "" || br.fraseCargando
+                        visible: !EstadoEscritorio.privacidad && (br.frase !== "" || br.fraseCargando)
                         Text { text: "✦"; color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } Layout.alignment: Qt.AlignTop
                             SequentialAnimation on opacity { loops: Animation.Infinite; running: br.fraseCargando && br.abierto; NumberAnimation { to: .25; duration: 600 } NumberAnimation { to: 1; duration: 600 } } }
                         Text {
@@ -352,26 +368,6 @@ Superpuesta {
                             }
                         }
                     }
-                    // el último proyecto guardado (lo que antes traía el resumen del día)
-                    Rectangle {
-                        visible: Continuidad.ultimo !== null
-                        Layout.fillWidth: true; implicitHeight: 64; radius: 16
-                        color: EstiloPanel.relleno; border { width: 1; color: Qt.alpha(Paleta.acento, .3) }
-                        RowLayout {
-                            anchors { fill: parent; leftMargin: 16; rightMargin: 12 } spacing: 12
-                            Text { text: br.g("f0e1b"); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 20 } }
-                            ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; spacing: 2
-                                Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
-                                       text: EstadoEscritorio.privacidad ? "Proyecto disponible para continuar" : "Continuar · " + (Continuidad.ultimo?.nombre ?? "") }
-                                Text { Layout.fillWidth: true; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 }
-                                       text: EstadoEscritorio.privacidad ? "Detalles ocultos por privacidad" : (Continuidad.ultimo?.siguiente || "Abre sus apps en sus espacios") }
-                            }
-                            BotonCompacto {
-                                text: "Retomar"; destacado: true
-                                onClicked: { br.abierto = false; br.lanzar([br.scripts + "flujo.py", "proyecto", "retomar", "--id=" + Continuidad.ultimo.id]); }
-                            }
-                        }
-                    }
                     Etiqueta { text: "IDEAS PARA HOY"; visible: (br.hoy?.sugerencias?.length ?? 0) > 0; Layout.topMargin: 2 }
                     Repeater {
                         model: br.hoy?.sugerencias ?? []
@@ -405,18 +401,20 @@ Superpuesta {
                                 anchors { fill: parent; leftMargin: 24; rightMargin: 12 } spacing: 12
                                 Medalla { glifo: tarjeta.modelData.icono; acento: tarjeta.acento }
                                 ColumnLayout { Layout.fillWidth: true; spacing: 2
-                                    Text { Layout.fillWidth: true; text: tarjeta.modelData.titulo; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
-                                    Text { Layout.fillWidth: true; text: tarjeta.modelData.detalle; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
+                                    Text { Layout.fillWidth: true; text: EstadoEscritorio.privacidad ? "Sugerencia privada" : tarjeta.modelData.titulo; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
+                                    Text { Layout.fillWidth: true; text: EstadoEscritorio.privacidad ? "Detalles ocultos" : tarjeta.modelData.detalle; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
                                 }
-                                BotonCompacto {
-                                    visible: !!tarjeta.modelData.boton2 && !tarjeta.hecha
-                                    text: tarjeta.modelData.boton2 ?? ""; acento: tarjeta.acento
-                                    onClicked: { br.lanzar(tarjeta.modelData.cmd2); tarjeta.hecha = true; cerrarLuego.restart(); }
+                                AccionSugerencia {
+                                    visible: !!tarjeta.modelData.boton2
+                                    etiqueta: tarjeta.modelData.boton2 ?? ""
+                                    comando: tarjeta.modelData.cmd2 || []
+                                    onComenzando: br.abierto=false
                                 }
-                                BotonCompacto {
-                                    text: tarjeta.hecha ? "✓ Hecho" : tarjeta.modelData.boton; destacado: !tarjeta.hecha; acento: tarjeta.acento
-                                    Layout.preferredWidth: Math.max(130, implicitContentWidth + 28)
-                                    onClicked: { br.lanzar(tarjeta.modelData.cmd); tarjeta.hecha = true; if (tarjeta.modelData.cmd.length) cerrarLuego.restart(); }
+                                AccionSugerencia {
+                                    etiqueta: tarjeta.modelData.boton
+                                    comando: tarjeta.modelData.cmd || []
+                                    destacado:true
+                                    onComenzando: br.abierto=false
                                 }
                             }
                         }
@@ -439,8 +437,7 @@ Superpuesta {
                             }
                         }
                     }
-                    // calendario y «Próximo», sistema y tiempo de pantalla
-                    HoyPaneles { Layout.fillWidth: true; Layout.topMargin: 4 }
+                    } // detalles opcionales
                 }
             }
 
@@ -772,70 +769,15 @@ Superpuesta {
             }
 
             // ═══ SALUD ═══════════════════════════════════════════════════
-            ColumnLayout {
-                anchors.fill: parent; spacing: 12
+            SaludPanel {
+                id: saludVista
+                anchors.fill: parent
                 visible: br.pagina === 4
-                readonly property var estado: br.salud?.estado ?? "ok"
-                readonly property color acento: estado === "mal" ? Paleta.peligro : estado === "aviso" ? Paleta.aviso : Paleta.exito
-                Rectangle {
-                    Layout.fillWidth: true; implicitHeight: 66; radius: 16
-                    color: Qt.alpha(parent.acento, .09); border { width: 1; color: Qt.alpha(parent.acento, .35) }
-                    RowLayout {
-                        anchors { fill: parent; margins: 12 } spacing: 12
-                        Medalla { glifo: parent.parent.parent.estado === "ok" ? "f05e0" : "f0026"; acento: parent.parent.parent.acento }
-                        ColumnLayout { Layout.fillWidth: true; spacing: 2
-                            Text { color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 14; bold: true }
-                                text: !br.salud ? "Comprobando…" : br.salud.estado === "ok" ? "Todo en orden"
-                                    : (() => { const n = br.salud.comprobaciones.filter(x => x.estado === "mal" || x.estado === "aviso").length; return `${n} ${n === 1 ? "cosa" : "cosas"} que revisar`; })() }
-                            Text { Layout.fillWidth: true; elide: Text.ElideRight; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 }
-                                text: (br.salud ? "Comprobado " + br.hace(br.salud.fecha) + " · " : "") + (br.salud?.ultima_actualizacion
-                                    ? `Última actualización ${br.hace(br.salud.ultima_actualizacion.fecha)}: ${br.salud.ultima_actualizacion.paquetes} paquetes` + (br.salud.ultima_actualizacion.pre ? ` (snapshot #${br.salud.ultima_actualizacion.pre})` : "")
-                                    : "Actualiza desde aquí para tener snapshot, noticias y revisión final") }
-                        }
-                        BotonCompacto { text: "Actualizar con seguridad"; destacado: true; onClicked: { Quickshell.execDetached([br.scripts + "actualizaciones.sh", "instalar"]); br.abierto = false; } }
-                        BotonCompacto { text: "Deshacer la última"; acento: Paleta.gris; visible: !!br.salud?.ultima_actualizacion?.pre
-                                onClicked: { Quickshell.execDetached([br.scripts + "actualizaciones.sh", "deshacer"]); br.abierto = false; } }
-                        BotonCompacto { text: "↻"; implicitWidth: 36; onClicked: { br.salud = null; br.cargar(); } }
-                    }
-                }
-                GridView {
-                    id: rejillaSalud
-                    Layout.fillWidth: true; Layout.fillHeight: true; clip: true
-                    cellWidth: width / 2; cellHeight: 84
-                    boundsBehavior: Flickable.StopAtBounds
-                    model: br.salud?.comprobaciones ?? []
-                    delegate: Item {
-                        id: chk
-                        required property var modelData
-                        required property int index
-                        readonly property color acento: ({ mal: Paleta.peligro, aviso: Paleta.aviso, ok: Paleta.exito, info: Paleta.acento2 })[modelData.estado] ?? Paleta.gris
-                        width: rejillaSalud.cellWidth; height: rejillaSalud.cellHeight
-                        opacity: 0
-                        Component.onCompleted: aparece.start()
-                        NumberAnimation { id: aparece; target: chk; property: "opacity"; to: 1; duration: EstiloPanel.normal + chk.index * 25 }
-                        Rectangle {
-                            anchors { fill: parent; margins: 4 } radius: 12
-                            color: Qt.alpha(Paleta.texto, hc.hovered ? .055 : .03)
-                            border { width: 1; color: Qt.alpha(chk.acento, chk.modelData.estado === "ok" ? .1 : .4) }
-                            HoverHandler { id: hc }
-                            RowLayout {
-                                anchors { fill: parent; margins: 8 } spacing: 8
-                                Medalla { glifo: chk.modelData.glifo; acento: chk.acento; lado: 34; Layout.alignment: Qt.AlignTop }
-                                ColumnLayout { Layout.fillWidth: true; Layout.minimumWidth: 0; Layout.preferredWidth: 1; spacing: 1
-                                    RowLayout { Layout.fillWidth: true; spacing: 4
-                                        Text { text: chk.modelData.nombre; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 12; bold: true } }
-                                        Text { text: chk.modelData.valor; color: chk.acento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
-                                    }
-                                    Text { Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight; lineHeight: 1.1
-                                        text: chk.modelData.detalle; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
-                                }
-                                BotonCompacto { visible: !!chk.modelData.accion; text: chk.modelData.accion?.texto ?? ""; acento: chk.acento; implicitHeight: 28
-                                        onClicked: { Quickshell.execDetached(chk.modelData.accion.cmd); br.abierto = false; } }
-                            }
-                        }
-                    }
-                    Text { anchors.centerIn: parent; visible: !br.salud; text: "Revisando disco, batería, snapshots, servicios…"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 12; italic: true } }
-                }
+                datos: br.salud
+                onRevisar: { br.salud = null; br.cargar(); }
+                onEjecutar: (comando) => br.cerrarY(() => br.lanzar(comando))
+                onActualizarSistema: br.cerrarY(() => br.lanzar([br.scripts + "actualizaciones.sh","instalar"]))
+                onDeshacerActualizacion: br.cerrarY(() => br.lanzar([br.scripts + "actualizaciones.sh","deshacer"]))
             }
         }
 

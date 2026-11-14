@@ -12,6 +12,7 @@ ColumnLayout {
 
     property var apps: []          // [{ clase, seg }] ordenado de más a menos
     property real total: 0
+    property bool compacto: false
 
     function hoy() {
         const d = new Date();
@@ -68,7 +69,7 @@ ColumnLayout {
     }
 
     Repeater {
-        model: tiempo.apps
+        model: tiempo.compacto ? [] : tiempo.apps
         ColumnLayout {
             required property var modelData
             required property int index
@@ -103,8 +104,9 @@ ColumnLayout {
     }
 
     // ── Semana ──
-    Item { Layout.preferredHeight: 4 }
+    Item { visible: !tiempo.compacto; Layout.preferredHeight: 4 }
     RowLayout {
+        visible: !tiempo.compacto
         Layout.fillWidth: true
         Text {
             text: "ÚLTIMOS 7 DÍAS"
@@ -122,6 +124,7 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
+        visible: !tiempo.compacto
         Layout.preferredHeight: 62
         spacing: 4
         readonly property real maximo: Math.max(3600, ...tiempo.dias.map(d => d.total))

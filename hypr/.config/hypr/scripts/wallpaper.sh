@@ -9,7 +9,7 @@
 # Si awww-daemon no corre, se usa hyprpaper (respaldo).
 # Las miniaturas se crean una vez con ffmpeg en ~/.cache/wallpapers-mini (fuzzel solo muestra PNG/SVG).
 # El wallpaper elegido queda enlazado en ~/.local/state/tema/wallpaper (se restaura al arrancar)
-# y, si el modo de color es "wallpaper" y lo elegiste a mano, se regeneran los colores (tema.sh).
+# y, en modo wallpaper, el acento acompaña también las rotaciones (salvo que esté fijado).
 # La rotación cada 17,5 min la hace Hyprland (modulos/tema.lua).
 
 CARPETA="$HOME/Imágenes/wallpapers"
@@ -43,8 +43,8 @@ pintar() {   # pintar <ruta> <estilo: cursor|barrido|nada>
 aplicar() {   # aplicar <ruta> [estilo]
     pintar "$1" "${2:-cursor}"
     mkdir -p "$HOME/.local/state/tema"; ln -sf "$1" "$HOME/.local/state/tema/wallpaper"
-    # La paleta solo sigue al fondo cuando lo eliges tú; la rotación automática (barrido) no cambia los colores
-    [ "${2:-cursor}" = cursor ] && [ "$("$TEMA" modo)" = wallpaper ] && "$TEMA" aplicar "$1"
+    # El motor sigue también la rotación; si el acento está fijado, conserva sus colores.
+    [ "$("$TEMA" modo)" = wallpaper ] && "$TEMA" rotar "$1"
     # Solo se avisa al elegirlo a mano: la rotación automática (barrido) cambia en silencio
     [ "${2:-cursor}" = cursor ] && notify-send -a Wallpaper -i "$MINIS/$(basename "${1%.*}").png" "Wallpaper" "$(basename "$1")"
     return 0

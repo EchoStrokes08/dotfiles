@@ -13,20 +13,8 @@ Rectangle {
     implicitWidth: interior.implicitWidth + relleno * 2
     implicitHeight: interior.implicitHeight + relleno * 2
     radius: 16
-    gradient: Gradient {
-        GradientStop { position: 0; color: Qt.alpha(Qt.tint(Paleta.texto, Qt.alpha(t.acento, .5)), .065) }
-        GradientStop { position: 1; color: EstiloPanel.relleno }
-    }
+    color: EstiloPanel.superficie
     border { width: 1; color: EstiloPanel.borde }
-    Rectangle {
-        x: t.radius; y: 1; width: t.width - t.radius * 2; height: 1
-        gradient: Gradient {
-            orientation: Gradient.Horizontal
-            GradientStop { position: 0; color: "transparent" }
-            GradientStop { position: .5; color: EstiloPanel.bordeFuerte }
-            GradientStop { position: 1; color: "transparent" }
-        }
-    }
     ColumnLayout {
         id: interior
         anchors { fill: parent; margins: t.relleno }

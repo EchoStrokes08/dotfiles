@@ -16,7 +16,7 @@ Superpuesta {
 
     readonly property string carpeta: Quickshell.env("HOME") + "/Imágenes/wallpapers"
     property string actual: ""          // ruta real del wallpaper puesto
-    property string modo: "ayu"         // ayu | wallpaper (tema.sh estado)
+    property string modo: Paleta.modo         // ayu | wallpaper (tema.sh estado)
 
     function guion(args) { Quickshell.execDetached(["sh", "-c", "~/.config/hypr/scripts/" + args]); }
     function poner(ruta) { guion(`wallpaper.sh poner "${ruta}"`); abierto = false; }
@@ -66,27 +66,13 @@ Superpuesta {
                 color: Paleta.texto
                 font { family: Paleta.fuente; pixelSize: 16; bold: true }
             }
-            Repeater {
-                model: [
-                    { txt: sel.modo === "wallpaper" ? "Colores: del fondo" : "Colores: Ayu", ic: 0xF03D8,
-                      accion: () => { sel.guion("tema.sh alternar"); sel.modo = sel.modo === "wallpaper" ? "ayu" : "wallpaper"; } },
-                    { txt: "Aleatorio", ic: 0xF049D, accion: () => { sel.guion("wallpaper.sh aleatorio"); sel.abierto = false; } }
-                ]
-                Rectangle {
-                    required property var modelData
-                    implicitWidth: fila.implicitWidth + 22; implicitHeight: 30; radius: 12
-                    color: zonaChip.containsMouse ? Qt.alpha(Paleta.acento, 0.22) : EstiloPanel.rellenoActivo
-                    RowLayout {
-                        id: fila
-                        anchors.centerIn: parent
-                        spacing: 8
-                        Text { text: String.fromCodePoint(modelData.ic); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 14 } }
-                        Text { text: modelData.txt; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
-                    }
-                    MouseArea { id: zonaChip; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: modelData.accion() }
-                }
-            }
+            Text { text: "Color actual: " + (Paleta.fijado ? "fijado" : Paleta.modo === "wallpaper" ? "del fondo" : "Ayu"); color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+            BotonCompacto { text: "Cambiar colores"; onClicked: ajustesColores.visible = !ajustesColores.visible }
+            BotonCompacto { text: "Aleatorio"; onClicked: { sel.guion("wallpaper.sh aleatorio"); sel.abierto = false; } }
+
         }
+
+        AjustesApariencia { id: ajustesColores; visible: false; Layout.fillWidth: true }
 
         GridView {
             id: rejilla

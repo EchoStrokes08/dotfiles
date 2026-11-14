@@ -67,7 +67,7 @@ def iniciar(archivo, log):
 
 def main():
     accion = sys.argv[1] if len(sys.argv) > 1 else 'estado'
-    if accion not in ('start', 'stop', 'toggle', 'save', 'auto', 'reconciliar', 'estado'):
+    if accion not in ('start', 'stop', 'toggle', 'save', 'auto', 'reconciliar', 'estado', 'detalle'):
         # Callback del grabador: no ejecutar texto recibido, solo notificar archivo existente.
         if Path(accion).is_file():
             subprocess.run(['notify-send', '-a', 'Replay', 'Replay guardado', Path(accion).name], timeout=3)
@@ -82,6 +82,15 @@ def main():
         modo = carpeta / 'modo'
         dato = buscar(archivo)
         e = estado()
+        if accion == 'detalle':
+            preferencia = modo.read_text().strip() if modo.exists() else 'auto'
+            privacidad = e.get('privacidad_activa', e.get('privacidad')) == 'true'
+            pausado = e.get('pausar_replay') == 'true'
+            texto = ('Grabando los últimos 30 s' if dato else 'Pausado por privacidad' if privacidad else
+                     'Automático · pausado por batería, perfil o reunión' if preferencia == 'auto' and pausado else
+                     'Automático · esperando un juego' if preferencia == 'auto' else 'Replay desactivado')
+            print(json.dumps({'grabando': bool(dato), 'politica': preferencia, 'texto': texto}, ensure_ascii=False))
+            return
         if accion == 'estado':
             print('grabando' if dato else 'apagado')
             return

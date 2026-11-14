@@ -783,6 +783,44 @@ USB y escritorio. Un semáforo no sustituye investigar el error concreto.
 
 ### Recuperación de interfaz o configuración
 
+Quickshell escucha `reloadFailed` mediante `EstadoRecarga.qml`; `AvisoRecarga.qml` presenta el
+error en su propia capa, con `TarjetaRecarga.qml` para el detalle seleccionable y el reintento.
+La generación válida conserva la interfaz durante el fallo. `reloadCompleted` retira el error.
+No se reinicia Hyprland ni se modifica el estado de No molestar.
+
+Diagnóstico desde una terminal (también si la interfaz no llega a arrancar):
+
+```bash
+qs list
+qs log -t 80 --no-color
+```
+
+Si no hay una instancia activa, ejecutar `qs` en primer plano muestra el fallo de arranque.
+Corrige el archivo indicado antes de volver a iniciarlo. Si existe una instancia, no lances otra.
+El error de primera carga no puede mostrar una tarjeta dentro de un shell que aún no existe.
+
+El centro usa `conmutadores.sh json` y órdenes `<control> on|off`, delegadas a `conmutadores.py`.
+Cada orden devuelve JSON con `ok`, `estado` confirmado y `error`; un fallo sale con código 1.
+La salida antigua `todos`/`estado` se conserva y usa `unavailable` cuando no hay un estado fiable.
+Las consultas independientes tienen límite de tiempo y no mutan servicios. Cada botón supervisa
+su proceso y bloquea solo su propia orden; las respuestas antiguas de consulta no sobrescriben
+una confirmación posterior.
+
+`eventos.py --estado` añade `estado`, `actualizado` (epoch de la última copia buena) y `error` a los
+eventos. El formato por defecto sigue siendo una lista para los consumidores existentes. Una copia
+rota o una respuesta ilegible no borra los datos válidos de `Eventos.qml`. Las URL iCal privadas no
+se incluyen en los avisos ni en el registro de fallos de sincronización.
+
+`ModoTeclado.qml` comparte una conexión de eventos entre barras, escucha `submap` y consulta
+`hyprctl repl 'hl.get_current_submap()'` al conectar o reconectar (API instalada de Hyprland 0.57).
+Una respuesta anterior a un cambio de modo se descarta. No requiere recargar Hyprland.
+
+La suite `test_orion_qml.py` prueba controles, agenda y fallo/recuperación de recarga en instancias
+aisladas, sin tocar la sesión. Se omite si no está instalado Quickshell. La vista de abajo usa los
+componentes reales y datos simulados; se reproduce con `python3 tests/previsualizar_orion.py`.
+
+![Estados de la fase 1 con datos simulados](screenshots/orion-fase1-estados.png)
+
 - **Submap atrapado:** Esc o `hyprctl dispatch 'hl.dsp.submap("reset")'`.
 - **Quickshell ausente:** revisa si queda un proceso antes de lanzar `qs -d`. Si un reinicio es
   necesario, guarda el trabajo y considera el estado del bloqueo antes de terminar la instancia.
@@ -1096,3 +1134,32 @@ Las correcciones descritas son tareas propuestas, no cambios ya aplicados al sis
 llevarlas a cabo con evidencias y criterios de cierre, seguir la [ruta](guia-estudio.md).
 
 </details>
+
+### Motor de tema de ORION (fase 2)
+
+`tema.sh` delega en `tema.py`. Conserva los comandos anteriores y añade:
+
+| Comando | Resultado |
+|---|---|
+| `tema.sh rotar /ruta/imagen` | Actualiza en modo wallpaper salvo acento fijado; sin aviso rutinario |
+| `tema.sh fijar` | Conserva los acentos actuales |
+| `tema.sh seguir` | Reactiva el seguimiento del fondo |
+| `tema.sh movimiento reducir` / `normal` | Preferencia persistente de movimiento de la interfaz |
+
+`~/.local/state/tema/actual` apunta a la generación publicada. Las salidas públicas son enlaces
+relativos a ella. `generacion-inicial` conserva los archivos anteriores a la primera migración;
+`generaciones/<hash>` contiene las composiciones cacheadas. No edites esas salidas: modifica
+las paletas o plantillas y vuelve a aplicar. `matugen.toml` no escribe en una generación activa;
+matugen solo extrae los colores mediante `--dry-run --json hex`.
+
+`preferencias.json` de ese directorio expone fuente, variante, acento fijado y movimiento para
+Quickshell. Los favoritos de controles y bandeja se guardan por separado en
+`~/.local/state/quickshell/preferencias.json`. `replay.py detalle` expone JSON con grabación,
+política y explicación; no modifica la preferencia ni arranca el grabador.
+
+Las capturas de la matriz visual de esta sesión están en
+`~/.cache/capturas-escritorio/orion-fase2/`, junto con `matriz.json`. Son locales porque pueden
+contener información de la agenda o del reproductor. La captura de Salud incluida en el
+repositorio muestra la composición, sin historiales ni credenciales.
+
+![Brújula: Salud tras la fase 2](screenshots/orion-fase2-salud.png)

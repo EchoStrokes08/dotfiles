@@ -14,6 +14,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 
 ShellRoot {
+    AvisoRecarga {}
     Lanzador { id: lanzador }
     OSD {}
     Emergentes {}
@@ -90,8 +91,8 @@ ShellRoot {
         target: "notificaciones"
         function toggle(): void { const a = centro.abierto; cerrarTodo(); centro.abierto = !a; }
         function noMolestar(): void { Notificaciones.alternarNoMolestar(); }
-        function noMolestarSi(): void { Notificaciones.manual = true; }
-        function noMolestarNo(): void { Notificaciones.manual = false; }
+        function noMolestarSi(): void { Notificaciones.pausar("siempre"); }
+        function noMolestarNo(): void { Notificaciones.pausar("off"); }
         function motivo(nombre: string, activo: bool): void { Notificaciones.motivo(nombre, activo); }
         function automatico(activo: bool): void { Notificaciones.automatico = activo; }
         function estado(): string { return Notificaciones.noMolestar ? "activo" : "inactivo"; }

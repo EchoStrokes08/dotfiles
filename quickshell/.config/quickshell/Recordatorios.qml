@@ -23,6 +23,8 @@ Singleton {
     }
     FileView {
         id: archivo
+        watchChanges: true
+        onFileChanged: reload()
         onLoaded: { try { r.lista = JSON.parse(text()); } catch (e) { r.lista = []; } }
     }
     function guardar(l) {

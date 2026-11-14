@@ -16,7 +16,7 @@ Rectangle {
     readonly property color colorUrgencia: noti.urgency === NotificationUrgency.Critical ? Paleta.peligro
                                          : noti.urgency === NotificationUrgency.Low ? Paleta.gris
                                          : Paleta.acento
-    readonly property string rutaIcono: Notificaciones.icono(noti)
+    readonly property string rutaIcono: EstadoEscritorio.privacidad ? "" : Notificaciones.icono(noti)
 
     implicitHeight: contenido.implicitHeight + 24
     radius: 16
@@ -55,6 +55,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         onClicked: {
+            if (EstadoEscritorio.privacidad) return;
             const def = Array.from(tarjeta.noti.actions).find(a => a.identifier === "default");
             if (def) { def.invoke(); if (!tarjeta.noti.resident) tarjeta.noti.dismiss(); }
             else if (tarjeta.emergente) tarjeta.terminada();
@@ -76,7 +77,7 @@ Rectangle {
             Image {
                 id: imagen
                 anchors.fill: parent
-                source: tarjeta.noti.image || tarjeta.rutaIcono
+                source: EstadoEscritorio.privacidad ? "" : tarjeta.noti.image || tarjeta.rutaIcono
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 sourceSize { width: 88; height: 88 }
@@ -91,7 +92,7 @@ Rectangle {
                 Layout.fillWidth: true
                 Text {
                     Layout.fillWidth: true
-                    text: tarjeta.noti.appName || "Aviso"
+                    text: EstadoEscritorio.privacidad ? "Aplicación" : tarjeta.noti.appName || "Aviso"
                     color: tarjeta.noti.urgency === NotificationUrgency.Critical ? Paleta.peligro : EstiloPanel.tenue
                     elide: Text.ElideRight
                     font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 0.5; capitalization: Font.AllUppercase }
@@ -111,7 +112,7 @@ Rectangle {
             }
             Text {
                 Layout.fillWidth: true
-                text: tarjeta.noti.summary
+                text: EstadoEscritorio.privacidad ? "Notificación privada" : tarjeta.noti.summary
                 color: Paleta.texto
                 wrapMode: Text.Wrap
                 maximumLineCount: 2
@@ -121,7 +122,7 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 visible: text !== ""
-                text: tarjeta.noti.body
+                text: EstadoEscritorio.privacidad ? "" : tarjeta.noti.body
                 textFormat: Text.StyledText          // <b>, <i>, enlaces
                 color: EstiloPanel.secundario
                 linkColor: Paleta.acento2
@@ -137,7 +138,7 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
                 spacing: 4
-                visible: botones.count > 0 || tarjeta.noti.hasInlineReply
+                visible: !EstadoEscritorio.privacidad && (botones.count > 0 || tarjeta.noti.hasInlineReply)
                 // Respuesta en línea (p. ej. WhatsApp del móvil por KDE Connect): se escribe en el panel del móvil
                 Rectangle {
                     visible: tarjeta.noti.hasInlineReply

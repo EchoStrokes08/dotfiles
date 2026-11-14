@@ -16,9 +16,12 @@ Tipos (prefijo en el lanzador):
 """
 import json, os, re, subprocess, sys, unicodedata
 from pathlib import Path
+from urllib.parse import urlparse
+from acciones import titulo_web, ocultos
 
 HOME = Path.home()
 S = str(HOME / ".config/hypr/scripts")
+ERRORES = []
 
 
 def norm(s):
@@ -33,8 +36,13 @@ def coincide(q, *textos):
 
 def sh(*a, **k):
     try:
-        return subprocess.run(a, capture_output=True, text=True, timeout=k.get("timeout", 4)).stdout
-    except Exception:
+        r=subprocess.run(a,capture_output=True,text=True,timeout=k.get("timeout",4))
+        if r.returncode and not (Path(a[0]).name == "rg" and r.returncode == 1):
+            ERRORES.append("No se pudo consultar " + Path(a[0]).name)
+            return ""
+        return r.stdout
+    except (OSError,subprocess.SubprocessError):
+        ERRORES.append("No está disponible " + Path(a[0]).name)
         return ""
 
 
@@ -45,7 +53,7 @@ def ventanas(q):
             continue
         ws = c.get("workspace", {}).get("name", "?")
         res.append({"nombre": c.get("title") or c.get("class"), "detalle": f"{c.get('class')} · workspace {ws}", "glifo": 0xF05AF,
-                    "cmd": ["hyprctl", "dispatch", f'hl.dsp.focus({{ window = "address:{c["address"]}" }})']})
+                    "referencia": {"tipo":"ventana","id":c["address"],"pid":c["pid"]}, "cmd": ["hyprctl", "dispatch", f'hl.dsp.focus({{ window = "address:{c["address"]}" }})']})
     return res
 
 
@@ -136,13 +144,14 @@ def documentos(q):
     try:
         import indice
     except ImportError:
+        ERRORES.append("El índice de documentos no está disponible")
         return []
     res = []
     for ruta, fragmento in indice.buscar(q, 8):
         p = Path(ruta)
         glifo = 0xF0226 if p.suffix.lower() == ".pdf" else 0xF0219 if p.suffix.lower() in (".docx", ".odt") else 0xF0224
         res.append({"nombre": p.name, "detalle": fragmento[:140] or str(p.parent).replace(str(HOME), "~"),
-                    "glifo": glifo, "cmd": ["xdg-open", ruta]})
+                    "glifo": glifo, "referencia": {"tipo":"archivo","id":ruta}, "cmd": ["xdg-open", ruta]})
     return res
 
 
@@ -161,14 +170,16 @@ def historial(q):
                               "ORDER BY frecency DESC LIMIT 80", palabras).fetchall()
             c.close()
         except sqlite3.Error:
+            ERRORES.append("No se pudo leer un perfil de Firefox")
             continue
         for url, titulo in filas:
+            if url in ocultos(): continue
             # que coincida en el título o en la dirección sin parámetros (?…), no en un token cualquiera
             if not coincide(q, titulo, url.split("?")[0].split("#")[0]):
                 continue
             if len(res) >= 8:
                 break
-            res.append({"nombre": titulo or url, "detalle": re.sub(r"^https?://(www\.)?", "", url)[:100],
+            res.append({"nombre": titulo_web(url,titulo or ""), "referencia":{"tipo":"web","id":url}, "detalle": re.sub(r"^https?://(www\.)?", "", url)[:100],
                         "glifo": 0xF02DA, "cmd": ["firefox", url]})
     return res[:8]
 
@@ -328,9 +339,12 @@ TIPOS = {"ventanas": ventanas, "notas": notas, "portapapeles": portapapeles, "pe
          "documentos": documentos, "historial": historial, "atajos": atajos, "linea": linea, "todo": todo, "ajustes": ajustes}
 
 if __name__ == "__main__":
-    tipo = sys.argv[1] if len(sys.argv) > 1 else ""
-    q = " ".join(sys.argv[2:])
+    tipo=sys.argv[1] if len(sys.argv)>1 else ""
+    con_estado="--estado" in sys.argv
+    q=" ".join(a for a in sys.argv[2:] if a!="--estado")
     try:
-        print(json.dumps(TIPOS[tipo](q), ensure_ascii=False))
-    except Exception as e:   # nunca dejar el lanzador sin respuesta
-        print(json.dumps([{"nombre": "Error al buscar", "detalle": str(e)[:120], "glifo": 0xF0026, "cmd": []}]))
+        resultados=TIPOS[tipo](q)
+        salida={"resultados":resultados,"errores":list(dict.fromkeys(ERRORES))} if con_estado else resultados
+        print(json.dumps(salida,ensure_ascii=False))
+    except Exception:
+        print(json.dumps({"resultados":[],"errores":["No se pudo consultar la fuente"]} if con_estado else [{"nombre":"Fuente no disponible","detalle":"Reintenta la búsqueda","cmd":[]}],ensure_ascii=False))

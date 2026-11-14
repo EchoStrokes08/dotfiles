@@ -32,8 +32,11 @@ import Quickshell.Widgets
 PanelWindow {
     id: ventana
 
+    Connections { target: EstadoEscritorio; function onCapturaPrivadaChanged() { if(EstadoEscritorio.capturaPrivada) ventana.abierto=false; } }
     property bool abierto: false
     property bool mostrar: false
+    property var accionPendiente: null
+    property string avisoBusqueda: ""
     property var usos: ({})              // { "firefox.desktop": 12, … }
     property bool todosPrefijos: false   // chips: los 6 más usados o todos
 
@@ -41,6 +44,7 @@ PanelWindow {
         if (abierto) {
             cierre.stop(); mostrar = true;
             buscador.text = "";
+            contexto.referencia = null;
             todosPrefijos = false;
             lista.currentIndex = 0;
             buscador.forceActiveFocus();
@@ -65,6 +69,18 @@ PanelWindow {
     function sh(cmd) { Quickshell.execDetached(["sh", "-c", cmd]); }
     function g(cp) { return String.fromCodePoint(cp); }
 
+    Connections {
+        target: EstadoEscritorio
+        function onPrivacidadChanged() {
+            if (EstadoEscritorio.privacidad) {
+                ventana.consultaId++;
+                if (ventana.peticionActual) ventana.peticionActual.running=false;
+                ventana.todos=[];ventana.externos=[];ventana.archivosTipados=[];
+                contexto.referencia=null;
+            }
+        }
+    }
+    Connections { target: AccionesServicio; function onCompletada(r) { leerProyectos.running=true;leerPlantillas.running=true;Eventos.actualizar(); } }
     // ── Contador de usos (persistente) ──────────────────────────────────
     readonly property string rutaUsos: Quickshell.env("HOME") + "/.local/state/quickshell/lanzador.json"
     FileView {
@@ -89,12 +105,12 @@ PanelWindow {
         stdout: StdioCollector { onStreamFinished: { try { ventana.plantillas = JSON.parse(this.text).plantillas ?? []; } catch (e) {} } }
     }
     function itemProyecto(pr) {
-        return { nombre: "Retomar «" + pr.nombre + "»", detalle: pr.siguiente ? "Siguiente: " + pr.siguiente : "Abre sus apps en sus espacios",
-                 glifo: 0xF0E1B, accion: () => Quickshell.execDetached([scriptsAbs + "flujo.py", "proyecto", "retomar", "--id=" + pr.id]) };
+        return { referencia: {tipo:"proyecto",id:pr.id}, nombre: "Retomar «" + pr.nombre + "»", detalle: pr.siguiente ? "Siguiente: " + pr.siguiente : "Abre sus apps en sus espacios",
+                 glifo: 0xF0E1B, accion: () => AccionesServicio.ejecutar({tipo:"proyecto",id:pr.id},"retomar") };
     }
     function itemPlantilla(pl) {
-        return { nombre: pl.titulo, detalle: "Plantilla · " + pl.texto.replace(/\s+/g, " ").slice(0, 90), glifo: 0xF0219,
-                 accion: () => Quickshell.execDetached([scriptsAbs + "mesa.py", "plantilla", "copiar", "--id", pl.id]) };
+        return { referencia: {tipo:"plantilla",id:pl.id}, nombre: pl.titulo, detalle: "Plantilla · " + pl.texto.replace(/\s+/g, " ").slice(0, 90), glifo: 0xF0219,
+                 accion: () => AccionesServicio.ejecutar({tipo:"plantilla",id:pl.id},"copiar") };
     }
     // Entradas que no son apps de verdad (ayudas, «acerca de»): no salen en la lista
     readonly property var excluidas: /(^|\s)(help|ayuda|about|acerca de)(\s|$)/i
@@ -138,20 +154,21 @@ PanelWindow {
         { n: "Dictar",                  d: "Escribir con la voz · SUPER+ALT+D",            i: 0xF036C, k: "voz dictado whisper",  c: scripts + "dictado.sh" },
         { n: "Traducir selección",      d: "Traducir el texto seleccionado · SUPER+ALT+T", i: 0xF05CA, k: "traductor translate",  c: scripts + "traducir.sh" },
         { n: "Grabar pantalla",         d: "Región, pantalla o GIF · SUPER+ALT+R",         i: 0xF044A, k: "video grabacion rec",  c: scripts + "grabar.sh" },
+        { n: "Captura con privacidad de ORION", d: "Oculta avisos, títulos y paneles personales de ORION durante la captura de una región", i: 0xF0E51, k: "captura privada screenshot", c: "python3 " + scripts + "captura_privada.py region" },
         { n: "Capturas",                d: "Menú de capturas · SHIFT+PRINT",               i: 0xF0E51, k: "screenshot",           c: scripts + "capturas.sh" },
         { n: "Selector de color",       d: "Copiar el color de un píxel · SUPER+SHIFT+C",  i: 0xF0266, k: "color picker hex",     c: scripts + "selector-color.sh" },
         { n: "Luz nocturna",            d: "Pantalla cálida sí/no · SUPER+ALT+N",          i: 0xF0594, k: "noche sunset",         c: scripts + "luz-nocturna.sh" },
         { n: "Continuar proyecto", d: "Próximo paso, recursos y aplicaciones guardadas · SUPER+CTRL+Enter", i: 0xF0E1B, k: "continuidad memoria proyecto retomar", c: "qs ipc call flujo abrir continuidad" },
         { n: "Organizar por tarea", d: "Previsualizar y aplicar un layout · SUPER+CTRL+O", i: 0xF03D8, k: "comparar programar investigar columnas ordenar", c: "qs ipc call flujo abrir organizar" },
         { n: "Acciones de selección", d: "Capturar texto y elegir qué hacer · SUPER+ALT+C", i: 0xF0219, k: "seleccion texto transformar resumir traducir", c: "~/.config/hypr/scripts/flujo.py abrir seleccion" },
-        { n: "Mesa de trabajo", d: "Buscar, mover y aparcar ventanas; plantillas, reunión y rutinas", i: 0xF03D8, k: "premium ventanas aparcar organizar", c: "qs ipc call mesa abrir ventanas" },
-        { n: "Plantillas de texto", d: "Textos reutilizables con fecha y hora · SUPER+CTRL+V", i: 0xF0219, k: "fragmentos snippets biblioteca copiar", c: "qs ipc call mesa abrir plantillas" },
+        { n: "Mesa de trabajo", d: "Buscar, mover y aparcar ventanas; plantillas, reunión y rutinas", i: 0xF03D8, k: "premium ventanas aparcar organizar", consulta: "v " },
+        { n: "Plantillas de texto", d: "Textos reutilizables con fecha y hora · SUPER+CTRL+V", i: 0xF0219, k: "fragmentos snippets biblioteca copiar", consulta: "pl " },
         { n: "Reunión temporizada", d: "Privacidad, No molestar y suspensión pausada", i: 0xF0306, k: "presentacion reunion videollamada temporizador", c: "qs ipc call mesa abrir reunion" },
         { n: "Rutinas", d: "Editar qué apps abre cada rutina", i: 0xF0E1B, k: "estudiar programar descansar preparar editar", c: "qs ipc call mesa abrir rutinas" },
         { n: "Empezar a estudiar", d: "Rutina: apps de la universidad, perfil lectura y 25 min de concentración", i: 0xF0474, k: "rutina estudiar universidad clase", c: scripts + "mesa.py rutina estudiar" },
         { n: "Empezar a programar", d: "Rutina: apps de programar y 50 min de concentración", i: 0xF0169, k: "rutina programar codigo", c: scripts + "mesa.py rutina programar" },
         { n: "Empezar a descansar", d: "Rutina: apps de descanso", i: 0xF04B2, k: "rutina descansar descanso pausa", c: scripts + "mesa.py rutina descansar" },
-        { n: "Guardar proyecto", d: "Guardar las apps abiertas y el siguiente paso para retomarlo luego", i: 0xF0193, k: "proyecto guardar continuidad memoria", c: "qs ipc call flujo abrir continuidad" },
+        { n: "Guardar proyecto", d: "Guardar las apps abiertas y el siguiente paso para retomarlo luego", i: 0xF0193, k: "proyecto guardar continuidad memoria", ref: {tipo:"proyecto",id:""} },
         { n: "Perfiles y privacidad", d: "Centro de control › Más: checkpoints, privacidad, diagnóstico y replay", i: 0xF03D8, k: "perfil sistema avanzado checkpoint diagnostico", c: "qs ipc call centroEscritorio toggle" },
         { n: "Modo juego",              d: "Sin efectos ni notificaciones · SUPER+SHIFT+G", i: 0xF0297, k: "game",                c: "hyprctl dispatch 'modo_juego.alternar() or hl.dsp.no_op()'" },
         { n: "Concentración",           d: "Temporizador con No molestar · SUPER+SHIFT+F", i: 0xF04FE, k: "pomodoro foco",        c: "qs ipc call menu concentracion" },
@@ -302,29 +319,64 @@ PanelWindow {
         while ((m = re.exec(t)) !== null) res.push({ ruta: decodeURIComponent(m[1]), fecha: m[2] });
         return res.sort((a, b) => b.fecha.localeCompare(a.fecha)).slice(0, 25).map(x => x.ruta);
     }
+    property int consultaId: 0
+    property string resultadosBusquedaDe: ""
+    property bool cargandoBusqueda: false
+    property var peticionActual: null
+    function buscarFuente(tipo, consulta, destino) {
+        if (peticionActual) peticionActual.running=false;
+        consultaId++;
+        cargandoBusqueda=true; avisoBusqueda="";
+        peticionActual=peticionBusqueda.createObject(ventana,{consulta:consulta,original:buscador.text,destino:destino,generacion:consultaId,command:["python3",scriptsAbs+"busqueda.py",tipo,consulta]});
+        peticionActual.running=true;
+    }
+    Component {
+        id: peticionBusqueda
+        Process {
+            id: peticion
+            property string consulta: ""
+            property string original: ""
+            property string destino: ""
+            property int generacion: 0
+            property bool respondio: false
+            stdout: SplitParser {
+                onRead: (linea) => {
+                    if (peticion.generacion !== ventana.consultaId || peticion.original !== buscador.text) return;
+                    try {
+                        const r=JSON.parse(linea);peticion.respondio=true;
+                        ventana.resultadosBusquedaDe=peticion.original;
+                        if (peticion.destino === "calc") { ventana.calcEntrada=peticion.original;ventana.calcResultado=r.resultados[0]?.nombre || ""; }
+                        else if (peticion.destino === "todo") { ventana.todos=r.resultados;ventana.todosDe=peticion.original; }
+                        else if (peticion.destino === "archivos") ventana.archivosTipados=r.resultados;
+                        else { ventana.externos=r.resultados;ventana.externosDe=peticion.original; }
+                        ventana.cargandoBusqueda=!!r.cargando;
+                        ventana.avisoBusqueda=r.errores.join(" · ");
+                    } catch(e) { ventana.avisoBusqueda="No se pudo leer una fuente de búsqueda."; }
+                }
+            }
+            onExited: (codigo, estado) => {
+                if (generacion === ventana.consultaId && original === buscador.text) {
+                    ventana.cargandoBusqueda=false;
+                    if (!respondio) ventana.avisoBusqueda="La búsqueda no respondió. Vuelve a escribir para reintentar.";
+                    ventana.peticionActual=null;
+                }
+                Qt.callLater(() => peticion.destroy());
+            }
+        }
+    }
+    property var archivosTipados: []
     Timer {
         id: espera; interval: 180
         onTriggered: {
-            const t = buscador.text;
+            const t=buscador.text;
             if (ventana.modo === "calc") {
-                // «5 km a mi» → «5 km to -mi» (el - pide un solo número, no «3 mi + 188 yd»)
-                const expr = t.replace(/^=\s*/, "").replace(/\s+a\s+(\S+)\s*$/i, " to -$1").replace(/\s+en\s+(\S+)\s*$/i, " to -$1");
-                calc.running = false; ventana.calcEntrada = t;
-                calc.command = ["qalc", "-t", expr]; calc.running = true;
-            } else if (ventana.modo === "externo") {
-                const m = t.match(/^(\w+)\s+(.*)$/);
-                buscaExterno.running = false; buscaExterno.para = t;
-                buscaExterno.command = [Quickshell.env("HOME") + "/.config/hypr/scripts/buscar.py", ventana.externosTipos[m[1].toLowerCase()][0], m[2]];
-                buscaExterno.running = true;
-            } else if (ventana.modo === "apps" && t.trim().length >= 3) {
-                buscaTodo.running = false; buscaTodo.para = t;
-                buscaTodo.command = [Quickshell.env("HOME") + "/.config/hypr/scripts/buscar.py", "todo", t.trim()];
-                buscaTodo.running = true;
-            } else if (ventana.modo === "archivos" && t.length > 2) {
-                buscaArchivos.running = false;
-                buscaArchivos.command = ["fd", "-i", "--max-results", "40", "--exclude", ".cache", "--", t.slice(1).trim(), Quickshell.env("HOME")];
-                buscaArchivos.running = true;
-            }
+                const expr=t.replace(/^=\s*/,"").replace(/\s+a\s+(\S+)\s*$/i," to -$1").replace(/\s+en\s+(\S+)\s*$/i," to -$1");
+                ventana.buscarFuente("calc",expr,"calc");
+            } else if (ventana.modo === "externo" && !EstadoEscritorio.privacidad) {
+                const m=t.match(/^(\w+)\s+(.*)$/);if(m) ventana.buscarFuente(ventana.externosTipos[m[1].toLowerCase()][0],m[2],"externo");
+            } else if (ventana.modo === "apps" && t.trim().length>=3 && !EstadoEscritorio.privacidad) ventana.buscarFuente("todo",t.trim(),"todo");
+            else if (ventana.modo === "archivos" && t.length>2 && !EstadoEscritorio.privacidad) ventana.buscarFuente("archivos",t.slice(1).trim(),"archivos");
+            else { if (ventana.peticionActual) ventana.peticionActual.running=false; ventana.consultaId++; ventana.cargandoBusqueda=false; }
         }
     }
 
@@ -383,28 +435,31 @@ PanelWindow {
             return [{ nombre: nota, detalle: "Apuntarlo en ~/Documents/notas.md", glifo: 0xF039A,
                       accion: () => Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/nota.sh", nota]) }];
         }
+        if (EstadoEscritorio.privacidad && ["externo","archivos","plantillas"].includes(modo)) return [{nombre:"Detalles ocultos por privacidad",detalle:"Desactiva privacidad para consultar archivos, historial o textos personales.",accion:null}];
         if (modo === "externo") {
             const tipo = externosTipos[t.match(/^(\w+)/)[1].toLowerCase()];
             if (externosDe !== t && externos.length === 0)
                 return [{ nombre: tipo[1], detalle: "Buscando…", glifo: tipo[2], accion: null }];
             if (externos.length === 0)
-                return [{ nombre: "Sin resultados", detalle: tipo[1], glifo: tipo[2], accion: null }];
-            return externos.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo,
-                                        accion: x.cmd && x.cmd.length ? () => Quickshell.execDetached(x.cmd) : null }));
+                return [{ nombre: avisoBusqueda ? "Fuente no disponible" : cargandoBusqueda ? "Buscando…" : "Sin resultados", detalle: tipo[1], glifo: tipo[2], accion: null }];
+            return externos.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo, referencia:x.referencia,
+                                        accion: x.cmd && x.cmd.length ? () => ventana.ejecutarResultado(x) : null }));
         }
         if (modo === "plantillas") {
             const f = normalizar(t.replace(/^pl\s*/i, ""));
             const l = plantillas.filter(x => normalizar(x.titulo + " " + x.texto).includes(f)).map(itemPlantilla);
+            l.unshift({nombre:"Crear plantilla",detalle:"Nombre y texto reutilizable",glifo:0xF0219,mantener:true,accion:() => contexto.abrir({tipo:"plantilla",id:""})});
             return l.length ? l : [{ nombre: plantillas.length ? "Ninguna plantilla coincide" : "Aún no tienes plantillas",
-                                     detalle: "Créalas en Mesa de trabajo › Plantillas", glifo: 0xF0219, accion: () => sh("qs ipc call mesa abrir plantillas") }];
+                                     detalle: "Crea una plantilla aquí", glifo: 0xF0219, mantener:true, accion: () => contexto.abrir({tipo:"plantilla",id:""}) }];
         }
         if (modo === "emoji")
             return buscarEmojis(t.slice(1)).map(x => ({ nombre: x.n, detalle: "Enter: escribirlo (y queda copiado)", texto: x.e,
                 accion: () => Quickshell.execDetached(["sh", "-c", 'printf %s "$1" | wl-copy; sleep 0.25; wtype "$1"', "_", x.e]) }));
         if (modo === "archivos") {
-            const rutas = t.trim() === "/" ? listaRecientes() : archivos;
+            if (t.trim() !== "/") return archivosTipados.map(x => Object.assign({},x,{accion:() => ventana.ejecutarResultado(x)}));
+            const rutas = listaRecientes();
             const casa = Quickshell.env("HOME");
-            return rutas.map(r => ({ nombre: r.split("/").pop(), detalle: (t.trim() === "/" ? "Reciente · " : "") + r.replace(casa, "~"),
+            return rutas.map(r => ({ referencia:{tipo:"archivo",id:r}, nombre: r.split("/").pop(), detalle: (t.trim() === "/" ? "Reciente · " : "") + r.replace(casa, "~"),
                                      glifo: /\.[a-z0-9]{1,5}$/i.test(r) ? 0xF0214 : 0xF024B, accion: () => Quickshell.execDetached(["xdg-open", r]) }));
         }
         if (modo === "web") {
@@ -412,9 +467,18 @@ PanelWindow {
             return [{ nombre: p[2], detalle: "Buscar en " + w[0], glifo: 0xF059F, accion: () => Quickshell.execDetached(["xdg-open", w[1] + encodeURIComponent(p[2])]) }];
         }
         const res = [];
+        if (modo === "apps" && q.length>=3 && !EstadoEscritorio.privacidad) {
+            const eventos=Eventos.lista.filter(e => normalizar(e.titulo).includes(q)).slice(0,3);
+            const tareas=Eventos.tareas.filter(e => normalizar(e.titulo).includes(q)).slice(0,3);
+            for (const e of eventos) {
+                const ref={tipo:"evento",id:e.uid || "",inicio:e.inicio.getTime(),calendario:e.calendario || ""};
+                res.push({nombre:e.titulo,detalle:Eventos.cuando(e),glifo:0xF00F0,referencia:ref,mantener:true,accion:() => contexto.abrir(ref)});
+            }
+            for (const t of tareas) { const ref={tipo:"tarea",id:t.id};res.push({nombre:t.titulo,detalle:"Tarea pendiente en Google",glifo:0xF012C,referencia:ref,mantener:true,accion:() => contexto.abrir(ref)}); }
+        }
         if (modo === "calc") {
             const ok = calcResultado && calcEntrada === t && !/^error|warning/i.test(calcResultado);
-            res.push({ nombre: ok ? calcResultado : "…", detalle: ok ? "= " + t.replace(/^=\s*/, "") + "   ·   Enter: copiar el resultado" : "Calculando…",
+            res.push({ nombre: ok ? calcResultado : avisoBusqueda ? "No se pudo calcular" : "…", detalle: ok ? "= " + t.replace(/^=\s*/, "") + "   ·   Enter: copiar el resultado" : avisoBusqueda || "Calculando…",
                        glifo: 0xF00EC, accion: ok ? (r => () => Quickshell.execDetached(["wl-copy", r]))(calcResultado) : null });
             if (t.startsWith("=")) return res;
         }
@@ -424,23 +488,23 @@ PanelWindow {
         const accs = acciones.map(a => ({ a: a, p: puntajeAccion(a, q) })).filter(r => r.p > 0);
         // proyectos: por su nombre, o todos con «proyecto» / «retomar»
         const todosProy = q.length >= 3 && ("proyectos".startsWith(q) || "retomar".startsWith(q));
-        const proys = q.length < 2 ? [] : proyectos.map(pr => {
+        const proys = EstadoEscritorio.privacidad || q.length < 2 ? [] : proyectos.map(pr => {
             const n = normalizar(pr.nombre);
             return { pr: pr, p: n.startsWith(q) ? 95 : n.includes(q) ? 75 : todosProy ? 60 : 0 };
         }).filter(r => r.p > 0);
-        const plants = q.length < 3 ? [] : plantillas.filter(x => normalizar(x.titulo).includes(q)).slice(0, 3);
+        const plants = EstadoEscritorio.privacidad || q.length < 3 ? [] : plantillas.filter(x => normalizar(x.titulo).includes(q)).slice(0, 3);
         const mezcla = [...apps.map(r => ({ p: r.p, item: { nombre: r.app.name, detalle: r.app.genericName || r.app.comment || "",
                                                             icono: r.app.icon, accion: () => lanzarApp(r.app) } })),
-                        ...accs.map(r => ({ p: r.p, item: { nombre: r.a.n, detalle: r.a.d, glifo: r.a.i, accion: () => sh(r.a.c) } })),
+                        ...accs.map(r => ({ p:r.p, item:{nombre:r.a.n,detalle:r.a.d,glifo:r.a.i,mantener:!!r.a.ref || !!r.a.consulta,accion:() => r.a.ref ? contexto.abrir(r.a.ref) : r.a.consulta ? abrirCon(r.a.consulta) : sh(r.a.c)} })),
                         ...proys.map(r => ({ p: r.p, item: itemProyecto(r.pr) })),
                         ...plants.map(x => ({ p: 40, item: itemPlantilla(x) }))]
             .sort((a, b) => b.p - a.p || a.item.nombre.localeCompare(b.item.nombre)).slice(0, 40).map(x => x.item);
         // lo universal solo vale si es de lo que hay escrito ahora (no de una búsqueda anterior)
-        const universal = (todosDe === t && q.length >= 3) ? todos : [];
+        const universal = !EstadoEscritorio.privacidad && (todosDe === t || cargandoBusqueda) && q.length >= 3 ? todos : [];
         if (universal.length && mezcla.length) mezcla.forEach(x => x.grupo = "Apps y acciones");
         res.push(...mezcla);
-        res.push(...universal.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo,
-                                          accion: x.cmd && x.cmd.length ? () => Quickshell.execDetached(x.cmd) : null })));
+        res.push(...universal.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo, grupo: x.grupo, referencia:x.referencia,
+                                          accion: x.cmd && x.cmd.length ? () => ventana.ejecutarResultado(x) : null })));
         if (q && res.length === 0)   // nada: ofrecer buscarlo en internet
             res.push({ nombre: t.trim(), detalle: "Buscar en Google", glifo: 0xF059F,
                        accion: () => Quickshell.execDetached(["xdg-open", webs.g[1] + encodeURIComponent(t.trim())]) });
@@ -456,11 +520,19 @@ PanelWindow {
         archivoUsos.setText(JSON.stringify(u, null, 1));
     }
     function elegir(r) {
-        if (!r || !r.accion) return;
+        if (contexto.referencia || !r || !r.accion) return;
+        if (r.mantener) { r.accion(); return; }
         abierto = false;
-        r.accion();
+        accionPendiente = r.accion; soltarYActuar.restart();
     }
 
+    Timer { id: soltarYActuar; interval: 90; onTriggered: { const f=ventana.accionPendiente; ventana.accionPendiente=null; if (f) f(); } }
+    function ejecutarResultado(x) {
+        const principal=({ventana:"enfocar",archivo:"abrir",web:"abrir"})[x.referencia?.tipo];
+        if (principal) AccionesServicio.ejecutar(x.referencia,principal);
+        else if (x.cmd?.length) Quickshell.execDetached(x.cmd);
+    }
+    function accionesPara(r) { if (r?.referencia) contexto.abrir(r.referencia); }
     // ── Velo + clic fuera ───────────────────────────────────────────────
     Rectangle {
         anchors.fill: parent
@@ -474,9 +546,9 @@ PanelWindow {
     Rectangle {
         id: tarjeta
         width: 640
-        height: columna.implicitHeight + 32
+        height: Math.min(columna.implicitHeight + 32, parent.height - 48)
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height * 0.16 + (ventana.abierto ? 0 : -12)
+        y: Math.max(16,Math.min(parent.height*.12,parent.height-height-24)) + (ventana.abierto ? 0 : -12)
         opacity: ventana.abierto ? 1 : 0
         scale: ventana.abierto ? 1 : 0.98
         Behavior on y       { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
@@ -536,8 +608,8 @@ PanelWindow {
                             font: buscador.font
                         }
 
-                        Keys.onEscapePressed: ventana.abierto = false
-                        Keys.onReturnPressed: ventana.elegir(ventana.resultados[lista.currentIndex])
+                        Keys.onEscapePressed: { if (contexto.referencia) { if (!contexto.ocupado) { contexto.referencia=null; buscador.forceActiveFocus(); } } else ventana.abierto=false; }
+                        Keys.onReturnPressed: (event) => { if (event.modifiers & Qt.AltModifier) ventana.accionesPara(ventana.resultados[lista.currentIndex]); else ventana.elegir(ventana.resultados[lista.currentIndex]); }
                         Keys.onEnterPressed: ventana.elegir(ventana.resultados[lista.currentIndex])
                         Keys.onDownPressed: lista.incrementCurrentIndex()
                         Keys.onUpPressed: lista.decrementCurrentIndex()
@@ -594,9 +666,19 @@ PanelWindow {
                 }
             }
 
+            Text { Layout.fillWidth: true; visible: ventana.cargandoBusqueda || ventana.avisoBusqueda !== ""; text: (ventana.cargandoBusqueda ? (ventana.resultadosBusquedaDe && ventana.resultadosBusquedaDe !== buscador.text ? "Resultados de «"+ventana.resultadosBusquedaDe+"» mientras buscamos «"+buscador.text+"»…" : "Buscando…") : "") + (ventana.avisoBusqueda ? " · "+ventana.avisoBusqueda : ""); wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight; color: ventana.avisoBusqueda ? Paleta.aviso : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
             // Resultados
+            AccionesResultado {
+                id: contexto
+                Layout.fillWidth: true
+                onCerrar: { referencia=null; buscador.forceActiveFocus(); }
+                onSoltarFoco: ventana.abierto=false
+                onActualizado: { leerPlantillas.running=true; leerProyectos.running=true; Eventos.actualizar(); espera.restart(); }
+            }
+
             ListView {
                 id: lista
+                visible: !contexto.referencia
                 Layout.fillWidth: true
                 implicitHeight: Math.min(contentHeight, 7 * 56 + 26)
                 clip: true
@@ -653,7 +735,7 @@ PanelWindow {
                     }
 
                     RowLayout {
-                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2; leftMargin: 12; rightMargin: 12 }
+                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; bottomMargin: 2; leftMargin: 12; rightMargin: fila.actual && fila.modelData.referencia ? 100 : 12 }
                         height: 52
                         spacing: 12
                         Rectangle {   // baldosa del icono
@@ -682,7 +764,8 @@ PanelWindow {
                             spacing: 1
                             Text {
                                 Layout.fillWidth: true
-                                text: fila.modelData.nombre
+                                textFormat: Text.PlainText
+                                text: EstadoEscritorio.privacidad && fila.modelData.referencia ? "Resultado privado" : fila.modelData.nombre
                                 color: Paleta.texto
                                 elide: Text.ElideRight
                                 font { family: Paleta.fuente; pixelSize: 14; bold: true }
@@ -690,7 +773,7 @@ PanelWindow {
                             Text {
                                 Layout.fillWidth: true
                                 visible: text !== ""
-                                text: fila.modelData.detalle ?? ""
+                                text: EstadoEscritorio.privacidad && fila.modelData.referencia ? "Detalles ocultos" : fila.modelData.detalle ?? ""
                                 // gris puro se perdía sobre el resaltado; tenue (texto al 68 %) se lee en ambos casos
                                 color: fila.actual ? EstiloPanel.secundario : EstiloPanel.tenue
                                 elide: Text.ElideMiddle
@@ -700,10 +783,18 @@ PanelWindow {
                     }
                     MouseArea {
                         anchors.fill: parent
+                        anchors.rightMargin: fila.actual && fila.modelData.referencia ? 88 : 0
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onEntered: lista.currentIndex = fila.index
-                        onClicked: ventana.elegir(fila.modelData)
+                        onClicked: (e) => e.button === Qt.RightButton ? ventana.accionesPara(fila.modelData) : ventana.elegir(fila.modelData)
+                    }
+                    BotonCompacto {
+                        visible: fila.actual && !!fila.modelData.referencia
+                        anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                        text: "Acciones"
+                        onClicked: ventana.accionesPara(fila.modelData)
                     }
                 }
             }

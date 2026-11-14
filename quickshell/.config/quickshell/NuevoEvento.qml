@@ -151,7 +151,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "Guardar"
-                    color: n.valido ? Paleta.fondo : Paleta.gris
+                    color: n.valido ? Paleta.sobreAcento : Paleta.gris
                     font { family: Paleta.fuente; pixelSize: 11; bold: true }
                 }
                 MouseArea { anchors.fill: parent; cursorShape: n.valido ? Qt.PointingHandCursor : Qt.ArrowCursor; onClicked: n.guardar() }

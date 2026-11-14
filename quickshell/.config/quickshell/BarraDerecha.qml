@@ -17,6 +17,8 @@ import Quickshell.Services.Mpris
 
 RowLayout {
     id: derecha
+    property bool prioridad: false
+    property bool compacto: false
     property var ventana: null              // la PanelWindow (para tooltip y menús de la bandeja)
     spacing: 0
 
@@ -39,11 +41,11 @@ RowLayout {
         id: visual
         readonly property bool suena: Mpris.players.values.some(p => p.isPlaying)
         property var valores: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        visible: suena
+        visible: suena && !derecha.prioridad && !derecha.compacto && !grabacion.visible && !microActividad.visible
         implicitWidth: 10 * 3 + 9 * 2 + 8
         implicitHeight: 34
         Process {
-            running: visual.suena
+            running: visual.visible
             command: ["cava", "-p", Quickshell.env("HOME") + "/.config/quickshell/cava.conf"]
             stdout: SplitParser {
                 onRead: (linea) => {
@@ -108,38 +110,7 @@ RowLayout {
         onClic: derecha.ejecutar(modo !== "" ? "~/.config/hypr/scripts/grabar.sh parar" : "~/.config/hypr/scripts/dictado.sh")
     }
 
-    // ── Bandeja del sistema ─────────────────────────────────────────────
-    RowLayout {
-        Layout.rightMargin: 4
-        spacing: 8
-        Repeater {
-            model: SystemTray.items.values
-            IconImage {
-                id: iconoBandeja
-                required property var modelData
-                implicitSize: 16
-                source: modelData.icon
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-                    onClicked: (e) => {
-                        const it = iconoBandeja.modelData;
-                        if (e.button === Qt.MiddleButton) it.secondaryActivate();
-                        else if (e.button === Qt.RightButton || it.onlyMenu) {
-                            if (it.hasMenu) {
-                                const p = iconoBandeja.mapToItem(null, 0, iconoBandeja.height);
-                                it.display(derecha.ventana, p.x, p.y + 8);
-                            }
-                        } else it.activate();
-                    }
-                    onContainsMouseChanged: containsMouse
-                        ? ayuda.mostrar(iconoBandeja, iconoBandeja.modelData.tooltipTitle || iconoBandeja.modelData.title || iconoBandeja.modelData.id)
-                        : ayuda.ocultar()
-                }
-            }
-        }
-    }
+    Bandeja { ventana: derecha.ventana; ocultarBuds: buds.visible }
 
     // ── Móvil (KDE Connect): batería; solo si hay uno emparejado y conectado ──
     Modulo {
@@ -209,7 +180,7 @@ RowLayout {
                     for (let i = 0; i + 1 < l.length && res.length < 3; i += 2) {
                         let d = {};
                         try { d = JSON.parse(l[i]); } catch (e) {}
-                        res.push({ parte: nombres[res.length], texto: d.text ?? "", icono: l[i + 1].trim(),
+                        res.push({ parte: nombres[res.length], texto: d.text ?? "", porcentaje: typeof d.percentage === "number" ? d.percentage : null, icono: l[i + 1].trim(),
                                    clase: [].concat(d.class ?? []), version: Date.now() });
                         if (d.tooltip) buds.ayudaTexto = d.tooltip;
                     }
@@ -235,13 +206,13 @@ RowLayout {
                     required property var modelData
                     spacing: 2
                     Image {
-                        sourceSize { width: 22; height: 22 }
+                        sourceSize { width: 18; height: 18 }
                         source: "file://" + modelData.icono + "?" + modelData.version   // ?… = no usar la caché
                         cache: false
                     }
                     Text {
-                        text: modelData.texto
-                        font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold }
+                        text: modelData.porcentaje === null ? "—" : modelData.porcentaje + "%"
+                        font { family: Paleta.fuente; pixelSize: 12; weight: Font.DemiBold }
                         color: modelData.clase.includes("low") || modelData.clase.includes("critical") ? Paleta.peligro
                              : modelData.clase.includes("charging") ? Paleta.aviso
                              : modelData.clase.includes("anc") ? Paleta.acento2
@@ -281,6 +252,16 @@ RowLayout {
         ayuda: (salida?.description ?? "") + "\nClic: silenciar · Rueda: volumen"
         onClic: derecha.ejecutar("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")   // el OSD reacciona solo
         onRueda: (arriba) => derecha.ejecutar(arriba ? "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+" : "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-")
+    }
+
+    Modulo {
+        id: microActividad
+        visible: Pipewire.nodes.values.some(n => n.isStream && n.properties["media.class"] === "Stream/Input/Audio")
+        icono: derecha.g(0xF036C)
+        color: Paleta.peligro
+        ayuda: "Micrófono en uso · clic para silenciar"
+        gestorAyuda: ayuda
+        onClic: derecha.ejecutar("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle")
     }
 
     // ── Red (NetworkManager) ─────────────────────────────────────────────
@@ -363,7 +344,8 @@ RowLayout {
     Modulo {
         id: cpuMod
         property bool alta: false
-        Connections { target: Sistema; function onCpuChanged() { cpuMod.alta = Sistema.cpu > 0.85 || (cpuMod.alta && Sistema.cpu > 0.70); } }
+        Timer { interval: 5000; running: Sistema.cpu > .85 && !cpuMod.alta; onTriggered: cpuMod.alta = true }
+        Connections { target: Sistema; function onCpuChanged() { if (Sistema.cpu < .70) cpuMod.alta = false; } }
         visible: alta
         icono: derecha.g(0xF0EE0)
         texto: Math.round(Sistema.cpu * 100) + "%"
@@ -374,7 +356,8 @@ RowLayout {
     Modulo {
         id: ramMod
         property bool alta: false
-        Connections { target: Sistema; function onRamChanged() { ramMod.alta = Sistema.ram > 0.85 || (ramMod.alta && Sistema.ram > 0.70); } }
+        Timer { interval: 5000; running: Sistema.ram > .85 && !ramMod.alta; onTriggered: ramMod.alta = true }
+        Connections { target: Sistema; function onRamChanged() { if (Sistema.ram < .70) ramMod.alta = false; } }
         visible: alta
         gestorAyuda: ayuda
         icono: derecha.g(0xF035B)

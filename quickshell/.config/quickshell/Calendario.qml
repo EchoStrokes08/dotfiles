@@ -95,7 +95,7 @@ ColumnLayout {
                 Text {
                     anchors.centerIn: parent
                     text: dia > 0 ? dia : ""
-                    color: parent.esHoy ? Paleta.fondo : Paleta.texto
+                    color: parent.esHoy ? Paleta.sobreAcento : Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 12; bold: parent.esHoy }
                 }
                 // puntito = ese día hay algo en tu Google Calendar (Eventos.qml)
@@ -103,7 +103,7 @@ ColumnLayout {
                     visible: dia > 0 && (Eventos.hayEn(parent.fecha) || Eventos.tareas.some(t => t.fecha && t.fecha.getTime() === parent.fecha.getTime()))
                     width: 4; height: 4; radius: height / 2
                     anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 2 }
-                    color: parent.esHoy ? Paleta.fondo : Paleta.acento2
+                    color: parent.esHoy ? Paleta.sobreAcento : Paleta.acento2
                 }
             }
         }

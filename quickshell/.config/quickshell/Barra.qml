@@ -33,6 +33,8 @@ PanelWindow {
         BarraDerecha {
             id: derecha
             ventana: barra
+            prioridad: ModoTeclado.activo || EstadoEscritorio.privacidad
+            compacto: barra.width < 1400
             anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
         }
     }
@@ -52,6 +54,8 @@ PanelWindow {
                 spacing: 4
 
                 BarraEspacios { id: espaciosBarra; monitor: barra.monitor }
+
+                IndicadorTeclado { id: modoTeclado }
 
                 // Perfil del escritorio (o reunión / privacidad)
                 Rectangle {
@@ -106,7 +110,7 @@ PanelWindow {
             // El título cede espacio: nunca debe llegar a donde va el reloj (si no, la bandeja lo tapa).
             // Hueco = desde aquí hasta la isla derecha, menos el reloj y márgenes; tope 360 px.
             readonly property real hueco: islaDerecha.x - izquierda.x - islaEspacios.width - 8 - centro.implicitWidth - 40
-            visible: !EstadoEscritorio.privacidad && actual !== null && actual.title !== "" && hueco > 80
+            visible: !ModoTeclado.activo && !EstadoEscritorio.privacidad && actual !== null && actual.title !== "" && hueco > 80
             tinte: .02
             implicitWidth: Math.max(0, Math.min(360, hueco, filaVentana.implicitWidth + 28))
             Layout.preferredWidth: implicitWidth

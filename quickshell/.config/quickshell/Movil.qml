@@ -22,13 +22,15 @@ Superpuesta {
 
     readonly property string script: Quickshell.env("HOME") + "/.config/hypr/scripts/movil.py"
     property var d: null
+    property real actualizado: 0
     property string aviso: ""
     property string respondiendo: ""      // id de la notificación del móvil que se contesta
     property var notiPc: null             // o una notificación del PC con respuesta en línea
 
     function abrir() { abierto = true; cargar(); }
-    function cargar() { if (!lector.running) lector.running = true; }
+    function cargar() { if (EstadoEscritorio.privacidad) { aviso = "Móvil oculto durante la privacidad"; return; } if (!lector.running) lector.running = true; }
     function orden(args, cerrar) {
+        if (EstadoEscritorio.privacidad) return;
         if (accion.running) return;
         accion.cerrar = cerrar === true;
         accion.command = [script, ...args]; accion.running = true;
@@ -47,7 +49,7 @@ Superpuesta {
     Process {
         id: lector
         command: [mv.script, "estado"]
-        stdout: StdioCollector { onStreamFinished: { try { mv.d = JSON.parse(text); } catch (e) {} } }
+        stdout: StdioCollector { onStreamFinished: { try { const datos=JSON.parse(text);if(datos.error) throw new Error(datos.error);mv.d=datos;mv.aviso="";mv.actualizado=Date.now(); } catch (e) { mv.aviso="No se pudo actualizar el móvil. Se conservan los últimos datos; reintentando…"; } } }
     }
     Process {
         id: accion
@@ -58,6 +60,7 @@ Superpuesta {
     }
 
     function enviarRespuesta() {
+        if (EstadoEscritorio.privacidad) return;
         const t = respuesta.text.trim();
         if (!t) return;
         if (notiPc) {
@@ -71,10 +74,17 @@ Superpuesta {
         respuesta.text = "";
     }
 
+    Connections {
+        target: EstadoEscritorio
+        function onPrivacidadChanged() { if (EstadoEscritorio.privacidad) { lector.running=false; mv.d=null; mv.respondiendo="";mv.notiPc=null;respuesta.text="";mv.abierto=false; } }
+    }
+
     // ── piezas ───────────────────────────────────────────────────────────
     ColumnLayout {
         width: parent.width; spacing: 12
+        visible: !EstadoEscritorio.privacidad
 
+        Text { Layout.fillWidth:true; visible: mv.actualizado>0; text: "Última lectura · "+Qt.formatDateTime(new Date(mv.actualizado),"HH:mm:ss"); color: EstiloPanel.tenue; font.pixelSize:11 }
         // ── cabecera ─────────────────────────────────────────────────────
         RowLayout {
             Layout.fillWidth: true; spacing: 12

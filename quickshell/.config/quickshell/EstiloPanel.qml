@@ -57,12 +57,13 @@ Singleton {
     readonly property color elevada: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .065))
 
     // ── Efectos según el perfil ────────────────────────────────────────
-    readonly property bool movimiento: EstadoEscritorio.perfil !== "minimo"
+    readonly property bool movimiento: !Paleta.reducirMovimiento && EstadoEscritorio.perfil !== "minimo"
         && EstadoEscritorio.perfil !== "rendimiento"
         && EstadoEscritorio.datos.juego_activo !== "true"
-        && EstadoEscritorio.datos.bateria !== "true"
     // Sombras, resplandores y luces del cristal: fuera en mínimo/rendimiento, juego y batería
-    readonly property bool efectos: movimiento
+    readonly property bool efectos: EstadoEscritorio.perfil === "cristal"
+        && EstadoEscritorio.datos.bateria !== "true"
+        && EstadoEscritorio.datos.juego_activo !== "true"
     // ¿Hay blur de Hyprland detrás de los paneles? Lo apagan los mismos casos y además el perfil lectura (politicas.lua)
     readonly property bool conBlur: efectos && EstadoEscritorio.perfil === "cristal"
     // Opacidad del cristal de los paneles: con blur basta 0.93 para que no se lea lo de detrás; sin blur, opaco

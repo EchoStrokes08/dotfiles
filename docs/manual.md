@@ -455,6 +455,22 @@ Todo está en `~/dotfiles` (enlazado con stow, así que editar `~/.config/hypr/�
 
 ## 17. Si algo falla
 
+Al fallar una recarga de Quickshell aparece un aviso persistente con **Ver detalle** y **Reintentar**.
+La interfaz anterior continúa activa; el aviso desaparece cuando la configuración vuelve a cargar.
+No molestar no oculta este error. Si Quickshell no llega a arrancar, consulta el diagnóstico desde
+terminal del manual técnico antes de iniciar otra instancia.
+
+Los controles rápidos distinguen **Activado**, **Desactivado**, **Aplicando…**, **No disponible** y
+**Reintentar**. El estado cambia cuando el servicio confirma la orden. Un error muestra el motivo;
+puedes volver a pulsar el control o **Consultar** para comprobar servicios que se hayan recuperado.
+Los otros botones siguen utilizables mientras termina una orden.
+
+Brújula muestra la última sincronización de la agenda y permite **Reintentar**. Si no hay conexión,
+conserva la copia anterior identificada como desactualizada. «Agenda sin configurar» significa que
+falta la dirección iCal, no que no tengas eventos. Los modos de teclado aparecen en la barra:
+**Redimensionar** permite cambiar el tamaño con flechas y salir con Esc/Enter; **Lanzar** muestra
+sus teclas al pasar el ratón. También puedes pulsar el indicador para salir del modo.
+
 | Problema | Solución |
 |---|---|
 | Los atajos no responden: estás atrapado en un modo (submap) | `Esc`; si no, en una terminal: `hyprctl dispatch 'hl.dsp.submap("reset")'` |
@@ -993,3 +1009,27 @@ Nada de esto recupera lo que no guardaste dentro de una app.
 
 La lista completa de atajos, gestos y prefijos del lanzador está en [Atajos y referencia rápida](atajos.md).
 Dentro del escritorio: **SUPER+H** (chuleta) o `a texto` en el lanzador.
+
+## ORION: apariencia y espacio útil (fase 2)
+
+En **Centro de control → Más → Apariencia**, el estado dice «Color actual» y los botones
+explican la acción: **Usar Ayu**, **Seguir fondo** o **Fijar acento**. Fijar conserva los
+acentos aunque rote el wallpaper; Seguir fondo lo reactiva. Claro/oscuro es independiente.
+**Reducir movimiento de la interfaz** se guarda como preferencia y no depende del cargador.
+El selector de wallpapers también ofrece **Cambiar colores** sin confundir estado y acción.
+
+**Hoy** muestra agenda y calendario juntos: elegir un día filtra eventos, tareas y recordatorios.
+**Hoy** vuelve a la fecha actual. **+ Evento** y **+ Tarea** indican que guardan en Google
+Calendar y Tasks. Las sugerencias y el cierre se despliegan con **Más de tu día**.
+**Salud** prioriza avisos; **Ver todas** muestra la rutina y **Mantenimiento** conserva las
+acciones de actualizar y deshacer. Sus métricas son compactas, sin anillos.
+
+El centro conserva Wi-Fi y Bluetooth con una flecha para ver dispositivos. El mezclador y las
+salidas de audio se despliegan bajo demanda, la música tiene vista compacta/ampliada y los avisos
+conservan su área. **Perfil visual** cambia efectos/espacio; **Energía alta**, en Más, cambia el
+rendimiento energético. La estrella fija hasta dos controles frecuentes en Inicio.
+
+La flecha de la **bandeja** muestra aplicaciones con sus iconos originales; la estrella las fija.
+Las apps que piden atención aparecen aunque no estén fijadas. Buds conserva en la barra los iconos y porcentajes de izquierdo y derecho, y el estuche cuando
+haya lectura. La ayuda amplía el modo y los estados de carga; desconocido se representa con «—».
+Clic cambia el modo, clic derecho alterna ANC/apagado y clic central abre Buds Manager.

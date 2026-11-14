@@ -13,8 +13,15 @@ import Quickshell.Services.Pipewire
 
 PanelWindow {
     id: ventana
+    Connections { target: EstadoEscritorio; function onCapturaPrivadaChanged() { if(EstadoEscritorio.capturaPrivada) ventana.abierto=false; } }
     property bool abierto: false
     property bool mostrar: false
+    property bool sonidoAmpliado: false
+    property bool musicaAmpliada: false
+    readonly property bool microEnUso: Pipewire.nodes.values.some(n => n.isStream && n.properties["media.class"] === "Stream/Input/Audio")
+    function nombreControl(cosa) { return ({replay:"Replay",rendimiento:"Energía alta",conservacion:"Conservar batería",luz:"Luz nocturna"})[cosa] || cosa; }
+    function iconoControl(cosa) { return g(({replay:0xF044B,rendimiento:0xF140B,conservacion:0xF032A,luz:0xF0594})[cosa] || 0xF0493); }
+
 
     function g(cp) { return String.fromCodePoint(cp); }
     function ejecutar(cmd, cerrarPanel) {
@@ -23,7 +30,7 @@ PanelWindow {
     }
 
     onAbiertoChanged: {
-        if (abierto) { cierre.stop(); mostrar = true; leerConmutadores.running = true; lectorBrillo.running = true; lectorMovil.running = true; salidaEscritorio = ""; }
+        if (abierto) { cierre.stop(); mostrar = true; leerConmutadores.running = true; lectorBrillo.running = true; lectorMovil.running = true; salidaEscritorio = ""; leerReplay.running = true; }
         else cierre.restart();
     }
     Timer { id: cierre; interval: 240; onTriggered: ventana.mostrar = false }
@@ -40,24 +47,32 @@ PanelWindow {
     MouseArea { anchors.fill: parent; onClicked: ventana.abierto = false }   // clic fuera = cerrar
 
     // ── Estado de los conmutadores ──────────────────────────────────────
-    property var estados: ({})        // { wifi: true, bluetooth: false, … }
+    property var estados: ({})        // estado confirmado por servicio, disponibilidad y motivo
+    property var revisionesControles: ({})
+    property string avisoControl: ""
+    function guardarEstado(cosa, dato) {
+        const nuevos = Object.assign({}, estados); nuevos[cosa] = dato; estados = nuevos;
+        const versiones = Object.assign({}, revisionesControles); versiones[cosa] = (versiones[cosa] || 0) + 1; revisionesControles = versiones;
+    }
     Process {
         id: leerConmutadores
-        command: ["sh", "-c", "~/.config/hypr/scripts/conmutadores.sh todos"]
+        property var revisiones: ({})
+        onRunningChanged: if (running) revisiones = Object.assign({}, ventana.revisionesControles)
+        command: [Quickshell.env("HOME") + "/.config/hypr/scripts/conmutadores.sh", "json"]
         stdout: StdioCollector {
             onStreamFinished: {
-                const e = {};
-                for (const l of this.text.trim().split("\n")) { const p = l.split(" "); e[p[0]] = p[1] === "on"; }
-                ventana.estados = e;
+                try {
+                    const datos = JSON.parse(text), nuevos = Object.assign({}, ventana.estados);
+                    for (const cosa of Object.keys(datos))
+                        if ((leerConmutadores.revisiones[cosa] || 0) === (ventana.revisionesControles[cosa] || 0)) nuevos[cosa] = datos[cosa];
+                    ventana.estados = nuevos;
+                }
+                catch (e) { ventana.avisoControl = "No se pudieron consultar los controles. Reintenta la consulta."; }
             }
         }
-    }
-    Timer { id: releer; interval: 700; onTriggered: leerConmutadores.running = true }
-    function conmutar(cosa) {
-        const nuevo = !estados[cosa];
-        const e = Object.assign({}, estados); e[cosa] = nuevo; estados = e;   // respuesta inmediata
-        Quickshell.execDetached(["sh", "-c", `~/.config/hypr/scripts/conmutadores.sh ${cosa} ${nuevo ? "on" : "off"}`]);
-        releer.restart();                                                        // y luego confirmar
+        onExited: (codigo, estadoSalida) => {
+            if (codigo !== 0 || estadoSalida !== 0) ventana.avisoControl = "La consulta de controles falló. Reintenta o revisa el servicio.";
+        }
     }
 
     // ── Brillo ──────────────────────────────────────────────────────────
@@ -95,6 +110,8 @@ PanelWindow {
 
     // Móvil (KDE Connect): lo mismo que lee el panel de avisos (scripts/movil.py estado, JSON)
     property bool movilListo: false
+    property string movilError: ""
+    property real movilActualizado: 0
     property string movilNombre: ""
     property int movilCarga: -1
     property bool movilCargando: false
@@ -105,7 +122,8 @@ PanelWindow {
         stdout: StdioCollector {
             onStreamFinished: {
                 let d = {};
-                try { d = JSON.parse(this.text); } catch (e) {}
+                try { d = JSON.parse(this.text); if (d.error) throw new Error(d.error); } catch (e) { ventana.movilError="No se pudo consultar el móvil. Los datos anteriores pueden estar desactualizados."; ventana.movilListo=true; return; }
+                ventana.movilError="";ventana.movilActualizado=Date.now();
                 ventana.movilNombre = d.conectado ? (d.nombre || "Móvil") : "";
                 ventana.movilCarga = d.bateria ?? -1;
                 ventana.movilCargando = !!d.cargando;
@@ -115,6 +133,7 @@ PanelWindow {
         }
     }
     function movil(args, cerrarPanel) {
+        if (EstadoEscritorio.privacidad) return;
         Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/movil.sh", ...args]);
         if (cerrarPanel) abierto = false;
     }
@@ -131,6 +150,14 @@ PanelWindow {
         id: procEscritorio
         stdout: StdioCollector { onStreamFinished: ventana.salidaEscritorio = this.text.trim() }
         stderr: StdioCollector { onStreamFinished: if (this.text.trim()) ventana.salidaEscritorio = this.text.trim() }
+        onExited: leerReplay.running = true
+    }
+
+    property string replayEstado: "Consultando replay…"
+    Process {
+        id: leerReplay
+        command: ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/replay.py", "detalle"]
+        stdout: StdioCollector { onStreamFinished: { try { ventana.replayEstado = JSON.parse(text).texto; } catch(e) { ventana.replayEstado = "Replay: no se pudo consultar el estado"; } } }
     }
 
     // ── El panel ────────────────────────────────────────────────────────
@@ -148,179 +175,84 @@ PanelWindow {
 
         ColumnLayout {
             anchors { fill: parent; margins: 16 }
-            spacing: 12
+            spacing: 8
 
-            // Título + borrar todo
+            // Cabecera: título y acciones de sesión pequeñas, siempre identificadas.
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 12
-                Rectangle {
-                    implicitWidth: 40; implicitHeight: 40; radius: 12
-                    gradient: Gradient {
-                        GradientStop { position: 0; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.15), .40) }
-                        GradientStop { position: 1; color: Qt.alpha(Paleta.acento, .12) }
-                    }
-                    border { width: 1; color: Qt.alpha(Paleta.acento, .5) }
-                    Text { anchors.centerIn: parent; text: ventana.g(0xF0493); color: Qt.lighter(Paleta.acento, 1.2); font { family: Paleta.fuente; pixelSize: 20 } }
-                }
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-                    Text {
-                        text: relojCC.date.toLocaleDateString(Qt.locale("es_ES"), "dddd d 'de' MMMM").toUpperCase()
-                        color: Paleta.acento
-                        font { family: EstiloPanel.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 }
-                    }
-                    Text {
-                        Layout.fillWidth: true
-                        text: "Centro de control"
-                        color: Paleta.texto
-                        font { family: EstiloPanel.fuente; pixelSize: 20; weight: Font.DemiBold }
-                    }
-                }
-                Rectangle {
-                    visible: Notificaciones.lista.length > 0
-                    implicitWidth: textoBorrar.implicitWidth + 24; implicitHeight: 30; radius: height / 2
-                    color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.peligro, 0.22) : EstiloPanel.rellenoActivo
-                    border { width: 1; color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.peligro, .5) : EstiloPanel.borde }
-                    Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
-                    Text { id: textoBorrar; anchors.centerIn: parent; text: ventana.g(0xF0A7A) + "  Borrar todo"; color: zonaBorrar.containsMouse ? Paleta.peligro : Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
-                    MouseArea { id: zonaBorrar; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Notificaciones.borrarTodo() }
-                }
+                spacing: 8
+                Text { Layout.fillWidth: true; text: "Centro de control"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
+                BotonCompacto { text: "󰌾"; Accessible.name: "Bloquear"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.ejecutar("loginctl lock-session",true) }
+                BotonCompacto { text: "󰐥"; Accessible.name: "Opciones de apagado"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.ejecutar("wlogout",true) }
+                BotonCompacto { text: "×"; Accessible.name: "Cerrar centro de control"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.abierto = false }
             }
-
-            // Botones rápidos (5 por fila)
-            GridLayout {
+            RowLayout {
                 Layout.fillWidth: true
-                columns: 5
-                columnSpacing: 8; rowSpacing: 8
-                Repeater {
-                    model: [
-                        { icono: 0xF0928, nombre: "Wi-Fi",       cosa: "wifi" },
-                        { icono: 0xF00AF, nombre: "Bluetooth",   cosa: "bluetooth" },
-                        { icono: 0xF044B, nombre: "Replay",      cosa: "replay" },
-                        { icono: 0xF140B, nombre: "Rendimiento", cosa: "rendimiento" },
-                        { icono: 0xF032A, nombre: "Conservar",   cosa: "conservacion" },   // batería hasta ~80 %
-                        { icono: 0xF0594, nombre: "Luz noche",   cosa: "luz" },
-                        { icono: 0xF02CB, nombre: "Buds",        cmd: "~/.local/bin/buds mode next --notify" },
-                        { icono: 0xF0E51, nombre: "Captura",     cmd: "sleep 0.4 && mkdir -p ~/Imágenes/screenshots && grim -g \"$(slurp)\" - | tee ~/Imágenes/screenshots/$(date +'%Y%m%d_%H%M%S_grim.png') | wl-copy", cerrar: true },
-                        { icono: 0xF033E, nombre: "Bloquear",    cmd: "loginctl lock-session", cerrar: true },
-                        { icono: 0xF0425, nombre: "Apagar",      cmd: "wlogout", cerrar: true }
-                    ]
-                    Item {
-                        id: boton
-                        required property var modelData
-                        readonly property bool encendido: modelData.cosa ? (ventana.estados[modelData.cosa] ?? false) : false
-                        Layout.fillWidth: true
-                        implicitHeight: 70
-                        scale: zonaBoton.pressed ? .94 : 1
-                        Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
-                        FondoBoton {
-                            anchors.fill: parent
-                            radio: 16
-                            tinte: Paleta.acento
-                            destacado: boton.encendido
-                            encima: zonaBoton.containsMouse
-                        }
-                        Column {
-                            anchors.centerIn: parent
-                            spacing: 4
-                            Text {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: ventana.g(boton.modelData.icono)
-                                color: boton.encendido ? Qt.lighter(Paleta.acento, 1.2) : Paleta.texto
-                                font { family: Paleta.fuente; pixelSize: 20 }
-                                Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
-                            }
-                            Text {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: boton.modelData.nombre
-                                color: boton.encendido ? Paleta.texto : Paleta.gris
-                                font { family: Paleta.fuente; pixelSize: 11; bold: boton.encendido }
-                            }
-                        }
-                        MouseArea {
-                            id: zonaBoton
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            // clic derecho en Wi-Fi/Bluetooth: su lista, en la pestaña Conexiones de abajo
-                            onClicked: (e) => {
-                                if (e.button === Qt.RightButton && (modelData.cosa === "wifi" || modelData.cosa === "bluetooth"))
-                                    ventana.abrirEn("conexiones", modelData.cosa);
-                                else if (e.button === Qt.LeftButton)
-                                    modelData.cosa ? ventana.conmutar(modelData.cosa) : ventana.ejecutar(modelData.cmd, modelData.cerrar);
-                            }
-                        }
-                    }
+                spacing: 8
+                Text { text: "Perfil visual"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                SelectorPanel {
+                    Layout.fillWidth: true
+                    model: [{nombre:"Cristal",id:"cristal"},{nombre:"Lectura · opaco",id:"lectura"},{nombre:"Mínimo · sin movimiento",id:"minimo"},{nombre:"Sin efectos ni huecos",id:"rendimiento"}]
+                    textRole: "nombre"; valueRole: "id"
+                    currentIndex: model.findIndex(p => p.id === EstadoEscritorio.perfil)
+                    onActivated: ventana.escritorio(["perfil",currentValue])
                 }
             }
-
-            // Perfiles del escritorio (antes en el centro del escritorio)
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 4
                 Repeater {
-                    model: [
-                        { id: "cristal", nombre: "Cristal", icono: 0xF030C, ayuda: "Luz y profundidad" },
-                        { id: "lectura", nombre: "Lectura", icono: 0xF0474, ayuda: "Claridad al leer: sin transparencias" },
-                        { id: "minimo", nombre: "Mínimo", icono: 0xF04C5, ayuda: "Solo lo esencial: sin animaciones ni sombras" },
-                        { id: "rendimiento", nombre: "Rendimiento", icono: 0xF0493, ayuda: "Espacio y rapidez: sin huecos ni efectos" }
-                    ]
-                    Rectangle {
-                        id: chipPerfil
+                    model: [{id:"notificaciones",nombre:"Inicio"},{id:"conexiones",nombre:"Redes"},{id:"movil",nombre:"Móvil"},{id:"mas",nombre:"Más"}]
+                    BotonPanel {
                         required property var modelData
-                        readonly property bool actual: EstadoEscritorio.perfil === modelData.id
-                        Layout.fillWidth: true
-                        implicitHeight: 32
-                        radius: height / 2
-                        color: actual ? Qt.alpha(Paleta.acento, .22) : zonaPerfil.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
-                        border { width: 1; color: actual ? Qt.alpha(Paleta.acento, .55) : EstiloPanel.borde }
-                        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
-                        Row {
-                            anchors.centerIn: parent
-                            spacing: 4
-                            Text { text: ventana.g(chipPerfil.modelData.icono); color: chipPerfil.actual ? Paleta.acento : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } anchors.verticalCenter: parent.verticalCenter }
-                            Text { text: chipPerfil.modelData.nombre; color: chipPerfil.actual ? Paleta.texto : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11; bold: chipPerfil.actual } anchors.verticalCenter: parent.verticalCenter }
-                        }
-                        MouseArea { id: zonaPerfil; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: ventana.escritorio(["perfil", chipPerfil.modelData.id]) }
-                        ToolTip.visible: zonaPerfil.containsMouse
-                        ToolTip.text: modelData.ayuda
-                        ToolTip.delay: 500
+                        text: modelData.nombre
+                        destacado: ventana.seccion === modelData.id
+                        onClicked: ventana.seccion = modelData.id
                     }
                 }
             }
-
-            // ── Pestañas: Inicio (sonido, música y avisos) · Conexiones · Móvil · Más ──
-            Item {
+            RowLayout {
                 Layout.fillWidth: true
-                implicitHeight: 34
-                Rectangle { anchors.fill: parent; radius: height / 2; color: EstiloPanel.relleno; border { width: 1; color: EstiloPanel.borde } }
-                Row {
-                    anchors { fill: parent; margins: 2 }
-                    Repeater {
-                        model: [
-                            { id: "notificaciones", nombre: "Inicio" + (Notificaciones.lista.length ? " · " + Notificaciones.lista.length : "") },
-                            { id: "conexiones", nombre: "Conexiones" },
-                            { id: "movil", nombre: "Móvil" },
-                            { id: "mas", nombre: "Más" }
-                        ]
-                        Rectangle {
-                            id: pestana
-                            required property var modelData
-                            readonly property bool actual: ventana.seccion === modelData.id
-                            width: parent.width / 4; height: parent.height
-                            radius: height / 2
-                            color: actual ? Qt.alpha(Paleta.acento, .22) : "transparent"
-                            border { width: actual ? 1 : 0; color: Qt.alpha(Paleta.acento, .5) }
-                            Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
-                            Text { anchors.centerIn: parent; text: pestana.modelData.nombre; color: pestana.actual ? Paleta.texto : EstiloPanel.tenue
-                                   font { family: Paleta.fuente; pixelSize: 12; bold: pestana.actual } }
-                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: ventana.seccion = pestana.modelData.id }
+                visible: ventana.seccion === "notificaciones"
+                spacing: 8
+                Repeater {
+                    model: [{cosa:"wifi",nombre:"Wi-Fi",icono:0xF0928},{cosa:"bluetooth",nombre:"Bluetooth",icono:0xF00AF}]
+                    RowLayout {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        spacing: 4
+                        ControlRapido {
+                            nombre: modelData.nombre; simbolo: ventana.g(modelData.icono); cosa: modelData.cosa; dato: ventana.estados[cosa] ?? null
+                            onConfirmado: (estado) => { ventana.guardarEstado(cosa,estado); ventana.avisoControl = ""; }
+                            onFallo: (mensaje) => ventana.avisoControl = nombre + ": " + mensaje
+                            onConsultar: if (!leerConmutadores.running) leerConmutadores.running = true
+                            onDetalle: ventana.abrirEn("conexiones",cosa)
                         }
+                        BotonCompacto { text: "›"; Accessible.name: "Dispositivos " + modelData.nombre; onClicked: ventana.abrirEn("conexiones",modelData.cosa) }
                     }
                 }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                visible: ventana.seccion === "notificaciones" && PreferenciasUI.favoritosControles.length > 0
+                spacing: 8
+                Repeater {
+                    model: PreferenciasUI.favoritosControles
+                    ControlRapido {
+                        required property string modelData
+                        cosa: modelData; nombre: ventana.nombreControl(cosa); simbolo: ventana.iconoControl(cosa); dato: ventana.estados[cosa] ?? null
+                        onConfirmado: (estado) => ventana.guardarEstado(cosa,estado)
+                        onFallo: (mensaje) => ventana.avisoControl = nombre + ": " + mensaje
+                        onConsultar: if (!leerConmutadores.running) leerConmutadores.running = true
+                    }
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                visible: ventana.avisoControl !== ""
+                spacing: 8
+                Text { Layout.fillWidth: true; text: ventana.avisoControl; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight; color: Paleta.peligro; font { family: Paleta.fuente; pixelSize: 12 } }
+                BotonCompacto { text: "Consultar"; enabled: !leerConmutadores.running; onClicked: { ventana.avisoControl = ""; leerConmutadores.running = true; } }
             }
 
             // Sonido y brillo, juntos en una tarjeta
@@ -341,7 +273,7 @@ PanelWindow {
                     onIconoPulsado: { if (ventana.salida?.audio) ventana.salida.audio.muted = !mudo; }
                 }
                 Repeater {
-                    model: ventana.apps
+                    model: ventana.sonidoAmpliado ? ventana.apps : []
                     Deslizador {
                         required property var modelData
                         Layout.fillWidth: true
@@ -359,7 +291,7 @@ PanelWindow {
                 Flow {
                     Layout.fillWidth: true
                     spacing: 4
-                    visible: ventana.salidas.length > 1
+                    visible: ventana.sonidoAmpliado && ventana.salidas.length > 1
                     Repeater {
                         model: ventana.salidas
                         Rectangle {
@@ -388,7 +320,7 @@ PanelWindow {
                 // Micrófono (clic en el icono = silenciar / activar)
                 Deslizador {
                     Layout.fillWidth: true
-                    visible: ventana.entrada?.audio !== undefined
+                    visible: ventana.entrada?.audio !== undefined && (ventana.sonidoAmpliado || mudo || ventana.microEnUso)
                     readonly property bool mudo: ventana.entrada?.audio?.muted ?? true
                     icono: ventana.g(mudo ? 0xF036D : 0xF036C)
                     nombre: "Micrófono"
@@ -412,12 +344,17 @@ PanelWindow {
                 }
             }
 
-            // Música (el mismo componente del dashboard)
-            Musica {
-                Layout.fillWidth: true
-                visible: jugador !== null && ventana.seccion === "notificaciones"
+            BotonCompacto {
+                visible: ventana.seccion === "notificaciones"
+                text: ventana.sonidoAmpliado ? "Cerrar mezclador y dispositivos" : "Mezclador y dispositivos ›"
+                onClicked: ventana.sonidoAmpliado = !ventana.sonidoAmpliado
             }
-
+            RowLayout {
+                Layout.fillWidth: true
+                visible: reproductor.jugador !== null && ventana.seccion === "notificaciones"
+                Musica { id: reproductor; Layout.fillWidth: true; compacto: !ventana.musicaAmpliada }
+                BotonCompacto { text: ventana.musicaAmpliada ? "⌃" : "⌄"; Accessible.name: "Detalle de música"; onClicked: ventana.musicaAmpliada = !ventana.musicaAmpliada }
+            }
             // ── Avisos ───────────────────────────────────────────────────
             ColumnLayout {
                 Layout.fillWidth: true
@@ -435,7 +372,7 @@ PanelWindow {
                     }
                     Text {
                         Layout.fillWidth: true
-                        text: Notificaciones.porAutomatizacion ? "No molestar · automático" : "No molestar"
+                        text: "No molestar"
                         color: Paleta.texto
                         font { family: Paleta.fuente; pixelSize: 13; bold: true }
                     }
@@ -445,17 +382,35 @@ PanelWindow {
                         onAlternado: Notificaciones.alternarNoMolestar()
                     }
                 }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text { Layout.fillWidth: true; text: Notificaciones.explicacion; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                    SelectorPanel {
+                        Layout.preferredWidth: 154
+                        model: [{texto:"Pausar avisos…",valor:""},{texto:"30 minutos",valor:"30"},{texto:"1 hora",valor:"60"},
+                            ...(Concentracion.activo ? [{texto:"Hasta fin de concentración",valor:"concentracion"}] : []),...(Reunion.activa ? [{texto:"Hasta fin de reunión",valor:"reunion"}] : []),{texto:"Hasta desactivar",valor:"siempre"},{texto:"Quitar pausa manual",valor:"off"}]
+                        textRole:"texto"; valueRole:"valor"
+                        currentIndex:0
+                        onActivated: { if (currentValue) Notificaciones.pausar(currentValue); currentIndex=0; }
+                    }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text { Layout.fillWidth: true; text: "Avisos · " + Notificaciones.lista.length; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    BotonCompacto { text: "Borrar todo"; visible: Notificaciones.lista.length > 0; onClicked: Notificaciones.borrarTodo() }
+                }
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
                     spacing: 8
-                    model: Notificaciones.lista.slice().reverse()       // las más nuevas arriba
+                    ScrollBar.vertical: ScrollBar {}
+                    model: Notificaciones.grupos       // las más nuevas arriba
                     boundsBehavior: Flickable.StopAtBounds
-                    delegate: NotiTarjeta {
+                    delegate: GrupoAvisos {
                         required property var modelData
                         width: ListView.view.width
-                        noti: modelData
+                        datos: modelData
                     }
                     Text {
                         anchors.centerIn: parent
@@ -487,8 +442,11 @@ PanelWindow {
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                visible: ventana.seccion === "movil"
+                visible: ventana.seccion === "movil" && !EstadoEscritorio.privacidad
                 spacing: 12
+                Text { Layout.fillWidth: true; visible: ventana.movilError !== ""; text: ventana.movilError; wrapMode: Text.Wrap; color: Paleta.aviso; font { family: Paleta.fuente; pixelSize: 12 } }
+                BotonCompacto { visible: ventana.movilError !== ""; text: "Reintentar"; enabled: !lectorMovil.running; onClicked: lectorMovil.running=true }
+                Text { Layout.fillWidth:true; visible: ventana.movilActualizado>0; text: "Última lectura · "+Qt.formatDateTime(new Date(ventana.movilActualizado),"HH:mm:ss"); color: EstiloPanel.tenue; font.pixelSize:11 }
                 // conectado: nombre, batería y acciones
                 RowLayout {
                     visible: ventana.movilNombre !== ""
@@ -556,6 +514,38 @@ PanelWindow {
                     id: columnaMas
                     width: parent.width
                     spacing: 8
+                    Etiqueta { text: "ACTIVIDADES" }
+                    Text { Layout.fillWidth: true; text: "La reunión activa privacidad y pausa el replay. Concentración oculta distracciones. Terminar restaura sus políticas."; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        BotonPanel { text: Reunion.activa ? "Terminar reunión" : "Reunión · 30 min"; onClicked: AccionesServicio.ejecutar({tipo:"actividad",id:"reunion"},Reunion.activa ? "terminar" : "iniciar",{minutos:30}) }
+                        BotonPanel { text: Concentracion.activo ? "Terminar concentración" : "Concentración · 25 min"; onClicked: AccionesServicio.ejecutar({tipo:"actividad",id:"concentracion"},Concentracion.activo ? "terminar" : "iniciar",{minutos:25}) }
+                    }
+                    Etiqueta { text: "APARIENCIA" }
+                    AjustesApariencia { Layout.fillWidth: true }
+                    Text { Layout.fillWidth: true; text: "Automatizaciones: " + EstadoEscritorio.motivos; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Etiqueta { text: "MÁS CONTROLES · ★ FIJA HASTA DOS" }
+                    Repeater {
+                        model: ["replay","rendimiento","conservacion","luz"]
+                        RowLayout {
+                            required property string modelData
+                            Layout.fillWidth: true
+                            ControlRapido {
+                                cosa: modelData; nombre: ventana.nombreControl(cosa); simbolo: ventana.iconoControl(cosa); dato: ventana.estados[cosa] ?? null
+                                onConfirmado: (estado) => { ventana.guardarEstado(cosa,estado); if (cosa === "replay") leerReplay.running = true; }
+                                onFallo: (mensaje) => ventana.avisoControl = nombre + ": " + mensaje
+                                onConsultar: if (!leerConmutadores.running) leerConmutadores.running = true
+                            }
+                            BotonCompacto { text: PreferenciasUI.favoritosControles.includes(modelData) ? "★" : "☆"; Accessible.name: "Fijar " + ventana.nombreControl(modelData); onClicked: PreferenciasUI.alternarFavorito("control",modelData) }
+                        }
+                    }
+                    Text { Layout.fillWidth: true; text: "Energía alta cambia el rendimiento del equipo. El perfil visual solo cambia la apariencia."; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Text { Layout.fillWidth: true; text: ventana.replayEstado; wrapMode: Text.Wrap; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 13 } }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        BotonPanel { text: "Capturar"; onClicked: ventana.ejecutar("qs ipc call menu capturas",true) }
+                        BotonPanel { text: "Buds Manager"; onClicked: ventana.ejecutar("buds-manager",true) }
+                    }
                     Etiqueta { text: "VENTANAS" }
                     GridLayout {
                         Layout.fillWidth: true; columns: 2; columnSpacing: 8; rowSpacing: 8
