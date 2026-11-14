@@ -128,6 +128,10 @@ u.atajos({
 
     -- Bloq Mayús: al SOLTAR la tecla se avisa al OSD; non_consuming = la tecla sigue funcionando
     { "Caps_Lock", exec("qs ipc call osd bloqMayus"), { release = true, non_consuming = true, ignore_mods = true, locked = true } },
+    -- Mantener SUPER sola 0,6 s: ayuda con los esenciales (AyudaSuper.qml). No consume la tecla:
+    -- los atajos SUPER+… siguen igual y la ayuda no aparece si pulsas otra tecla o mueves el ratón.
+    { "SUPER + Super_L", exec("qs ipc call ayudaSuper mantener"), { long_press = true, non_consuming = true } },
+    { "SUPER + Super_L", exec("qs ipc call ayudaSuper soltar"),   { release = true, non_consuming = true } },
 })
 
 -- Workspaces 1-10: SUPER+número va, SUPER+SHIFT+número mueve la ventana (el 0 es el 10)

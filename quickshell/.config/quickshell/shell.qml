@@ -24,6 +24,7 @@ ShellRoot {
     Portapapeles { id: portapapeles }
     Menu { id: menu }
     Chuleta { id: chuleta }
+    AyudaSuper { id: ayudaSuper; esenciales: chuleta.esenciales[0]?.filas ?? [] }
     Vista { id: vista }
     IA { id: ia }
     NotaRapida { id: nota }
@@ -337,6 +338,14 @@ ShellRoot {
         target: "chuleta"
         function toggle(): void { const a = chuleta.abierto; cerrarTodo(); chuleta.abierto = !a; }
         function buscar(texto: string): void { cerrarTodo(); chuleta.abierto = true; chuleta.buscar(texto); }
+    }
+
+    // Ayuda al mantener SUPER sola (atajos.lua avisa al pulsar y al soltar)
+    IpcHandler {
+        target: "ayudaSuper"
+        function mantener(): void { if (!chuleta.abierto) ayudaSuper.mantener(); }
+        function soltar(): void { ayudaSuper.soltar(); }
+        function estado(): string { return JSON.stringify({ visible: ayudaSuper.visible, pulsada: ayudaSuper.pulsada, interrumpida: ayudaSuper.interrumpida, motivo: ayudaSuper.motivo, cursor: ayudaSuper.cursorAntes, esenciales: ayudaSuper.esenciales.length }); }
     }
 
     // Cargador.qml (enchufar/desenchufar)
