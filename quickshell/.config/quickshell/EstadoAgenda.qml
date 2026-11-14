@@ -20,7 +20,7 @@ RowLayout {
         Accessible.name: text
     }
     BotonCompacto {
-        text: Eventos.errorTareas ? Eventos.errorTareas : Eventos.leyendo ? "Sincronizando…" : parent.problema ? "Reintentar" : "Actualizar"
+        text: Eventos.leyendo ? "Sincronizando…" : parent.problema || Eventos.errorTareas ? "Reintentar" : "Actualizar"
         enabled: !Eventos.leyendo && Eventos.estadoAgenda !== "sin_configurar"
         onClicked: Eventos.actualizar()
     }
