@@ -26,6 +26,7 @@ Superpuesta {
         target: EstadoEscritorio
         function onCapturaPrivadaChanged() { if(EstadoEscritorio.capturaPrivada) ag.abierto=false; }
     }
+    property bool verMemoria: false       // Agente › Memoria (MemoriaAgente.qml) en lugar de la conversación
     property var mensajes: []             // {rol: tu|asistente|paso|fuentes|confirmar|error, texto, lista, resuelto}
     property bool pensando: false
     property bool listo: false            // modelo cargado (la primera vez tarda ~1 min en esta CPU)
@@ -280,6 +281,12 @@ Superpuesta {
                         : ag.privado && ag.modeloElegido !== "local" ? "Modelo local · la privacidad activa apaga la nube"
                         : ag.tituloModelo(ag.modeloElegido) + (ag.modeloElegido !== "local" ? " · esfuerzo " + ({ bajo: "rápido", medio: "medio", alto: "a fondo" })[ag.esfuerzo] : "")
                 }
+            }
+            BotonCompacto {
+                text: ag.g("f0dd9") + "  Memoria"
+                destacado: ag.verMemoria
+                Accessible.name: ag.verMemoria ? "Volver a la conversación" : "Ver y gestionar la memoria"
+                onClicked: ag.verMemoria = !ag.verMemoria
             }
             // Ajustes: modelo, esfuerzo y navegador, en un desplegable
             BotonCompacto {
@@ -685,8 +692,15 @@ Superpuesta {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignTop
                 spacing: 12
+                MemoriaAgente {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 516
+                    visible: ag.verMemoria
+                    activa: ag.verMemoria && ag.abierto
+                }
                 // ── conversación ─────────────────────────────────────────────────
                 Item {
+                    visible: !ag.verMemoria
                     Layout.fillWidth: true; implicitHeight: 440
                     ListView {
                         id: lista
@@ -749,6 +763,7 @@ Superpuesta {
 
                 // ── entrada ──────────────────────────────────────────────────────
                 RowLayout {
+                    visible: !ag.verMemoria
                     Layout.fillWidth: true; spacing: 8
                     Rectangle {
                         Layout.fillWidth: true; implicitHeight: 50; radius: height / 2

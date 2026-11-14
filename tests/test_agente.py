@@ -26,7 +26,8 @@ def falso_vector(textos, consulta=False):
 class Memoria(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.p = [patch.object(memoria, "DB", Path(self.tmp.name) / "m.db"), patch.object(memoria, "vectores", falso_vector)]
+        self.p = [patch.object(memoria, "DB", Path(self.tmp.name) / "m.db"), patch.object(memoria, "vectores", falso_vector),
+                  patch.object(memoria, "AJUSTES", Path(self.tmp.name) / "ajustes.json")]
         for x in self.p:
             x.start()
 
@@ -41,6 +42,42 @@ class Memoria(unittest.TestCase):
         self.assertGreater(len(trozos), 5)
         self.assertTrue(all(len(t) <= memoria.TROZO + 10 for t in trozos))
         self.assertEqual(memoria.trocear("corto"), [])
+
+    def _fuentes(self):
+        def web():
+            for url in ("https://www.banco.example/cuenta", "https://docs.example.org/vlan"):
+                yield f"web:{url}", "v1", lambda u=url: [("web", u, u, 0, f"Página {u} sobre redes vlan " * 3)]
+
+        def docs():
+            for ruta in ("/home/x/Privado/diario.md", "/home/x/Uni/simplex.md"):
+                yield f"doc:{ruta}", "v1", lambda r=ruta: [("documento", Path(r).name, r, 0, "Apuntes del método simplex " * 5)]
+        return {"web": web, "documentos": docs}
+
+    def test_gestion_excluir_olvidar_pausar_y_recordar(self):
+        with patch.object(memoria, "FUENTES", self._fuentes()):
+            memoria.indexar()
+            self.assertEqual(memoria.estado()["trozos"], 4)
+            r = memoria.excluir("dominio", "https://banco.example/login")
+            self.assertEqual((r["ok"], r["borradas"]), (True, 1))
+            r = memoria.excluir("carpeta", "/home/x/Privado")
+            self.assertEqual(r["borradas"], 1)
+            memoria.indexar()                        # lo excluido no vuelve
+            refs = {f["ref"] for t in ("web", "documento") for f in memoria.fuentes(t)}
+            self.assertEqual(refs, {"https://docs.example.org/vlan", "/home/x/Uni/simplex.md"})
+            memoria.olvidar("doc:/home/x/Uni/simplex.md")
+            memoria.indexar()
+            self.assertEqual(memoria.fuentes("documento"), [])
+            memoria.recordar("doc:/home/x/Uni/simplex.md")
+            memoria.pausar(True)
+            self.assertIn("pausa", memoria.indexar()["mensaje"])
+            self.assertEqual(memoria.fuentes("documento"), [])   # en pausa no guarda nada
+            memoria.pausar(False)
+            memoria.indexar()
+            self.assertEqual(len(memoria.fuentes("documento")), 1)
+            r = memoria.resumen()
+            self.assertEqual((r["dominios"], r["carpetas"], r["top"]["web"][0]["nombre"]), (["banco.example"], ["/home/x/Privado"], "docs.example.org"))
+            self.assertEqual(memoria.borrar_todo()["ok"], True)
+            self.assertEqual(memoria.estado()["trozos"], 0)
 
     def test_indexa_incremental_y_busca_por_significado(self):
         lecturas = []

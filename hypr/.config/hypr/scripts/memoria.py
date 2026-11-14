@@ -13,6 +13,11 @@ encuentra «lo de las redes virtuales» aunque el apunte diga «VLAN», y tambi�
     memoria.py indexar [--max N]     actualizar (incremental; lo lanza brujula.py cada 30 min)
     memoria.py buscar "pregunta"     JSON: los trozos más parecidos, con su fuente
     memoria.py estado                cuántos trozos hay de cada tipo
+    memoria.py resumen               estado + tamaño, última actualización, pausa, exclusiones y lo más guardado
+    memoria.py fuentes TIPO [texto]  fuentes guardadas (web | documento | linea), con sus trozos
+    memoria.py olvidar CLAVE         borrar una fuente y no volver a guardarla · recordar CLAVE la permite otra vez
+    memoria.py excluir dominio|carpeta VALOR · incluir dominio|carpeta VALOR
+    memoria.py pausar · reanudar · borrar-todo
 Modelo de embeddings: ~/.config/ia/embeddings (de serie: embeddinggemma).
 """
 import datetime as dt
@@ -36,6 +41,43 @@ DB = Path(os.environ.get("XDG_CACHE_HOME", HOME / ".cache")) / "brujula" / "memo
 OLLAMA = "http://127.0.0.1:11434"
 TROZO, SOLAPE = 900, 150
 DIAS_WEB, DIAS_LINEA = 90, 60
+# Lo que la persona decide desde Agente › Memoria: pausa, dominios y carpetas excluidos, fuentes olvidadas
+AJUSTES = Path(os.environ.get("XDG_STATE_HOME", HOME / ".local/state")) / "brujula" / "memoria-ajustes.json"
+
+
+def ajustes():
+    try:
+        a = json.loads(AJUSTES.read_text())
+    except (OSError, ValueError):
+        a = {}
+    return {"pausada": bool(a.get("pausada")), "dominios": list(a.get("dominios", [])),
+            "carpetas": list(a.get("carpetas", [])), "olvidadas": list(a.get("olvidadas", []))}
+
+
+def guardar_ajustes(a):
+    AJUSTES.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    tmp = AJUSTES.with_suffix(".tmp")
+    tmp.write_text(json.dumps(a, ensure_ascii=False, indent=1))
+    os.replace(tmp, AJUSTES)
+
+
+def dominio(url):
+    m = re.match(r"^https?://(?:www\.)?([^/?#:]+)", url or "", re.I)
+    return m.group(1).lower() if m else ""
+
+
+def excluida(clave, a=None):
+    """¿La persona pidió no guardar esta fuente (olvidada, de un dominio o de una carpeta excluidos)?"""
+    a = a or ajustes()
+    if clave in a["olvidadas"]:
+        return True
+    if clave.startswith("web:"):
+        d = dominio(clave[4:])
+        return any(d == x or d.endswith("." + x) for x in a["dominios"])
+    if clave.startswith("doc:"):
+        ruta = clave[4:]
+        return any(ruta == c or ruta.startswith(c.rstrip("/") + "/") for c in a["carpetas"])
+    return False
 
 
 def modelo():
@@ -172,12 +214,17 @@ def indexar(maximo=None):
             fcntl.flock(cerrojo, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError:
             return {"mensaje": "Ya se está indexando."}
+        a = ajustes()
+        if a["pausada"]:
+            return {"mensaje": "La memoria está en pausa."}
         c = conectar()
         firmas = dict(c.execute("SELECT clave, firma FROM fuentes"))
         vistas, nuevos, hechos = set(), 0, 0
         pendientes = []
         for fuente in FUENTES.values():
             for clave, firma, leer in fuente():
+                if excluida(clave, a):
+                    continue        # no se guarda; si ya estaba, se borra abajo («borradas»)
                 vistas.add(clave)
                 if firmas.get(clave) != firma:
                     pendientes.append((clave, firma, leer))
@@ -265,6 +312,116 @@ def buscar(pregunta, k=8, tipos=None):
     return res
 
 
+def _borrar(c, condicion, args):
+    claves = [k for (k,) in c.execute("SELECT DISTINCT clave FROM trozos WHERE " + condicion, args)]
+    with c:
+        for k in claves:
+            c.execute("DELETE FROM trozos WHERE clave = ?", (k,))
+            c.execute("DELETE FROM fuentes WHERE clave = ?", (k,))
+    return len(claves)
+
+
+def resumen():
+    r = estado()
+    a = ajustes()
+    tam = sum(f.stat().st_size for f in DB.parent.glob(DB.name + "*")) if DB.exists() else 0
+    r.update({"bytes": tam, "actualizado": int(DB.stat().st_mtime) if DB.exists() else 0, "pausada": a["pausada"],
+              "dominios": a["dominios"], "carpetas": a["carpetas"], "olvidadas": len(a["olvidadas"]),
+              "dias_web": DIAS_WEB, "dias_linea": DIAS_LINEA, "top": {"web": [], "documento": []}})
+    if DB.exists():
+        c = conectar(solo_leer=True)
+        cuenta = {}
+        for (ref,) in c.execute("SELECT ref FROM trozos WHERE tipo = 'web'"):
+            d = dominio(ref)
+            cuenta[d] = cuenta.get(d, 0) + 1
+        r["top"]["web"] = [{"nombre": d, "trozos": n} for d, n in sorted(cuenta.items(), key=lambda x: -x[1])[:8]]
+        cuenta = {}
+        for (ref,) in c.execute("SELECT ref FROM trozos WHERE tipo = 'documento'"):
+            carpeta = str(Path(ref).parent)
+            cuenta[carpeta] = cuenta.get(carpeta, 0) + 1
+        r["top"]["documento"] = [{"nombre": d.replace(str(HOME), "~", 1), "ruta": d, "trozos": n}
+                                 for d, n in sorted(cuenta.items(), key=lambda x: -x[1])[:8]]
+        c.close()
+    return r
+
+
+def fuentes(tipo, texto="", limite=60):
+    """Fuentes guardadas de un tipo, las más recientes primero: [{clave, titulo, ref, fecha, trozos}]."""
+    if not DB.exists():
+        return []
+    c = conectar(solo_leer=True)
+    filtro, args = "tipo = ?", [tipo]
+    if texto.strip():
+        filtro += " AND (titulo LIKE ? OR ref LIKE ?)"
+        args += [f"%{texto.strip()}%"] * 2
+    filas = c.execute("SELECT clave, max(titulo), max(ref), max(fecha), count(*) FROM trozos WHERE " + filtro +
+                      " GROUP BY clave ORDER BY max(fecha) DESC LIMIT ?", args + [limite]).fetchall()
+    c.close()
+    return [{"clave": k, "titulo": t, "ref": r, "fecha": f, "trozos": n, "dominio": dominio(r) if tipo == "web" else ""}
+            for k, t, r, f, n in filas]
+
+
+def olvidar(clave):
+    a = ajustes()
+    if clave not in a["olvidadas"]:
+        a["olvidadas"].append(clave)
+        guardar_ajustes(a)
+    n = _borrar(conectar(), "clave = ?", [clave]) if DB.exists() else 0
+    return {"ok": True, "mensaje": "Olvidada: no se volverá a guardar.", "borradas": n, "deshacer": clave}
+
+
+def recordar(clave):
+    a = ajustes()
+    a["olvidadas"] = [k for k in a["olvidadas"] if k != clave]
+    guardar_ajustes(a)
+    return {"ok": True, "mensaje": "Se volverá a guardar en la próxima actualización."}
+
+
+def excluir(clase, valor, quitar=False):
+    if clase not in ("dominio", "carpeta"):
+        raise ValueError("Se excluye un dominio o una carpeta")
+    valor = valor.strip()
+    if clase == "dominio":
+        valor = dominio(valor) if "://" in valor else valor.lower().removeprefix("www.")
+    else:
+        valor = str(Path(os.path.expanduser(valor)).resolve())
+    if not valor:
+        raise ValueError("Falta el dominio o la carpeta")
+    a = ajustes()
+    lista = a["dominios" if clase == "dominio" else "carpetas"]
+    if quitar:
+        lista[:] = [x for x in lista if x != valor]
+        guardar_ajustes(a)
+        return {"ok": True, "mensaje": f"«{valor}» se volverá a guardar en la próxima actualización."}
+    if valor not in lista:
+        lista.append(valor)
+    guardar_ajustes(a)
+    n = 0
+    if DB.exists():
+        c = conectar()
+        claves = [k for (k,) in c.execute("SELECT DISTINCT clave FROM trozos")]
+        borrar = [k for k in claves if excluida(k, a)]
+        with c:
+            for k in borrar:
+                c.execute("DELETE FROM trozos WHERE clave = ?", (k,))
+                c.execute("DELETE FROM fuentes WHERE clave = ?", (k,))
+        n = len(borrar)
+    return {"ok": True, "mensaje": f"«{valor}» excluido: {n} fuentes borradas y no se volverán a guardar.", "borradas": n}
+
+
+def pausar(si=True):
+    a = ajustes()
+    a["pausada"] = si
+    guardar_ajustes(a)
+    return {"ok": True, "mensaje": "Memoria en pausa: no guarda nada nuevo." if si else "Memoria activa otra vez."}
+
+
+def borrar_todo():
+    for f in DB.parent.glob(DB.name + "*"):
+        f.unlink()
+    return {"ok": True, "mensaje": "Memoria borrada. Se reconstruirá en la próxima actualización si no está en pausa."}
+
+
 def estado():
     if not DB.exists():
         return {"trozos": 0, "por_tipo": {}}
@@ -284,5 +441,16 @@ if __name__ == "__main__":
         print(json.dumps(r, ensure_ascii=False))
     elif orden == "buscar":
         print(json.dumps(buscar(" ".join(sys.argv[2:])), ensure_ascii=False))
+    elif orden in ("resumen", "fuentes", "olvidar", "recordar", "excluir", "incluir", "pausar", "reanudar", "borrar-todo"):
+        a = sys.argv[2:]
+        try:
+            r = (resumen() if orden == "resumen" else fuentes(a[0], " ".join(a[1:])) if orden == "fuentes"
+                 else olvidar(a[0]) if orden == "olvidar" else recordar(a[0]) if orden == "recordar"
+                 else excluir(a[0], " ".join(a[1:]), quitar=orden == "incluir") if orden in ("excluir", "incluir")
+                 else pausar(orden == "pausar") if orden in ("pausar", "reanudar") else borrar_todo())
+        except (IndexError, ValueError, OSError, sqlite3.Error) as e:
+            r = {"ok": False, "error": str(e) or "Faltan datos"}
+        print(json.dumps(r, ensure_ascii=False))
+        sys.exit(0 if not isinstance(r, dict) or r.get("ok", True) else 1)
     else:
         print(json.dumps(estado(), ensure_ascii=False))

@@ -145,6 +145,7 @@ ShellRoot {
     IpcHandler {
         target: "agente"
         function toggle(): void { const a = agente.abierto; cerrarTodo(); agente.abierto = !a; }
+        function memoria(): void { cerrarTodo(); agente.verMemoria = true; agente.abierto = true; }
         function preguntar(texto: string): void { cerrarTodo(); agente.abrirYPreguntar(texto); }
         function estado(): string { return JSON.stringify({ abierto: agente.abierto, pensando: agente.pensando, listo: agente.listo, mensajes: agente.mensajes.length }); }
     }

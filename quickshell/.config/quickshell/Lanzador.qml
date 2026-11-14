@@ -186,6 +186,7 @@ PanelWindow {
         { n: "Resumen del día",         d: "Brújula › Hoy: clima, agenda, recordatorios y sistema", i: 0xF05A8, k: "manana hoy agenda",    c: "qs ipc call resumen mostrar" },
         { n: "Actualizar el sistema",   d: "Con snapshot, noticias de Arch y revisión final", i: 0xF03D6, k: "update paquetes pacman yay seguro", c: scripts + "actualizaciones.sh instalar" },
         { n: "Deshacer la última actualización", d: "Devolver / a su snapshot anterior (snapper)", i: 0xF099B, k: "rollback volver snapshot actualizacion rota", c: scripts + "actualizaciones.sh deshacer" },
+        { n: "Memoria del agente", d: "Ver qué recuerda, olvidar fuentes, excluir dominios o carpetas, pausar", i: 0xF0DD9, k: "memoria agente olvidar excluir privacidad recuerdos indexado", c: "qs ipc call agente memoria" },
         { n: "Agente (asistente que actúa)", d: "Pregunta o pide lo que sea: agenda, memoria, ajustes, móvil… · SUPER+O", i: 0xF06A9, k: "oye asistente ia agente hablar preguntar memoria", c: "qs ipc call agente toggle" },
         { n: "Salud del sistema",       d: "Disco, batería, respaldo, snapshots, servicios…", i: 0xF05E0, k: "estado diagnostico smart temperatura disco bateria", c: "qs ipc call brujula abrir salud" },
         { n: "Reabrir ventana cerrada", d: "La última que cerraste, en su sitio · SUPER+SHIFT+Z", i: 0xF099B, k: "deshacer cerrar recuperar ventana", c: scripts + "brujula.py reabrir" },
