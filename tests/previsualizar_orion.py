@@ -2,6 +2,7 @@
 """Captura aislada de componentes reales con datos simulados de la fase 1.
 
 python3 tests/previsualizar_orion.py [destino.png]
+python3 tests/previsualizar_orion.py --fase5 [destino.png]   selección neutra y controles compactos, acento cálido
 No abre paneles de la sesión, no consulta servicios ni lee datos personales.
 """
 import json
@@ -17,7 +18,10 @@ QML = RAIZ / "quickshell/.config/quickshell"
 
 
 def main():
-    destino = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else RAIZ / "docs/screenshots/orion-fase1-estados.png"
+    fase5 = "--fase5" in sys.argv
+    args = [a for a in sys.argv[1:] if a != "--fase5"]
+    defecto = "docs/screenshots/orion-fase5-seleccion.png" if fase5 else "docs/screenshots/orion-fase1-estados.png"
+    destino = Path(args[0]).resolve() if args else RAIZ / defecto
     destino.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="orion-preview-") as tmp:
         base = Path(tmp)
@@ -26,11 +30,16 @@ def main():
         runtime = base / "runtime"
         runtime.mkdir(mode=0o700)
         for nombre in ("Paleta", "EstiloPanel", "FondoBoton", "FondoPanel", "ControlRapido", "BotonCompacto",
-                       "ModoTeclado", "IndicadorTeclado", "EstadoAgenda", "EstadoRecarga", "TarjetaRecarga"):
+                       "ModoTeclado", "IndicadorTeclado", "EstadoAgenda", "EstadoRecarga", "TarjetaRecarga",
+                       "BotonPanel", "FondoSeleccion"):
             shutil.copy(QML / f"{nombre}.qml", config)
+        if fase5:   # un acento de atardecer: el caso en que el tinte se volvía marrón
+            paleta = config / "Paleta.qml"
+            paleta.write_text(paleta.read_text().replace('property color acento:    "#f19618"', 'property color acento:    "#f2a68c"'))
+            (config / "PreferenciasUI.qml").write_text('pragma Singleton\nimport Quickshell\nSingleton { property var favoritosControles: [] }\n')
         (config / "EstadoEscritorio.qml").write_text('''pragma Singleton
 import Quickshell
-Singleton { property string perfil: "minimo"; property var datos: ({}) }
+Singleton { property string perfil: "''' + ("cristal" if fase5 else "minimo") + '''"; property var datos: ({}) }
 ''')
         (config / "Eventos.qml").write_text('''pragma Singleton
 import Quickshell
@@ -42,7 +51,7 @@ Singleton {
     function actualizar() {}
 }
 ''')
-        texto = (RAIZ / "tests/fixtures/orion-fase1.qml").read_text()
+        texto = (RAIZ / ("tests/fixtures/orion-fase5.qml" if fase5 else "tests/fixtures/orion-fase1.qml")).read_text()
         (config / "shell.qml").write_text(texto.replace("__CAPTURA__", json.dumps(str(destino))))
         env = {**os.environ, "HOME": tmp, "XDG_RUNTIME_DIR": str(runtime), "XDG_CONFIG_HOME": str(base / ".config"),
                "XDG_STATE_HOME": str(base / "state"), "XDG_CACHE_HOME": str(base / "cache"),

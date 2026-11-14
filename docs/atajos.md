@@ -18,6 +18,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+E` | Archivos (Thunar) |
 | ★ `SUPER+R` | Lanzador: apps, acciones, calculadora, web, emojis, archivos, proyectos, plantillas y rutinas (sección 24) |
 | `SUPER+H` | Chuleta: todos estos atajos, con buscador |
+| `SUPER` (mantenida, sola) | Ayuda rápida: los esenciales y las teclas de la ventana o del modo; se va al soltar |
 | ★ `SUPER+ESPACIO` | Vista general: todas las ventanas en miniatura (clic = ir · arrastrar = mover de workspace) |
 | `SUPER+W` | WhatsApp (lo enfoca si ya está abierto) |
 | `SUPER+G` | Roblox (Sober, con gamemode) |
@@ -204,6 +205,8 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | `p nombre` | Contraseñas (Bitwarden o pass) → la escribe donde esté el cursor. Primera vez: `claves.sh configurar` |
 | `ia pregunta` | Preguntar al asistente local |
 | `nota texto` | Apuntar una línea en `notas.md` |
+| `!texto` | Avisos pasados (historial local de los últimos 500) → copiar su texto |
+| `brillo 40` · `volumen 30` · `wifi` · `bluetooth off` · `no molestar 1 h` · `oscuro` · `reunión` | Ajustes directos, sin prefijo. Los interruptores solo dicen «activado» si el servicio lo confirma |
 
 ### Atajos que se adaptan al layout (`modulos/layouts.lua`)
 
@@ -227,6 +230,8 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | `b texto` | Todas las fuentes universales |
 
 Con tres letras sin prefijo, el lanzador añade resultados de varias fuentes a las apps.
+En cualquier resultado, **Alt+Enter** abre sus acciones (ventana: ir, mover, aparcar, cerrar; plantilla:
+editar, duplicar, borrar; proyecto: retomar, editar, actualizar, archivar) y Esc vuelve a la lista.
 
 ### Gestos del touchpad
 

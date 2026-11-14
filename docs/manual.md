@@ -287,21 +287,23 @@ Los gestos siguen a los dedos: si sueltas a medias, se cancelan.
 | Zona | Clic | Otros |
 |---|---|---|
 | Números de workspace | Ir | Rueda = siguiente / anterior |
-| Reloj | Brújula › Hoy | Al pasar el ratón: la fecha |
+| Reloj | Brújula › Hoy | Al pasar el ratón: la fecha. Con una cita en 30 min o menos (o en curso), un chip «Título · 12 min» al lado |
 | Volumen | Silenciar | Rueda = volumen |
 | Brillo | — | Rueda = brillo |
 | Red | Panel Wi-Fi/Bluetooth | Derecho = nmtui |
 | Energía | Cambiar modo | |
 | CPU / RAM (solo por encima del 85 %) | Abre btop | |
-| Buds | Cambiar modo | Derecho = ANC / apagado · central = Buds Manager |
+| Buds (una cápsula: izquierdo, derecho y estuche) | Cambiar modo | Derecho = ANC / apagado · central = Buds Manager |
 | Mando (solo con el modo juego activo) | Modo juego | |
 | Campana | Centro de control | Derecho = No molestar |
 
-**Brújula › Hoy** (`SUPER+D`, clic en el reloj o 3 dedos hacia abajo; antes era el dashboard): reloj, **clima de Bogotá** (y la probabilidad de lluvia de las
-próximas horas), la frase del asistente, ideas para hoy, calendario, estado del sistema y tiempo de pantalla.
+**Brújula › Hoy** (`SUPER+D`, clic en el reloj o 3 dedos hacia abajo; antes era el dashboard): a la izquierda la agenda del
+día elegido (el evento en curso dice «Ahora · termina 21:45»; las tareas vencidas aparecen con su fecha) y, si el día tiene
+poco, **Próximos días**; a la derecha calendario, **clima de Bogotá** y tiempo de pantalla. Si Google falla, debajo de la
+fecha se dice la causa y qué hacer (por ejemplo, «Abrir Google Cloud» para activar una API).
 Las otras dos pestañas: **Línea de tiempo** (el día, las reglas automáticas y la sesión anterior) y **Salud**.
 - **Calendario**: flechas o rueda cambian de mes y un clic en el título vuelve a hoy. Un **puntito** bajo un día =
-  tienes algo en tu Google Calendar (evento o tarea). Clic en un día = elegirlo. Debajo, **«＋ Nuevo evento o
+  tienes algo ese día fuera de tu rutina diaria (las series diarias no marcan todos los días). Clic en un día = elegirlo. Debajo, **«＋ Nuevo evento o
   tarea»** lo crea en tu Google Calendar / Google Tasks ese día (hora vacía = todo el día; el botón de la duración
   cambia con clic). Debajo, **«Próximo»**: eventos, tareas ☐ y recordatorios (clic en un recordatorio = borrarlo; en
   una tarea = marcarla hecha). 10 minutos antes de cada evento sale un aviso.
@@ -766,7 +768,15 @@ Desde un centro no se salta a otro: si algo se hace, se hace donde estás. Mesa 
 
 Escribe y pulsa Enter. Sin prefijo busca apps, acciones (apagar, capturas, filtros…), **proyectos**
 por su nombre y, con 3 letras o más, también en tus documentos, notas, historial y línea de tiempo.
-Con el campo vacío, los chips de debajo muestran los prefijos más usados; **más** los enseña todos.
+Con el campo vacío verás **Sugerido ahora** (una cita en la próxima hora o en curso, el proyecto en
+el que estabas, tus tareas pendientes), **Recientes** (las apps que más abres) y **Todas las apps**.
+Los chips de debajo muestran los prefijos más usados; **más** los enseña todos. Abajo se recuerdan
+las teclas: ↑↓ para moverte, Enter abre, **Alt+Enter** muestra las acciones del resultado y Esc cierra.
+
+**Ajustes directos**, sin prefijo: escribe «brillo 40», «volumen 30», «wifi», «bluetooth off»,
+«luz nocturna», «no molestar 1 h», «oscuro», «claro», «reunión» o «concentración» y pulsa Enter.
+Wi-Fi, Bluetooth y los demás interruptores solo dicen «activado» cuando el servicio lo confirma; si
+no, llega un aviso con el problema.
 
 | Prefijo | Qué hace | Ejemplo |
 |---|---|---|
@@ -780,13 +790,14 @@ Con el campo vacío, los chips de debajo muestran los prefijos más usados; **m�
 | `d` `h` `l` `a` `s` | Documentos, historial, línea de tiempo, atajos, ajustes | `s lectura` |
 | `p` | Contraseñas (las escribe donde está el cursor) | `p correo` |
 | `ia` · `nota` | Preguntar al asistente local · apuntar una línea | `nota llamar al banco` |
+| `!` | Avisos pasados (los últimos 500; Enter copia su texto) | `!whatsapp` |
 
 **Ajustes** (`s`): cada opción concreta, lista para Enter: perfiles, privacidad, tema, energía,
 replay, sonido, filtros, Wi-Fi, reglas automáticas, funciones del móvil.
 
 ### Proyectos: retomar donde lo dejaste
 
-**Guardar proyecto** (acción del lanzador o SUPER+CTRL+Enter) recuerda un nombre, el siguiente
+**Guardar proyecto** (acción del lanzador; SUPER+CTRL+Enter abre el lanzador con tus proyectos) recuerda un nombre, el siguiente
 paso, una carpeta, hasta doce archivos o webs y las apps compatibles (terminal, Firefox, Code,
 Thunar) con sus espacios. Después, escribe su nombre en el lanzador: **Retomar «X»** las vuelve a
 abrir en su sitio y aplica su perfil. Brújula › Hoy muestra el último con un botón **Retomar**.
@@ -796,7 +807,8 @@ al iniciar sesión. Con la privacidad activa se ocultan sus detalles.
 
 ### Plantillas y rutinas
 
-**Plantillas** (`pl`, o Mesa › Plantillas para crearlas y editarlas): textos reutilizables. Al
+**Plantillas** (`pl` o SUPER+CTRL+V; Alt+Enter en una para editarla, duplicarla o borrarla, y
+«Crear plantilla» para una nueva): textos reutilizables. Al
 copiarlas, `{{fecha}}`, `{{hora}}` y `{{usuario}}` se sustituyen. No es un gestor de contraseñas:
 lo copiado pasa por el historial del portapapeles.
 
@@ -810,12 +822,13 @@ lo copiado pasa por el historial del portapapeles.
 
 Antes guarda un checkpoint de tus ventanas. Qué apps abre cada una se elige en Mesa › Rutinas.
 
-### Mesa de trabajo y Flujo
+### Ventanas, Mesa y Flujo
 
-Acciones del lanzador que abren un panel para tareas más largas:
+- **Ventanas** (`v` en el lanzador): elige una y pulsa **Alt+Enter** para ir a ella, moverla a otro
+  espacio, **aparcarla** (se esconde sin cerrarse y se recupera luego) o cerrarla.
 
-- **Mesa de trabajo › Ventanas**: buscar una ventana, ir a ella, **aparcarla** (se esconde sin
-  cerrarse y se recupera luego), pasarla a flotante o moverla a otro espacio.
+Dos paneles quedan para tareas más largas, solo con lo que no cabe en el lanzador:
+
 - **Mesa › Reunión**: 15 a 90 min con No molestar, títulos ocultos y sin
   suspensión. Al terminar solo se retira lo que puso la reunión. No toca micrófono ni cámara.
 - **Organizar por tarea** (SUPER+CTRL+O): reparte las ventanas del espacio para comparar,
@@ -828,9 +841,9 @@ Acciones del lanzador que abren un panel para tareas más largas:
 
 **SUPER+D**, clic en el reloj o tres dedos hacia abajo. Tres pestañas (**Ctrl+1…3**):
 
-- **Hoy**: reloj, clima, la frase del asistente, el último proyecto, las ideas para hoy, el
-  calendario con «Próximo», el estado del equipo y el tiempo de pantalla. Se abre sola la primera
-  vez que usas el equipo cada día.
+- **Hoy**: agenda y calendario enlazados, próximos días, el último proyecto, clima y tiempo de
+  pantalla; la frase del asistente y las ideas, en «Más de tu día». Con Tab llegas a cada
+  compromiso y Enter abre su detalle. Se abre sola la primera vez que usas el equipo cada día.
 - **Línea de tiempo**: *El día* (qué tuviste delante y cuándo, ←/→ cambia de día), *Reglas
   automáticas* y *Sesión anterior*.
 - **Salud**: copias, disco, espacio, snapshots, actualizaciones, servicios, temperatura y batería,
@@ -875,8 +888,12 @@ anterior (pide escribir `DESHACER`). Si el sistema no arranca: GRUB › «Arch L
 
 ## 26. Centro de control: ajustar
 
-**SUPER+N** o clic en la campana. Arriba, diez botones rápidos (clic derecho en Wi-Fi o Bluetooth:
-su lista) y los cuatro **perfiles**:
+**SUPER+N** o clic en la campana. Cuatro secciones; **Ctrl+Tab** pasa a la siguiente, **Ctrl+1…4**
+va directo y **Tab** recorre los controles. En **Inicio**: Wi-Fi y Bluetooth con la red o el
+dispositivo conectado (la flecha de la tarjeta abre su lista), hasta dos controles fijados con ★,
+volumen y brillo (el botón junto al volumen abre el mezclador por app y las salidas), la música,
+**No molestar** en una fila (interruptor y «Pausar…» 30 min, 1 h o hasta desactivar) y los avisos
+agrupados por app. El **perfil visual** se elige en **Más › Apariencia**:
 
 | Perfil | Cómo se ve |
 |---|---|
@@ -887,12 +904,14 @@ su lista) y los cuatro **perfiles**:
 
 Debajo, cuatro pestañas:
 
-- **Inicio**: volumen general y por app, micrófono, brillo, música y las notificaciones con
-  **No molestar**.
+- **Inicio**: lo descrito arriba. Al terminar una pausa de No molestar llega un solo resumen de lo
+  recibido, no una ráfaga de emergentes.
 - **Conexiones**: Wi-Fi y Bluetooth (ver la sección 10).
 - **Móvil**: batería y acciones (sonar, abrir lo copiado, enviar archivo, sus archivos, SMS) y
   **Avisos y respuestas**. Sin conexión, un botón para abrir KDE Connect.
-- **Más**: checkpoints, privacidad, juego automático, diagnóstico y replay.
+- **Más**: actividades (reunión y concentración), apariencia (perfil visual, color, claro u oscuro,
+  reducir movimiento y **tamaño de la interfaz** 100/110/125 %, que reinicia la barra unos
+  segundos), más controles con ★ para fijarlos en Inicio, checkpoints, privacidad, diagnóstico y replay.
 
 ### Varios modos a la vez
 

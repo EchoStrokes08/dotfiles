@@ -536,7 +536,9 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | Comando | Qué hace |
 |---|---|
 | `qs ipc call brujula toggle` · `abrir hoy\|linea\|contexto\|sesion\|salud` · `cerrar` | Brújula (`dashboard` sigue como alias de Brújula › Hoy) |
-| `qs ipc call dashboard irA 3` | Ir al workspace 3 |
+| `qs ipc call espacios ir 3` · `actual` | Ir al workspace 3 / número del actual (`dashboard irA 3` queda como alias antiguo) |
+| `qs ipc call mesa abrir reunion\|rutinas` · `flujo abrir organizar\|seleccion` | Lo que sigue en Mesa y Flujo; `mesa abrir ventanas\|plantillas` y `flujo abrir continuidad` redirigen al lanzador |
+| `qs ipc call ayudaSuper mantener` · `soltar` · `estado` | Ayuda de SUPER mantenida (la llaman los atajos `long_press` y `release` de `atajos.lua`) |
 | `qs ipc call ia abrir <accion> "pregunta"` · `estado` | Panel del asistente (lo normal es usar `ia.sh`) |
 | `qs ipc call nota abrir` · `resumen mostrar` | Nota rápida / resumen del día (abre Brújula › Hoy) |
 | `qs ipc call actualizaciones refrescar` · `estado` · `pausas estado` | Volver a comprobar actualizaciones / minutos seguidos de uso |
@@ -559,6 +561,7 @@ Sirven para atajos, scripts o pruebas. Lista en vivo: `qs ipc show`.
 | `qs ipc call menu capturas` · `concentracion` · `cerrar` | Menús |
 | `qs ipc call notificaciones toggle` | Centro de control |
 | `qs ipc call notificaciones noMolestar` · `noMolestarSi` · `noMolestarNo` | No molestar manual: alternar / activar / desactivar; no cancela motivos automáticos |
+| `qs ipc call notificaciones pausar 30` · `60` · `siempre` · `off` | Pausa manual con vencimiento absoluto (sobrevive a recargas y suspensión); al terminar, un solo resumen |
 | `qs ipc call notificaciones borrar` | Borrar todas las notificaciones |
 | `qs ipc call concentracion empezar 25` | Empezar una sesión de 25 min |
 | `qs ipc call concentracion sumar 10` · `terminar` · `estado` | Añadir tiempo / terminar / ver lo que queda |
@@ -810,6 +813,20 @@ una confirmación posterior.
 eventos. El formato por defecto sigue siendo una lista para los consumidores existentes. Una copia
 rota o una respuesta ilegible no borra los datos válidos de `Eventos.qml`. Las URL iCal privadas no
 se incluyen en los avisos ni en el registro de fallos de sincronización.
+
+`gcal.py` clasifica los fallos de Google con un código estable (`api_desactivada`, `sin_permiso`,
+`sin_conectar`, `sin_red`, `servicio` o `error`), una `ayuda` y, para una API desactivada, el
+`enlace` a su página de Google Cloud; nunca incluye tokens. `Eventos.qml` guarda `errorTareas` y
+`enlaceTareas`, y `EstadoAgenda.qml` ofrece «Abrir Google Cloud» y «Reintentar».
+
+`Notificaciones.qml` escribe un historial en `~/.local/state/quickshell/avisos.jsonl` (una línea JSON
+por aviso: `t`, `app`, `titulo`, `cuerpo`; recortado a 500). No guarda avisos transitorios, los que
+llegan con privacidad ni los que parecen códigos de verificación. El lanzador lo lee con `!`.
+
+`scripts/shell.sh` arranca Quickshell (lo llama `autostart.lua`) con `QT_SCALE_FACTOR` según
+`escala` de `~/.local/state/quickshell/preferencias.json` (1, 1.1 o 1.25); `shell.sh reiniciar`
+cierra la instancia y la vuelve a abrir. Si la escala deja algo mal, edita ese archivo y ejecuta
+`~/.config/hypr/scripts/shell.sh reiniciar` desde una terminal.
 
 `ModoTeclado.qml` comparte una conexión de eventos entre barras, escucha `submap` y consulta
 `hyprctl repl 'hl.get_current_submap()'` al conectar o reconectar (API instalada de Hyprland 0.57).

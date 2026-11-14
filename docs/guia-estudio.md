@@ -43,7 +43,7 @@ Piensa en cinco responsabilidades conectadas:
 |---|---|---|
 | Sistema operativo | ¿Qué recursos y servicios existen? | Kernel, systemd, red, audio y almacenamiento |
 | Sesión gráfica | ¿Dónde y cómo se dibuja cada ventana? | Hyprland, reglas, layouts y monitores |
-| Interfaz | ¿Qué ve y pulsa la persona? | Barra, Mesa, Brújula y lanzador de Quickshell |
+| Interfaz | ¿Qué ve y pulsa la persona? | Barra y los cuatro centros de Quickshell: lanzador, Brújula, centro de control y agente |
 | Automatización | ¿Cómo se transforma una intención en acciones? | Scripts de captura, proyectos, contexto y actualización |
 | Persistencia | ¿Qué se recuerda, dónde y durante cuánto tiempo? | Archivos runtime, bibliotecas, índices, snapshots y restic |
 
@@ -56,34 +56,42 @@ de verse? Contrasta tu respuesta con `autostart.lua` y `shell.qml`.
 
 ## 2. Seguir una acción de principio a fin
 
-### Caso A: abrir la Mesa
+### Caso A: aparcar una ventana desde el lanzador
 
-1. El teclado produce un evento; Hyprland reconoce SUPER+ALT+ESPACIO.
-2. `modulos/escritorio.lua` tiene un `hl.bind` que solicita `qs ipc call mesa abrir ventanas`.
-3. El `IpcHandler` de `shell.qml` recibe el objetivo `mesa`, cierra otros paneles y llama a Mesa.
-4. `Mesa.qml` presenta ventanas y solicita datos o acciones a `mesa.py`.
-5. Para una operación de ventana se consulta su identidad y se solicita la acción a Hyprland.
-6. La interfaz muestra el resultado; aparcar mantiene viva la aplicación en un workspace especial.
+1. El teclado produce un evento; Hyprland reconoce SUPER+R y ejecuta `qs ipc call lanzador toggle`.
+2. El `IpcHandler` de `shell.qml` recibe el objetivo `lanzador`, cierra otros paneles y lo abre.
+3. Escribes `v firefox`: `Lanzador.qml` pide a `buscar.py` las ventanas y muestra resultados tipados,
+   cada uno con una `referencia` (tipo e identidad), no con un comando de shell.
+4. **Alt+Enter** abre el inspector (`AccionesResultado.qml`), que pregunta a `acciones.py opciones`
+   qué se puede hacer con esa ventana ahora mismo.
+5. Eliges «Aparcar»: `AccionesServicio.qml` envía `acciones.py ejecutar`, que vuelve a comprobar la
+   identidad con Hyprland y solo entonces la mueve a un workspace especial.
+6. La interfaz muestra el resultado confirmado o el error; nunca dice «Hecho» antes de tiempo.
 
 ```mermaid
 sequenceDiagram
     participant U as Persona
     participant H as Hyprland
     participant Q as Quickshell
-    participant S as Script
-    U->>H: SUPER + ALT + ESPACIO
-    H->>Q: IPC mesa abrir ventanas
-    Q-->>U: Panel y lista
-    U->>Q: Aparcar una ventana
-    Q->>S: Solicitud con identidad
+    participant S as acciones.py
+    U->>H: SUPER + R
+    H->>Q: IPC lanzador toggle
+    U->>Q: «v firefox» y Alt+Enter
+    Q->>S: opciones(referencia)
+    S-->>Q: Acciones posibles
+    U->>Q: Aparcar
+    Q->>S: ejecutar(referencia, aparcar)
     S->>H: Consultar y mover si sigue siendo la misma
-    S-->>Q: Resultado
+    S-->>Q: Resultado confirmado
     Q-->>U: Estado actualizado
 ```
 
 **Por qué comprobar la identidad:** una dirección antigua no basta si una ventana cerró y otra
 ocupó un identificador reutilizado. Dirección, PID y clase reducen ese riesgo. El registro no necesita
 almacenar el contenido de documentos para recordar dónde devolver una ventana.
+
+La Mesa (lanzador › «Reunión temporizada» o «Rutinas») conserva solo lo que no cabe en el
+lanzador: la reunión con duración y la edición de rutinas. Sus atajos e IPC antiguos de ventanas y plantillas redirigen al lanzador.
 
 **Práctica:** sigue «Guardar checkpoint» desde el botón hasta el comando externo. Anota argumentos,
 archivo escrito y criterio para omitir una ventana. No necesitas mover tus ventanas personales.
@@ -92,8 +100,8 @@ archivo escrito y criterio para omitir una ventana. No necesitas mover tus venta
 
 El panel llama al CLI del escritorio; este solicita una función exportada de Lua. El coordinador
 cambia el perfil, el motor puro calcula las opciones y Hyprland las aplica. Se publica el estado;
-`EstadoEscritorio.qml` lo observa y la interfaz marca el perfil activo. Replay y No molestar se
-reconcilian con los motivos restantes.
+`EstadoEscritorio.qml` lo observa y la interfaz marca el perfil activo. No molestar se reconcilia
+con los motivos restantes; el replay solo cambia cuando lo enciendes o apagas a mano.
 
 Cambiar una opción visual aislada no equivale a cambiar todo el perfil. Por eso un coordinador
 resulta más mantenible que varios scripts que intentan adivinar el modo mirando una animación.
@@ -562,7 +570,7 @@ no certifica que las correcciones ya estén aplicadas.
 | 2 | `atajos.lua`, `layouts.lua`, `scratchpads.lua` | Diferencia entre entrada, distribución y espacio especial |
 | 3 | `politicas.lua`, `escritorio.lua` y su prueba Lua | Estado, precedencias y efectos externos |
 | 4 | `shell.qml`, `EstadoEscritorio.qml`, `CentroEscritorio.qml` | IPC, propiedades y estado compartido |
-| 5 | `mesa.py`, `Mesa.qml`, `Reunion.qml` | Persistencia, identidad, tiempo y supervisión |
+| 5 | `acciones.py`, `AccionesResultado.qml`, `Reunion.qml` | Identidad, capacidades, deshacer y supervisión |
 | 6 | `flujo.py`, `Flujo.qml`, `Continuidad.qml` | Validación, caducidad y recuperación parcial |
 | 7 | `brujula.py`, `brujula.json`, `buscar.py`, `indice.py` | Eventos, reglas, fuentes y búsqueda |
 | 8 | `Agente.qml`, `agente.py`, `memoria.py`, `test_agente.py` | Tools, propuestas, fuentes, fragmentos y separación entre lógica y modelo |

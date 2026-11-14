@@ -106,6 +106,9 @@ Valen 0 cuando el perfil apaga las animaciones. Curva `Easing.OutCubic`; `Easing
 | `BotonPanel` | Botón que reparte el ancho de una fila. |
 | `BotonCompacto` | Botón de ancho natural para filas de acciones. |
 | `FondoBoton` | Fondo de cualquier botón con estilo propio. |
+| `FondoSeleccion` | Lo elegido: pestaña activa, fila actual de una lista, botón destacado. `marca: true` añade la barra lateral. |
+| `ControlRapido` | Interruptor confirmado por su servicio. `compacto: true` = fila de 52 px; `conDetalle` = flecha integrada. |
+| `AyudaSuper` | Capa de ayuda al mantener SUPER; no toma teclado ni ratón. |
 | `CampoPanel` · `Interruptor` · `Deslizador` | Campos de texto, interruptores y deslizadores. |
 | `Etiqueta` | Rótulo de sección en mayúsculas. |
 | `Tecla` | Un atajo de teclado con relieve. |
@@ -148,3 +151,22 @@ y el replay explica si graba o está desactivado. Favoritos de controles:
 máximo dos, para conservar espacio para los avisos. La bandeja conserva iconos originales,
 ofrece favoritos y mantiene las solicitudes de atención visibles. Buds conserva los iconos y porcentajes de I/D en la barra, más estuche cuando esté disponible,
 por preferencia explícita del usuario; desconocido se representa con «—».
+
+## Selección (ORION 5.3)
+
+Lo elegido no se tiñe del acento. Con fondos cálidos u oscuros, un tinte del 15–25 % del acento
+sobre el fondo se vuelve marrón. La selección es una superficie neutra con un borde del acento:
+
+| Token | Valor | Uso |
+|---|---|---|
+| `seleccionado` | `elevada` + 7 % del acento | Fondo de lo elegido en reposo. |
+| `seleccionadoEncima` | texto al 10 % + 9 % del acento | Elegido y con el ratón encima o pulsado. |
+| `bordeSeleccion` | acento al 80 % | Borde de lo elegido, medallas e iconos de cabecera. |
+
+Sin degradados ni resplandor de color en botones, pestañas o filas: la sombra, si la hay, es negra.
+El acento queda para el borde, el icono y la marca lateral.
+
+![Selección neutra y controles compactos con un acento de atardecer](screenshots/orion-fase5-seleccion.png)
+
+Se reproduce con `python3 tests/previsualizar_orion.py --fase5` (componentes reales, datos simulados). El mensaje propio en el agente usa
+`elevada` con `bordeFuerte`. Las medallas de cabecera usan `elevada` con `bordeSeleccion`.

@@ -44,13 +44,14 @@ y los requisitos que dependen de cada máquina. El respaldo externo se instala p
 ## Qué incluye
 
 Ventanas en mosaico, cuatro layouts, grupos, scratchpads, gestos y vista general; barra, Brújula, centro de control,
-lanzador, notificaciones y bloqueo; perfiles coordinados, privacidad, captura y replay; Mesa con
-plantillas y reuniones; continuidad de proyectos; Brújula con contexto, agenda, búsqueda, sesión
+lanzador con acciones sobre cada resultado (ventanas, plantillas, proyectos, archivos) y ajustes directos,
+notificaciones agrupadas con historial y bloqueo; perfiles coordinados, privacidad, captura y replay; reuniones
+y rutinas; continuidad de proyectos; Brújula con contexto, agenda, búsqueda, sesión
 y salud; dictado, OCR, IA local y agente con memoria semántica, integración móvil y herramientas de recuperación.
 
 | Área | Incluye |
 |---|---|
-| Escritorio | Hyprland, Quickshell, perfiles, Mesa y Brújula |
+| Escritorio | Hyprland, Quickshell, perfiles y cuatro centros: lanzador, Brújula, centro de control y agente |
 | Productividad | Proyectos, notas, plantillas, concentración y agente con memoria |
 | Apariencia | Ayu, matugen, wallpapers y temas de arranque y aplicaciones |
 | Herramientas | Kitty, Zsh, Neovim, Yazi, capturas, dictado y OCR |
