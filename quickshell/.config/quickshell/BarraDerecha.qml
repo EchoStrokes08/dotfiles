@@ -163,7 +163,7 @@ RowLayout {
         property string ayudaTexto: ""
         readonly property var visibles: partes.filter(p => p.texto !== "")
         visible: visibles.length > 0
-        implicitWidth: filaBuds.implicitWidth + 12
+        implicitWidth: filaBuds.implicitWidth + 20
         implicitHeight: 34
 
         function leer() { if (!lectorBuds.running) lectorBuds.running = true; }
@@ -193,13 +193,15 @@ RowLayout {
             anchors.fill: parent
             anchors.topMargin: 5; anchors.bottomMargin: 5
             radius: height / 2
-            color: Qt.alpha(Paleta.texto, zonaBuds.containsMouse ? 0.10 : 0)
+            // Una sola cápsula para las tres partes: se leen como un dispositivo (ORION 5.7)
+            color: zonaBuds.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+            border { width: 1; color: EstiloPanel.borde }
         }
 
         RowLayout {
             id: filaBuds
             anchors.centerIn: parent
-            spacing: 4
+            spacing: 8
             Repeater {
                 model: buds.visibles
                 RowLayout {

@@ -22,6 +22,16 @@ PanelWindow {
     readonly property real margen: 8      // de las islas al borde de la pantalla
 
     SystemClock { id: reloj; precision: SystemClock.Minutes }
+    // Próxima cita en 30 min o menos (o en curso): chip junto a la hora (ORION 5.7). Nunca con privacidad.
+    readonly property var citaCercana: {
+        const ahora = reloj.date;
+        if (EstadoEscritorio.privacidad) return null;
+        const e = Eventos.proximos(1)[0];
+        if (!e || e.todoDia) return null;
+        const min = Math.round((e.inicio - ahora) / 60000);
+        if (e.inicio <= ahora && e.fin > ahora) return { titulo: e.titulo, cuando: "ahora" };
+        return min >= 0 && min <= 30 ? { titulo: e.titulo, cuando: min <= 1 ? "ya" : min + " min" } : null;
+    }
 
     function refrescar(que) { derecha.refrescar(que); }
 
@@ -173,6 +183,23 @@ PanelWindow {
                     : Qt.formatTime(reloj.date, "HH:mm")
                 color: Qt.lighter(Paleta.acento, 1.08)
                 font { family: Paleta.fuente; pixelSize: 13; weight: Font.Bold; letterSpacing: .4; features: { "tnum": 1 } }   // cifras de igual ancho: la hora no baila
+            }
+            Rectangle {
+                visible: barra.citaCercana !== null && !zonaReloj.containsMouse
+                anchors.verticalCenter: parent.verticalCenter
+                implicitHeight: 22; radius: height / 2
+                implicitWidth: textoCita.implicitWidth + 16
+                color: EstiloPanel.elevada
+                border { width: 1; color: EstiloPanel.bordeSeleccion }
+                Text {
+                    id: textoCita
+                    anchors.centerIn: parent
+                    width: Math.min(implicitWidth, 220)
+                    elide: Text.ElideRight
+                    text: barra.citaCercana ? barra.citaCercana.titulo + " · " + barra.citaCercana.cuando : ""
+                    color: Paleta.texto
+                    font { family: Paleta.fuente; pixelSize: 11; bold: true }
+                }
             }
         }
         MouseArea {
