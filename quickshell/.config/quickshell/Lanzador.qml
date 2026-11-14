@@ -485,6 +485,18 @@ PanelWindow {
         const apps = DesktopEntries.applications.values.filter(visibleApp)
             .map(app => ({ app: app, p: puntajeApp(app, q) })).filter(r => r.p > 0)
             .map(r => ({ app: r.app, p: r.p + Math.min(30, (usos[r.app.id] ?? 0) * 3) }));
+        // En reposo: lo que toca ahora, lo que más abres y después el resto en orden alfabético (ORION 5.5)
+        if (modo === "apps" && q === "") {
+            const conUso = apps.filter(r => (usos[r.app.id] ?? 0) > 0)
+                .sort((a, b) => (usos[b.app.id] ?? 0) - (usos[a.app.id] ?? 0)).slice(0, 5);
+            const ids = conUso.map(r => r.app.id);
+            const itemApp = (r, g) => ({ nombre: r.app.name, detalle: r.app.genericName || r.app.comment || "", icono: r.app.icon,
+                                         grupo: g, accion: () => lanzarApp(r.app) });
+            return [...sugerenciasAhora().map(x => Object.assign(x, { grupo: "Sugerido ahora" })),
+                    ...conUso.map(r => itemApp(r, "Recientes")),
+                    ...apps.filter(r => !ids.includes(r.app.id)).sort((a, b) => a.app.name.localeCompare(b.app.name))
+                           .map(r => itemApp(r, "Todas las apps"))];
+        }
         const accs = acciones.map(a => ({ a: a, p: puntajeAccion(a, q) })).filter(r => r.p > 0);
         // proyectos: por su nombre, o todos con «proyecto» / «retomar»
         const todosProy = q.length >= 3 && ("proyectos".startsWith(q) || "retomar".startsWith(q));
@@ -511,6 +523,25 @@ PanelWindow {
         return res;
     }
 
+    // Hasta tres atajos según el momento: compromiso cercano, proyecto en curso y tareas pendientes
+    function sugerenciasAhora() {
+        if (EstadoEscritorio.privacidad) return [];
+        const s = [], ahora = new Date();
+        const e = Eventos.proximos(1)[0];
+        if (e && !e.todoDia) {
+            const min = Math.round((e.inicio - ahora) / 60000);
+            const texto = e.inicio <= ahora && e.fin > ahora ? "Ahora · termina " + Qt.formatTime(e.fin, "HH:mm")
+                        : min <= 60 ? "En " + Math.max(1, min) + " min · " + Qt.formatTime(e.inicio, "HH:mm") : "";
+            if (texto) s.push({ nombre: e.titulo, detalle: texto + " · ver en Hoy", glifo: 0xF00F0,
+                                accion: () => sh("qs ipc call brujula abrir hoy") });
+        }
+        const pr = Continuidad.ultimo ? proyectos.find(x => x.id === Continuidad.ultimo.id) : null;
+        if (pr) s.push(itemProyecto(pr));
+        const n = Eventos.tareas.length;
+        if (n > 0) s.push({ nombre: n === 1 ? "1 tarea pendiente" : n + " tareas pendientes", detalle: "Revisarlas en Hoy",
+                            glifo: 0xF012C, accion: () => sh("qs ipc call brujula abrir hoy") });
+        return s.slice(0, 3);
+    }
     function lanzarApp(app) {
         if (app.runInTerminal) Quickshell.execDetached(["kitty", "-e", ...app.command]);
         else app.execute();
@@ -725,15 +756,23 @@ PanelWindow {
                         spacing: 12
                         Rectangle {   // baldosa del icono
                             implicitWidth: 38; implicitHeight: 38; radius: 12
-                            color: Qt.alpha(fila.actual ? Paleta.acento : Paleta.texto, fila.actual ? .14 : .05)
-                            border { width: 1; color: Qt.alpha(fila.actual ? Paleta.acento : Paleta.texto, fila.actual ? .3 : .06) }
+                            color: fila.actual ? EstiloPanel.elevada : EstiloPanel.relleno
+                            border { width: 1; color: fila.actual ? EstiloPanel.bordeFuerte : EstiloPanel.borde }
                             Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                             IconImage {
+                                id: iconoFila
                                 anchors.centerIn: parent
                                 width: 28; height: 28
                                 visible: !!fila.modelData.icono
                                 source: fila.modelData.icono ? Quickshell.iconPath(fila.modelData.icono, "application-x-executable") : ""
                                 asynchronous: true
+                            }
+                            Text {   // respaldo: la inicial cuando el tema no tiene el icono de la app
+                                anchors.centerIn: parent
+                                visible: !!fila.modelData.icono && iconoFila.status === Image.Error
+                                text: (fila.modelData.nombre || "?").charAt(0).toUpperCase()
+                                color: Paleta.acento2
+                                font { family: Paleta.fuente; pixelSize: 18; bold: true }
                             }
                             Text {
                                 anchors.centerIn: parent
@@ -784,6 +823,14 @@ PanelWindow {
                 }
             }
 
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: 4
+                visible: ventana.resultados.length > 0 && !contexto.referencia
+                text: "↑↓ moverse  ·  Enter abrir  ·  Alt+Enter acciones  ·  Esc cerrar"
+                color: EstiloPanel.tenue
+                font { family: Paleta.fuente; pixelSize: 11 }
+            }
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 6; Layout.bottomMargin: 6

@@ -74,8 +74,15 @@ ShellRoot {
         function toggle(): void { const a = brujula.abierto && brujula.pagina === 0; cerrarTodo(); if (!a) brujula.abrir("hoy"); }
         function abrir(): void  { cerrarTodo(); brujula.abrir("hoy"); }
         function cerrar(): void { brujula.abierto = false; }
-        // Ir a un workspace desde fuera (pruebas/scripts):  qs ipc call dashboard irA 3
+        // Alias antiguo: cambia de ESPACIO, no de pestaña. Usa «espacios ir» (o «brujula abrir <pagina>»).
         function irA(n: int): void { Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`); }
+    }
+
+    // Espacios de trabajo desde scripts y pruebas:  qs ipc call espacios ir 3
+    IpcHandler {
+        target: "espacios"
+        function ir(n: int): void { Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`); }
+        function actual(): string { return String(Hyprland.focusedWorkspace?.id ?? ""); }
     }
 
     // Lanzador de apps (SUPER+R):  qs ipc call lanzador toggle
