@@ -1,0 +1,20 @@
+# Lista de stow para el paquete gtk. Sustituye a la predeterminada, así que repite sus entradas.
+# Estado generado por el tema (tema.py lo escribe en ~/.local/state/tema): nunca se enlaza desde aquí.
+# Si quedó una copia dentro del repo (está en .gitignore), stow no debe usarla ni «respaldar» la real.
+^/\.local/state
+RCS
+.+,v
+CVS
+\.\#.+
+\.cvsignore
+\.svn
+_darcs
+\.hg
+\.git
+\.gitignore
+\.gitmodules
+.+~
+\#.*\#
+^/README.*
+^/LICENSE.*
+^/COPYING

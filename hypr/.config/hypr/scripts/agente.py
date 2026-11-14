@@ -723,9 +723,10 @@ def probar_google(base, claves, modelo):
             estado = "lento" if seg >= LENTO else "respaldo" if i else "rapido"
             return {"estado": estado, "seg": seg, **({"motivo": motivos[-1]} if motivos else {})}
         except urllib.error.HTTPError as e:
+            texto = e.read().decode(errors="replace") if e.code == 429 else ""
+            e.close()   # la respuesta de error trae un archivo temporal abierto
             if e.code == 404:
                 return None
-            texto = e.read().decode(errors="replace") if e.code == 429 else ""
             motivos.append("de pago" if "limit: 0" in texto else motivo(e))
         except (OSError, ValueError) as e:
             motivos.append(motivo(e))
@@ -938,8 +939,10 @@ def chat(mensajes, emitir_texto=True, predecir=None):
             return chat_nube(conf, mensajes, emitir_texto, predecir)
         except (OSError, ValueError) as e:   # sin internet, clave mala, límite, petición demasiado grande…
             fallo = motivo(e)
-            if isinstance(e, urllib.error.HTTPError) and e.code == 429:
-                limitados.append((float(e.headers.get("retry-after") or 99), conf))
+            if isinstance(e, urllib.error.HTTPError):
+                if e.code == 429:
+                    limitados.append((float(e.headers.get("retry-after") or 99), conf))
+                e.close()   # la respuesta de error trae un archivo temporal abierto
             sig = cadena[n + 1] if n + 1 < len(cadena) else None
             if sig is None:
                 break
