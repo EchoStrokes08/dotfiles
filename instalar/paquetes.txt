@@ -66,6 +66,7 @@ lib32-gamemode
 lib32-vulkan-radeon
 libadwaita
 libqalculate
+librsvg
 libva-utils
 linux
 linux-firmware
@@ -107,6 +108,7 @@ power-profiles-daemon
 python-gobject
 python-icalendar
 python-lz4
+python-markdown
 python-openai-whisper
 python-recurring-ical-events
 qt5-wayland

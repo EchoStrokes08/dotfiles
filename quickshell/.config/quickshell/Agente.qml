@@ -22,6 +22,10 @@ Superpuesta {
     opacidadTarjeta: 0.96
 
     readonly property string scripts: Quickshell.env("HOME") + "/.config/hypr/scripts/"
+    Connections {
+        target: EstadoEscritorio
+        function onCapturaPrivadaChanged() { if(EstadoEscritorio.capturaPrivada) ag.abierto=false; }
+    }
     property var mensajes: []             // {rol: tu|asistente|paso|fuentes|confirmar|error, texto, lista, resuelto}
     property bool pensando: false
     property bool listo: false            // modelo cargado (la primera vez tarda ~1 min en esta CPU)
@@ -77,7 +81,7 @@ Superpuesta {
     function g(hex) { return String.fromCodePoint(parseInt(hex, 16)); }
     function agregar(m) { mensajes = [...mensajes, m]; Qt.callLater(() => lista.positionViewAtEnd()); }
     function ultimo() { return mensajes[mensajes.length - 1]; }
-    function reemplazarUltimo(m) { const c = mensajes.slice(); c[c.length - 1] = m; mensajes = c; Qt.callLater(() => lista.positionViewAtEnd()); }
+    function reemplazarUltimo(m) { const seguir = lista.contentY + lista.height >= lista.contentHeight - 80; const c = mensajes.slice(); c[c.length - 1] = m; mensajes = c; if (seguir) Qt.callLater(() => lista.positionViewAtEnd()); }
 
     function abrirYPreguntar(t) { abierto = true; if (t) enviar(t); }
     function enviar(t) {
@@ -815,7 +819,7 @@ Superpuesta {
             Rectangle {
                 id: bt
                 anchors.right: parent.right
-                width: Math.min(parent.width * .72, tt.implicitWidth + 36); implicitHeight: tt.implicitHeight + 22
+                width: parent.width * .78; implicitHeight: tt.implicitHeight + 24
                 radius: 16; bottomRightRadius: 6   // «cola» hacia el lado de quien habla
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
@@ -823,7 +827,12 @@ Superpuesta {
                     GradientStop { position: 1; color: Qt.alpha(Qt.tint(Paleta.acento, Qt.alpha(Paleta.acento, .35)), .16) }
                 }
                 border { width: 1; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.2), .32) }
-                Text { id: tt; anchors { fill: parent; topMargin: 12; bottomMargin: 12; leftMargin: 16; rightMargin: 16 } wrapMode: Text.Wrap; text: parent.parent.parent.m.texto; color: Paleta.texto; lineHeight: 1.15; font { family: Paleta.fuente; pixelSize: 14 } }
+                MensajeAgente {
+                    id: tt
+                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
+                    texto: parent.parent.parent.m.texto
+                    onEnlace: (url) => Qt.openUrlExternally(url)
+                }
             }
         }
     }
@@ -841,14 +850,11 @@ Superpuesta {
                 border { width: 1; color: Qt.alpha(Paleta.acento, .45) }
                 Text { anchors.centerIn: parent; text: "✦"; color: Qt.lighter(Paleta.acento, 1.15); font.pixelSize: 13 }
             }
-            Text {
+            MensajeAgente {
                 Layout.fillWidth: true; Layout.topMargin: 3
-                wrapMode: Text.Wrap; textFormat: Text.MarkdownText
-                text: parent.parent.m.texto; color: Paleta.texto; lineHeight: 1.35
-                linkColor: Qt.lighter(Paleta.acento2, 1.3)   // el azul por defecto (#0000ff) no se lee sobre oscuro
-                font { family: Paleta.fuente; pixelSize: 14 }
-                onLinkActivated: (url) => Qt.openUrlExternally(url)
-                HoverHandler { cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor }
+                texto: parent.parent.m.texto
+                terminado: !ag.pensando || !!parent.parent.m.cerrado
+                onEnlace: (url) => Qt.openUrlExternally(url)
             }
         }
     }

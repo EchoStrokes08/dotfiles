@@ -326,7 +326,25 @@ def p_sistema(accion):
     return texto, lambda: (lanzar(cmd), f"Hecho: {texto.lower()}.")[1]
 
 
-CONSULTAS = {"buscar_memoria": t_buscar_memoria, "agenda": t_agenda, "estado_equipo": t_estado_equipo,
+def t_acciones_orion(referencia):
+    import acciones
+    return json.dumps(acciones.opciones(referencia),ensure_ascii=False)
+
+
+def p_accion_orion(referencia, accion, valores=None):
+    import acciones
+    opciones=acciones.opciones(referencia)
+    if accion not in {a['codigo'] for a in opciones['acciones']}:raise ValueError('Acción no disponible')
+    referencia=dict(referencia,revision=opciones['revision'])
+    return 'Ejecutar '+accion+' sobre '+referencia.get('tipo','elemento'), lambda: json.dumps(acciones.ejecutar_accion(referencia,accion,valores),ensure_ascii=False)
+
+
+def p_deshacer_orion(token):
+    import acciones
+    return 'Recuperar la última acción reversible indicada', lambda: json.dumps(acciones.deshacer(token),ensure_ascii=False)
+
+
+CONSULTAS = {"acciones_orion":t_acciones_orion,"buscar_memoria": t_buscar_memoria, "agenda": t_agenda, "estado_equipo": t_estado_equipo,
              "linea_de_tiempo": t_linea_de_tiempo, "buscar_archivos": t_buscar_archivos, "avisos_movil": t_avisos_movil, "abrir": t_abrir}
 def t_buscar_internet(consulta):
     """Resultados + el texto del primero: así el modelo responde con la fuente y no de memoria."""
@@ -348,7 +366,7 @@ def t_abrir_web(url):
 
 CONSULTAS.update({"buscar_internet": t_buscar_internet, "abrir_web": t_abrir_web,
                   "leer_web": navegador.leer, "leer_archivo": sistema_local.leer_archivo})
-ACCIONES = {"concentracion": p_concentracion, "abrir_sesion": p_abrir_sesion, "ajuste": p_ajuste, "recordatorio": p_recordatorio,
+ACCIONES = {"deshacer_orion":p_deshacer_orion,"accion_orion":p_accion_orion,"concentracion": p_concentracion, "abrir_sesion": p_abrir_sesion, "ajuste": p_ajuste, "recordatorio": p_recordatorio,
             "responder_movil": p_responder_movil, "enviar_al_movil": p_enviar_al_movil, "sistema": p_sistema}
 ACCIONES.update({"ejecutar_comando": sistema_local.preparar_comando,
                  "escribir_archivo": sistema_local.preparar_escritura, "navegador": navegador.preparar})
@@ -405,6 +423,9 @@ def f(nombre, descripcion, props=None, requeridos=None):
 
 S = {"type": "string"}
 HERRAMIENTAS = [
+    f("deshacer_orion","Recupera una acción reversible usando el token deshacer devuelto por accion_orion; nunca sobrescribe cambios posteriores.",{"token":S},["token"]),
+    f("acciones_orion","Consulta capacidades actuales de una ventana, plantilla, proyecto, archivo o tarea de ORION. Usa identificadores reales obtenidos por consulta.",{"referencia":{"type":"object"}},["referencia"]),
+    f("accion_orion","Ejecuta una capacidad consultada en acciones_orion; devuelve resultado confirmado y token de recuperación cuando corresponde.",{"referencia":{"type":"object"},"accion":S,"valores":{"type":"object"}},["referencia","accion"]),
     f("buscar_internet", "Busca en internet. Devuelve los resultados (título, enlace, resumen) y el texto de la página del primero.", {"consulta": S}, ["consulta"]),
     f("abrir_web", "Abre una URL HTTP/HTTPS y devuelve su texto.", {"url": S}, ["url"]),
     f("leer_web", "Elementos de la página actual con sus selectores CSS, para usar navegador (clic, escribir)."),
