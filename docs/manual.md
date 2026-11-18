@@ -139,8 +139,8 @@ manual (apéndice A).
 - **Atajos directos**: `SUPER+Q` terminal, `SUPER+E` archivos, `SUPER+W` WhatsApp, `SUPER+B` Buds Manager,
   `SUPER+G` Roblox.
 - **Modo lanzar** (`SUPER+A` y luego una letra): `F` Firefox, `T` terminal, `E` archivos, `W` WhatsApp,
-  `G` Roblox, `S` Spotify. Cualquier otra tecla cancela.
-- **«Enfocar o abrir»**: WhatsApp, Buds Manager, Firefox y Spotify no se abren dos veces. Si ya están abiertos,
+  `G` Roblox, `S` Spotify, `N` Nebula. Cualquier otra tecla cancela.
+- **«Enfocar o abrir»**: WhatsApp, Buds Manager, Firefox, Spotify y Nebula no se abren dos veces. Si ya están abiertos,
   el atajo te lleva a su ventana.
 - **Cada app en su sitio**: Firefox siempre abre en el workspace 2 y WhatsApp/Discord en el 9, y te llevan ahí.
 
