@@ -1,6 +1,6 @@
 // Lado derecho de la barra. Siempre: bandeja · volumen · red (solo icono) · batería · avisos.
-// Solo cuando importan: grabación, móvil con batería baja, actualizaciones, Buds conectados, modo de energía
-// distinto de equilibrado, CPU o RAM altas, concentración y modo juego activos.
+// Solo cuando importan: grabación, móvil con batería baja, actualizaciones, Buds conectados,
+// CPU o RAM altas, concentración y modo juego activos. Energía siempre permite abrir el selector.
 //
 // Para que un script avise de un cambio al momento (en vez de esperar al sondeo):
 //   qs ipc call barra refrescar buds        (también: modo-juego, red, grabacion)
@@ -330,14 +330,13 @@ RowLayout {
     // ── Modo de energía (power-profiles-daemon) ──────────────────────────
     Modulo {
         readonly property int perfil: PowerProfiles.profile
-        visible: perfil !== PowerProfile.Balanced     // en equilibrado no hay nada que avisar
         gestorAyuda: ayuda
         tamIcono: 16
         icono: derecha.g(perfil === PowerProfile.Performance ? 0xF04C5 : perfil === PowerProfile.PowerSaver ? 0xF0F86 : 0xF0F85)
         color: perfil === PowerProfile.Performance ? Paleta.peligro : perfil === PowerProfile.PowerSaver ? Paleta.exito : Paleta.texto
         ayuda: "Modo de energía: " + (perfil === PowerProfile.Performance ? "rendimiento" : perfil === PowerProfile.PowerSaver ? "ahorro" : "equilibrado")
-             + "\nClic: cambiar · SUPER+SHIFT+P"
-        onClic: derecha.ejecutar("~/.config/hypr/scripts/modo-energia.sh")
+             + "\nClic: elegir perfil · SUPER+SHIFT+P: alternar"
+        onClic: derecha.ejecutar("qs ipc call notificaciones toggle")
     }
 
     DivisorBarra { visible: cpuMod.visible || ramMod.visible || Concentracion.activo || modoJuego.activo }

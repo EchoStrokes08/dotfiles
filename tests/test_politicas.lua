@@ -1,5 +1,10 @@
 package.path = './hypr/.config/hypr/?.lua;' .. package.path
 local motor = require('modulos.politicas')
+assert(motor.es_juego('JuegoLinux', 'SteamAppId=1243830\0OTRA=1\0'))
+assert(motor.es_juego('JuegoLinux', 'OTRA=1\0SteamAppId=322170\0'))
+assert(not motor.es_juego('steam', 'SteamAppId=0\0'))
+assert(not motor.es_juego('navegador', 'OTRA_SteamAppId=322170\0'))
+assert(not motor.es_juego('navegador', nil))
 local casos = 0
 for perfil in pairs(motor.perfiles) do
     for _, juego in ipairs({'si', 'no', 'automatico'}) do
@@ -19,6 +24,9 @@ for perfil in pairs(motor.perfiles) do
                 assert(not r.config.animations.enabled)
                 assert(r.config.decoration.active_opacity == 1)
                 assert(r.config.general.gaps_out == 0)
+                assert(not r.config.cursor.hide_on_key_press and r.config.cursor.inactive_timeout == 0)
+            else
+                assert(r.config.cursor.hide_on_key_press and r.config.cursor.inactive_timeout == 5)
             end
             casos = casos + 1
         end
@@ -35,4 +43,9 @@ end
 -- Salir de juego no debe cancelar presentación ni ahorro por batería.
 local r = motor.resolver({perfil='lectura', juego='no', presentacion=true, bateria=true})
 assert(r.no_molestar and not r.config.decoration.blur.enabled)
+-- Modo juego automático: Sober y juegos de Steam (Proton), no el cliente de Steam ni otras apps.
+assert(motor.es_juego('org.vinegarhq.Sober'))
+assert(motor.es_juego('steam_app_728880') and motor.es_juego('steam_app_322170') and motor.es_juego('gamescope'))
+assert(not motor.es_juego('steam') and not motor.es_juego('steam_app_') and not motor.es_juego('xsteam_app_1'))
+assert(not motor.es_juego(nil) and not motor.es_juego('kitty'))
 print(casos .. ' combinaciones de política correctas')

@@ -6,14 +6,36 @@ local e = { perfil = "cristal", juego = "automatico", privacidad = false }
 local runtime = os.getenv("XDG_RUNTIME_DIR")
 local firma = (os.getenv("HYPRLAND_INSTANCE_SIGNATURE") or ""):gsub("[^%w_%-]", "")
 local archivo = runtime and (runtime .. "/hypr-escritorio-" .. firma .. ".state")
+local ventanas_juego = {}
+local function es_juego(w)
+    if motor.es_juego(w.class) then return true end
+    local pid = tonumber(w.pid)
+    if not pid or pid <= 0 or pid % 1 ~= 0 then return false end
+    local f = io.open("/proc/" .. string.format("%.0f", pid) .. "/environ", "rb")
+    if not f then return false end
+    local entorno = f:read("a")
+    f:close()
+    return motor.es_juego(w.class, entorno)
+end
+local function detectar_juegos(excluida)
+    e.juego_auto = false
+    ventanas_juego = {}
+    for _, w in ipairs(hl.get_windows()) do
+        if w.address ~= excluida and es_juego(w) then
+            e.juego_auto = true
+            ventanas_juego[#ventanas_juego + 1] = tostring(w.address)
+        end
+    end
+end
 local function leer()
     local f = archivo and io.open(archivo, "r")
     if not f then return end
     for linea in f:lines() do
-        local k, v = linea:match("^(%w+)=(%w+)$")
+        local k, v = linea:match("^([%w_]+)=([%w_%-]+)$")
         if k == "perfil" and motor.perfiles[v] then e.perfil = v end
         if k == "juego" and (v == "si" or v == "no" or v == "automatico") then e.juego = v end
         if k == "privacidad" then e.privacidad = v == "true" end
+        if k == "juego_espacio_manual" then e.juego_espacio_manual = tonumber(v) end
     end
     f:close()
 end
@@ -25,10 +47,7 @@ local function reunion_activa()
     return fin > os.time()
 end
 local function detectar()
-    e.juego_auto = false
-    for _, w in ipairs(hl.get_windows()) do
-        if w.class == "org.vinegarhq.Sober" then e.juego_auto = true end
-    end
+    detectar_juegos()
     e.presentacion = false
     for _, m in ipairs(hl.get_monitors()) do
         if m.name ~= "eDP-1" then e.presentacion = true end
@@ -47,15 +66,22 @@ local function guardar(r)
     end
     f:write("privacidad_activa=" .. tostring(e.privacidad == true or e.reunion == true) .. "\n")
     f:write("juego_activo=" .. tostring(r.juego) .. "\n")
+    f:write("juego_ventanas=" .. table.concat(ventanas_juego, ",") .. "\n")
+    f:write("juego_espacio_manual=" .. tostring(e.juego == "si" and e.juego_espacio_manual or "") .. "\n")
     f:write("no_molestar=" .. tostring(r.no_molestar) .. "\n")
     f:close()
     os.rename(archivo .. ".tmp", archivo)
 end
 local privacidad_anterior = nil
+local juego_anterior = nil
 function M.sincronizar()
     local r = motor.resolver(e)
     hl.config(r.config)
     guardar(r)
+    if r.juego ~= juego_anterior then
+        juego_anterior = r.juego
+        hl.exec_cmd("~/.config/hypr/scripts/juego-energia.sh " .. (r.juego and "inicio" or "fin") .. " escritorio")
+    end
     hl.exec_cmd("qs ipc call notificaciones automatico " .. (r.no_molestar and "true" or "false"))
     -- La privacidad (también la de una reunión) pausa el replay y lo devuelve al terminar.
     -- Solo al cambiar: sincronizar también corre en cada cambio de ventanas.
@@ -85,6 +111,8 @@ function M.privacidad()
 end
 function M.juego(valor)
     if valor ~= "si" and valor ~= "no" and valor ~= "automatico" then return end
+    local ws = valor == "si" and hl.get_active_workspace() or nil
+    e.juego_espacio_manual = ws and ws.id or nil
     e.juego = valor
     M.sincronizar()
 end
@@ -93,10 +121,7 @@ function M.alternar_juego()
 end
 function M.juego_activo() return motor.resolver(e).juego end
 function M.ventanas_cambiaron(excluida)
-    e.juego_auto = false
-    for _, w in ipairs(hl.get_windows()) do
-        if w.address ~= excluida and w.class == "org.vinegarhq.Sober" then e.juego_auto = true end
-    end
+    detectar_juegos(excluida)
     M.sincronizar()
 end
 leer()

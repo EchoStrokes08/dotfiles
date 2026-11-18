@@ -37,7 +37,8 @@ Singleton {
             onStreamFinished: {
                 const p = this.text.trim();
                 if (p && p !== "power-saver") c.perfilAntes = p;   // si ya estaba en ahorro, recuerda el último normal
-                Quickshell.execDetached(["powerprofilesctl", "set", "power-saver"]);
+                // Jugando (gamemode activo) no se baja a ahorro: lo devuelve juego-energia.sh al terminar
+                c.sh("gamemoded -s 2>/dev/null | grep -q 'is active' || powerprofilesctl set power-saver");
             }
         }
     }

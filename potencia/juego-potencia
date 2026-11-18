@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# juego-potencia: más vatios para el procesador (ryzenadj) SOLO mientras se cumplan las tres cosas:
+#   1. hay un juego abierto  (gamemode crea /run/user/<uid>/juego-activo, ver hypr/scripts/juego-energia.sh)
+#   2. el cargador está enchufado
+#   3. la temperatura (Tctl) está por debajo de CORTE
+# Si falla cualquiera, vuelve a los límites de fábrica en ≤ 2 s. Tras un corte por calor no vuelve a subir
+# hasta enfriar a REANUDAR. Además, mientras está subido, el propio procesador se frena a TCTL °C
+# (--tctl-temp): esa protección es del hardware y funciona aunque este script se colgara.
+#
+#   juego-potencia servicio   bucle del servicio (systemd, como root)
+#   juego-potencia fabrica    vuelve ya a los límites de fábrica
+#   juego-potencia estado     qué está pasando (no necesita root)
+#   juego-potencia decidir JUEGO AC TEMP CORTADO   lógica pura (para las pruebas)
+set -u
+
+# ── Límites (7520U: 15 W de fábrica) ───────────────────────────────────
+STAPM=20000     # mW sostenidos
+SLOW=22000      # mW durante unos segundos
+FAST=25000      # mW en picos cortos
+TCTL=90         # °C: el procesador se frena solo a esta temperatura mientras está subido
+CORTE=85        # °C: por encima, vuelta a fábrica
+REANUDAR=78     # °C: tras un corte, no se vuelve a subir hasta bajar de aquí
+MODELO="Ryzen 5 7520U"   # en otro procesador no hace nada: estos números son para este
+
+ESTADO=/run/juego-potencia.estado
+FABRICA=/var/lib/juego-potencia/fabrica
+
+# Lógica pura: imprime «ACCIÓN CORTADO» (ACCIÓN = subir | fabrica)
+decidir() {
+    local juego=$1 ac=$2 temp=$3 cortado=$4
+    if (( temp >= CORTE )); then cortado=1
+    elif (( cortado == 1 && temp < REANUDAR )); then cortado=0
+    fi
+    if (( juego == 1 && ac == 1 && cortado == 0 )); then echo "subir $cortado"; else echo "fabrica $cortado"; fi
+}
+
+hay_juego() {
+    local f
+    for f in /run/user/*/juego-activo; do [ -e "$f" ] && return 0; done
+    return 1
+}
+con_cargador() {  # sin cargador detectable → como si no hubiera (lo seguro)
+    local d
+    for d in /sys/class/power_supply/*; do
+        [ "$(cat "$d/type" 2>/dev/null)" = Mains ] && [ "$(cat "$d/online" 2>/dev/null)" = 1 ] && return 0
+    done
+    return 1
+}
+temperatura() {   # °C enteros de Tctl; si no se puede leer → 999 (lo seguro: no subir)
+    local h
+    for h in /sys/class/hwmon/hwmon*; do
+        if [ "$(cat "$h/name" 2>/dev/null)" = k10temp ] && [ -r "$h/temp1_input" ]; then
+            echo $(( $(cat "$h/temp1_input") / 1000 )); return
+        fi
+    done
+    echo 999
+}
+
+# Límites de fábrica: se leen una vez de ryzenadj -i (en W y °C) y se guardan en mW y °C
+leer_fabrica() {
+    ryzenadj -i 2>/dev/null | awk -F'|' '
+        function v(x) { gsub(/ /, "", x); return x }
+        v($2) == "STAPMLIMIT"    { s = int(v($3) * 1000) }
+        v($2) == "PPTLIMITFAST"  { f = int(v($3) * 1000) }
+        v($2) == "PPTLIMITSLOW"  { l = int(v($3) * 1000) }
+        v($2) == "THMLIMITCORE"  { t = int(v($3)) }
+        END { if (s > 0 && f > 0 && l > 0 && t > 0) print s, l, f, t; else exit 1 }'
+}
+fabrica_guardada() {
+    [ -s "$FABRICA" ] && cat "$FABRICA" && return
+    local v
+    v=$(leer_fabrica) || return 1
+    mkdir -p "$(dirname "$FABRICA")" && echo "$v" > "$FABRICA" && echo "$v"
+}
+max() { (( $1 > $2 )) && echo "$1" || echo "$2"; }
+
+aplicar_fabrica() {
+    local s l f t
+    read -r s l f t < <(fabrica_guardada) || return 1
+    ryzenadj --stapm-limit="$s" --slow-limit="$l" --fast-limit="$f" --tctl-temp="$t" >/dev/null 2>&1
+}
+aplicar_subido() {   # nunca por debajo de fábrica (por si el fabricante ya daba más)
+    local s l f t
+    read -r s l f t < <(fabrica_guardada) || return 1
+    ryzenadj --stapm-limit="$(max "$STAPM" "$s")" --slow-limit="$(max "$SLOW" "$l")" \
+        --fast-limit="$(max "$FAST" "$f")" --tctl-temp="$TCTL" >/dev/null 2>&1
+}
+
+servicio() {
+    grep -q "$MODELO" /proc/cpuinfo || { echo "No es un $MODELO: no hago nada"; exit 0; }
+    command -v ryzenadj >/dev/null || { echo "Falta ryzenadj"; exit 1; }
+    fabrica_guardada >/dev/null || { echo "ryzenadj no puede leer los límites de este procesador: no hago nada"; exit 1; }
+    echo "Límites de fábrica (mW mW mW °C): $(cat "$FABRICA")"
+    trap 'aplicar_fabrica; echo "accion=fabrica (servicio parado)" > "$ESTADO"; exit 0' TERM INT
+    local cortado=0 actual=fabrica vueltas=0 juego ac temp accion
+    while :; do
+        juego=0; hay_juego && juego=1
+        ac=0; con_cargador && ac=1
+        temp=$(temperatura)
+        read -r accion cortado < <(decidir "$juego" "$ac" "$temp" "$cortado")
+        # Al cambiar se aplica ya; subido, se repite cada ~20 s (el firmware puede devolver sus límites)
+        if [ "$accion" != "$actual" ] || { [ "$accion" = subir ] && (( vueltas % 10 == 0 )); }; then
+            if [ "$accion" = subir ]; then aplicar_subido; else aplicar_fabrica; fi
+            [ "$accion" != "$actual" ] && echo "$actual → $accion (juego=$juego cargador=$ac ${temp}°C corte=$cortado)"
+            actual=$accion
+        fi
+        printf 'accion=%s\njuego=%s\ncargador=%s\ntemperatura=%s\ncorte_por_calor=%s\n' \
+            "$actual" "$juego" "$ac" "$temp" "$cortado" > "$ESTADO"
+        vueltas=$(( vueltas + 1 ))
+        sleep 2 & wait $!
+    done
+}
+
+case "${1:-}" in
+    servicio) servicio ;;
+    fabrica)  aplicar_fabrica ;;
+    estado)   cat "$ESTADO" 2>/dev/null || echo "juego-potencia no está en marcha" ;;
+    decidir)  shift; decidir "$@" ;;
+    *) echo "uso: $0 servicio|fabrica|estado|decidir JUEGO AC TEMP CORTADO" >&2; exit 2 ;;
+esac

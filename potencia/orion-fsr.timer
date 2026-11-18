@@ -1,0 +1,9 @@
+[Unit]
+Description=Revisar cambios en las bibliotecas de juegos de Steam
+
+[Timer]
+OnStartupSec=30
+OnUnitInactiveSec=30
+
+[Install]
+WantedBy=timers.target

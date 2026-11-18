@@ -35,6 +35,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | ★ `SUPER+F` | Pantalla completa |
 | `SUPER+P` | Pseudo-mosaico |
 | `SUPER+J` | Cambiar la dirección de la división (dwindle) |
+| `SUPER+U` | Mostrar la terminal que se «tragó» la app enfocada (swallow), o volver a ocultarla |
 | `SUPER+TAB` | Layout del workspace: dwindle → master → scrolling → monocle |
 | `SUPER+flechas` | Mover el foco |
 | `SUPER+SHIFT+flechas` | Mover la ventana en esa dirección (cambia su sitio en el layout; entra o sale de un grupo vecino) |
@@ -94,7 +95,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+SHIFT+F` | Modo concentración: 25 / 50 / 90 min (con sesión: +10 min o terminar) |
 | `SUPER+ALT+N` | Luz nocturna sí/no (automática 20:30–7:00, `hyprsunset.conf`) |
 | `SUPER+SHIFT+C` | Selector de color: clic en un píxel → hex copiado |
-| `SUPER+SHIFT+G` | Modo juego (también se activa solo con Roblox) |
+| `SUPER+SHIFT+G` | Modo juego: oculta la barra en el espacio del juego (también automático con Roblox, Steam y Gamescope) |
 | `SUPER+SHIFT+P` | Modo de energía: ahorro → equilibrado → rendimiento |
 | `SUPER+SHIFT+T` | Colores: Ayu ↔ sacados del wallpaper |
 | `SUPER+CTRL+T` | Tema claro ↔ oscuro |

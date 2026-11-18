@@ -23,11 +23,7 @@ hl.config({
         },
     },
 
-    -- Cursor: que no estorbe al escribir ni al leer
-    cursor = {
-        hide_on_key_press = true,  -- se esconde al teclear y vuelve al mover el ratón
-        inactive_timeout  = 5,     -- y se esconde tras 5 s quieto
-    },
+    -- Cursor: lo decide modulos/politicas.lua (se esconde al teclear, salvo en modo juego)
 })
 
 -- Gestos del touchpad (Nivel 6, paso 3): https://wiki.hypr.land/configuring/core/binds/gestures/

@@ -23,6 +23,9 @@ u.atajos({
     { mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }) },
     { mod .. " + P", hl.dsp.window.pseudo() },
     { mod .. " + J", hl.dsp.layout("togglesplit") },  -- solo dwindle
+    -- Deshacer el swallow: si una app abierta desde kitty (p. ej. Electron lanzado por un agente) ocupó
+    -- el sitio de la terminal, la terminal vuelve a verse al lado. Se usa con la app enfocada.
+    { mod .. " + U", hl.dsp.window.toggle_swallow() },
     { mod .. " + I", exec("~/.config/hypr/scripts/inspector.sh") },  -- info de la ventana (para window rules)
 
     -- Mover el foco con las flechas

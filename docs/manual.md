@@ -324,6 +324,12 @@ cuatro **perfiles** (cristal, lectura, mínimo, rendimiento). Debajo, cuatro pes
   «Avisos y respuestas». Sin conexión, un botón para abrir KDE Connect.
 - **Más**: checkpoints de ventanas, privacidad, juego automático, diagnóstico y replay.
 
+**Energía**: abre el centro de control con `SUPER+N` o pulsa el icono de energía de la barra.
+El selector permite elegir **Ahorro de energía**, **Equilibrado** o **Máximo rendimiento**
+(cuando el equipo lo ofrece). Muestra el modo activo y avisa si no se puede aplicar el cambio.
+Máximo rendimiento aumenta el consumo y puede generar más calor. Al desenchufar se activa
+el ahorro; puedes volver a elegir manualmente otro perfil.
+
 **Wi-Fi y Bluetooth** (centro de control › pestaña **Conexiones**, o clic en la red de la barra): dos pestañas (`Tab` cambia). Mientras está a la vista busca redes y dispositivos.
 - `Enter` o clic: conectar / desconectar. Si la red tiene candado y no está guardada, pide la contraseña en la
   misma fila (el ojo la muestra). Si falla, lo dice en rojo ("Contraseña incorrecta"…).
@@ -372,13 +378,38 @@ Funciona sin internet, en español e inglés.
 
 | Modo | Atajo | Qué hace |
 |---|---|---|
-| **Juego** | `SUPER+SHIFT+G` (o solo al abrir Roblox) | Quita animaciones y efectos y silencia notificaciones, para ganar rendimiento |
+| **Juego** | `SUPER+SHIFT+G` (automático con Roblox y juegos de Steam detectados) | Oculta la barra solo en los espacios con juegos, activa energía de rendimiento y reduce efectos y distracciones; restaura al desactivarse |
 | **Concentración** | `SUPER+SHIFT+F` | Temporizador de 25, 50 o 90 min con No molestar; WhatsApp, Discord, Roblox y Steam se esconden y vuelven al terminar. Cuenta atrás en la barra (clic = +10 min o terminar) |
 | **Energía** | `SUPER+SHIFT+P` | Ahorro → equilibrado → rendimiento |
 | **Presentación** | Solo, al conectar un proyector/TV · `SUPER+ALT+P` | Menú: duplicar, extender, solo la externa o solo el portátil. Activa No molestar; al desconectar, todo vuelve |
 | **Batería** | Solo, al desenchufar | Pasa a «ahorro» y quita blur y sombras. Al enchufar vuelve tu modo anterior y la apariencia normal. Si con batería eliges otro modo a mano, se respeta |
 | **No molestar** | `SUPER+SHIFT+N` | Silencia avisos ordinarios; las notificaciones críticas mantienen su política habitual |
 | **Luz nocturna** | `SUPER+ALT+N` | Pantalla cálida (menos luz azul). Se enciende sola a las 20:30 y se apaga a las 7:00 (horario en `~/.config/hypr/hyprsunset.conf`); el atajo la cambia a mano hasta el siguiente cambio de horario |
+
+El modo juego también aplica los ajustes de energía cuando se activa manualmente. Roblox/Sober,
+Gamescope y los juegos identificados por Steam lo activan automáticamente. GameMode y el
+escritorio coordinan su detección para restaurar los ajustes solo cuando ambos terminan.
+Para juegos de otros lanzadores, usa `gamemoderun ejecutable` o activa `SUPER+SHIFT+G`.
+La barra se oculta solo en los espacios que contienen juegos detectados y sigue sus ventanas al moverlas.
+Los demás espacios y monitores conservan su barra. Al activar el modo manualmente, también se oculta
+en el espacio desde el que lo activaste. Vuelve al desactivar el modo o al salir de esos espacios.
+
+En Steam, `gamemoderun %command%` permite dar prioridad al proceso del juego. Para probar
+reescalado FSR a 720p, usa `~/.config/hypr/scripts/juego-fsr.sh %command%` en sus opciones de
+lanzamiento; requiere Gamescope. `FSR_RES=960x540` reduce más la resolución y
+`FSR_RES=native` conserva la original. Compara FPS y fluidez con la misma escena:
+el reescalado puede ayudar si el límite es la GPU, pero no garantiza una mejora en todos los juegos.
+
+En ORION, con Steam completamente cerrado, `~/dotfiles/potencia/instalar-fsr.sh` instala
+Gamescope y activa el temporizador de usuario `orion-fsr.timer`. Cada 30 segundos comprueba los
+juegos instalados en las bibliotecas registradas de Steam, incluidos otros discos. Omite Proton,
+los runtimes y las instalaciones incompletas; Geometry Dash conserva su resolución original.
+Respeta las opciones de lanzamiento personalizadas y guarda copia solo al modificar un archivo.
+Si instalas juegos nuevos, cierra Steam completamente y espera hasta 30 segundos antes de volver
+a abrirlo para que reciban el ajuste. No modifica archivos mientras Steam está abierto. Si no hay
+juegos instalados, no hace cambios. El lanzador no limita los FPS por defecto; `FSR_FPS=60`
+permite fijarlos si lo prefieres. Para detener la automatización:
+`systemctl --user disable --now orion-fsr.timer` (las opciones ya aplicadas se conservan).
 
 **Selector de color**: `SUPER+SHIFT+C` congela la pantalla con una lupa; haz clic en cualquier píxel y su color en hex (p. ej. `#f29718`) queda copiado. `Esc` cancela.
 

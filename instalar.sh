@@ -118,7 +118,7 @@ paso_flatpak() {
 }
 
 # ── 5. Dotfiles con stow ────────────────────────────────────────────────
-STOW=(zsh kitty hypr fuzzel gtk tema btop nvim vscode wallpapers quickshell udiskie yazi satty lugares)
+STOW=(zsh kitty hypr gamemode fuzzel gtk tema btop nvim vscode wallpapers quickshell udiskie yazi satty lugares)
 STOW_SIN_PLEGAR=(vesktop spicetify easyeffects servicios)   # solo enlaza archivos: la app (o systemctl enable) escribe en su carpeta
 
 respaldar() {  # respaldar PAQUETE [opciones de stow]: aparta los archivos reales que estorban

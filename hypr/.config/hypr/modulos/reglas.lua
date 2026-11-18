@@ -30,6 +30,13 @@ hl.window_rule({
     immediate = true,
 })
 
+-- Juegos de Steam con Proton (Overcooked, Geometry Dash…) y gamescope: igual, tearing permitido
+hl.window_rule({
+    name  = "steam-juegos-immediate",
+    match = { class = "^(steam_app_[0-9]+|gamescope)$" },
+    immediate = true,
+})
+
 -- Blur detrás de las tarjetas de Quickshell (el velo y la sombra quedan por debajo de 0.3 → ignore_alpha)
 hl.layer_rule({
     name         = "quickshell-blur",

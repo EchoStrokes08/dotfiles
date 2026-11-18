@@ -1,0 +1,12 @@
+[Unit]
+Description=Más potencia al procesador solo jugando, con cargador y sin pasarse de temperatura
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/local/bin/juego-potencia servicio
+ExecStopPost=/usr/local/bin/juego-potencia fabrica
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -259,6 +259,11 @@ PanelWindow {
                 BotonCompacto { text: "Consultar"; enabled: !leerConmutadores.running; onClicked: { ventana.avisoControl = ""; leerConmutadores.running = true; } }
             }
 
+            SelectorEnergia {
+                Layout.fillWidth: true
+                visible: ventana.seccion === "notificaciones"
+            }
+
             // Sonido y brillo, juntos en una tarjeta
             TarjetaPanel {
                 Layout.fillWidth: true

@@ -1,0 +1,9 @@
+[Unit]
+Description=Configurar FSR para los juegos instalados con Steam cerrado
+ConditionPathExists=%h/.local/share/Steam/userdata
+ConditionPathExists=/usr/bin/gamescope
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/dotfiles/potencia/configurar-fsr.py --automatico
+UMask=0077

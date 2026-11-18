@@ -12,6 +12,20 @@ PanelWindow {
     id: barra
     signal relojPulsado()               // shell.qml lo conecta con el dashboard
 
+    // Solo se oculta en el espacio del juego; sigue su ventana al moverla.
+    readonly property bool juegoEnEspacio: {
+        const datos = EstadoEscritorio.datos;
+        if (datos.juego_activo !== "true") return false;
+        const ws = monitor?.activeWorkspace;
+        if (!ws) return false;
+        if (String(ws.id) === datos.juego_espacio_manual) return true;
+        const direcciones = String(datos.juego_ventanas || "").split(",")
+            .filter(a => a !== "").map(a => a.replace(/^0x/, ""));
+        return ws.toplevels.values.some(t =>
+            direcciones.includes(String(t.address).replace(/^0x/, "")));
+    }
+    visible: !juegoEnEspacio
+
     // Barra transparente con tres «islas» de cristal (IslaBarra.qml): izquierda, reloj y derecha
     anchors { top: true; left: true; right: true }   // 3 bordes → reserva su alto
     implicitHeight: 42

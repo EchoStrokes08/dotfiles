@@ -4,3 +4,4 @@ papirus-folders
 spicetify-cli
 vesktop-bin
 wlogout
+ryzenadj
