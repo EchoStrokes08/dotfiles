@@ -156,6 +156,7 @@ paso_dotfiles() {
     # Servicios de usuario (paquete «servicios»): la prueba diaria de los modelos del agente
     run systemctl --user daemon-reload
     run systemctl --user enable --now agente-modelos.timer && ok "agente-modelos.timer (prueba diaria de modelos)"
+    run systemctl --user enable --now tasas-cambio.timer && ok "tasas-cambio.timer (TRM y tasas de cambio diarias)"
 
     # Firefox: el perfil se llama distinto en cada equipo → enlazar a mano en el que haya
     local src="$DOT/firefox/.config/mozilla/firefox/skxgxs8p.default-release" perfil

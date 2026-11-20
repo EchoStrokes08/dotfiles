@@ -186,6 +186,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 |---|---|
 | `firefox`, `ffx`, `blo`… | Apps (sin tildes, letras salteadas; las que más usas suben) y acciones: bloquear, apagar, atajos, OCR, dictar, grabar… |
 | `2*(3+4)` · `5 km a mi` · `30 °C a °F` · `100 USD a COP` · `=…` | Calculadora y conversor (qalc): copia el resultado |
+| `dolar hoy` · `dólar` · `trm` | TRM oficial de hoy + dólar y euro de mercado (tasas al día por `tasas-cambio.timer`); `Enter` copia |
 | `g …` · `yt …` · `w …` · `gh …` | Buscar en Google / YouTube / Wikipedia / GitHub |
 | `:fuego` · `:corazon` · `:sigma` · `:≤` | Emojis y símbolos: los escribe y quedan copiados |
 | `/apuntes` (solo `/` = recientes) | Archivos de tu carpeta personal: los abre |

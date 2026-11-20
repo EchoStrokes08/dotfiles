@@ -23,6 +23,7 @@ def buscar(tipo, consulta):
         for fuente,nombre in fuentes:
             args=['fd','-i','--max-results','40','--exclude','.cache','--',consulta,str(Path.home())] if fuente=='archivos' else [sys.executable,str(SCRIPTS/'buscar.py'),fuente,consulta,'--estado']
             if fuente=='calc':args=['qalc','-t',consulta]
+            if fuente=='dolar':args=[sys.executable,str(SCRIPTS/'dolar.py')]
             try:pendientes[fuente]=(subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True),nombre)
             except OSError:errores.append(nombre+': servicio no disponible')
         limite=time.monotonic()+(2 if tipo=='todo' else 6)

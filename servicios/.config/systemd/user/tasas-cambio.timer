@@ -1,0 +1,12 @@
+[Unit]
+Description=Tasas de cambio: TRM y tasas de qalc al día
+
+[Timer]
+OnCalendar=*-*-* 07,13:00
+OnBootSec=2min
+OnStartupSec=2min
+RandomizedDelaySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -132,6 +132,7 @@ manual (apéndice A).
   |---|---|
   | `firefox`, `ffx` | Apps. También acciones: `blo` (bloquear), `apa` (apagar), `ocr`, `dictar`, `grabar`, `atajos`… |
   | `2*(3+4)` · `5 km a mi` · `30 °C a °F` · `100 USD a COP` | Calcula / convierte; `Enter` copia el resultado |
+  | `dolar hoy` · `trm` | TRM oficial de hoy y dólar/euro de mercado (se actualizan solas cada día); `Enter` copia |
   | `g método simplex` · `yt …` · `w …` · `gh …` | Busca en Google / YouTube / Wikipedia / GitHub |
   | `:fuego` · `:corazon` · `:sigma` · `:≤` | Emojis y símbolos matemáticos: `Enter` los escribe donde estabas |
   | `/apuntes` (solo `/`: los recientes) | Busca archivos en tu carpeta personal y los abre |

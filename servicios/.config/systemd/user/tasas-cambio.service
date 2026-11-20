@@ -1,0 +1,15 @@
+# Actualiza la TRM oficial (datos.gov.co) y las tasas de qalc, que usan «dolar hoy» y «100 USD a COP»
+# en el lanzador (SUPER+R). Si no hay red, lo reintenta cada 15 min.
+[Unit]
+Description=Tasas de cambio: bajar la TRM y las tasas de qalc
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.config/hypr/scripts/dolar.py actualizar
+Restart=on-failure
+RestartSec=15min
+Nice=10
+TimeoutStartSec=3min

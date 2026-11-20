@@ -1,6 +1,7 @@
 // Lanzador (SUPER+R): apps y mucho más, todo con la misma lista.
 //   firefox            apps (sin tildes, letras salteadas: «ffx») + acciones del sistema (apagar, atajos, OCR…)
 //   2*(3+4) · 5 km a mi · 100 USD a COP · 30 °C a °F      calculadora y conversor (qalc) → Enter copia
+//   dolar hoy  (o «dólar», «trm», «usd»)                   TRM oficial de hoy + dólar y euro de mercado → Enter copia
 //   g método simplex · yt … · w … · gh …                   buscar en Google / YouTube / Wikipedia / GitHub
 //   :fuego · :sigma · :≤                                   emojis y símbolos → Enter los escribe
 //   !texto                                                 avisos pasados (historial local, máx. 500) → Enter copia el texto
@@ -388,7 +389,8 @@ PanelWindow {
         id: espera; interval: 180
         onTriggered: {
             const t=buscador.text;
-            if (ventana.modo === "calc") {
+            if (ventana.modo === "dolar") ventana.buscarFuente("dolar","","externo");
+            else if (ventana.modo === "calc") {
                 const expr=t.replace(/^=\s*/,"").replace(/\s+a\s+(\S+)\s*$/i," to -$1").replace(/\s+en\s+(\S+)\s*$/i," to -$1");
                 ventana.buscarFuente("calc",expr,"calc");
             } else if (ventana.modo === "externo" && !EstadoEscritorio.privacidad) {
@@ -404,6 +406,7 @@ PanelWindow {
                                    w: ["Wikipedia", "https://es.wikipedia.org/w/index.php?search="], gh: ["GitHub", "https://github.com/search?q="] })
     readonly property string modo: {
         const t = buscador.text;
+        if (/^\s*(d[oó]lar(es)?|trm|usd)(\s+(de\s+)?hoy)?\s*$/i.test(t)) return "dolar";
         if (/^(recordar|rec)\s/i.test(t)) return "recordar";
         if (/^(evento|tarea)\s/i.test(t)) return "agenda";
         if (/^ia\s+\S/i.test(t)) return "ia";
@@ -454,6 +457,13 @@ PanelWindow {
             const nota = t.replace(/^nota\s+/i, "");
             return [{ nombre: nota, detalle: "Apuntarlo en ~/Documents/notas.md", glifo: 0xF039A,
                       accion: () => Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/nota.sh", nota]) }];
+        }
+        if (modo === "dolar") {
+            if (externosDe !== t || externos.length === 0)
+                return [{ nombre: externosDe === t && !cargandoBusqueda ? "Sin datos del dólar" : "Consultando el dólar…",
+                          detalle: avisoBusqueda || "TRM oficial y tasas de mercado", glifo: 0xF01C1, accion: null }];
+            return externos.map(x => ({ nombre: x.nombre, detalle: x.detalle, glifo: x.glifo,
+                                        accion: x.cmd && x.cmd.length ? () => Quickshell.execDetached(x.cmd) : null }));
         }
         if (modo === "avisos") return buscarAvisos(normalizar(t.slice(1).trim()));
         if (EstadoEscritorio.privacidad && ["externo","archivos","plantillas"].includes(modo)) return [{nombre:"Detalles ocultos por privacidad",detalle:"Desactiva privacidad para consultar archivos, historial o textos personales.",accion:null}];
@@ -686,7 +696,7 @@ PanelWindow {
                         border { width: 1; color: EstiloPanel.bordeSeleccion }
                     Text {   // el icono cambia según el modo
                         anchors.centerIn: parent
-                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A, plantillas: 0xF0219, avisos: 0xF009A })[ventana.modo] ?? 0xF0349)
+                        text: ventana.g(({ apps: 0xF0349, calc: 0xF00EC, dolar: 0xF01C1, web: 0xF059F, emoji: 0xF0785, archivos: 0xF024B, recordar: 0xF0020, agenda: 0xF00F0, externo: 0xF0349, ia: 0xF06A9, nota: 0xF039A, plantillas: 0xF0219, avisos: 0xF009A })[ventana.modo] ?? 0xF0349)
                         color: Paleta.acento
                         font { family: Paleta.mono; pixelSize: 16 }
                     }
