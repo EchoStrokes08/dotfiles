@@ -12,7 +12,7 @@ Singleton {
     readonly property bool activo: actual !== ""
     readonly property string nombre: actual === "redimensionar" ? "Redimensionar" : actual === "lanzar" ? "Lanzar" : actual
     readonly property string ayuda: actual === "redimensionar" ? "Flechas: tamaño · Esc o Enter: salir"
-        : actual === "lanzar" ? "F navegador · T terminal · E archivos · W WhatsApp · G juego · S música · N Nebula · Esc: salir"
+        : actual === "lanzar" ? "F navegador · T terminal · E archivos · W WhatsApp · G juego · S música · N Nebula · I impresora · Esc: salir"
         : "Esc: salir del modo de teclado"
     function recibir(nombre) {
         revision++;

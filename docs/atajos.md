@@ -24,7 +24,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+G` | Roblox (Sober, con gamemode) |
 | `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
 | ★ `SUPER+D` | Brújula: tu día (reloj, clima, agenda, sistema y tiempo de pantalla), línea de tiempo y salud |
-| `SUPER+A`, luego una letra | Modo lanzar: `F` Firefox · `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify · `N` Nebula. Cualquier otra tecla cancela |
+| `SUPER+A`, luego una letra | Modo lanzar: `F` Firefox · `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify · `N` Nebula · `I` impresora. Cualquier otra tecla cancela |
 
 #### Ventanas
 

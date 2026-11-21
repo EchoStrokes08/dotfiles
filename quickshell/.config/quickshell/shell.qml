@@ -34,6 +34,7 @@ ShellRoot {
     Brujula { id: brujula }
     Movil { id: movil }
     Agente { id: agente }
+    Impresora { id: impresora }
     // Cargador.qml es un singleton: solo existe si algo lo usa. Esto lo arranca al iniciar.
     readonly property bool conBateria: Cargador.conBateria
     readonly property int recordatoriosPendientes: Recordatorios.lista.length   // arranca Recordatorios.qml
@@ -176,7 +177,7 @@ ShellRoot {
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
     function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
-                            chuleta.abierto = false;
+                            chuleta.abierto = false; impresora.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }
     IpcHandler {
         target: "wallpapers"
@@ -186,6 +187,12 @@ ShellRoot {
         target: "portapapeles"
         function toggle(): void { const a = portapapeles.abierto; cerrarTodo(); portapapeles.abierto = !a; }
         function copiarId(id: string): void { portapapeles.copiar({ id: id }); }   // lo mismo que un clic (pruebas)
+    }
+    // Impresora (SUPER+A y luego I): qs ipc call impresora toggle
+    IpcHandler {
+        target: "impresora"
+        function toggle(): void { const a = impresora.abierto; cerrarTodo(); impresora.abierto = !a; }
+        function estado(): string { return JSON.stringify({abierto:impresora.abierto,estado:impresora.textoEstado,trabajos:impresora.trabajos.length}); }
     }
     IpcHandler {
         target: "menu"
