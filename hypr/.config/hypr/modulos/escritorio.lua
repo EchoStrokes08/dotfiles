@@ -72,12 +72,17 @@ local function guardar(r)
     f:close()
     os.rename(archivo .. ".tmp", archivo)
 end
+local perfil_kitty = nil
 local privacidad_anterior = nil
 local juego_anterior = nil
 function M.sincronizar()
     local r = motor.resolver(e)
     hl.config(r.config)
     guardar(r)
+    if perfil_kitty ~= e.perfil then
+        perfil_kitty = e.perfil
+        hl.exec_cmd('pkill -USR1 -x -u "$USER" kitty')
+    end
     if r.juego ~= juego_anterior then
         juego_anterior = r.juego
         hl.exec_cmd("~/.config/hypr/scripts/juego-energia.sh " .. (r.juego and "inicio" or "fin") .. " escritorio")

@@ -12,7 +12,8 @@ import "NotificacionesLogica.js" as Logica
 Singleton {
     id: raiz
 
-    readonly property var lista: servidor.trackedNotifications.values
+    property var pendientes: []
+    readonly property var lista: servidor.trackedNotifications.values.filter(n => !pendientes.includes(n))
     readonly property var grupos: Logica.agrupar(lista)
     property var expandidos: ({})
     function desplegar(clave) { const nuevos=Object.assign({},expandidos); nuevos[clave]=!nuevos[clave]; expandidos=nuevos; }
@@ -89,6 +90,7 @@ Singleton {
         inlineReplySupported: true       // contestar desde el PC (WhatsApp/SMS del móvil vía KDE Connect)
 
         onNotification: (n) => {
+            if (raiz.pendientes.includes(n)) raiz.pendientes = raiz.pendientes.filter(x => x !== n);
             n.tracked = true;                // sin esto la notificación se descarta
             const h = Object.assign({}, raiz.horas);
             h[n.id] = Date.now();
@@ -128,9 +130,24 @@ Singleton {
         if (n.transient && n.tracked) n.expire();
     }
 
+    Timer {
+        id: plazoBorrado
+        interval: 5000
+        onTriggered: {
+            const lote = servidor.trackedNotifications.values.filter(n => raiz.pendientes.includes(n));
+            for (const n of lote) if (n && n.tracked) n.dismiss();
+            raiz.pendientes = [];
+        }
+    }
     function borrarTodo() {
-        for (const n of lista.slice()) n.dismiss();
-        emergentes = [];
+        if (!lista.length) return;
+        pendientes = [...pendientes, ...lista];
+        emergentes = emergentes.filter(n => !pendientes.includes(n));
+        plazoBorrado.restart();
+    }
+    function deshacerBorrado() {
+        plazoBorrado.stop();
+        pendientes = [];
     }
 
     function alternarNoMolestar() { pausar(manual ? "off" : "siempre"); }

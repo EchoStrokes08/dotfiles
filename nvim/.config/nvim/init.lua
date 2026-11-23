@@ -39,11 +39,23 @@ require("ayu").setup({
         CursorLineNr = { fg = "#f19618", bold = true },
     },
 })
-vim.cmd.colorscheme("ayu-dark")
+local variante_actual
+local function tema_orion()
+    local archivo = io.open(vim.fn.expand("~/.local/state/tema/variante"))
+    local claro = archivo and archivo:read("*l") == "claro"
+    if archivo then archivo:close() end
+    local tema = claro and "ayu-light" or "ayu-dark"
+    if variante_actual ~= tema then
+        vim.cmd.colorscheme(tema)
+        variante_actual = tema
+    end
+end
+tema_orion()
+vim.api.nvim_create_autocmd("FocusGained", { callback = tema_orion })
 
 require("lualine").setup({
     options = {
-        theme = "ayu_dark",
+        theme = "auto",
         section_separators   = { left = "\u{e0b4}", right = "\u{e0b6}" },
         component_separators = { left = "\u{e0b5}", right = "\u{e0b7}" },
     },

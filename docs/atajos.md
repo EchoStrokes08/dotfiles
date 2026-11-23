@@ -83,7 +83,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 |---|---|
 | ★ `SUPER+L` | Bloquear la pantalla |
 | `SUPER+M` | Menú de apagado: bloquear, cerrar sesión, reiniciar, apagar |
-| `ALT+F4` | Menú de apagado (wlogout) |
+| `ALT+F4` | Cerrar la ventana activa |
 | ★ `SUPER+N` | Centro de control: botones, perfiles, sonido, música, avisos, Wi-Fi y Bluetooth, móvil y más |
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |
 | `SUPER+CTRL+V` | Plantillas de texto en el lanzador (`pl`): copiar con fecha y hora; Alt+Enter para editar |
@@ -162,14 +162,14 @@ Para entender cada función, el [manual de usuario](manual.md).
 | Barra: reloj | Al pasar el ratón muestra la fecha · clic = Brújula › Hoy |
 | Barra: bandeja | Clic = abrir · clic derecho = menú · clic central = acción secundaria |
 | Barra: Buds | Clic = cambiar modo · derecho = ANC / apagado · central = Buds Manager |
-| Barra: volumen | Clic = silenciar · rueda = volumen |
+| Barra: volumen | Clic = abrir sonido · derecho = silenciar · rueda = volumen |
 | Barra: red | Clic = panel de Wi-Fi y Bluetooth · derecho = nmtui |
 | Barra: brillo | Rueda = brillo |
 | Barra: energía | Clic = cambiar modo |
 | Barra: CPU / RAM | Clic = btop |
 | Barra: concentración (solo en sesión) | Clic = +10 min o terminar |
 | Barra: mando | Clic = modo juego |
-| Barra: campana | Clic = centro de control · derecho = No molestar |
+| Barra: campana | Clic = avisos y acciones · derecho = No molestar |
 | Brújula › Hoy: calendario | Flechas o rueda = mes · clic en el título = volver a hoy · clic en un día = elegirlo · puntito = hay eventos o tareas ese día |
 | Brújula › Hoy: «＋ Nuevo evento o tarea» | Crea en Google el evento/tarea del día elegido · Enter guarda · duración: clic = más, derecho = menos |
 | Brújula › Hoy: «Próximo» | Eventos de Google Calendar, tareas y recordatorios · clic en un recordatorio = borrarlo · en una tarea = hecha |

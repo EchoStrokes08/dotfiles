@@ -50,6 +50,18 @@ Superpuesta {
         const e = DesktopEntries.heuristicLookup(clase);
         return e?.name || clase.split(".").pop() || "Ventana";
     }
+    function tituloVentana(t) {
+        if (!t) return "";
+        return EstadoEscritorio.privacidad ? nombreApp(t) : (t.title || nombreApp(t));
+    }
+    readonly property var cantidadPorClase: {
+        const cantidades = new Map();
+        for (const t of Hyprland.toplevels.values) {
+            const clase = t.lastIpcObject?.class;
+            if (clase && t.workspace?.id > 0) cantidades.set(clase, (cantidades.get(clase) || 0) + 1);
+        }
+        return cantidades;
+    }
     readonly property int activo: Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1
     function ventanasDe(id) {
         return Hyprland.toplevels.values
@@ -152,7 +164,17 @@ Superpuesta {
                         font { family: EstiloPanel.fuente; pixelSize: 16; weight: Font.DemiBold }
                     }
                 }
-                Item { width: parent.width - titulo.width - buscar.width - parent.spacing * 2; height: 1 }
+                Text {
+                    width: Math.max(0, parent.width - titulo.width - buscar.width - parent.spacing * 2)
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: vista.tituloVentana(vista.elegida)
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                    color: Paleta.texto
+                    font { family: EstiloPanel.fuente; pixelSize: 14; weight: Font.Medium }
+                }
                 CampoPanel {
                     id: buscar
                     width: Math.min(360, parent.width * 0.4)
@@ -350,14 +372,16 @@ Superpuesta {
                                             Rectangle {
                                                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
                                                 height: Math.min(parent.height, 24)
-                                                visible: (ventanita.encima || ventanita.elegida) && parent.height > 40
+                                                visible: parent.height > 40 && (ventanita.encima || ventanita.elegida ||
+                                                    (parent.width >= 90 && vista.cantidadPorClase.get(ventanita.ipc?.class) > 1))
                                                 gradient: Gradient {
                                                     GradientStop { position: 0; color: "transparent" }
                                                     GradientStop { position: 1; color: Qt.alpha("black", .75) }
                                                 }
                                                 Text {
                                                     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 4; leftMargin: 8 }
-                                                    text: EstadoEscritorio.privacidad ? vista.nombreApp(ventanita.modelData) : ventanita.modelData.title
+                                                    text: vista.tituloVentana(ventanita.modelData)
+                                                    textFormat: Text.PlainText
                                                     color: "white"
                                                     elide: Text.ElideRight
                                                     font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Medium }

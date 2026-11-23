@@ -12,6 +12,9 @@ Button {
     implicitHeight: 34
     leftPadding: EstiloPanel.e3; rightPadding: EstiloPanel.e3
     hoverEnabled: true
+    focusPolicy: Qt.StrongFocus
+    Keys.onReturnPressed: event => { if (!event.isAutoRepeat) click(); }
+    Keys.onEnterPressed: event => { if (!event.isAutoRepeat) click(); }
     Accessible.name: text
     scale: down ? .96 : 1
     Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }

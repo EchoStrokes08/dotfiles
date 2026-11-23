@@ -13,4 +13,9 @@ if [ "$1" = reiniciar ]; then
     i=0; while pgrep -x qs >/dev/null && [ $i -lt 30 ]; do sleep 0.1; i=$((i+1)); done
 fi
 if [ "$escala" = 1.0 ] || [ "$escala" = 1 ]; then unset QT_SCALE_FACTOR; else export QT_SCALE_FACTOR="$escala"; fi
+# Traducciones de entradas .desktop y Qt, manteniendo los formatos de la sesión.
+if locale -a | grep -iq '^es_MX\.utf8$'; then
+    if [ -n "${LC_ALL:-}" ]; then export LANG="$LC_ALL"; unset LC_ALL; fi
+    export LC_MESSAGES=es_MX.UTF-8 LANGUAGE=es_MX:es
+fi
 exec setsid -f qs

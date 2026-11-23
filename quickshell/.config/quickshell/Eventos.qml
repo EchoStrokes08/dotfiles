@@ -17,6 +17,10 @@ Singleton {
     property bool hayCliente: false   // ¿existe cliente.json?
     property string errorTareas: ""
     property string enlaceTareas: ""   // p. ej. la página de Google Cloud para activar la API
+    property string codigoTareas: ""   // código de gcal.py: sin_permiso (sesión caducada), sin_conectar…
+    readonly property bool reconectando: conectarProc.running
+    // La sesión de Google caducó o nunca se conectó: hay que volver a dar permiso en el navegador
+    readonly property bool necesitaConectar: hayCliente && (!conectado || codigoTareas === "sin_permiso" || codigoTareas === "sin_conectar")
     property bool ocupado: false      // guardando algo
     property string estadoAgenda: "cargando"
     property string errorAgenda: ""
@@ -78,12 +82,15 @@ Singleton {
                     const l = JSON.parse(this.text);
                     if (!Array.isArray(l)) {
                         // gcal.py explica el fallo: causa, qué hacer y, si existe, dónde hacerlo
+                        // sesión caducada o sin conectar: el botón «Reconectar Google» lo resuelve (no hace falta la terminal)
+                        const ayuda = ["sin_permiso", "sin_conectar"].includes(l?.codigo) ? "Pulsa «Reconectar Google»." : (l?.ayuda || "").replace(/([^.])$/, "$1.");
                         ev.errorTareas = (l?.error || "Las tareas no se pudieron actualizar") + "."
-                            + (l?.ayuda ? " " + l.ayuda : "") + " Se conservan los últimos datos.";
+                            + (ayuda ? " " + ayuda : "") + " Se conservan los últimos datos.";
                         ev.enlaceTareas = l?.enlace || "";
+                        ev.codigoTareas = l?.codigo || "";
                         return;
                     }
-                    ev.errorTareas=""; ev.enlaceTareas="";
+                    ev.errorTareas=""; ev.enlaceTareas=""; ev.codigoTareas="";
                     ev.tareas = l.map(t => ({ id: t.id, titulo: t.titulo,
                         fecha: t.fecha ? new Date(+t.fecha.slice(0, 4), +t.fecha.slice(5, 7) - 1, +t.fecha.slice(8, 10)) : null }));
                 } catch (x) { ev.errorTareas="Las tareas no se pudieron actualizar. Se conservan los últimos datos."; }
@@ -91,6 +98,29 @@ Singleton {
         }
     }
     Timer { interval: 15 * 60000; running: ev.conectado; repeat: true; onTriggered: leerTareas.running = true }
+
+    // Volver a iniciar sesión: gcal.py conectar abre el navegador y espera el permiso (hasta 5 min)
+    Process {
+        id: conectarProc
+        command: ["python3", "-I", ev.gcal, "conectar"]
+        property var respuesta: null
+        stdout: StdioCollector { onStreamFinished: { try { conectarProc.respuesta = JSON.parse(text); } catch (x) { conectarProc.respuesta = null; } } }
+        onExited: (codigo, estado) => {
+            const r = respuesta;
+            if (codigo === 0 && estado === 0 && r?.ok === true) {
+                Quickshell.execDetached(["notify-send", "-a", "Calendario", "Cuenta de Google conectada", "Las tareas y el calendario vuelven a sincronizarse."]);
+                ev.codigoTareas = ""; ev.errorTareas = "";
+                verEstado.running = true;
+            } else {
+                Quickshell.execDetached(["notify-send", "-a", "Calendario", "No se pudo conectar Google", r?.error || "Vuelve a intentarlo."]);
+            }
+        }
+    }
+    function conectar() {
+        if (conectarProc.running) return;
+        conectarProc.respuesta = null;
+        conectarProc.running = true;
+    }
 
     // Cola de órdenes a gcal.py (una a la vez); al terminar, avisa y refresca
     property var cola: []
@@ -132,14 +162,6 @@ Singleton {
     function completar(id) {
         encolar(["hecha", id], "");
     }
-    function conectar() {
-        Quickshell.execDetached(["sh", "-c", `python3 -I "$1" conectar >/dev/null; notify-send -a Calendario -i x-office-calendar ` +
-            `"$(python3 -I "$1" estado | grep -q '"conectado": true' && echo 'Google Calendar conectado' || echo 'No se pudo conectar')"`, "_", gcal]);
-        reintento.restart();
-    }
-    Timer { id: reintento; interval: 5000; repeat: true; property int veces: 0
-            onTriggered: { verEstado.running = true; if (ev.conectado || ++veces > 60) { stop(); veces = 0; } } }
-
     // «mañana 15:00 dentista» · «viernes 9am clase» · «14/11 entregar informe» · «dentista» (hoy)
     // → { fecha: Date, hora: "HH:MM" | "", titulo } o null
     function interpretar(s) {

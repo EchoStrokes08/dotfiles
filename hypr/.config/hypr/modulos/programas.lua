@@ -5,7 +5,7 @@ return {
     terminal    = "kitty",
     fileManager = "thunar",
     menu        = "qs ipc call lanzador toggle",   -- lanzador propio (Quickshell); antes: "fuzzel"
-    whatsapp    = "flatpak run com.rtosta.zapzap",
+    whatsapp    = "gtk-launch com.rtosta.zapzap",
     roblox      = "gamemoderun flatpak run org.vinegarhq.Sober",
     spotify     = "flatpak run com.spotify.Client",
     nebula      = os.getenv("HOME") .. "/.local/opt/nebula/app/AppRun",   -- AppImage extraído (sin FUSE: no bloquea la suspensión; ver scripts/nebula-extraer.sh)

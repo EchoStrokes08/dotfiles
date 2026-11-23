@@ -35,9 +35,9 @@ local animaciones = {
     { "layersOut",     1.5,  "linear",       "fade"      },
     { "fadeLayersIn",  1.79, "almostLinear"              },
     { "fadeLayersOut", 1.39, "almostLinear"              },
-    { "workspaces",    3.2,  "ayuDeslizar",  "slidefade 20%" },  -- propia: desliza + desvanece (~320 ms, «lento»)
-    { "workspacesIn",  3.2,  "ayuDeslizar",  "slidefade 20%" },
-    { "workspacesOut", 3.2,  "ayuDeslizar",  "slidefade 20%" },
+    { "workspaces",    2.2,  "ayuDeslizar",  "slidefade 14%" },  -- propia: desliza + desvanece (~220 ms)
+    { "workspacesIn",  2.2,  "ayuDeslizar",  "slidefade 14%" },
+    { "workspacesOut", 2.2,  "ayuDeslizar",  "slidefade 14%" },
     { "specialWorkspace", 3, "ayuAsomar",    "slidefadevert 25%" },  -- scratchpad (SUPER+S) sube desde abajo
     { "specialWorkspaceIn",  3,   "ayuAsomar", "slidefadevert 25%" },  -- entra asomándose (se pasa un 4 % y vuelve)…
     { "specialWorkspaceOut", 1.6, "quick",     "slidefadevert 12%" },  -- …y se va el doble de rápido: esconder no debe hacerte esperar

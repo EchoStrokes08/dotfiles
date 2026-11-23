@@ -14,6 +14,14 @@ RowLayout {
     Accessible.role: Accessible.Slider
     Accessible.name: nombre + (apagado ? ", silenciado" : "")
     Accessible.description: Math.round(v * 100) + " %"
+    activeFocusOnTab: true
+    function ajustar(pasos) { movido(Math.max(0, Math.min(1, Math.round((v + pasos * 0.05) * 100) / 100))); }
+    Keys.onLeftPressed: ajustar(-1)
+    Keys.onRightPressed: ajustar(1)
+    Keys.onDownPressed: ajustar(-1)
+    Keys.onUpPressed: ajustar(1)
+    Accessible.onIncreaseAction: ajustar(1)
+    Accessible.onDecreaseAction: ajustar(-1)
     signal movido(real v)
     signal iconoPulsado()
     spacing: 8
@@ -51,7 +59,7 @@ RowLayout {
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width; height: zona.containsMouse || zona.pressed ? 10 : 8; radius: height / 2
             color: EstiloPanel.rellenoActivo
-            border { width: 1; color: EstiloPanel.relleno }
+            border { width: raiz.activeFocus ? 2 : 1; color: raiz.activeFocus ? Paleta.acento : EstiloPanel.relleno }
             Behavior on height { NumberAnimation { duration: EstiloPanel.rapido } }
             RectangularShadow {   // resplandor bajo la parte llena
                 width: relleno.width; height: parent.height
@@ -87,7 +95,7 @@ RowLayout {
             function mover(x) { raiz.movido(Math.max(0, Math.min(1, x / pista.width))); }
             onPressed: (e) => mover(e.x)
             onPositionChanged: (e) => { if (pressed) mover(e.x); }
-            onWheel: (e) => raiz.movido(Math.max(0, Math.min(1, raiz.valor + (e.angleDelta.y > 0 ? 0.05 : -0.05))))
+            onWheel: (e) => raiz.ajustar(e.angleDelta.y > 0 ? 1 : -1)
         }
     }
     Text {

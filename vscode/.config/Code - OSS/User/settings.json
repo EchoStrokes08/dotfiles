@@ -1,6 +1,9 @@
 {
     // Tema Ayu (extensión teabyii.ayu, de Open VSX)
     "workbench.colorTheme": "Ayu Dark",
+    "window.autoDetectColorScheme": true,
+    "workbench.preferredDarkColorTheme": "Ayu Dark",
+    "workbench.preferredLightColorTheme": "Ayu Light",
     "workbench.iconTheme": "ayu",
 
     // Misma fuente que kitty

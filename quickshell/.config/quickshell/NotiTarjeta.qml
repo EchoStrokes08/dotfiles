@@ -11,6 +11,24 @@ Rectangle {
     id: tarjeta
     required property var noti
     property bool emergente: false           // en emergentes: fondo más opaco y temporizador
+    readonly property var accionPrincipal: Array.from(noti.actions).find(a => a.identifier === "default")
+    activeFocusOnTab: !emergente && !EstadoEscritorio.privacidad && !!accionPrincipal
+    Accessible.name: EstadoEscritorio.privacidad ? "Notificación privada" : noti.summary
+    Keys.onReturnPressed: if (!EstadoEscritorio.privacidad && accionPrincipal) accionPrincipal.invoke()
+    Keys.onEnterPressed: if (!EstadoEscritorio.privacidad && accionPrincipal) accionPrincipal.invoke()
+    property bool editando: false
+    function finalizarRespuesta(enviar) {
+        const texto = campo.text.trim();
+        if (enviar && (!texto || EstadoEscritorio.privacidad || !noti.hasInlineReply)) return;
+        editando = false;
+        campo.clear();
+        if (responder.visible) responder.forceActiveFocus(Qt.TabFocusReason);
+        if (enviar) noti.sendInlineReply(texto);
+    }
+    Connections {
+        target: EstadoEscritorio
+        function onPrivacidadChanged() { if (EstadoEscritorio.privacidad && tarjeta.editando) tarjeta.finalizarRespuesta(false); }
+    }
     signal terminada()                       // la emergente ya cumplió su tiempo
 
     readonly property color colorUrgencia: noti.urgency === NotificationUrgency.Critical ? Paleta.peligro
@@ -22,7 +40,7 @@ Rectangle {
     radius: 16
     color: emergente ? "transparent"
          : zona.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
-    border { width: emergente ? 0 : 1; color: zona.containsMouse ? Qt.alpha(tarjeta.colorUrgencia, .3) : EstiloPanel.borde }
+    border { width: activeFocus ? 2 : emergente ? 0 : 1; color: activeFocus ? Paleta.acento : zona.containsMouse ? Qt.alpha(tarjeta.colorUrgencia, .3) : EstiloPanel.borde }
     Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
 
     // Emergente: el mismo cristal que los paneles, con la luz del color de urgencia
@@ -56,8 +74,7 @@ Rectangle {
         hoverEnabled: true
         onClicked: {
             if (EstadoEscritorio.privacidad) return;
-            const def = Array.from(tarjeta.noti.actions).find(a => a.identifier === "default");
-            if (def) { def.invoke(); if (!tarjeta.noti.resident) tarjeta.noti.dismiss(); }
+            if (tarjeta.accionPrincipal) tarjeta.accionPrincipal.invoke();
             else if (tarjeta.emergente) tarjeta.terminada();
         }
     }
@@ -103,11 +120,12 @@ Rectangle {
                     font { family: Paleta.fuente; pixelSize: 11 }
                 }
                 // Cerrar
-                Text {
-                    text: ""
-                    color: cerrar.containsMouse ? Paleta.peligro : Paleta.gris
-                    font { family: Paleta.fuente; pixelSize: 12 }
-                    MouseArea { id: cerrar; anchors.fill: parent; anchors.margins: -6; hoverEnabled: true; onClicked: tarjeta.noti.dismiss() }
+                BotonCompacto {
+                    text: "×"
+                    Accessible.name: "Descartar aviso"
+                    implicitWidth: 30; implicitHeight: 30
+                    leftPadding: 0; rightPadding: 0
+                    onClicked: tarjeta.noti.dismiss()
                 }
             }
             Text {
@@ -138,54 +156,45 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
                 spacing: 4
-                visible: !EstadoEscritorio.privacidad && (botones.count > 0 || tarjeta.noti.hasInlineReply)
-                // Respuesta en línea (p. ej. WhatsApp del móvil por KDE Connect): se escribe en el panel del móvil
-                Rectangle {
-                    visible: tarjeta.noti.hasInlineReply
+                visible: !tarjeta.editando && !EstadoEscritorio.privacidad && (botones.count > 0 || tarjeta.noti.hasInlineReply)
+                // En el centro se responde en la tarjeta; la emergente abre el compositor de respuestas.
+                BotonCompacto {
+                    id: responder
+                    visible: tarjeta.noti.hasInlineReply && !tarjeta.editando
                     Layout.fillWidth: true
-                    implicitHeight: 30
-                    radius: 12
-                    color: zonaResp.containsMouse ? Qt.alpha(Paleta.exito, 0.3) : Qt.alpha(Paleta.exito, 0.14)
-                    border { width: 1; color: Qt.alpha(Paleta.exito, .4) }
-                    Text {
-                        anchors.centerIn: parent
-                        text: "\u{F0451}  Responder"
-                        color: Paleta.texto
-                        font { family: Paleta.fuente; pixelSize: 11; bold: true }
-                    }
-                    MouseArea {
-                        id: zonaResp
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: Notificaciones.responder(tarjeta.noti)
+                    text: "Responder"
+                    onClicked: {
+                        if (tarjeta.emergente) Notificaciones.responder(tarjeta.noti);
+                        else { tarjeta.editando = true; campo.forceActiveFocus(); }
                     }
                 }
                 Repeater {
                     id: botones
-                    model: Array.from(tarjeta.noti.actions).filter(a => a.identifier !== "default")
-                    Rectangle {
+                    model: Array.from(tarjeta.noti.actions).filter((a, i, acciones) =>
+                        a.identifier !== "default" &&
+                        !(tarjeta.noti.hasInlineReply && a.identifier === "inline-reply") &&
+                        acciones.findIndex(x => x.identifier === a.identifier) === i)
+                    BotonCompacto {
                         required property var modelData
                         Layout.fillWidth: true
-                        implicitHeight: 30
-                        radius: 12
-                        color: zonaAccion.containsMouse ? Qt.alpha(Paleta.acento, 0.25) : EstiloPanel.rellenoActivo
-                        border { width: 1; color: zonaAccion.containsMouse ? Qt.alpha(Paleta.acento, .5) : EstiloPanel.borde }
-                        Text {
-                            anchors.centerIn: parent
-                            text: modelData.text
-                            color: Paleta.texto
-                            font { family: Paleta.fuente; pixelSize: 11; bold: true }
-                        }
-                        MouseArea {
-                            id: zonaAccion
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            // invoke() ya cierra la notificación si no es «residente»: cerrarla otra vez
-                            // daba «Cannot close destroyed notification» (y antes, ReferenceError: tarjeta)
-                            onClicked: modelData.invoke()
-                        }
+                        visible: !tarjeta.editando
+                        text: modelData.text
+                        onClicked: modelData.invoke()
                     }
                 }
+            }
+            RowLayout {
+                visible: tarjeta.editando && !EstadoEscritorio.privacidad && tarjeta.noti.hasInlineReply
+                Layout.fillWidth: true
+                CampoPanel {
+                    id: campo
+                    Layout.fillWidth: true
+                    placeholderText: "Escribe tu respuesta"
+                    onAccepted: tarjeta.finalizarRespuesta(true)
+                    Keys.onEscapePressed: tarjeta.finalizarRespuesta(false)
+                }
+                BotonCompacto { text: "Enviar"; enabled: campo.text.trim().length > 0; onClicked: tarjeta.finalizarRespuesta(true) }
+                BotonCompacto { text: "Cancelar"; onClicked: tarjeta.finalizarRespuesta(false) }
             }
         }
     }

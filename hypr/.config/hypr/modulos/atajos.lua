@@ -60,7 +60,7 @@ u.atajos({
     -- Sesión
     { mod .. " + L", exec("loginctl lock-session") },  -- bloquear (hypridle → scripts/bloquear.sh → Quickshell; hyprlock de respaldo)
     { mod .. " + M", exec("wlogout") },   -- menú de apagado (antes salía de Hyprland sin preguntar, junto a SUPER+N)
-    { "ALT + F4",    exec("wlogout") },
+    { "ALT + F4",    hl.dsp.window.close() },
 
     -- Notificaciones (Quickshell: Notificaciones.qml / CentroControl.qml)
     { mod .. " + N",         exec("qs ipc call notificaciones toggle") },      -- centro de control: ajustes, avisos, conexiones, móvil

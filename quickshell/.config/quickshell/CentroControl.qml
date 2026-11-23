@@ -33,9 +33,10 @@ PanelWindow {
 
     onAbiertoChanged: {
         if (abierto) { cierre.stop(); mostrar = true; leerConmutadores.running = true; lectorBrillo.running = true; lectorMovil.running = true; salidaEscritorio = ""; leerReplay.running = true; }
-        else cierre.restart();
+        else if (EstiloPanel.movimiento) cierre.restart();
+        else mostrar = false;
     }
-    Timer { id: cierre; interval: 240; onTriggered: ventana.mostrar = false }
+    Timer { id: cierre; interval: EstiloPanel.normal; onTriggered: ventana.mostrar = false }
 
     visible: mostrar
     color: "transparent"
@@ -106,7 +107,13 @@ PanelWindow {
     function abrirEn(que, pestanaConexion) {
         seccion = que;
         if (pestanaConexion) listaConexiones.pestana = pestanaConexion;
+        if (que === "sonido") sonidoAmpliado = false;
         abierto = true;
+        if (que === "avisos") {
+            const primero = Notificaciones.grupos[0];
+            if (primero && !Notificaciones.expandidos[primero.clave]) Notificaciones.desplegar(primero.clave);
+            Qt.callLater(() => listaAvisos.positionViewAtBeginning());
+        }
     }
     onMostrarChanged: if (!mostrar) seccion = "notificaciones"
 
@@ -178,10 +185,10 @@ PanelWindow {
     // ── El panel ────────────────────────────────────────────────────────
     Rectangle {
         id: panel
-        width: 420
+        width: Math.min(420, Math.max(0, parent.width - 16))
         anchors { top: parent.top; bottom: parent.bottom; topMargin: 8; bottomMargin: 8 }
         x: ventana.abierto ? parent.width - width - 8 : parent.width + 10
-        Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
+        Behavior on x { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
         color: "transparent"
         FondoPanel { anchors.fill: parent; radio: 24 }
         MouseArea { anchors.fill: parent }
@@ -202,23 +209,15 @@ PanelWindow {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { Layout.fillWidth: true; text: "Centro de control"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
+                Text { Layout.fillWidth: true; text: ventana.seccion === "avisos" ? "Avisos" : ventana.seccion === "sonido" ? "Sonido" : "Centro de control"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
                 BotonCompacto { text: "󰌾"; Accessible.name: "Bloquear"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.ejecutar("loginctl lock-session",true) }
                 BotonCompacto { text: "󰐥"; Accessible.name: "Opciones de apagado"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.ejecutar("wlogout",true) }
                 BotonCompacto { text: "×"; Accessible.name: "Cerrar centro de control"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.abierto = false }
             }
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 4
-                Repeater {
-                    model: [{id:"notificaciones",nombre:"Inicio"},{id:"conexiones",nombre:"Redes"},{id:"movil",nombre:"Móvil"},{id:"mas",nombre:"Más"}]
-                    BotonPanel {
-                        required property var modelData
-                        text: modelData.nombre
-                        destacado: ventana.seccion === modelData.id
-                        onClicked: ventana.seccion = modelData.id
-                    }
-                }
+            NavegacionPanel {
+                opciones: [{texto:"Inicio"}, {texto:"Redes"}, {texto:"Móvil"}, {texto:"Más"}]
+                actual: panel.secciones.indexOf(ventana.seccion)
+                onElegir: indice => ventana.seccion = panel.secciones[indice]
             }
             GridLayout {
                 Layout.fillWidth: true
@@ -267,9 +266,17 @@ PanelWindow {
             // Sonido y brillo, juntos en una tarjeta
             TarjetaPanel {
                 Layout.fillWidth: true
-                visible: ventana.seccion === "notificaciones"
+                visible: ventana.seccion === "notificaciones" || ventana.seccion === "sonido"
                 espaciado: 8
                 relleno: 12
+                Text {
+                    Layout.fillWidth: true
+                    visible: ventana.seccion === "sonido"
+                    text: ventana.salida?.description || "Sin salida de audio"
+                    color: Paleta.texto
+                    font { family: Paleta.fuente; pixelSize: 14; bold: true }
+                    elide: Text.ElideRight
+                }
                 // Volumen general + por app
                 RowLayout {
                 Layout.fillWidth: true
@@ -293,7 +300,7 @@ PanelWindow {
                 }
                 }
                 Repeater {
-                    model: ventana.sonidoAmpliado ? ventana.apps : []
+                    model: ventana.sonidoAmpliado && !EstadoEscritorio.privacidad ? ventana.apps : []
                     Deslizador {
                         required property var modelData
                         Layout.fillWidth: true
@@ -354,6 +361,7 @@ PanelWindow {
                 Deslizador {
                     Layout.fillWidth: true
                     icono: ventana.g(0xF00E0)
+                    visible: ventana.seccion !== "sonido"
                     nombre: "Brillo"
                     valor: ventana.brillo
                     onMovido: (v) => {
@@ -370,11 +378,12 @@ PanelWindow {
                 Musica { id: reproductor; Layout.fillWidth: true; compacto: !ventana.musicaAmpliada }
                 BotonCompacto { text: ventana.musicaAmpliada ? "⌃" : "⌄"; Accessible.name: "Detalle de música"; onClicked: ventana.musicaAmpliada = !ventana.musicaAmpliada }
             }
+            Item { visible: ventana.seccion === "sonido"; Layout.fillHeight: true }
             // ── Avisos ───────────────────────────────────────────────────
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                visible: ventana.seccion === "notificaciones"
+                visible: ventana.seccion === "notificaciones" || ventana.seccion === "avisos"
                 spacing: 8
                 RowLayout {
                     Layout.fillWidth: true
@@ -409,9 +418,17 @@ PanelWindow {
                 RowLayout {
                     Layout.fillWidth: true
                     Text { Layout.fillWidth: true; text: "Avisos · " + Notificaciones.lista.length; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Text {
+                        visible: Notificaciones.pendientes.length > 0
+                        text: "Avisos borrados"
+                        color: EstiloPanel.tenue
+                        font { family: Paleta.fuente; pixelSize: 12 }
+                    }
+                    BotonCompacto { text: "Deshacer"; visible: Notificaciones.pendientes.length > 0; onClicked: Notificaciones.deshacerBorrado() }
                     BotonCompacto { text: "Borrar todo"; visible: Notificaciones.lista.length > 0; onClicked: Notificaciones.borrarTodo() }
                 }
                 ListView {
+                    id: listaAvisos
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 180      // siempre caben al menos tres grupos de avisos
@@ -535,6 +552,15 @@ PanelWindow {
                         BotonPanel { text: Concentracion.activo ? "Terminar concentración" : "Concentración · 25 min"; onClicked: AccionesServicio.ejecutar({tipo:"actividad",id:"concentracion"},Concentracion.activo ? "terminar" : "iniciar",{minutos:25}) }
                     }
                     Etiqueta { text: "APARIENCIA" }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { Layout.fillWidth: true; text: "Continuar proyecto en el lanzador"; color: Paleta.texto; font.family: Paleta.fuente }
+                        Interruptor {
+                            activo: PreferenciasUI.mostrarContinuidad
+                            Accessible.name: "Continuar proyecto en el lanzador"
+                            onAlternado: { PreferenciasUI.mostrarContinuidad = !activo; PreferenciasUI.guardar(); }
+                        }
+                    }
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 8

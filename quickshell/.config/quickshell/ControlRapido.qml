@@ -34,6 +34,8 @@ Button {
     enabled: !ocupado
     hoverEnabled: true
     focusPolicy: Qt.StrongFocus
+    Accessible.checkable: cosa !== "" && disponible
+    Accessible.checked: activo
     Accessible.name: nombre
     Accessible.description: cosa ? estadoTexto + ". " + (error || dato?.error || dato?.detalle || "") : nombre
     onDatoChanged: if (!ocupado) error = ""
@@ -53,7 +55,15 @@ Button {
     }
     background: FondoBoton {
         radio: EstiloPanel.rTarjeta
-        destacado: control.activo
+        destacado: false
+        Rectangle {
+            visible: control.disponible && control.activo
+            anchors { left: parent.left; top: parent.top; leftMargin: 4; topMargin: 4 }
+            width: 12; height: 12; radius: height / 2
+            color: Paleta.acento
+            Text { anchors.centerIn: parent; text: "✓"; color: Paleta.sobreAcento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
+            z: 1
+        }
         encima: control.hovered
         foco: control.activeFocus
         tinte: control.error ? Paleta.peligro : Paleta.acento

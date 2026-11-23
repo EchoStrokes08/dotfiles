@@ -44,4 +44,15 @@ Singleton {
     }
 
     onConBateriaChanged: conBateria ? alDesenchufar() : alEnchufar()
+
+    // Al arrancar, onConBateriaChanged no se dispara: el perfil queda como lo dejó el arranque
+    // (típicamente power-saver) aunque estés enchufado. Fijamos el perfil correcto según el
+    // estado real del cargador. Enchufado → el último perfil normal (perfilAntes); con batería → ahorro.
+    // Jugando no se toca (gamemode manda).
+    Component.onCompleted: {
+        if (c.conBateria)
+            c.sh("gamemoded -s 2>/dev/null | grep -q 'is active' || powerprofilesctl set power-saver");
+        else
+            c.sh(`gamemoded -s 2>/dev/null | grep -q 'is active' || powerprofilesctl set ${c.perfilAntes}`);
+    }
 }

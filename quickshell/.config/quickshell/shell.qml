@@ -98,7 +98,9 @@ ShellRoot {
     // Notificaciones (SUPER+N panel, SUPER+SHIFT+N no molestar; el modo juego usa noMolestarSi/No)
     IpcHandler {
         target: "notificaciones"
-        function toggle(): void { const a = centro.abierto; cerrarTodo(); centro.abierto = !a; }
+        function toggle(): void { const a = centro.abierto && centro.seccion === "notificaciones"; cerrarTodo(); if (!a) centro.abrirEn("notificaciones"); }
+        function avisos(): void { abrirCentro("avisos"); }
+        function sonido(): void { abrirCentro("sonido"); }
         function noMolestar(): void { Notificaciones.alternarNoMolestar(); }
         function noMolestarSi(): void { Notificaciones.pausar("siempre"); }
         function noMolestarNo(): void { Notificaciones.pausar("off"); }
@@ -175,6 +177,11 @@ ShellRoot {
 
     // Selectores que sustituyen a fuzzel
     //   qs ipc call wallpapers toggle · qs ipc call portapapeles toggle · qs ipc call menu capturas
+    function abrirCentro(seccion) {
+        const cerrar = centro.abierto && centro.seccion === seccion;
+        cerrarTodo();
+        if (!cerrar) centro.abrirEn(seccion);
+    }
     function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; lanzador.abierto = false; centro.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             chuleta.abierto = false; impresora.abierto = false;

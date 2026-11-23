@@ -93,7 +93,7 @@ RowLayout {
                     const [g, d] = this.text.split("|");
                     const c = g.trim().split(" ");
                     grabacion.modo = c.length >= 3 ? c[0] : "";
-                    grabacion.inicio = c.length >= 3 ? +c[2] : 0;
+                    grabacion.inicio = c.length >= 3 ? Number(c[c.length - 1]) : 0;
                     grabacion.dictando = d.trim() === "si";
                     grabacion.ahora = Math.floor(Date.now() / 1000);
                 }
@@ -104,7 +104,7 @@ RowLayout {
         visible: modo !== "" || dictando
         gestorAyuda: ayuda
         icono: derecha.g(modo !== "" ? 0xF044A : 0xF036C)
-        texto: modo !== "" ? `${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, "0")}${modo === "gif" ? " GIF" : ""}` : "dictando"
+        texto: modo !== "" ? `${derecha.compacto ? "" : "Grabando pantalla "}${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, "0")}${modo === "gif" ? " GIF" : ""}` : "dictando"
         color: Paleta.peligro
         ayuda: modo !== "" ? "Grabando la pantalla · clic o SUPER+ALT+R para parar" : "Dictando · clic o SUPER+ALT+D para terminar"
         onClic: derecha.ejecutar(modo !== "" ? "~/.config/hypr/scripts/grabar.sh parar" : "~/.config/hypr/scripts/dictado.sh")
@@ -251,19 +251,22 @@ RowLayout {
         icono: mudo ? derecha.g(0xF075F) : derecha.g(vol < 0.34 ? 0xF057F : vol < 0.67 ? 0xF0580 : 0xF057E)
         texto: mudo ? "" : Math.round(vol * 100) + "%"
         color: mudo ? Paleta.peligro : Paleta.texto
-        ayuda: (salida?.description ?? "") + "\nClic: silenciar · Rueda: volumen"
-        onClic: derecha.ejecutar("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")   // el OSD reacciona solo
+        ayuda: (salida?.description ?? "") + "\nClic: sonido · Clic derecho: silenciar · Rueda: volumen"
+        onClic: boton => derecha.ejecutar(boton === Qt.RightButton ? "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle" : "qs ipc call notificaciones sonido")   // el OSD reacciona solo
         onRueda: (arriba) => derecha.ejecutar(arriba ? "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+" : "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-")
     }
 
     Modulo {
         id: microActividad
-        visible: Pipewire.nodes.values.some(n => n.isStream && n.properties["media.class"] === "Stream/Input/Audio")
+        readonly property var flujos: Pipewire.nodes.values.filter(n => n.isStream && n.properties["media.class"] === "Stream/Input/Audio")
+        readonly property string aplicaciones: EstadoEscritorio.privacidad ? "" : [...new Set(flujos.map(n => n.properties["application.name"]).filter(Boolean))].join(", ")
+        visible: flujos.length > 0
+        texto: derecha.compacto ? "" : aplicaciones ? "Micrófono · " + (aplicaciones.length > 18 ? aplicaciones.slice(0, 17) + "…" : aplicaciones) : "Micrófono en uso"
         icono: derecha.g(0xF036C)
         color: Paleta.peligro
-        ayuda: "Micrófono en uso · clic para silenciar"
+        ayuda: "Micrófono en uso" + (aplicaciones ? " · " + aplicaciones : "") + "\nClic: sonido · Clic derecho: silenciar"
         gestorAyuda: ayuda
-        onClic: derecha.ejecutar("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle")
+        onClic: boton => derecha.ejecutar(boton === Qt.RightButton ? "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle" : "qs ipc call notificaciones sonido")
     }
 
     // ── Red (NetworkManager) ─────────────────────────────────────────────
@@ -420,10 +423,10 @@ RowLayout {
         texto: !dnd && cuantas > 0 ? String(cuantas) : ""
         color: dnd ? Paleta.gris : cuantas > 0 ? Paleta.acento : Paleta.texto
         ayuda: (dnd ? "No molestar activo" : cuantas > 0 ? cuantas + " notificaciones" : "Sin notificaciones")
-             + "\nClic: centro de control · Clic derecho: no molestar"
+             + "\nClic: avisos · Clic derecho: no molestar"
         onClic: (b) => {
             if (b === Qt.RightButton) Notificaciones.alternarNoMolestar();
-            else derecha.ejecutar("qs ipc call notificaciones toggle");
+            else derecha.ejecutar("qs ipc call notificaciones avisos");
         }
     }
 }

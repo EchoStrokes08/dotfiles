@@ -20,6 +20,13 @@ RowLayout {
         Accessible.name: text
     }
     BotonCompacto {
+        visible: Eventos.necesitaConectar
+        text: Eventos.reconectando ? "Esperando al navegador…" : Eventos.conectado ? "Reconectar Google" : "Conectar Google"
+        enabled: !Eventos.reconectando
+        onClicked: Eventos.conectar()
+        Accessible.description: "Abre el navegador para volver a dar permiso a tu cuenta de Google"
+    }
+    BotonCompacto {
         visible: Eventos.enlaceTareas !== ""
         text: "Abrir Google Cloud"
         onClicked: Qt.openUrlExternally(Eventos.enlaceTareas)

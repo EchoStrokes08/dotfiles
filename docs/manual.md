@@ -121,7 +121,7 @@ manual (apéndice A).
 | `SUPER+ALT+D` | Dictar con la voz |
 | `SUPER+ALT+T` | Traducir lo seleccionado |
 | `SUPER+L` | Bloquear |
-| `ALT+F4` | Menú de apagado |
+| `ALT+F4` | Cerrar la ventana activa |
 
 ## 3. Abrir apps
 
@@ -443,8 +443,8 @@ permite fijarlos si lo prefieres. Para detener la automatización:
   en cada desbloqueo correcto (la primera vez, o tras cambiar de contraseña, usa Enter). Si la nueva es más
   larga, fallará una vez a la longitud vieja: escríbela entera + Enter y ya queda aprendida.
   `sudo` en la terminal hace lo mismo y comparte la longitud aprendida (función en `~/.zshrc`).
-- `ALT+F4` abre el menú de apagar / reiniciar / cerrar sesión.
-- `SUPER+M` abre el mismo menú de apagado que `ALT+F4` (ya no sale sin preguntar).
+- `ALT+F4` cierra la ventana activa.
+- `SUPER+M` abre el menú de apagar, reiniciar o cerrar sesión.
 - Si no tocas el equipo, **enchufado**: a los 8 min baja el brillo, a los 10 se bloquea, a los 15 se apaga la
   pantalla y a la hora se suspende. **Con batería**: 3, 5 y 6 min, y se suspende a los 15. Cambia solo al enchufar o
   desenchufar (`~/.config/hypr/hypridle.conf` y `hypridle-bateria.conf`).
@@ -802,12 +802,22 @@ Todo lo que no es una ventana normal vive en uno de cuatro sitios, cada uno con 
 Desde un centro no se salta a otro: si algo se hace, se hace donde estás. Mesa de trabajo y Flujo
 (organizar ventanas, acciones sobre una selección) son modos del lanzador.
 
+### Pizarra de proyecto
+
+En **Super+D → Hoy → Abrir pizarra** se abre el lienzo del último proyecto de Brújula. Desde el selector superior puedes cambiar de proyecto, crear uno con **Nuevo proyecto…** o usar **Pizarra libre**.
+
+- Arrastra archivos PDF, imágenes o enlaces al lienzo. **Ctrl+V** pega una captura, una dirección web o texto. **N** crea una nota y un doble clic permite editarla.
+- Mueve las tarjetas por su superficie. Arrastra el fondo para desplazarte, usa **Ctrl+rueda** para el zoom y **F** para encuadrar todo.
+- Un PDF se hojea con las flechas de su pie. Para marcar una captura, selecciónala, pulsa **Flecha** y arrastra sobre la imagen. **Ctrl+Z** quita la última flecha de la imagen seleccionada.
+- **Ventana** vincula una aplicación abierta. Pulsa **Ir a la ventana** para enfocarla. Si se cerró, la pizarra ofrece abrir la aplicación cuando hay una entrada de escritorio asociada.
+- **Esc** guarda y vuelve a la ventana de origen si sigue disponible. Posiciones, página, zoom, notas y flechas se guardan por proyecto en el directorio de estado de ORION (`$XDG_STATE_HOME/pizarra`, por defecto `~/.local/state/pizarra`). Las capturas pegadas se guardan allí. Los archivos arrastrados conservan su ubicación original.
+
 ## 24. Lanzador: hacer
 
 Escribe y pulsa Enter. Sin prefijo busca apps, acciones (apagar, capturas, filtros…), **proyectos**
 por su nombre y, con 3 letras o más, también en tus documentos, notas, historial y línea de tiempo.
-Con el campo vacío verás **Sugerido ahora** (una cita en la próxima hora o en curso, el proyecto en
-el que estabas, tus tareas pendientes), **Recientes** (las apps que más abres) y **Todas las apps**.
+Con el campo vacío, **Continuar** permite retomar el último proyecto. Puedes ocultarlo en **Más › Apariencia**.
+Debajo verás **Sugerido ahora** (una cita en la próxima hora o en curso y tus tareas pendientes), **Recientes** (las apps que más abres) y **Todas las apps**.
 Los chips de debajo muestran los prefijos más usados; **más** los enseña todos. Abajo se recuerdan
 las teclas: ↑↓ para moverte, Enter abre, **Alt+Enter** muestra las acciones del resultado y Esc cierra.
 
@@ -931,13 +941,15 @@ anterior (pide escribir `DESHACER`). Si el sistema no arranca: GRUB › «Arch L
 
 ## 26. Centro de control: ajustar
 
-**SUPER+N** o clic en la campana. Cuatro secciones; **Ctrl+Tab** pasa a la siguiente, **Ctrl+1…4**
+**SUPER+N** abre Inicio. La campana abre los avisos con el último grupo desplegado; el volumen y el micrófono abren Sonido. Cuatro secciones; **Ctrl+Tab** pasa a la siguiente, **Ctrl+1…4**
 va directo y **Tab** recorre los controles. En **Inicio**: Wi-Fi y Bluetooth con la red o el
 dispositivo conectado (la flecha de la tarjeta abre su lista), hasta dos controles fijados con ★,
 volumen y brillo (el botón junto al volumen abre el mezclador por app y las salidas), la música,
 **No molestar** en una fila (interruptor y «Pausar…» 30 min, 1 h o hasta desactivar) y los avisos
 agrupados por app: cada grupo es una fila con el número y el último asunto; un clic (o Enter) lo
-despliega con sus acciones y respuestas. Los avisos críticos se ven siempre completos. El **perfil visual** se elige en **Más › Apariencia**:
+despliega con sus acciones y respuestas. Tab recorre los botones; Enter abre la respuesta en la tarjeta y Esc la cancela.
+Tras **Borrar todo** tienes cinco segundos para **Deshacer**. Los avisos que lleguen durante ese plazo siguen visibles.
+Con el foco en el volumen o el brillo, cada pulsación de flecha ajusta cinco puntos porcentuales. Los avisos críticos se ven siempre completos. El **perfil visual** se elige en **Más › Apariencia**:
 
 | Perfil | Cómo se ve |
 |---|---|

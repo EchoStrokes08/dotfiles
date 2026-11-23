@@ -54,12 +54,13 @@ PanelWindow {
             historialAvisos.reload();
             if (!leerProyectos.running) leerProyectos.running = true;
             if (!leerPlantillas.running) leerPlantillas.running = true;
-        } else cierre.restart();
+        } else if (EstiloPanel.movimiento) cierre.restart();
+        else mostrar = false;
     }
-    Timer { id: cierre; interval: 220; onTriggered: ventana.mostrar = false }
+    Timer { id: cierre; interval: EstiloPanel.normal; onTriggered: ventana.mostrar = false }
 
     function abrirCon(t) { abierto = true; buscador.text = t; }        // qs ipc call lanzador buscar …
-    function lanzarPrimero(t) { buscador.text = t; elegir(resultados[0]); }
+    function lanzarPrimero(t) { buscador.text = t; elegir(resultados[0], true); }
 
     visible: mostrar
     color: "transparent"
@@ -438,8 +439,9 @@ PanelWindow {
         }
         if (modo === "agenda") {
             const esTarea = /^tarea/i.test(t), r = Eventos.interpretar(t.replace(/^(evento|tarea)\s+/i, ""));
-            if (!Eventos.conectado)
-                return [{ nombre: "Conectar Google Calendar", detalle: "Necesario una vez para crear eventos y tareas", glifo: 0xF00F0,
+            if (!Eventos.conectado || Eventos.necesitaConectar)
+                return [{ nombre: Eventos.conectado ? "Reconectar Google (la sesión caducó)" : "Conectar Google Calendar",
+                          detalle: Eventos.conectado ? "Abre el navegador para volver a dar permiso" : "Necesario una vez para crear eventos y tareas", glifo: 0xF00F0,
                           accion: () => Eventos.conectar() }];
             if (!r)
                 return [{ nombre: esTarea ? "¿Qué tarea?" : "¿Qué evento?", glifo: 0xF00F0, accion: null,
@@ -522,7 +524,7 @@ PanelWindow {
                 .sort((a, b) => (usos[b.app.id] ?? 0) - (usos[a.app.id] ?? 0)).slice(0, 5);
             const ids = conUso.map(r => r.app.id);
             const itemApp = (r, g) => ({ nombre: r.app.name, detalle: r.app.genericName || r.app.comment || "", icono: r.app.icon,
-                                         grupo: g, accion: () => lanzarApp(r.app) });
+                                         grupo: g, inmediata: true, accion: () => lanzarApp(r.app) });
             return [...sugerenciasAhora().map(x => Object.assign(x, { grupo: "Sugerido ahora" })),
                     ...conUso.map(r => itemApp(r, "Recientes")),
                     ...apps.filter(r => !ids.includes(r.app.id)).sort((a, b) => a.app.name.localeCompare(b.app.name))
@@ -538,7 +540,7 @@ PanelWindow {
         }).filter(r => r.p > 0);
         const plants = EstadoEscritorio.privacidad || q.length < 3 ? [] : plantillas.filter(x => normalizar(x.titulo).includes(q)).slice(0, 3);
         const mezcla = [...apps.map(r => ({ p: r.p, item: { nombre: r.app.name, detalle: r.app.genericName || r.app.comment || "",
-                                                            icono: r.app.icon, accion: () => lanzarApp(r.app) } })),
+                                                            icono: r.app.icon, inmediata: true, accion: () => lanzarApp(r.app) } })),
                         ...accs.map(r => ({ p:r.p, item:{nombre:r.a.n,detalle:r.a.d,glifo:r.a.i,mantener:!!r.a.ref || !!r.a.consulta,accion:() => r.a.ref ? contexto.abrir(r.a.ref) : r.a.consulta ? abrirCon(r.a.consulta) : sh(r.a.c)} })),
                         ...proys.map(r => ({ p: r.p, item: itemProyecto(r.pr) })),
                         ...plants.map(x => ({ p: 40, item: itemPlantilla(x) }))]
@@ -617,26 +619,27 @@ PanelWindow {
             if (texto) s.push({ nombre: e.titulo, detalle: texto + " · ver en Hoy", glifo: 0xF00F0,
                                 accion: () => sh("qs ipc call brujula abrir hoy") });
         }
-        const pr = Continuidad.ultimo ? proyectos.find(x => x.id === Continuidad.ultimo.id) : null;
-        if (pr) s.push(itemProyecto(pr));
         const n = Eventos.tareas.length;
         if (n > 0) s.push({ nombre: n === 1 ? "1 tarea pendiente" : n + " tareas pendientes", detalle: "Revisarlas en Hoy",
                             glifo: 0xF012C, accion: () => sh("qs ipc call brujula abrir hoy") });
         return s.slice(0, 3);
     }
     function lanzarApp(app) {
-        if (app.runInTerminal) Quickshell.execDetached(["kitty", "-e", ...app.command]);
+        if (app.id === "com.rtosta.zapzap" || app.id === "com.rtosta.zapzap.desktop")
+            Quickshell.execDetached(["gtk-launch", "com.rtosta.zapzap"]);
+        else if (app.runInTerminal) Quickshell.execDetached(["kitty", "-e", ...app.command]);
         else app.execute();
         const u = Object.assign({}, usos);
         u[app.id] = (u[app.id] ?? 0) + 1;
         usos = u;
         archivoUsos.setText(JSON.stringify(u, null, 1));
     }
-    function elegir(r) {
-        if (contexto.referencia || !r || !r.accion) return;
+    function elegir(r, desdeIpc = false) {
+        if ((!abierto && !desdeIpc) || contexto.referencia || !r || !r.accion) return;
         if (r.mantener) { r.accion(); return; }
         abierto = false;
-        accionPendiente = r.accion; soltarYActuar.restart();
+        if (r.inmediata) r.accion();
+        else { accionPendiente = r.accion; soltarYActuar.restart(); }
     }
 
     Timer { id: soltarYActuar; interval: 90; onTriggered: { const f=ventana.accionPendiente; ventana.accionPendiente=null; if (f) f(); } }
@@ -777,6 +780,13 @@ PanelWindow {
             }
 
             Text { Layout.fillWidth: true; visible: ventana.cargandoBusqueda || ventana.avisoBusqueda !== ""; text: (ventana.cargandoBusqueda ? (ventana.resultadosBusquedaDe && ventana.resultadosBusquedaDe !== buscador.text ? "Resultados de «"+ventana.resultadosBusquedaDe+"» mientras buscamos «"+buscador.text+"»…" : "Buscando…") : "") + (ventana.avisoBusqueda ? " · "+ventana.avisoBusqueda : ""); wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight; color: ventana.avisoBusqueda ? Paleta.aviso : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+            BotonPanel {
+                visible: PreferenciasUI.mostrarContinuidad && !EstadoEscritorio.privacidad &&
+                         !contexto.referencia && buscador.text.trim() === "" && Continuidad.ultimo !== null
+                text: visible && Continuidad.ultimo ? "Continuar · " + Continuidad.ultimo.nombre + (Continuidad.ultimo.siguiente ? "  —  " + Continuidad.ultimo.siguiente : "") : ""
+                simbolo: ventana.g(0xF0E1B)
+                onClicked: if (visible && Continuidad.ultimo) ventana.elegir(ventana.itemProyecto(Continuidad.ultimo))
+            }
             // Resultados
             AccionesResultado {
                 id: contexto
