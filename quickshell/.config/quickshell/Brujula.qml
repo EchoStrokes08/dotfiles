@@ -249,7 +249,10 @@ Superpuesta {
                         width: parent.width / 3; height: parent.height
                         Text {
                             anchors.centerIn: parent
-                            text: br.g(parent.modelData[0]) + "  " + parent.modelData[1]
+                            // el icono de la pestaña activa toma el acento; el texto sigue neutro
+                            textFormat: Text.StyledText
+                            text: (br.pestana === parent.index ? "<font color='" + Qt.lighter(Paleta.acento, 1.1) + "'>" + br.g(parent.modelData[0]) + "</font>" : br.g(parent.modelData[0]))
+                                  + "&nbsp;&nbsp;" + parent.modelData[1]
                             color: br.pestana === parent.index ? Paleta.texto : Paleta.gris
                             font { family: Paleta.fuente; pixelSize: 12; bold: br.pestana === parent.index }
                             Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
