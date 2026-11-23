@@ -59,6 +59,27 @@ Rectangle {
         onTriggered: tarjeta.terminada()
     }
 
+    // Tiempo que le queda a la emergente: una línea del acento que se vacía (se reinicia con el ratón, como el Timer)
+    Item {
+        visible: tarjeta.emergente && tiempo.interval > 0
+        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; leftMargin: 16; rightMargin: 16; bottomMargin: 1 }
+        height: 2
+        Rectangle {
+            id: restante
+            property real fraccion: 1
+            width: parent.width * fraccion; height: parent.height; radius: height / 2
+            anchors.horizontalCenter: parent.horizontalCenter
+            color: Qt.alpha(tarjeta.colorUrgencia, .85)
+            NumberAnimation on fraccion { from: 1; to: 0; duration: tiempo.interval; running: tiempo.running }
+            RectangularShadow {
+                anchors.fill: parent; z: -1
+                visible: EstiloPanel.profundidad
+                radius: height / 2; blur: 8
+                color: Qt.alpha(tarjeta.colorUrgencia, .6)
+            }
+        }
+    }
+
     // Línea de urgencia a la izquierda: solo en las críticas (el color se reserva para estados)
     Rectangle {
         visible: tarjeta.noti.urgency === NotificationUrgency.Critical
