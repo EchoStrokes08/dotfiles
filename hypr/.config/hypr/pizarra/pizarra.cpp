@@ -230,6 +230,7 @@ public:
         QGraphicsView::scrollContentsBy(dx,dy); if(modificado)modificado();
     }
     void dragEnterEvent(QDragEnterEvent *e) override {
+        if(qEnvironmentVariableIsSet("PIZARRA_DIAGNOSTICO"))fprintf(stderr,"arrastre: %s\n",qPrintable(e->mimeData()->formats().join(", ")));
         if(e->mimeData()->hasUrls()||e->mimeData()->hasImage()||e->mimeData()->hasText()) e->acceptProposedAction();
     }
     void dragMoveEvent(QDragMoveEvent *e) override {e->acceptProposedAction();}
@@ -248,9 +249,10 @@ class Pizarra : public QWidget {
     std::unique_ptr<QLockFile> bloqueo;
     bool cargando=true, pendiente=false;
     int desplazamiento=0;
+    QString ultimaCarpeta;
     QStringList imagenes={"png","jpg","jpeg","webp","bmp","gif","avif","tif","tiff"};
     void mensaje(const QString &s){estado->setText(s);estado->setToolTip(s);}
-    void informar(const QString &s){QMessageBox::information(this,"Pizarra",s);}
+    void informar(const QString &s){if(qEnvironmentVariableIsSet("PIZARRA_DIAGNOSTICO"))fprintf(stderr,"aviso: %s\n",qPrintable(s));QMessageBox::information(this,"Pizarra",s);}
     QPushButton* boton(QHBoxLayout *l,const QString &titulo,const QString &tip,std::function<void()> accion) {
         auto *b=new QPushButton(titulo);b->setToolTip(tip);b->setCursor(Qt::PointingHandCursor);
         connect(b,&QPushButton::clicked,this,[accion]{accion();});l->addWidget(b);return b;
@@ -280,6 +282,7 @@ class Pizarra : public QWidget {
         pendiente=true;guardado.start();mensaje("Guardando…");actualizar();
     }
     bool guardar() {
+        if(qEnvironmentVariableIsSet("PIZARRA_DIAGNOSTICO"))fprintf(stderr,"guardar: pendiente=%d bloqueo=%d tarjetas=%lld\n",pendiente,bool(bloqueo),(long long)tarjetas().size());
         if(!pendiente || !bloqueo) return true;
         QJsonArray cards;for(auto *c:tarjetas())cards.append(c->datos);
         auto centro=vista->centro();
@@ -293,6 +296,7 @@ class Pizarra : public QWidget {
         pendiente=false;mensaje("Guardado");return true;
     }
     void agregar(Json j,QPointF pos,bool nueva=true) {
+        if(qEnvironmentVariableIsSet("PIZARRA_DIAGNOSTICO"))fprintf(stderr,"agregar: %s nueva=%d\n",qPrintable(QJsonDocument(j).toJson(QJsonDocument::Compact)),nueva);
         j["x"]=pos.x();j["y"]=pos.y();
         auto *c=new Tarjeta(j);escena.addItem(c);
         c->activar=[this](Tarjeta *card){activar(card);};c->cambio=[this]{cambios();};
@@ -315,6 +319,7 @@ class Pizarra : public QWidget {
                  {"url",url.toString()}},pos);
     }
     void archivo(const QString &ruta,QPointF pos) {
+        if(qEnvironmentVariableIsSet("PIZARRA_DIAGNOSTICO"))fprintf(stderr,"archivo: %s\n",qPrintable(ruta));
         QFileInfo f(ruta);QString ext=f.suffix().toLower();
         if(!f.isFile() || (ext!="pdf" && !imagenes.contains(ext))){
             informar("Elige un PDF o una imagen disponible en este equipo.");return;
@@ -323,6 +328,9 @@ class Pizarra : public QWidget {
     }
     void importar(const QMimeData *m,QPointF pos) {
         if(!m)return;
+        if(qEnvironmentVariableIsSet("PIZARRA_DIAGNOSTICO"))
+            fprintf(stderr,"importar: formatos=[%s] urls=[%s] imagen=%d texto=%d\n",qPrintable(m->formats().join(", ")),
+                    qPrintable(QUrl::toStringList(m->urls()).join(" ")),m->hasImage(),m->hasText());
         if(m->hasUrls()){for(const auto &url:m->urls()){
             if(url.isLocalFile())archivo(url.toLocalFile(),pos);else enlace(url,pos);pos+=QPointF(26,26);
         }return;}
@@ -346,6 +354,31 @@ class Pizarra : public QWidget {
             return {};
         }
         return QJsonDocument::fromJson("["+proc.readAllStandardOutput()+"]").array().at(0);
+    }
+    // Diálogo propio de Qt: el de GTK, abierto desde la pizarra, podía no devolver la selección.
+    void elegirArchivos() {
+        QFileDialog dlg(this,"Añadir a la pizarra");
+        dlg.setOption(QFileDialog::DontUseNativeDialog);
+        dlg.setFileMode(QFileDialog::ExistingFiles);
+        dlg.setNameFilters({"Documentos e imágenes (*.pdf *.PDF *.png *.PNG *.jpg *.JPG *.jpeg *.JPEG *.webp *.gif *.bmp *.avif *.tif *.tiff)","Todos los archivos (*)"});
+        // ORION guarda capturas y fondos en ~/Imágenes; la carpeta XDG de imágenes puede ser otra (vacía).
+        QString imagenes=QDir::homePath()+"/Imágenes";
+        if(!QFileInfo(imagenes).isDir())imagenes=QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+        dlg.setDirectory(ultimaCarpeta.isEmpty()?imagenes:ultimaCarpeta);
+        dlg.setSidebarUrls({QUrl::fromLocalFile(QDir::homePath()),QUrl::fromLocalFile(imagenes),
+            QUrl::fromLocalFile(imagenes+"/wallpapers"),QUrl::fromLocalFile(imagenes+"/screenshots"),
+            QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)),
+            QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))});
+        dlg.resize(920,600);
+        if(dlg.exec()!=QDialog::Accepted)return;
+        ultimaCarpeta=dlg.directory().absolutePath();
+        QPointF pos=puntoNuevo();
+        for(const auto &f:dlg.selectedFiles()){archivo(f,pos);pos+=QPointF(26,26);}
+    }
+    void pegar() {
+        const QMimeData *m=QApplication::clipboard()->mimeData();
+        if(!m || m->formats().isEmpty()){mensaje("El portapapeles está vacío");return;}
+        importar(m,puntoNuevo());
     }
     void anclarVentana() {
         auto lista=ventanas("lista");if(!lista.isArray())return;
@@ -450,7 +483,8 @@ public:
         boton(head,"Salir  Esc","Volver al escritorio",[this]{volver();});root->addWidget(cab);
         auto *tools=new QHBoxLayout;tools->setContentsMargins(22,9,22,9);tools->setSpacing(6);
         auto *nuevo=boton(tools,"＋  Nota","Crear una nota (N)",[this]{nota("",puntoNuevo());});nuevo->setObjectName("primario");
-        boton(tools,"Archivo","Añadir PDF o imagen",[this]{auto fs=QFileDialog::getOpenFileNames(this,"Añadir a la pizarra",{},"Documentos e imágenes (*.pdf *.png *.jpg *.jpeg *.webp *.gif *.bmp *.avif *.tif *.tiff);;Todos (*)");for(auto &f:fs)archivo(f,puntoNuevo());});
+        boton(tools,"Archivo","Añadir PDF o imagen",[this]{elegirArchivos();});
+        boton(tools,"Pegar","Pegar imagen, enlace o texto del portapapeles (Ctrl+V)",[this]{pegar();});
         boton(tools,"Enlace","Vincular una página web",[this]{bool ok;auto s=QInputDialog::getText(this,"Añadir enlace","Dirección web",QLineEdit::Normal,"https://",&ok);if(ok)enlace(QUrl::fromUserInput(s.trimmed()),puntoNuevo());});
         boton(tools,"Ventana","Vincular una ventana abierta",[this]{anclarVentana();});
         anotar=boton(tools,"↗  Flecha","Arrastra sobre la imagen seleccionada para dibujar una flecha. Ctrl+Z quita la última.",[this]{if(auto *c=seleccion()){c->dibujar=anotar->isChecked();c->setCursor(c->dibujar?Qt::CrossCursor:Qt::OpenHandCursor);}});
@@ -473,7 +507,7 @@ public:
         pie->addStretch();boton(pie,"−","Alejar",[this]{vista->ampliar(1/1.2);});
         escala=boton(pie,"100 %","Restablecer zoom",[this]{vista->ampliar(1/vista->transform().m11());});
         boton(pie,"＋","Acercar",[this]{vista->ampliar(1.2);});boton(pie,"Encuadrar","Ver todas las tarjetas (F)",[this]{encuadrar();});root->addLayout(pie);
-        const QHash<QString,QString> iconos{{"Archivo","document-open"},{"Enlace","insert-link"},
+        const QHash<QString,QString> iconos{{"Archivo","document-open"},{"Pegar","edit-paste"},{"Enlace","insert-link"},
             {"Ventana","window-new"},{"Quitar","edit-delete"},{"Encuadrar","zoom-fit-best"}};
         for (auto *b : findChildren<QPushButton*>()) {
             if (iconos.contains(b->text())) {b->setIcon(QIcon::fromTheme(iconos.value(b->text())));b->setText(" "+b->text());}
@@ -482,7 +516,7 @@ public:
         guardado.setSingleShot(true);guardado.setInterval(260);connect(&guardado,&QTimer::timeout,this,[this]{guardar();});
         vista->recibir=[this](auto *m,auto p){importar(m,p);};vista->modificado=[this]{cambios();};
         connect(&escena,&QGraphicsScene::selectionChanged,this,[this]{if(!cargando){for(auto *c:tarjetas())if(!c->isSelected()&&c->dibujar){c->dibujar=false;c->setCursor(Qt::OpenHandCursor);}actualizar();}});
-        tecla(QKeySequence::Paste,[this]{importar(QApplication::clipboard()->mimeData(),puntoNuevo());});
+        tecla(QKeySequence::Paste,[this]{pegar();});
         tecla(QKeySequence(Qt::Key_Escape),[this]{volver();});tecla(QKeySequence(Qt::Key_N),[this]{nota("",puntoNuevo());});
         tecla(QKeySequence(Qt::Key_F),[this]{encuadrar();});tecla(QKeySequence::Delete,[this]{retirar();});
         connect(selector,&QComboBox::activated,this,[this](int i){
@@ -507,7 +541,7 @@ int main(int argc,char **argv) {
     QTranslator qt;   // botones estándar de los diálogos en el idioma del sistema
     if(qt.load(QLocale(),"qtbase","_",QLibraryInfo::path(QLibraryInfo::TranslationsPath)))app.installTranslator(&qt);
     auto args=app.arguments();if(args.size()<2)return 1;
-    Pizarra w(args[1]);w.showFullScreen();app.processEvents();
+    Pizarra w(args[1]);w.resize(1280,800);w.show();app.processEvents();
     if(!w.iniciar(args.value(2)))return 1;
     return app.exec();
 }
