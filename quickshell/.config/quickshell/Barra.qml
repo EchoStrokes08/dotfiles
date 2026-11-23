@@ -2,6 +2,7 @@
 // Izquierda: workspaces + ventana activa · centro: reloj · derecha: BarraDerecha.qml
 // Una barra por pantalla: shell.qml la crea con Variants { model: Quickshell.screens }.
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
@@ -144,10 +145,24 @@ PanelWindow {
                 id: filaVentana
                 anchors { left: parent.left; leftMargin: 8; right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
                 spacing: 8
-                IconImage {
-                    implicitSize: 18
-                    source: islaVentana.icono
+                // icono de la app activa con un halo de sus propios colores (como en el lanzador)
+                Item {
+                    implicitWidth: 18; implicitHeight: 18
                     visible: islaVentana.icono !== ""
+                    MultiEffect {
+                        anchors.centerIn: parent
+                        width: 30; height: 30
+                        visible: EstiloPanel.profundidad && iconoVentana.status === Image.Ready
+                        source: iconoVentana
+                        blurEnabled: true; blur: 1; blurMax: 24
+                        saturation: .4; brightness: .2
+                        opacity: .9
+                    }
+                    IconImage {
+                        id: iconoVentana
+                        anchors.fill: parent
+                        source: islaVentana.icono
+                    }
                 }
                 Text {
                     Layout.fillWidth: true
