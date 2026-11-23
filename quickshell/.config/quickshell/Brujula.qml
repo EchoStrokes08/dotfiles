@@ -297,6 +297,15 @@ Superpuesta {
                 ColumnLayout {
                     id: hoyCol; width: parent.width; spacing: 12
                     HoyCabecera { Layout.fillWidth: true }
+                    BotonPanel {
+                        text: "Abrir pizarra"
+                        simbolo: br.g("f0252")
+                        visible: !EstadoEscritorio.privacidad
+                        onClicked: {
+                            br.abierto = false;
+                            br.lanzar([Quickshell.env("HOME") + "/.config/hypr/pizarra/abrir.sh", Continuidad.ultimoId]);
+                        }
+                    }
                     EstadoAgenda { Layout.fillWidth: true }
                     HoyPaneles {
                         Layout.fillWidth: true
