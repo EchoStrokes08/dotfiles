@@ -2,6 +2,7 @@
 //   flechas/clic para elegir · Enter aplica · el actual lleva borde naranja
 // Aplica con ~/.config/hypr/scripts/wallpaper.sh poner <ruta> (hyprpaper + colores si el modo es "wallpaper").
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Qt.labs.folderlistmodel
 import Quickshell
@@ -99,7 +100,16 @@ Superpuesta {
                 width: rejilla.cellWidth
                 height: rejilla.cellHeight
 
+                // resplandor bajo la miniatura: del acento en el fondo puesto, neutro en la marcada
+                RectangularShadow {
+                    anchors { fill: parent; margins: 4 }
+                    visible: EstiloPanel.profundidad && (celda.marcada || celda.esActual)
+                    radius: 12; offset.y: 6; blur: 26; spread: -4
+                    color: celda.esActual ? Qt.alpha(Paleta.acento, .55) : Qt.alpha("black", .55)
+                    scale: marco.scale
+                }
                 ClippingRectangle {
+                    id: marco
                     anchors { fill: parent; margins: 4 }
                     radius: 12
                     color: Paleta.seleccion
@@ -114,17 +124,22 @@ Superpuesta {
                         sourceSize { width: 404; height: 244 }   // se decodifica pequeña: rápido y ligero
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
+                        scale: celda.marcada ? 1.07 : 1      // se acerca dentro de su marco
+                        Behavior on scale { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
                         opacity: status === Image.Ready ? 1 : 0
                         Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
                     }
                     // nombre al pasar el ratón o al estar seleccionada
                     Rectangle {
                         anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                        height: 26
+                        height: 34
                         visible: celda.marcada || zonaCelda.containsMouse
-                        color: Qt.alpha(Paleta.fondo, 0.75)
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: "transparent" }
+                            GradientStop { position: 1; color: Qt.alpha(Paleta.fondo, .85) }
+                        }
                         Text {
-                            anchors { fill: parent; leftMargin: 8; rightMargin: 8 }
+                            anchors { fill: parent; leftMargin: 8; rightMargin: 8; topMargin: 8 }
                             verticalAlignment: Text.AlignVCenter
                             text: (celda.esActual ? "  " : "") + celda.fileName
                             color: celda.esActual ? Paleta.acento : Paleta.texto
