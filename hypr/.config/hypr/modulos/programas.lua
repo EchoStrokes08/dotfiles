@@ -8,5 +8,5 @@ return {
     whatsapp    = "flatpak run com.rtosta.zapzap",
     roblox      = "gamemoderun flatpak run org.vinegarhq.Sober",
     spotify     = "flatpak run com.spotify.Client",
-    nebula      = os.getenv("HOME") .. "/.local/opt/nebula/Nebula.AppImage",   -- AppImage (ver .desktop)
+    nebula      = os.getenv("HOME") .. "/.local/opt/nebula/app/AppRun",   -- AppImage extraído (sin FUSE: no bloquea la suspensión; ver scripts/nebula-extraer.sh)
 }

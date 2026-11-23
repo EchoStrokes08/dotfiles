@@ -1,0 +1,8 @@
+[Unit]
+Description=Extraer Nebula cada vez que se reemplaza su AppImage
+
+[Path]
+PathChanged=%h/.local/opt/nebula/Nebula.AppImage
+
+[Install]
+WantedBy=default.target

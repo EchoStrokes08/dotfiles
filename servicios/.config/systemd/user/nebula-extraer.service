@@ -1,0 +1,9 @@
+[Unit]
+Description=Extraer Nebula del AppImage (sin FUSE: no bloquea la suspensión)
+ConditionPathExists=%h/.local/opt/nebula/Nebula.AppImage
+
+[Service]
+Type=oneshot
+# Espera a que termine de copiarse el AppImage nuevo antes de extraerlo
+ExecStartPre=/usr/bin/sleep 3
+ExecStart=%h/.config/hypr/scripts/nebula-extraer.sh
