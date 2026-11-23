@@ -11,7 +11,7 @@
 #   9. Salud      aviso si el SSD falla (smartd), firmware semanal (fwupd), caché de pacman: 1 versión
 #  10. Arranque  GRUB sin menú (1 s; Esc o Shift al encender lo muestra)
 #  11. Batería   el botón «Conservar» del centro de control puede cambiar el modo conservación de Lenovo
-#  12. DNS       cifrado (DNS-over-TLS, Quad9 + Cloudflare); `dns-cifrado off` para Wi-Fi con portal
+#  12. DNS       cifrado (DNS-over-TLS, Quad9 + Cloudflare); en Wi-Fi abiertas con portal se aparta solo
 #  13. Mirrors   reflector: servidores de paquetes rápidos cerca de Colombia (antes salía uno de Suecia)
 #  14. KDE Connect  puertos 1714-1764 abiertos SOLO para la red local (el móvil)
 #  17. Hibernación  swapfile de 16 GB en el subvolumen @swap (zram no sirve para hibernar)
@@ -253,7 +253,8 @@ escribir /etc/systemd/resolved.conf.d/dns-cifrado.conf <<'DNS'
 #   Quad9 (bloquea dominios de malware/phishing) y Cloudflare de respaldo; IPv4 e IPv6.
 #   Domains=~.  → usar ESTOS para todo, no los que da el router.
 # Comprobar:  resolvectl status   (debe salir +DNSOverTLS)
-# Si una Wi-Fi de hotel/aeropuerto no abre su página de acceso: dns-cifrado off  (y luego on)
+# Redes públicas que lo bloquean (portal cautivo o puerto 853 cerrado): dispatcher.d/90-portal-cautivo
+#   usa el DNS del router solo mientras no pase; a mano: dns-cifrado off (y luego on)
 # Gestionado desde ~/dotfiles/instalar/sistema-base.sh
 [Resolve]
 DNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 1.1.1.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com
@@ -264,10 +265,111 @@ DNSSEC=no
 DNS
 escribir /etc/NetworkManager/conf.d/dns.conf <<'NMDNS'
 # DNS cifrado: NetworkManager NO pasa a resolved el DNS del router/operador (iría sin cifrar);
-# se usan solo los de /etc/systemd/resolved.conf.d/dns-cifrado.conf. Para Wi-Fi con portal: dns-cifrado off
+# se usan solo los de /etc/systemd/resolved.conf.d/dns-cifrado.conf. systemd-resolved=false hace falta
+# además de dns=none: sin él NM se lo pasa igual a resolved (y con DNS-over-TLS forzado ese DNS no responde).
+# Si la red no deja pasar el cifrado, dispatcher.d/90-portal-cautivo pone el del router solo mientras tanto.
 [main]
 dns=none
+systemd-resolved=false
 NMDNS
+# Redes públicas (Red_UD_Estudiantes, hoteles, aeropuertos) que no dejan pasar el DNS cifrado: DNS del
+# router solo mientras no pase, y vuelta al cifrado en cuanto pasa. El navegador lo abre portal-cautivo.service.
+escribir /etc/NetworkManager/dispatcher.d/90-portal-cautivo <<'PORTAL'
+#!/usr/bin/env bash
+# DNS cifrado en redes públicas (dispatcher de NetworkManager, corre como root).
+# Normalmente todo el DNS va cifrado (DNS-over-TLS, puerto 853, a Quad9/Cloudflare) y el del router no se
+# usa. Pero muchas redes públicas no lo dejan pasar: las de portal cautivo (universidad, hotel, aeropuerto)
+# hasta que inicias sesión, y otras (con o sin contraseña) nunca. Sin esto, en ellas no resuelve nada.
+# Al conectar y en cada cambio de conectividad se prueba si llega el DNS cifrado (saludo TLS con Quad9 y
+# Cloudflare: un portal no puede falsificar su certificado). Si no llega, esa interfaz usa el DNS del
+# router (respaldo) y se vuelve a probar cada 15 s (luego cada minuto); en cuanto pasa, vuelta al cifrado.
+# Con el respaldo NetworkManager ve el portal y ~/.config/hypr/scripts/portal-cautivo.sh abre el navegador.
+# Registro: journalctl -t portal-cautivo      Gestionado desde ~/dotfiles/instalar/sistema-base.sh
+CONF=/etc/systemd/resolved.conf.d/dns-cifrado.conf
+log() { logger -t portal-cautivo "$*"; }
+unidad() { echo "dns-respaldo-$1"; }
+
+# con «dns-cifrado off» se usa siempre el DNS del router: nada que hacer
+[ -f "$CONF" ] || exit 0
+
+iface_por_defecto() { ip route show default | awk '{for(i=1;i<=NF;i++) if($i=="dev"){print $(i+1); exit}}'; }
+uuid_de() { nmcli -g GENERAL.CON-UUID device show "$1" 2>/dev/null; }
+
+dot_llega() {  # ¿pasa el DNS cifrado? (basta con uno de los dos)
+    local s
+    for s in 9.9.9.9:dns.quad9.net 1.1.1.1:cloudflare-dns.com; do
+        timeout 4 openssl s_client -brief -connect "${s%%:*}:853" -servername "${s#*:}" \
+            -verify_return_error </dev/null >/dev/null 2>&1 && return 0
+    done
+    return 1
+}
+
+usar_router() {  # IFACE → 0 si quedó puesto
+    local d
+    # (las IPv6 de enlace local fe80:: necesitarían %interfaz: fuera)
+    # (nmcli -g escapa los «:» de las IPv6 con «\»: se quitan)
+    d=$(nmcli -g IP4.DNS,IP6.DNS device show "$1" | tr -d '\\' | tr '|\n' '  ' | tr -s ' ' '\n' | grep -vi '^fe80' | tr '\n' ' ')
+    [ -n "${d// /}" ] || d=$(nmcli -g IP4.GATEWAY device show "$1")
+    [ -n "${d// /}" ] || return 1
+    # shellcheck disable=SC2086
+    resolvectl dns "$1" $d && resolvectl domain "$1" '~.' && resolvectl dnsovertls "$1" no \
+        && resolvectl default-route "$1" yes && resolvectl flush-caches || return 1
+    log "$1: la red no deja pasar el DNS cifrado → DNS del router ($(echo $d)) mientras tanto"
+}
+
+volver_al_cifrado() {
+    resolvectl revert "$1"; resolvectl flush-caches
+    log "$1: el DNS cifrado ya pasa → de vuelta a él"
+}
+
+vigilar() {  # IFACE — corre aparte (systemd-run), una por interfaz
+    local iface=$1 uuid respaldo=0 espera=15 vueltas=0
+    uuid=$(uuid_de "$iface"); [ -n "$uuid" ] || exit 0
+    while :; do
+        # se acaba si se desconecta, cambia de red o apagas el cifrado (dns-cifrado off)
+        if [ "$(uuid_de "$iface")" != "$uuid" ] || [ ! -f "$CONF" ]; then
+            [ "$respaldo" = 1 ] && [ -f "$CONF" ] && resolvectl revert "$iface"
+            exit 0
+        fi
+        if dot_llega; then
+            [ "$respaldo" = 1 ] && volver_al_cifrado "$iface"
+            # que NetworkManager vuelva a mirar ya (y no en 5 min)
+            nmcli networking connectivity check >/dev/null 2>&1
+            exit 0
+        fi
+        if [ "$respaldo" = 0 ] && usar_router "$iface"; then
+            respaldo=1
+            nmcli networking connectivity check >/dev/null 2>&1
+        fi
+        vueltas=$((vueltas + 1)); [ "$vueltas" -ge 20 ] && espera=60
+        sleep "$espera"
+    done
+}
+
+lanzar() {  # IFACE: una sola vigilancia por interfaz (si ya corre, nada)
+    local t; t=$(nmcli -g GENERAL.TYPE device show "$1" 2>/dev/null)
+    case "$t" in wifi|ethernet) ;; *) return 0 ;; esac
+    systemctl is-active --quiet "$(unidad "$1").service" && return 0
+    systemd-run --quiet --collect --unit="$(unidad "$1")" \
+        --description="DNS cifrado o respaldo del router en $1" "$(readlink -f "$0")" "$1" vigilar
+}
+
+case "$2" in
+    vigilar) vigilar "$1" ;;  # (la llamada de lanzar)
+    up|dhcp4-change|dhcp6-change|reapply)
+        lanzar "$1" ;;
+    connectivity-change)
+        # NetworkManager no dice la interfaz: la de la ruta por defecto
+        i=$(iface_por_defecto); [ -n "$i" ] && lanzar "$i" ;;
+    down|pre-down)
+        systemctl stop "$(unidad "$1").service" 2>/dev/null
+        resolvectl revert "$1" 2>/dev/null ;;
+esac
+exit 0
+PORTAL
+run sudo chmod 755 /etc/NetworkManager/dispatcher.d/90-portal-cautivo
+run sudo nmcli general reload conf   # que NM lea systemd-resolved=false
+run sudo systemctl enable --quiet --now NetworkManager-dispatcher
 run sudo systemctl enable --quiet --now systemd-resolved
 if [ "$SIMULAR" = 0 ] && [ "$(readlink /etc/resolv.conf)" != /run/systemd/resolve/stub-resolv.conf ]; then
     sudo cp /etc/resolv.conf /etc/resolv.conf.antes-dns-cifrado

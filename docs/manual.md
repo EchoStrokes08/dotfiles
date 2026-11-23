@@ -523,7 +523,7 @@ sus teclas al pasar el ratón. También puedes pulsar el indicador para salir de
 | Prefieres huecos aunque haya una sola ventana | Comenta las 4 líneas de *smart gaps* en `apariencia.lua` |
 | Un gesto se siente lento o brusco | Añade `scale = 1.5` (o lo que te guste) a ese gesto en `entrada.lua` |
 | Necesito el menú de arranque (otro sistema, volver a un snapshot) | Mantén **Esc** (o Shift) justo al encender: GRUB está oculto y espera solo 1 s |
-| La Wi-Fi de un hotel/aeropuerto no abre su página de acceso | `dns-cifrado off`, entra, y luego `dns-cifrado on` |
+| Una red pública (universidad, hotel, aeropuerto) no resuelve o no abre su página de acceso | Debería arreglarse solo en unos segundos (`journalctl -t portal-cautivo`); si no, `dns-cifrado off`, entra, y luego `dns-cifrado on` |
 | Aviso «⚠ Disco» | El SSD empieza a fallar: `respaldo ahora` con el disco TOSHIBA conectado, y piensa en cambiarlo |
 | La barra/atajos de Quickshell no responden (`qs ipc call …` dice «Not ready to accept queries yet») | Pasa tras muchas recargas en caliente: `pkill -x qs; qs &` (o cerrar sesión y entrar). Si vuelve a pasar justo al arrancar, revisa que ningún archivo que lea un singleton falte |
 | El dictado no escribe nada | ¿Micrófono correcto? Prueba `dictado.sh` dos veces y mira la notificación. La primera vez tarda más (carga el modelo) |
@@ -580,8 +580,10 @@ kitty y el audio según sus reglas de preferencia. Si te cierra algo, es que ten
 `fwupdmgr update` para instalar (con el cargador puesto).
 
 **DNS cifrado.** Las consultas DNS usan DNS-over-TLS con Quad9 y Cloudflare de respaldo. Esto protege el transporte de las consultas; no oculta por sí solo todo el tráfico ni la identidad de los sitios visitados.
-`dns-cifrado estado` dice si está activo. En una Wi-Fi con página de acceso (hotel, aeropuerto) que no carga:
-`dns-cifrado off`, entra, y `dns-cifrado on`.
+`dns-cifrado estado` dice si está activo. Muchas redes públicas no lo dejan pasar (portal cautivo hasta
+iniciar sesión, o el puerto 853 cerrado): al conectar se comprueba y, si no pasa, esa red usa el DNS del
+router mientras tanto (se reintenta cada 15 s y vuelve al cifrado en cuanto pasa; `dns-cifrado estado` lo
+indica). Si aun así algo falla: `dns-cifrado off`, entra, y `dns-cifrado on`.
 
 **Arranque:** GRUB usa un menú oculto con espera de 1 s. Mantén Esc o Shift al encender
 para elegir otra entrada o consultar los snapshots disponibles.

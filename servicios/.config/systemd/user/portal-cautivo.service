@@ -1,0 +1,14 @@
+# Abre la página de inicio de sesión de las Wi-Fi con portal cautivo (Red_UD_Estudiantes, hoteles...)
+# y avisa cuando ya hay internet. Script: ~/.config/hypr/scripts/portal-cautivo.sh
+[Unit]
+Description=Portal cautivo: abrir la página de acceso de la Wi-Fi en el navegador
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.config/hypr/scripts/portal-cautivo.sh vigilar
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

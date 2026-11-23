@@ -157,6 +157,7 @@ paso_dotfiles() {
     run systemctl --user daemon-reload
     run systemctl --user enable --now agente-modelos.timer && ok "agente-modelos.timer (prueba diaria de modelos)"
     run systemctl --user enable --now tasas-cambio.timer && ok "tasas-cambio.timer (TRM y tasas de cambio diarias)"
+    run systemctl --user enable --now portal-cautivo.service && ok "portal-cautivo.service (abre la página de acceso de las Wi-Fi con portal)"
 
     # Firefox: el perfil se llama distinto en cada equipo → enlazar a mano en el que haya
     local src="$DOT/firefox/.config/mozilla/firefox/skxgxs8p.default-release" perfil
