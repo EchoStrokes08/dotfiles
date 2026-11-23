@@ -3,6 +3,7 @@
 //            onClic: (boton) => …;  onRueda: (arriba) => … }
 // El tooltip lo pinta Ayuda.qml (una sola ventana emergente para todos los módulos).
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 
 Item {
@@ -25,6 +26,25 @@ Item {
     implicitWidth: fila.implicitWidth + relleno * 2
     implicitHeight: 34
 
+    // Estado destacado (un color que no es el del texto: cargando, batería baja, silencio…):
+    // cápsula tenue de su color con halo. Al cambiar de estado, el halo destella y vuelve.
+    readonly property bool destaca: !Qt.colorEqual(color, Paleta.texto)
+    property real destello: 0
+    onColorChanged: if (destaca && EstiloPanel.movimiento) animDestello.restart()
+    NumberAnimation { id: animDestello; target: modulo; property: "destello"; from: 1; to: 0; duration: 900; easing.type: Easing.OutCubic }
+    RectangularShadow {
+        anchors.fill: parent; anchors.topMargin: 5; anchors.bottomMargin: 5
+        visible: EstiloPanel.profundidad && modulo.destaca
+        radius: height / 2; blur: 14 + 10 * modulo.destello; spread: -2
+        color: Qt.alpha(modulo.color, .22 + .45 * modulo.destello)
+    }
+    Rectangle {
+        anchors.fill: parent; anchors.topMargin: 5; anchors.bottomMargin: 5
+        visible: modulo.destaca
+        radius: height / 2
+        color: Qt.alpha(modulo.color, .10 + .12 * modulo.destello)
+        border { width: 1; color: Qt.alpha(modulo.color, .28) }
+    }
     Rectangle {
         anchors.fill: parent
         anchors.topMargin: 5; anchors.bottomMargin: 5
