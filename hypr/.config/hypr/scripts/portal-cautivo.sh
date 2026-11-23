@@ -7,6 +7,10 @@
 set -uo pipefail
 # página HTTP (sin https) que el portal intercepta y redirige a su inicio de sesión
 URL=http://ping.archlinux.org/nm-check.txt
+# página a abrir en Firefox si el portal no redirige: NO puede ser la de prueba, porque archlinux.org tiene
+# HSTS y Firefox la pasa a https://, que el portal intercepta («Software is Preventing Firefox…»).
+# neverssl.com existe justo para esto: nunca usa HTTPS ni HSTS.
+ABRIR=http://neverssl.com
 
 # ¿hay portal? Pide la página HTTP de prueba: si no llega «NetworkManager is online» es que el portal la
 # intercepta. Imprime la dirección a abrir (la de su inicio de sesión si redirige) o nada si no hay portal.
@@ -18,15 +22,15 @@ sondear() {
     cuerpo=$(head -1 <<<"$r")
     [ "$codigo" = 200 ] && [ "$cuerpo" = "NetworkManager is online" ] && return 0
     case "$codigo" in
-        30[1278]) echo "${destino:-$URL}" ;;
-        2??) echo "$URL" ;;
+        30[1278]) echo "${destino:-$ABRIR}" ;;
+        2??) echo "$ABRIR" ;;
     esac
 }
 
 # Siempre una dirección http:// (sin s): el portal (p. ej. el controlador Cisco de la universidad)
 # intercepta TODO el HTTPS antes de iniciar sesión y Firefox lo rechaza (MITM detectado / HSTS).
 abrir() {
-    local destino=${1:-$URL}
+    local destino=${1:-$ABRIR}
     logger -t portal-cautivo "$(red): portal cautivo → abriendo $destino"
     notify-send -a "Wi-Fi" -i network-wireless "Inicia sesión en la Wi-Fi" "$(red) pide autenticarse: abriendo la página de acceso" || true
     if command -v firefox >/dev/null; then firefox --new-window "$destino" >/dev/null 2>&1 &
@@ -42,7 +46,7 @@ vigilar() {
         # NetworkManager tarda en darse cuenta del portal: mientras no diga «full», mirar nosotros
         if [ "$ahora" = portal ] || [ "$ahora" = limited ]; then
             destino=$(sondear)
-            [ "$ahora" = portal ] && [ -z "$destino" ] && destino=$URL
+            [ "$ahora" = portal ] && [ -z "$destino" ] && destino=$ABRIR
         fi
         if [ -n "$destino" ]; then
             # una vez por red y conexión: no reabrir el navegador cada 5 s
