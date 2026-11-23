@@ -55,7 +55,18 @@ Button {
     }
     background: FondoBoton {
         radio: EstiloPanel.rTarjeta
-        destacado: false
+        // encendido = se ve encendido: superficie destacada, borde del acento y luz desde la izquierda
+        destacado: control.disponible && control.activo
+        Rectangle {
+            visible: control.disponible && control.activo
+            anchors { fill: parent; margins: 1 }
+            radius: EstiloPanel.rTarjeta - 1
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0;   color: Qt.alpha(Paleta.acento, .16) }
+                GradientStop { position: .55; color: "transparent" }
+            }
+        }
         Rectangle {
             visible: control.disponible && control.activo
             anchors { left: parent.left; top: parent.top; leftMargin: 4; topMargin: 4 }
