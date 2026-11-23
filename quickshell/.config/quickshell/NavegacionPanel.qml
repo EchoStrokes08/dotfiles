@@ -36,7 +36,7 @@ Rectangle {
         Behavior on y { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
         RectangularShadow {
             anchors.fill: parent
-            visible: EstiloPanel.efectos
+            visible: EstiloPanel.profundidad
             radius: 12
             offset.y: 4; blur: 16; spread: -6
             color: Qt.alpha("black", .28)

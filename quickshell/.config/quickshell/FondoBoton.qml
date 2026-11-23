@@ -18,7 +18,7 @@ Item {
 
     RectangularShadow {
         anchors.fill: parent
-        visible: EstiloPanel.efectos && f.destacado
+        visible: EstiloPanel.profundidad && f.destacado
         radius: f.radio
         offset.y: 5
         blur: 20
@@ -40,7 +40,7 @@ Item {
     }
     // Un filo solo en cristal; las superficies sólidas ya tienen jerarquía tonal.
     Rectangle {
-        visible: EstiloPanel.efectos
+        visible: EstiloPanel.profundidad
         x: f.radio * .7; y: 1
         width: parent.width - f.radio * 1.4; height: 1
         opacity: f.destacado ? .9 : f.encima ? .7 : .45

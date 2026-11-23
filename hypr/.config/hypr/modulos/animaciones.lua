@@ -24,6 +24,7 @@ hl.curve("ayuAsomar",   { type = "bezier", points = { {0.34, 1.04}, {0.64, 1} } 
 local animaciones = {
     { "global",        10,   "default"                   },
     { "border",        5.39, "easeOutQuint"              },
+    { "borderangle",   9,    "easeOutQuint", "once"      },   -- el degradado del borde gira una vez al enfocar
     { "windows",       4.79, "easy",         nil, true   },
     { "windowsIn",     4.1,  "ayuRebote",    "popin 87%", true },  -- propia
     { "windowsOut",    1.2,  "linear",       "popin 87%" },   -- cerrar ~120 ms: no hacer esperar

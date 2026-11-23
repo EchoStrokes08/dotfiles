@@ -12,7 +12,7 @@ Item {
 
     RectangularShadow {
         anchors.fill: parent
-        visible: EstiloPanel.efectos
+        visible: EstiloPanel.profundidad
         radius: height / 2
         offset.y: 3
         blur: 14

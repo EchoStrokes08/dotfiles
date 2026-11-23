@@ -15,7 +15,7 @@ M.base = {
     cursor = { hide_on_key_press = true, inactive_timeout = 5 },
     decoration = {
         -- Ventanas opacas: el cristal es para los paneles, no para el contenido (kitty lleva su propio fondo translúcido)
-        rounding = 10, active_opacity = 1.0, inactive_opacity = 1.0,
+        rounding = 14, active_opacity = 1.0, inactive_opacity = 1.0,
         shadow = { enabled = true }, blur = { enabled = true },
     },
 }

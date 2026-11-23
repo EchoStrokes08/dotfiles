@@ -169,7 +169,7 @@ Scope {
                     border { width: 1; color: EstiloPanel.relleno }
                     RectangularShadow {
                         width: barraOsd.width; height: parent.height
-                        visible: EstiloPanel.efectos && !osd.apagado
+                        visible: EstiloPanel.profundidad && !osd.apagado
                         radius: 4; blur: 14; spread: -1
                         color: Qt.alpha(Paleta.acento, .45)
                     }

@@ -24,7 +24,7 @@ hl.config({
         -- Sombra amplia y suave, como la de los paneles de Quickshell
         shadow = {
             enabled      = true,
-            range        = 20,
+            range        = 26,
             render_power = 3,
         },
 
@@ -81,11 +81,13 @@ hl.config({
 local function colores()
     hl.config({
         general = { col = {
-            -- borde activo: el acento liso (2 px). El inactivo, casi invisible: la ventana activa se reconoce por color
-            active_border   = c.rgba("acento", "ee"),
+            -- borde activo: degradado acento → acento2 en diagonal (gira una vez al enfocar: borderangle en
+            -- animaciones.lua). El inactivo, casi invisible: la ventana activa se reconoce por su luz
+            active_border   = { colors = { c.rgba("acento", "ff"), c.rgba("acento2", "ff") }, angle = 45 },
             inactive_border = c.rgba("texto", "14"),
         } },
-        decoration = { shadow = { color = c.rgba("fondo", "59") } },   -- sombra al 35 %
+        -- La ventana activa proyecta un resplandor del acento; las demás, una sombra neutra
+        decoration = { shadow = { color = c.rgba("acento", "3d"), color_inactive = c.rgba("fondo", "66") } },
         group = {
             col = {
                 -- borde de una ventana agrupada: acento2, para distinguirla de una normal (acento)

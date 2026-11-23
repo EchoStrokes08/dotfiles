@@ -738,7 +738,7 @@ Superpuesta {
                                 GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .1) }
                             }
                             border { width: 1; color: Qt.alpha(Paleta.acento, .4) }
-                            RectangularShadow { anchors.fill: parent; z: -1; visible: EstiloPanel.efectos; radius: height / 2; blur: 40; spread: -6; color: Qt.alpha(Paleta.acento, .35) }
+                            RectangularShadow { anchors.fill: parent; z: -1; visible: EstiloPanel.profundidad; radius: height / 2; blur: 40; spread: -6; color: Qt.alpha(Paleta.acento, .35) }
                             Text { anchors.centerIn: parent; text: "✦"; color: Qt.lighter(Paleta.acento, 1.2); font.pixelSize: 26 }
                         }
                         Text { Layout.alignment: Qt.AlignHCenter; text: "Pregúntame o pídeme algo, como se lo dirías a alguien"; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 14 } }
@@ -775,7 +775,7 @@ Superpuesta {
                         Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
                         RectangularShadow {   // brillo al escribir
                             anchors.fill: parent; z: -1
-                            visible: EstiloPanel.efectos
+                            visible: EstiloPanel.profundidad
                             opacity: entrada.activeFocus ? 1 : 0
                             radius: 24; blur: 22; spread: -4
                             color: Qt.alpha(Paleta.acento, .32)
@@ -814,7 +814,7 @@ Superpuesta {
                         border { width: 1; color: Qt.alpha(enviarBtn.listo ? "white" : Paleta.texto, enviarBtn.listo ? .25 : .1) }
                         RectangularShadow {
                             anchors.fill: parent; z: -1
-                            visible: EstiloPanel.efectos && enviarBtn.listo
+                            visible: EstiloPanel.profundidad && enviarBtn.listo
                             radius: 24; offset.y: 4; blur: 18; spread: -4
                             color: Qt.alpha(Paleta.acento, .55)
                         }

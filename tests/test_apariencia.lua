@@ -17,7 +17,8 @@ local function buscar(ruta)
     end
 end
 local borde = buscar({ 'general', 'col', 'active_border' })
-assert(type(borde) == 'string' and borde:match('^rgba%(%x%x%x%x%x%x%x%x%)$'), 'borde activo: ' .. tostring(borde))
+assert(type(borde) == 'table' and #borde.colors == 2 and type(borde.angle) == 'number', 'borde activo sin degradado')
+for _, col in ipairs(borde.colors) do assert(col:match('^rgba%(%x%x%x%x%x%x%x%x%)$'), 'color del borde: ' .. col) end
 assert(buscar({ 'decoration', 'shadow', 'color' }):match('^rgba%('), 'sombra sin color')
 assert(buscar({ 'general', 'border_size' }) == 2)
 

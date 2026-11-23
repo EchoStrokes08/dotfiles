@@ -281,7 +281,7 @@ Superpuesta {
 
                             RectangularShadow {
                                 anchors.fill: parent
-                                visible: EstiloPanel.efectos
+                                visible: EstiloPanel.profundidad
                                 radius: 16
                                 offset.y: 8; blur: 26; spread: -8
                                 color: celda.esActivo || celda.resaltada ? Qt.alpha(Paleta.acento, .35) : Qt.alpha("black", .55)

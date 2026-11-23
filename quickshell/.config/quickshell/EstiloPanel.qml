@@ -69,6 +69,12 @@ Singleton {
     readonly property bool efectos: EstadoEscritorio.perfil === "cristal"
         && EstadoEscritorio.datos.bateria !== "true"
         && EstadoEscritorio.datos.juego_activo !== "true"
+    // Profundidad: sombras, luz ambiental del tema y filos de luz. Son estáticas y casi gratis, así que
+    // siguen en lectura y con batería (allí solo se quita el cristal translúcido). Fuera en mínimo,
+    // rendimiento y juego, donde se pide la interfaz más sobria y rápida posible.
+    readonly property bool profundidad: EstadoEscritorio.perfil !== "minimo"
+        && EstadoEscritorio.perfil !== "rendimiento"
+        && EstadoEscritorio.datos.juego_activo !== "true"
     // ¿Hay blur de Hyprland detrás de los paneles? Lo apagan los mismos casos y además el perfil lectura (politicas.lua)
     readonly property bool conBlur: efectos && EstadoEscritorio.perfil === "cristal"
     // Opacidad del cristal de los paneles: con blur basta 0.93 para que no se lea lo de detrás; sin blur, opaco

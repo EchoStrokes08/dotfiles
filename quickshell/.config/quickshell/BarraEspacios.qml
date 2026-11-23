@@ -35,7 +35,7 @@ Item {
         Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
         RectangularShadow {
             anchors.fill: parent
-            visible: EstiloPanel.efectos
+            visible: EstiloPanel.profundidad
             radius: 12; offset.y: 2; blur: 12; spread: -3
             color: Qt.alpha(Paleta.acento, .55)
         }

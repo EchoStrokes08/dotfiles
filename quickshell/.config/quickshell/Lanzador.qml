@@ -835,7 +835,7 @@ PanelWindow {
                         Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
                         RectangularShadow {
                             anchors.fill: parent
-                            visible: EstiloPanel.efectos
+                            visible: EstiloPanel.profundidad
                             radius: 16; offset.y: 4; blur: 18; spread: -8
                             color: Qt.alpha("black", .28)
                         }

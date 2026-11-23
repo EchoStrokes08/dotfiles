@@ -20,7 +20,7 @@ TextField {
         // anillo de foco que "brilla" alrededor del campo
         RectangularShadow {
             anchors.fill: parent
-            visible: EstiloPanel.efectos
+            visible: EstiloPanel.profundidad
             opacity: campo.activeFocus ? 1 : 0
             radius: 12
             blur: 16; spread: -3

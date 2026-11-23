@@ -170,3 +170,21 @@ El acento queda para el borde, el icono y la marca lateral.
 
 Se reproduce con `python3 tests/previsualizar_orion.py --fase5` (componentes reales, datos simulados). El mensaje propio en el agente usa
 `elevada` con `bordeFuerte`. Las medallas de cabecera usan `elevada` con `bordeSeleccion`.
+
+## ORION · Profundidad (23-11-2026)
+
+Dos interruptores distintos en `EstiloPanel`:
+
+- **`efectos`** = cristal translúcido con blur. Solo en el perfil cristal, enchufado y sin juego.
+- **`profundidad`** = sombras, luz ambiental del tema y filos de luz. Siguen en lectura y con batería,
+  porque son estáticas y casi gratis. Se apagan en mínimo, rendimiento y juego.
+
+Lectura es opaco, no plano. Todo componente nuevo usa `profundidad` para sus sombras y luces.
+
+`FondoPanel` ilumina la tarjeta desde dos lados: el acento arriba a la izquierda (8,5 %) y una
+contraluz de `acento2` abajo a la derecha (5,5 %), más un filo superior que se nota.
+
+Ventanas (Hyprland): esquinas de 14 px. La ventana activa lleva un borde en degradado de 45°
+(acento → acento2), que gira una vez al recibir el foco (`borderangle`, `once`: sin bucle, no gasta
+batería), y proyecta un resplandor del acento. Las inactivas llevan una sombra neutra.
+En la Lua de Hyprland el degradado se escribe `{ colors = { … }, angle = 45 }`, no como texto.

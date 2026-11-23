@@ -14,7 +14,7 @@ Item {
 
     RectangularShadow {
         anchors.fill: pista
-        visible: EstiloPanel.efectos && sw.activo
+        visible: EstiloPanel.profundidad && sw.activo
         radius: pista.radius
         blur: 14; spread: -4
         color: Qt.alpha(sw.acento, .45)

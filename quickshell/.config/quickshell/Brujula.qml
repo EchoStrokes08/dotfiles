@@ -233,7 +233,7 @@ Superpuesta {
                 x: 4 + br.pestana * width
                 Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
                 RectangularShadow {
-                    anchors.fill: parent; visible: EstiloPanel.efectos
+                    anchors.fill: parent; visible: EstiloPanel.profundidad
                     radius: 12; offset.y: 4; blur: 18; spread: -6
                     color: Qt.alpha("black", .28)
                 }

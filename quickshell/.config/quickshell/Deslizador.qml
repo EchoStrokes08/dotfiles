@@ -63,7 +63,7 @@ RowLayout {
             Behavior on height { NumberAnimation { duration: EstiloPanel.rapido } }
             RectangularShadow {   // resplandor bajo la parte llena
                 width: relleno.width; height: parent.height
-                visible: EstiloPanel.efectos && !raiz.apagado && raiz.v > 0
+                visible: EstiloPanel.profundidad && !raiz.apagado && raiz.v > 0
                 radius: parent.radius; blur: 12; spread: -2
                 color: Qt.alpha(raiz.tono, .35)
             }
