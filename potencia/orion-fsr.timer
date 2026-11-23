@@ -1,9 +1,10 @@
 [Unit]
-Description=Revisar cambios en las bibliotecas de juegos de Steam
+Description=Revisar las bibliotecas de juegos de Steam al iniciar sesión
 
 [Timer]
+# Una sola revisión por sesión. Los cambios posteriores los detecta orion-fsr.path
+# (antes se revisaba cada 30 s todo el día, aunque Steam no se usara).
 OnStartupSec=30
-OnUnitInactiveSec=30
 
 [Install]
 WantedBy=timers.target

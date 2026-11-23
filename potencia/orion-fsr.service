@@ -5,5 +5,9 @@ ConditionPathExists=/usr/bin/gamescope
 
 [Service]
 Type=oneshot
+# Lo lanza orion-fsr.path cuando cambia algo en steamapps (juego instalado o actualizado) y orion-fsr.timer
+# una vez al iniciar sesión. Si Steam está abierto, espera aquí (sin gastar CPU) a que lo cierres.
+ExecStartPre=/bin/sh -c 'while pgrep -u %U -x steam >/dev/null; do pidwait -u %U -x steam; sleep 5; done'
 ExecStart=/usr/bin/python3 %h/dotfiles/potencia/configurar-fsr.py --automatico
+TimeoutStartSec=infinity
 UMask=0077

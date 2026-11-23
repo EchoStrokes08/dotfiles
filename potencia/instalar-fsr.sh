@@ -15,6 +15,7 @@ unidades="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
 mkdir -p "$unidades"
 install -m644 "$carpeta/orion-fsr.service" "$unidades/orion-fsr.service"
 install -m644 "$carpeta/orion-fsr.timer" "$unidades/orion-fsr.timer"
+install -m644 "$carpeta/orion-fsr.path" "$unidades/orion-fsr.path"
 systemctl --user daemon-reload
-systemctl --user enable --now orion-fsr.timer
-echo 'Actualización automática activa: detecta nuevas instalaciones en todas las bibliotecas cuando Steam está cerrado.'
+systemctl --user enable --now orion-fsr.timer orion-fsr.path
+echo 'Actualización automática activa: al instalar o actualizar un juego, se configura en cuanto cierras Steam.'

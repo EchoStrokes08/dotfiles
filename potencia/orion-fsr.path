@@ -1,0 +1,10 @@
+[Unit]
+Description=Vigilar instalaciones y actualizaciones de juegos de Steam
+
+[Path]
+# appmanifest_*.acf y libraryfolders.vdf viven aquí: cambian al instalar, actualizar o desinstalar un juego
+PathChanged=%h/.local/share/Steam/steamapps
+Unit=orion-fsr.service
+
+[Install]
+WantedBy=default.target
