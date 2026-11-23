@@ -125,6 +125,8 @@ PanelWindow {
     property int movilCarga: -1
     property bool movilCargando: false
     property bool movilEmparejado: false
+    property string movilVia: ""
+    property var movilFunciones: []
     Process {
         id: lectorMovil
         command: [Quickshell.env("HOME") + "/.config/hypr/scripts/movil.py", "estado"]
@@ -137,6 +139,8 @@ PanelWindow {
                 ventana.movilCarga = d.bateria ?? -1;
                 ventana.movilCargando = !!d.cargando;
                 ventana.movilEmparejado = !!d.emparejado;
+                ventana.movilVia = d.via || "";
+                ventana.movilFunciones = d.funciones || [];
                 ventana.movilListo = true;
             }
         }
@@ -477,20 +481,97 @@ PanelWindow {
                 Text { Layout.fillWidth: true; visible: ventana.movilError !== ""; text: ventana.movilError; wrapMode: Text.Wrap; color: Paleta.aviso; font { family: Paleta.fuente; pixelSize: 12 } }
                 BotonCompacto { visible: ventana.movilError !== ""; text: "Reintentar"; enabled: !lectorMovil.running; onClicked: lectorMovil.running=true }
                 Text { Layout.fillWidth:true; visible: ventana.movilActualizado>0; text: "Última lectura · "+Qt.formatDateTime(new Date(ventana.movilActualizado),"HH:mm:ss"); color: EstiloPanel.tenue; font.pixelSize:11 }
-                // conectado: nombre, batería y acciones
-                RowLayout {
+                // conectado: tarjeta con el teléfono dibujado, cuya pantalla se llena con la batería
+                Rectangle {
+                    id: heroMovil
                     visible: ventana.movilNombre !== ""
                     Layout.fillWidth: true
-                    spacing: 12
-                    Text { text: ventana.g(0xF011C); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 26 } }
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 0
-                        Text { text: ventana.movilNombre; color: Paleta.texto; elide: Text.ElideRight; Layout.fillWidth: true; font { family: Paleta.fuente; pixelSize: 14; bold: true } }
-                        Text {
-                            text: ventana.movilCarga >= 0 ? `Batería ${ventana.movilCarga} %` + (ventana.movilCargando ? " · cargando" : "") : "Conectado"
-                            color: ventana.movilCargando ? Paleta.exito : ventana.movilCarga >= 0 && ventana.movilCarga <= 15 ? Paleta.peligro : EstiloPanel.tenue
-                            font { family: Paleta.fuente; pixelSize: 12 }
+                    implicitHeight: 112
+                    radius: EstiloPanel.rTarjeta
+                    readonly property real carga: Math.max(0, ventana.movilCarga) / 100
+                    readonly property color tono: ventana.movilCargando ? Paleta.exito
+                        : ventana.movilCarga >= 0 && ventana.movilCarga <= 15 ? Paleta.peligro : Paleta.acento
+                    color: EstiloPanel.superficie
+                    border { width: 1; color: EstiloPanel.borde }
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0; color: Qt.tint(EstiloPanel.superficie, Qt.alpha(heroMovil.tono, .10)) }
+                        GradientStop { position: .6; color: EstiloPanel.superficie }
+                    }
+                    RowLayout {
+                        anchors { fill: parent; margins: 16 }
+                        spacing: 16
+                        // el teléfono
+                        Item {
+                            Layout.preferredWidth: 46; Layout.preferredHeight: 80
+                            RectangularShadow {
+                                anchors.fill: cuerpo
+                                visible: EstiloPanel.profundidad
+                                radius: EstiloPanel.rControl; blur: 18; spread: -2
+                                color: Qt.alpha(heroMovil.tono, .35)
+                            }
+                            Rectangle {
+                                id: cuerpo
+                                anchors.fill: parent
+                                radius: EstiloPanel.rControl
+                                color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.texto, .08))
+                                border { width: 1.5; color: Qt.alpha(heroMovil.tono, .7) }
+                                Rectangle {   // pantalla: se llena desde abajo con la carga
+                                    anchors { fill: parent; margins: 4 }
+                                    radius: EstiloPanel.rChip
+                                    color: Qt.alpha(Paleta.fondo, .9)
+                                    clip: true
+                                    Rectangle {
+                                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+                                        height: parent.height * heroMovil.carga
+                                        radius: EstiloPanel.rChip
+                                        gradient: Gradient {
+                                            GradientStop { position: 0; color: Qt.lighter(heroMovil.tono, 1.15) }
+                                            GradientStop { position: 1; color: Qt.alpha(heroMovil.tono, .55) }
+                                        }
+                                        Behavior on height { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
+                                    }
+                                    Text {
+                                        anchors.centerIn: parent
+                                        visible: ventana.movilCargando
+                                        text: ventana.g(0xF0E7)
+                                        color: Paleta.fondo
+                                        font { family: Paleta.fuente; pixelSize: 16 }
+                                    }
+                                }
+                                Rectangle {   // cámara
+                                    width: 10; height: 3; radius: height / 2
+                                    anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 8 }
+                                    color: Qt.alpha(Paleta.texto, .35)
+                                }
+                            }
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Text { Layout.fillWidth: true; text: ventana.movilNombre; color: Paleta.texto; elide: Text.ElideRight; font { family: Paleta.fuente; pixelSize: 16; bold: true } }
+                            Text {
+                                Layout.fillWidth: true
+                                text: (ventana.movilVia === "LAN" ? "Conectado por Wi-Fi" : ventana.movilVia ? "Conectado por " + ventana.movilVia : "Conectado")
+                                      + (ventana.movilCargando ? " · cargando" : "")
+                                color: EstiloPanel.tenue; elide: Text.ElideRight
+                                font { family: Paleta.fuente; pixelSize: 12 }
+                            }
+                            RowLayout {
+                                visible: ventana.movilCarga >= 0
+                                Layout.fillWidth: true; Layout.topMargin: 4
+                                spacing: 8
+                                Rectangle {
+                                    Layout.fillWidth: true; implicitHeight: 6; radius: height / 2
+                                    color: EstiloPanel.velo
+                                    Rectangle {
+                                        width: parent.width * heroMovil.carga; height: parent.height; radius: height / 2
+                                        color: heroMovil.tono
+                                        Behavior on width { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
+                                    }
+                                }
+                                Text { text: ventana.movilCarga + " %"; color: heroMovil.tono; font { family: Paleta.mono; pixelSize: 12; bold: true } }
+                            }
                         }
                     }
                 }
@@ -504,6 +585,32 @@ PanelWindow {
                     BotonPanel { text: "Sus archivos"; simbolo: ventana.g(0xF024B); onClicked: ventana.movil(["navegar"], true) }
                     BotonPanel { text: "Mensajes (SMS)"; simbolo: ventana.g(0xF0361); onClicked: ventana.ejecutar("kdeconnect-sms", true) }
                     BotonPanel { text: "Avisos y respuestas"; simbolo: ventana.g(0xF009A); onClicked: ventana.ejecutar("qs ipc call movil avisos", true) }
+                }
+                // Qué está compartido con el móvil (KDE Connect); se cambia en Avisos y respuestas
+                Text {
+                    visible: ventana.movilNombre !== "" && ventana.movilFunciones.length > 0
+                    Layout.topMargin: 4
+                    text: "COMPARTIDO CON EL MÓVIL"
+                    color: EstiloPanel.tenue
+                    font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1 }
+                }
+                Repeater {
+                    model: ventana.movilNombre !== "" ? ventana.movilFunciones : []
+                    RowLayout {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        spacing: 12
+                        Rectangle {
+                            implicitWidth: 8; implicitHeight: 8; radius: height / 2
+                            color: modelData.activa ? Paleta.exito : EstiloPanel.velo
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
+                            Text { Layout.fillWidth: true; text: modelData.nombre; elide: Text.ElideRight; color: modelData.activa ? Paleta.texto : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12; weight: Font.Medium } }
+                            Text { Layout.fillWidth: true; text: modelData.detalle || ""; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                        }
+                    }
                 }
                 Text {
                     visible: !ventana.movilListo
