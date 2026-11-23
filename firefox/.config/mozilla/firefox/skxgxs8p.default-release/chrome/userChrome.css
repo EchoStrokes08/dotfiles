@@ -54,10 +54,28 @@
   --toolbarbutton-icon-fill: var(--ayu-texto) !important;
 }
 
-/* Raya naranja bajo la pestaña activa (como el workspace activo en la barra) */
-.tabbrowser-tab[selected] .tab-background {
-  box-shadow: inset 0 -2px 0 var(--ayu-naranja) !important;
+/* ── ORION · formas (23-11-2026): el mismo lenguaje que los paneles ──────────────
+ * Pestañas en cápsula; la activa con tinte, borde y resplandor del acento (como la pastilla
+ * del espacio activo en la barra). Barra de direcciones que brilla al escribir. Menús redondeados. */
+.tab-background {
+  border-radius: 10px !important;
+  margin-block: 4px !important;
 }
+.tabbrowser-tab[selected] .tab-background {
+  background: color-mix(in srgb, var(--ayu-naranja) 12%, var(--ayu-fondo)) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ayu-naranja) 55%, transparent),
+              0 0 14px color-mix(in srgb, var(--ayu-naranja) 22%, transparent) !important;
+}
+.tabbrowser-tab:not([selected]):hover .tab-background {
+  background: color-mix(in srgb, var(--ayu-texto) 6%, transparent) !important;
+}
+#urlbar-background { border-radius: 12px !important; }
+#urlbar[focused] #urlbar-background {
+  box-shadow: 0 0 0 1px var(--ayu-naranja),
+              0 0 18px color-mix(in srgb, var(--ayu-naranja) 28%, transparent) !important;
+}
+:root { --panel-border-radius: 12px !important; --arrowpanel-border-radius: 14px !important; }
+menupopup { --panel-border-radius: 12px !important; }
 
 /* Fondo de la fila de pestañas: el navegador a veces lo pinta directo, sin variable */
 #navigator-toolbox, #TabsToolbar {
