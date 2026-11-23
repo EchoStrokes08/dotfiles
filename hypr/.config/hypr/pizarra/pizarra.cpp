@@ -33,6 +33,7 @@ public:
     QString aviso;
     int paginas=0;
     bool dibujar=false;
+    bool encima=false;
     std::optional<QPointF> origen;
     QPointF extremo;
     std::function<void()> cambio;
@@ -41,7 +42,7 @@ public:
     explicit Tarjeta(Json j): datos(std::move(j)) {
         setFlags(ItemIsMovable|ItemIsSelectable|ItemSendsGeometryChanges);
         setPos(datos["x"].toDouble(),datos["y"].toDouble());
-        setCursor(Qt::OpenHandCursor);
+        setCursor(Qt::OpenHandCursor);setAcceptHoverEvents(true);
         if (tipo()=="imagen") {
             QImageReader r(campo(datos,"ruta")); r.setAutoTransform(true);
             auto size=r.size(); if (size.isValid()) r.setScaledSize(size.scaled(1200,1000,Qt::KeepAspectRatio));
@@ -58,8 +59,10 @@ public:
     }
     QString tipo() const {return campo(datos,"tipo");}
     bool visual() const {return tipo()=="imagen" || tipo()=="pdf";}
-    QRectF boundingRect() const override {return {0,0,visual()?336.:290.,visual()?294.:tipo()=="nota"?214.:154.};}
-    QRectF area() const {return boundingRect().adjusted(12,41,-12,-43);}
+    QRectF caja() const {return {0,0,visual()?336.:290.,visual()?294.:tipo()=="nota"?214.:154.};}
+    QRectF boundingRect() const override {return caja().adjusted(-18,-14,18,26);}   // incluye la sombra
+    QPainterPath shape() const override {QPainterPath p;p.addRoundedRect(caja(),14,14);return p;}
+    QRectF area() const {return caja().adjusted(12,41,-12,-43);}
     QRectF foto() const {
         if(imagen.isNull()) return area();
         QSizeF size=imagen.size(); size.scale(area().size(),Qt::KeepAspectRatio);
@@ -98,11 +101,22 @@ public:
     }
     void paint(QPainter *p,const QStyleOptionGraphicsItem*,QWidget*) override {
         p->setRenderHint(QPainter::Antialiasing);p->setRenderHint(QPainter::SmoothPixmapTransform);
-        auto r=boundingRect().adjusted(1,1,-1,-1);
+        auto r=caja().adjusted(1,1,-1,-1);
         QString t=tipo();
+        // Sombra suave en capas: separa la tarjeta del lienzo y crece al pasar o seleccionar.
+        const double alto=isSelected()?1.6:encima?1.3:1.;
+        p->setPen(Qt::NoPen);
+        for(int i=6;i>=1;--i){
+            p->setBrush(QColor(0,0,0,int((isSelected()?15:11)*alto)));
+            p->drawRoundedRect(r.adjusted(-i*1.6,-i*.8+2*alto,i*1.6,i*2.2*alto+2),14+i*1.6,14+i*1.6);
+        }
         QColor tinta=t=="nota"?QColor("#e4c985"):t=="pdf"?QColor("#eba990"):t=="imagen"?QColor("#9acabe"):t=="enlace"?QColor("#aebef1"):QColor("#c4aadf");
         QColor base=mezcla(::panel,tinta,t=="nota"?.16:.05);
-        p->setPen(QPen(isSelected()?acento:mezcla(base,texto,.17),isSelected()?2:1));p->setBrush(base);p->drawRoundedRect(r,14,14);
+        p->setPen(QPen(isSelected()?acento:mezcla(base,texto,encima?.30:.15),isSelected()?2:1));p->setBrush(base);p->drawRoundedRect(r,14,14);
+        // brillo superior sutil: da volumen sin cambiar el tono
+        QLinearGradient brillo(r.topLeft(),r.topLeft()+QPointF(0,60));
+        brillo.setColorAt(0,QColor(255,255,255,encima?16:10));brillo.setColorAt(1,QColor(255,255,255,0));
+        p->setPen(Qt::NoPen);p->setBrush(brillo);p->drawRoundedRect(r.adjusted(1,1,-1,-1),13,13);
         auto linea=[&](QRectF rect,QString str,QColor color,int px,bool bold=false,bool mono=false) {
             p->setFont(letra(px,bold,mono));p->setPen(color);
             p->drawText(rect,Qt::AlignLeft|Qt::AlignVCenter,p->fontMetrics().elidedText(str,Qt::ElideRight,int(rect.width())));
@@ -152,6 +166,8 @@ public:
         if(e->button()==Qt::LeftButton && (tipo()=="enlace" || tipo()=="ventana") && e->pos().y()>112 &&
            (e->screenPos()-e->buttonDownScreenPos(Qt::LeftButton)).manhattanLength()<5) activar(this);
     }
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *e) override {encima=true;update();QGraphicsObject::hoverEnterEvent(e);}
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *e) override {encima=false;update();QGraphicsObject::hoverLeaveEvent(e);}
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) override { if(!dibujar)activar(this);e->accept(); }
 };
 
@@ -460,7 +476,7 @@ public:
         const QHash<QString,QString> iconos{{"Archivo","document-open"},{"Enlace","insert-link"},
             {"Ventana","window-new"},{"Quitar","edit-delete"},{"Encuadrar","zoom-fit-best"}};
         for (auto *b : findChildren<QPushButton*>()) {
-            if (iconos.contains(b->text())) b->setIcon(QIcon::fromTheme(iconos.value(b->text())));
+            if (iconos.contains(b->text())) {b->setIcon(QIcon::fromTheme(iconos.value(b->text())));b->setText(" "+b->text());}
         }
         setStyleSheet(QStringLiteral("QWidget{background:%1;color:%2;} QLabel#sec{color:%3;} QLabel#marca{color:%4;font-size:28px;} QWidget#cabecera{background:%5;} QWidget#cabecera QLabel{background:transparent;} QPushButton,QComboBox{padding:6px 11px;border:1px solid %6;border-radius:7px;background:%5;} QPushButton:hover,QComboBox:hover{border-color:%3;} QPushButton:focus,QComboBox:focus{border-color:%4;} QPushButton:checked,QPushButton#primario{background:%4;color:%7;} QPushButton:disabled{color:%6;border-color:%6;} QLineEdit,QTextEdit,QListWidget{padding:8px;border:1px solid %6;border-radius:6px;} QListWidget::item:selected{background:%6;}").arg(fondo.name(),texto.name(),tenue.name(),acento.name(),panel.name(),mezcla(panel,texto,.19).name(),acento.lightnessF()>.5?"#101419":"#ffffff"));
         guardado.setSingleShot(true);guardado.setInterval(260);connect(&guardado,&QTimer::timeout,this,[this]{guardar();});
@@ -488,6 +504,8 @@ public:
 int main(int argc,char **argv) {
     QApplication app(argc,argv);app.setApplicationName("orion-pizarra");app.setDesktopFileName("orion-pizarra");
     app.setStyle("Fusion");cargarTema();
+    QTranslator qt;   // botones estándar de los diálogos en el idioma del sistema
+    if(qt.load(QLocale(),"qtbase","_",QLibraryInfo::path(QLibraryInfo::TranslationsPath)))app.installTranslator(&qt);
     auto args=app.arguments();if(args.size()<2)return 1;
     Pizarra w(args[1]);w.showFullScreen();app.processEvents();
     if(!w.iniciar(args.value(2)))return 1;
