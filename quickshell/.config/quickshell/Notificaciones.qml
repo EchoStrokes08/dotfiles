@@ -14,7 +14,7 @@ Singleton {
 
     property var pendientes: []
     readonly property var lista: servidor.trackedNotifications.values.filter(n => !pendientes.includes(n))
-    readonly property var grupos: Logica.agrupar(lista)
+    readonly property var grupos: Logica.agrupar(lista, nombreApp)
     property var expandidos: ({})
     function desplegar(clave) { const nuevos=Object.assign({},expandidos); nuevos[clave]=!nuevos[clave]; expandidos=nuevos; }
     property var emergentes: []
@@ -112,7 +112,7 @@ Singleton {
         const quitar = (x) => String(x ?? "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
         const titulo = quitar(n.summary), cuerpo = quitar(n.body);
         if (/(c[oó]digo|code|otp|verificaci|contraseña|password|2fa)/i.test(titulo + " " + cuerpo) && /\b\d{4,8}\b/.test(cuerpo)) return;
-        const linea = JSON.stringify({ t: Date.now(), app: quitar(n.appName) || "Aplicación", titulo: titulo.slice(0, 160), cuerpo: cuerpo.slice(0, 280) });
+        const linea = JSON.stringify({ t: Date.now(), app: quitar(n.appName) || nombreApp(n) || "Aplicación", titulo: titulo.slice(0, 160), cuerpo: cuerpo.slice(0, 280) });
         Quickshell.execDetached(["sh", "-c", 'mkdir -p "$(dirname "$1")"; printf "%s\\n" "$2" >> "$1"; ' +
             'if [ $(wc -l < "$1") -gt 550 ]; then tail -n 500 "$1" > "$1.tmp" && mv "$1.tmp" "$1"; fi', "_", archivoHistorial, linea]);
     }
@@ -160,6 +160,13 @@ Singleton {
         if (s < 3600) return `hace ${Math.floor(s / 60)} min`;
         if (s < 86400) return `hace ${Math.floor(s / 3600)} h`;
         return new Date(t).toLocaleDateString(Qt.locale("es_ES"), "d MMM");
+    }
+
+    // Nombre de la app cuando el aviso no trae appName: el de su entrada de escritorio
+    function nombreApp(n) {
+        if (n.appName) return n.appName;
+        const e = n.desktopEntry ? DesktopEntries.heuristicLookup(n.desktopEntry) : null;
+        return e ? e.name : "";
     }
 
     // Icono de la app: puede llegar como nombre de tema, ruta o URL

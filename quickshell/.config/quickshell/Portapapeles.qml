@@ -46,6 +46,15 @@ Superpuesta {
         return q === "" ? entradas : entradas.filter(e => !e.imagen && e.texto.toLowerCase().includes(q));
     }
 
+    function clase(t) {
+        const s = String(t || "").trim();
+        if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) return { glifo: 0xF03D8, tinte: Paleta.acento, color: s };
+        if (/^(https?:\/\/|www\.)\S+$/i.test(s)) return { glifo: 0xF0339, tinte: Paleta.acento2 };
+        if (/^(~\/|\/[\w.-]|file:\/\/)[^\n*]*$/.test(s) && s.length < 200 && !/\s{2}/.test(s)) return { glifo: 0xF024B, tinte: Paleta.aviso };
+        if (/^(\$ |sudo |cd |git |npm |python3? |paru |pacman |systemctl |hyprctl |qs |\.\/)/.test(s) || /[|&]{2}|\|\s*\w/.test(s) && !/\s{3}/.test(s) && s.length < 300)
+            return { glifo: 0xF018D, tinte: Paleta.exito };
+        return { glifo: 0xF039A, tinte: EstiloPanel.tenue };
+    }
     function copiar(e) {
         if (!e) return;
         sh(`cliphist decode ${e.id} | wl-copy`);
@@ -120,7 +129,7 @@ Superpuesta {
                 required property var modelData
                 required property int index
                 width: lista.width
-                height: modelData.imagen ? 84 : 40
+                height: modelData.imagen ? 84 : 44
 
                 RowLayout {
                     anchors { fill: parent; leftMargin: 16; rightMargin: 8 }
@@ -136,6 +145,22 @@ Superpuesta {
                             fillMode: Image.PreserveAspectCrop
                             asynchronous: true
                             cache: false
+                        }
+                    }
+                    // Qué es cada entrada de un vistazo: enlace, ruta, comando, color o texto
+                    Rectangle {
+                        visible: !fila.modelData.imagen
+                        readonly property var clase: pp.clase(fila.modelData.texto)
+                        implicitWidth: 28; implicitHeight: 28; radius: EstiloPanel.rChip
+                        color: clase.color ? clase.color : Qt.alpha(clase.tinte, lista.currentIndex === fila.index ? .20 : .11)
+                        border.width: clase.color ? 1 : 0
+                        border.color: EstiloPanel.bordeFuerte
+                        Text {
+                            anchors.centerIn: parent
+                            visible: !parent.clase.color
+                            text: String.fromCodePoint(parent.clase.glifo)
+                            color: parent.clase.tinte
+                            font { family: Paleta.mono; pixelSize: 14 }
                         }
                     }
                     Text {

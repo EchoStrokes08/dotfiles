@@ -470,7 +470,10 @@ PanelWindow {
         if (modo === "avisos") return buscarAvisos(normalizar(t.slice(1).trim()));
         if (EstadoEscritorio.privacidad && ["externo","archivos","plantillas"].includes(modo)) return [{nombre:"Detalles ocultos por privacidad",detalle:"Desactiva privacidad para consultar archivos, historial o textos personales.",accion:null}];
         if (modo === "externo") {
-            const tipo = externosTipos[t.match(/^(\w+)/)[1].toLowerCase()];
+            // modo y texto pueden actualizarse en distinto orden al borrar: sin prefijo válido, aún no hay nada que mostrar
+            const prefijo = t.match(/^(\w+)/);
+            const tipo = prefijo && externosTipos[prefijo[1].toLowerCase()];
+            if (!tipo) return [];
             if (externosDe !== t && externos.length === 0)
                 return [{ nombre: tipo[1], detalle: "Buscando…", glifo: tipo[2], accion: null }];
             if (externos.length === 0)

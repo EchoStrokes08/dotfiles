@@ -297,9 +297,9 @@ Superpuesta {
                 ColumnLayout {
                     id: hoyCol; width: parent.width; spacing: 12
                     HoyCabecera { Layout.fillWidth: true }
-                    BotonPanel {
-                        text: "Abrir pizarra"
-                        simbolo: br.g("f0252")
+                    AccesoPizarra {
+                        proyecto: Continuidad.ultimo ? Continuidad.ultimo.nombre || "" : ""
+                        siguiente: Continuidad.ultimo ? Continuidad.ultimo.siguiente || "" : ""
                         visible: !EstadoEscritorio.privacidad
                         onClicked: {
                             br.abierto = false;

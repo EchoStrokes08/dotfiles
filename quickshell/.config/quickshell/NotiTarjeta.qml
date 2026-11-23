@@ -109,7 +109,7 @@ Rectangle {
                 Layout.fillWidth: true
                 Text {
                     Layout.fillWidth: true
-                    text: EstadoEscritorio.privacidad ? "Aplicación" : tarjeta.noti.appName || "Aviso"
+                    text: EstadoEscritorio.privacidad ? "Aplicación" : Notificaciones.nombreApp(tarjeta.noti) || "Aviso"
                     color: tarjeta.noti.urgency === NotificationUrgency.Critical ? Paleta.peligro : EstiloPanel.tenue
                     elide: Text.ElideRight
                     font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 0.5; capitalization: Font.AllUppercase }
