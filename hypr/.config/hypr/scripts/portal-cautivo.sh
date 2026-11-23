@@ -36,7 +36,7 @@ abrir() {
     if command -v firefox >/dev/null; then firefox --new-window "$destino" >/dev/null 2>&1 &
     else xdg-open "$destino" >/dev/null 2>&1 & fi
 }
-red() { nmcli -t -f ACTIVE,SSID dev wifi 2>/dev/null | sed -n 's/^yes://p' | head -1; }
+red() { LC_ALL=C nmcli -t -f ACTIVE,SSID dev wifi 2>/dev/null | sed -n 's/^yes://p' | head -1; }
 estado() { nmcli -t -f CONNECTIVITY general 2>/dev/null; }
 
 vigilar() {

@@ -16,3 +16,9 @@ hl.env("XDG_DATA_DIRS", "/usr/local/share:/usr/share:/var/lib/flatpak/exports/sh
 
 -- Mismo mapa de respaldo para clientes Wayland arrancados por el compositor.
 hl.env("XKB_DEFAULT_LAYOUT", "latam")
+
+-- Textos de las apps en español (Thunar, GTK, Qt…). Solo LC_MESSAGES: LANG sigue en C.UTF-8 para que
+-- números, fechas y la salida de los scripts no cambien. Los servicios de systemd/D-Bus lo toman de
+-- ~/.config/environment.d/81-idioma.conf. Ojo: nmcli traduce «yes» → «sí»; quien lo lea, con LC_ALL=C.
+hl.env("LC_MESSAGES", "es_MX.UTF-8")
+hl.env("LANGUAGE",    "es_MX:es")

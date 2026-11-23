@@ -13,7 +13,7 @@
 CONF="$HOME/.config/lugares.conf"
 ULTIMA="${XDG_RUNTIME_DIR:-/tmp}/lugar-red"
 
-red_actual() { nmcli -t -f active,ssid dev wifi 2>/dev/null | awk -F: '$1=="yes"{print substr($0,5); exit}'; }
+red_actual() { LC_ALL=C nmcli -t -f active,ssid dev wifi 2>/dev/null | awk -F: '$1=="yes"{print substr($0,5); exit}'; }
 
 regla() {   # regla <ssid> -> «lugar|energia|volumen|nomolestar» ("" si no hay)
     [ -f "$CONF" ] || return
