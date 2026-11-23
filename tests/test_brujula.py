@@ -252,6 +252,7 @@ class Sugerencias(Base):
             {"id": "p1", "nombre": "Taller de redes", "siguiente": "Configurar las VLAN"}]}))
         import salud
         with patch.object(sugerencias, "STATE", state), patch.object(sugerencias, "HOME", self.root), \
+                patch.object(sugerencias, "RESPALDO", self.root / "sin-respaldo"), \
                 patch.object(salud, "todo", lambda: {"comprobaciones": []}), \
                 patch.object(b, "config", lambda: {"reglas": [], "sugerencias": {"distracciones": ["discord"]}, "linea": {}, "sesion": {}}):
             d = sugerencias.calcular()

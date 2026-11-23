@@ -22,6 +22,7 @@ import brujula as b  # noqa: E402
 HOME = Path.home()
 STATE = Path(os.environ.get("XDG_STATE_HOME", HOME / ".local/state"))
 SCRIPTS = Path(__file__).parent
+RESPALDO = Path("/var/lib/respaldo/ultima")
 
 
 def duracion(s):
@@ -184,7 +185,7 @@ def calcular():
 
     # 5. Copia de seguridad atrasada
     try:
-        ultima = int(Path("/var/lib/respaldo/ultima").read_text().strip() or 0)
+        ultima = int(RESPALDO.read_text().strip() or 0)
     except (OSError, ValueError):
         ultima = 0
     if ultima and (dt.datetime.now().timestamp() - ultima) > 5 * 86400:
