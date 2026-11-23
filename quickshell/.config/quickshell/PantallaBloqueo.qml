@@ -27,20 +27,54 @@ WlSessionLockSurface {
         // ── Fondo: el wallpaper desenfocado y oscurecido ──
         Image {
             id: fondo
-            anchors.fill: parent
+            anchors { fill: parent; margins: -80 }   // más grande que la pantalla: el desenfoque no deja bordes claros
             source: "file://" + Quickshell.env("HOME") + "/.local/state/tema/wallpaper"
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
             visible: false
         }
         MultiEffect {
-            anchors.fill: parent
+            anchors { fill: parent; margins: -80 }
             source: fondo
             blurEnabled: true
             blur: 1.0
             blurMax: 64
-            brightness: -0.45
-            saturation: 0.1
+            brightness: -0.42
+            saturation: 0.45
+        }
+        // Luz del acento detrás del reloj y contraluz del segundo color abajo
+        Rectangle {
+            anchors.fill: parent
+            gradient: Gradient {
+                GradientStop { position: 0;   color: Qt.alpha(Paleta.fondo, .15) }
+                GradientStop { position: .55; color: "transparent" }
+                GradientStop { position: 1;   color: Qt.alpha(Paleta.fondo, .65) }
+            }
+        }
+        Item {
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: -150
+            width: 900; height: 600
+            opacity: .55
+            Rectangle {
+                anchors.centerIn: parent
+                width: 520; height: 360; radius: height / 2
+                color: Qt.alpha(Paleta.acento, .45)
+                layer.enabled: true
+                layer.effect: MultiEffect { blurEnabled: true; blur: 1; blurMax: 64 }
+            }
+        }
+        Item {
+            anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: -120 }
+            width: 1100; height: 420
+            opacity: .12
+            Rectangle {
+                anchors.centerIn: parent
+                width: 760; height: 240; radius: height / 2
+                color: Qt.alpha(Paleta.acento2, .5)
+                layer.enabled: true
+                layer.effect: MultiEffect { blurEnabled: true; blur: 1; blurMax: 64 }
+            }
         }
 
         // ── Centro ──
@@ -48,6 +82,58 @@ WlSessionLockSurface {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -10
             spacing: 0
+
+            // Tu foto (~/.face) o tu inicial, en un círculo con el degradado del tema
+            Item {
+                id: avatar
+                Layout.alignment: Qt.AlignHCenter
+                Layout.bottomMargin: 12
+                implicitWidth: 64; implicitHeight: 64
+                readonly property string usuario: Quickshell.env("USER") || "?"
+                RectangularShadow {
+                    anchors.fill: parent
+                    radius: width / 2; blur: 32; spread: -4
+                    color: Qt.alpha(Paleta.acento, .45)
+                }
+                Rectangle {   // aro en degradado
+                    anchors.fill: parent
+                    radius: width / 2
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0; color: Paleta.acento }
+                        GradientStop { position: 1; color: Paleta.acento2 }
+                    }
+                }
+                Rectangle {
+                    anchors { fill: parent; margins: 4 }
+                    radius: width / 2
+                    color: Qt.darker(Paleta.fondo, 1.2)
+                    Text {
+                        anchors.centerIn: parent
+                        visible: foto.status !== Image.Ready
+                        text: avatar.usuario.charAt(0).toUpperCase()
+                        color: Paleta.texto
+                        font { family: Paleta.fuente; pixelSize: 26; weight: Font.Bold }
+                    }
+                    Image {
+                        id: foto
+                        anchors.fill: parent
+                        source: "file://" + Quickshell.env("HOME") + "/.face"
+                        fillMode: Image.PreserveAspectCrop
+                        visible: false
+                        asynchronous: true
+                        sourceSize { width: 176; height: 176 }
+                    }
+                    MultiEffect {
+                        anchors.fill: parent
+                        visible: foto.status === Image.Ready
+                        source: foto
+                        maskEnabled: true
+                        maskSource: mascaraFoto
+                    }
+                    Rectangle { id: mascaraFoto; anchors.fill: parent; radius: width / 2; visible: false; layer.enabled: true }
+                }
+            }
 
             Text {   // saludo
                 Layout.alignment: Qt.AlignHCenter
@@ -107,7 +193,7 @@ WlSessionLockSurface {
             Item {
                 id: campo
                 Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 56
+                Layout.topMargin: 32
                 implicitWidth: 340; implicitHeight: 56
 
                 // sacudida al fallar (un desplazamiento: dentro de un layout no valen los anchors)
@@ -126,6 +212,12 @@ WlSessionLockSurface {
                     function onClaveChanged() { if (entrada.text !== superficie.estado.clave) entrada.text = superficie.estado.clave; }
                 }
 
+                RectangularShadow {   // resplandor del campo, del color de su estado
+                    anchors.fill: parent
+                    radius: height / 2; blur: 28; spread: -6
+                    color: Qt.alpha(superficie.estado.error ? Paleta.peligro : Paleta.acento, .45)
+                    Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
+                }
                 Rectangle {   // borde con degradado (un rectángulo debajo, 2 px más grande)
                     anchors.fill: parent
                     radius: height / 2
