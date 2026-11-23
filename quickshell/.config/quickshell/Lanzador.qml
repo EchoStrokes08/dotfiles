@@ -851,10 +851,26 @@ PanelWindow {
                             color: fila.actual ? EstiloPanel.elevada : EstiloPanel.relleno
                             border { width: 1; color: fila.actual ? EstiloPanel.bordeFuerte : EstiloPanel.borde }
                             Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                            // Resplandor con los colores del propio icono (copia desenfocada detrás de la baldosa)
+                            MultiEffect {
+                                z: -1
+                                visible: EstiloPanel.profundidad && fila.actual && iconoFila.visible && iconoFila.status === Image.Ready
+                                anchors.centerIn: parent
+                                width: 58; height: 58
+                                source: iconoFila
+                                blurEnabled: true
+                                blur: 1
+                                blurMax: 40
+                                saturation: .5
+                                brightness: .25
+                                opacity: 1
+                            }
                             IconImage {
                                 id: iconoFila
                                 anchors.centerIn: parent
                                 width: 28; height: 28
+                                scale: fila.actual ? 1.08 : 1
+                                Behavior on scale { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutBack } }
                                 visible: !!fila.modelData.icono
                                 source: fila.modelData.icono ? Quickshell.iconPath(fila.modelData.icono, "application-x-executable") : ""
                                 asynchronous: true
