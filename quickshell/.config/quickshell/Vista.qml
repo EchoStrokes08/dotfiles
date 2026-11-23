@@ -5,6 +5,7 @@
 //   arrastrar una ventana a otro espacio (o a «Espacio nuevo») = moverla · Esc cierra
 pragma ComponentBehavior: Bound
 import QtQuick
+import QtQuick.Shapes
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Hyprland
@@ -466,7 +467,8 @@ Superpuesta {
 
                 // ── espacio nuevo: clic = ir; soltar = mandar allí la ventana ──
                 Item {
-                    width: vista.anchoCelda
+                    // estrecha: es un destino para soltar, no una pantalla; cabe junto al último espacio
+                    width: Math.max(150, Math.round(vista.anchoCelda * .42))
                     height: vista.anchoCelda * vista.proporcion + 34
                     opacity: vista.abierto ? 1 : 0
                     Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal + vista.espacios.length * 35 } }
@@ -482,9 +484,21 @@ Superpuesta {
                         width: parent.width
                         height: parent.height - 32
                         radius: 12
-                        color: Qt.alpha(Paleta.texto, nuevoDestino.containsDrag ? .1 : nuevoZona.containsMouse ? .06 : .025)
-                        border { width: nuevoDestino.containsDrag ? 2 : 1; color: nuevoDestino.containsDrag ? Paleta.acento : Qt.alpha(Paleta.texto, nuevoZona.containsMouse ? .3 : .12) }
+                        id: cajaNuevo
+                        color: nuevoDestino.containsDrag ? Qt.alpha(Paleta.acento, .10) : Qt.alpha(Paleta.texto, nuevoZona.containsMouse ? .05 : .015)
                         Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                        Shape {   // borde discontinuo: «suelta aquí»
+                            anchors.fill: parent
+                            preferredRendererType: Shape.CurveRenderer
+                            ShapePath {
+                                strokeWidth: nuevoDestino.containsDrag ? 2 : 1.5
+                                strokeColor: nuevoDestino.containsDrag || nuevoZona.containsMouse ? Paleta.acento : Qt.alpha(Paleta.texto, .22)
+                                strokeStyle: ShapePath.DashLine
+                                dashPattern: [4, 3]
+                                fillColor: "transparent"
+                                PathRectangle { x: 1; y: 1; width: cajaNuevo.width - 2; height: cajaNuevo.height - 2; radius: cajaNuevo.radius }
+                            }
+                        }
                         Column {
                             anchors.centerIn: parent
                             spacing: 4
