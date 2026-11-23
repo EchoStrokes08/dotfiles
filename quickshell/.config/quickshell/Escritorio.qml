@@ -238,12 +238,32 @@ PanelWindow {
 
             Row {
                 spacing: 0
-                Text { text: Qt.formatTime(reloj.date, "HH"); color: Paleta.acento
-                       font { family: Paleta.fuente; pixelSize: 104; bold: true } }
-                Text { text: ":"; color: Qt.alpha(v.claro, 0.55)
-                       font { family: Paleta.fuente; pixelSize: 104; bold: true } }
-                Text { text: Qt.formatTime(reloj.date, "mm"); color: Paleta.acento2
-                       font { family: Paleta.fuente; pixelSize: 104; bold: true } }
+                // Hora y minutos con un halo de su color (estático: el escritorio no se repinta por él)
+                Repeater {
+                    model: [
+                        { t: Qt.formatTime(reloj.date, "HH"), c: Paleta.acento, halo: true },
+                        { t: ":", c: Qt.alpha(v.claro, 0.55), halo: false },
+                        { t: Qt.formatTime(reloj.date, "mm"), c: Paleta.acento2, halo: true }
+                    ]
+                    Item {
+                        required property var modelData
+                        implicitWidth: cifra.implicitWidth; implicitHeight: cifra.implicitHeight
+                        Text {
+                            anchors.centerIn: parent
+                            visible: parent.modelData.halo && EstiloPanel.profundidad
+                            text: parent.modelData.t; color: parent.modelData.c
+                            opacity: .8
+                            font: cifra.font
+                            layer.enabled: visible
+                            layer.effect: MultiEffect { blurEnabled: true; blur: 1; blurMax: 48 }
+                        }
+                        Text {
+                            id: cifra
+                            text: parent.modelData.t; color: parent.modelData.c
+                            font { family: Paleta.fuente; pixelSize: 104; bold: true }
+                        }
+                    }
+                }
             }
             Text {
                 Layout.topMargin: -8
