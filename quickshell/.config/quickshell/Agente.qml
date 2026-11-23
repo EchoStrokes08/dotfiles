@@ -836,8 +836,28 @@ Superpuesta {
                 anchors.right: parent.right
                 width: parent.width * .78; implicitHeight: tt.implicitHeight + 24
                 radius: 16; bottomRightRadius: 6   // «cola» hacia el lado de quien habla
-                color: EstiloPanel.elevada
-                border { width: 1; color: EstiloPanel.bordeFuerte }
+                // tinte suave del acento con luz desde arriba: tus mensajes se distinguen sin gritar
+                gradient: Gradient {
+                    GradientStop { position: 0; color: Qt.tint(EstiloPanel.elevada, Qt.alpha(Paleta.acento, .16)) }
+                    GradientStop { position: 1; color: Qt.tint(EstiloPanel.elevada, Qt.alpha(Paleta.acento, .07)) }
+                }
+                border { width: 1; color: Qt.alpha(Paleta.acento, .35) }
+                RectangularShadow {
+                    anchors.fill: parent; z: -1
+                    visible: EstiloPanel.profundidad
+                    radius: 16; offset.y: 4; blur: 18; spread: -6
+                    color: Qt.alpha("black", .35)
+                }
+                Rectangle {   // filo de luz superior
+                    visible: EstiloPanel.profundidad
+                    x: 16; y: 1; width: parent.width - 32; height: 1
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0; color: "transparent" }
+                        GradientStop { position: .5; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.3), .35) }
+                        GradientStop { position: 1; color: "transparent" }
+                    }
+                }
                 MensajeAgente {
                     id: tt
                     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
@@ -851,9 +871,25 @@ Superpuesta {
         id: burbujaAsistente
         RowLayout {
             spacing: 12
-            Rectangle {   // avatar del asistente
+            Rectangle {   // avatar del asistente: brilla, y respira mientras piensa
+                id: avatarIA
                 Layout.alignment: Qt.AlignTop
                 implicitWidth: 28; implicitHeight: 28; radius: height / 2
+                readonly property bool pensandoAqui: ag.pensando && !parent.parent.m.cerrado
+                RectangularShadow {
+                    anchors.fill: parent; z: -1
+                    visible: EstiloPanel.profundidad
+                    radius: width / 2; blur: 16; spread: 0
+                    color: Qt.alpha(Paleta.acento, .45)
+                    opacity: avatarIA.pensandoAqui ? respiro.valor : .6
+                }
+                QtObject { id: respiro; property real valor: .6 }
+                SequentialAnimation {
+                    running: avatarIA.pensandoAqui && EstiloPanel.movimiento
+                    loops: Animation.Infinite
+                    NumberAnimation { target: respiro; property: "valor"; from: .35; to: 1; duration: 900; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: respiro; property: "valor"; from: 1; to: .35; duration: 900; easing.type: Easing.InOutSine }
+                }
                 gradient: Gradient {
                     GradientStop { position: 0; color: Qt.alpha(Paleta.acento, .38) }
                     GradientStop { position: 1; color: Qt.alpha(Paleta.acento2, .16) }
