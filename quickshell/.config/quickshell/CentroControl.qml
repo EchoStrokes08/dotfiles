@@ -594,21 +594,40 @@ PanelWindow {
                     color: EstiloPanel.tenue
                     font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1 }
                 }
-                Repeater {
-                    model: ventana.movilNombre !== "" ? ventana.movilFunciones : []
-                    RowLayout {
-                        required property var modelData
-                        Layout.fillWidth: true
-                        spacing: 12
+                // Etiquetas compactas en filas: caben siempre en el panel (la explicación, al pasar el ratón)
+                Flow {
+                    visible: ventana.movilNombre !== ""
+                    Layout.fillWidth: true
+                    spacing: 8
+                    Repeater {
+                        model: ventana.movilNombre !== "" ? ventana.movilFunciones : []
                         Rectangle {
-                            implicitWidth: 8; implicitHeight: 8; radius: height / 2
-                            color: modelData.activa ? Paleta.exito : EstiloPanel.velo
-                        }
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-                            Text { Layout.fillWidth: true; text: modelData.nombre; elide: Text.ElideRight; color: modelData.activa ? Paleta.texto : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12; weight: Font.Medium } }
-                            Text { Layout.fillWidth: true; text: modelData.detalle || ""; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                            id: chipFuncion
+                            required property var modelData
+                            implicitWidth: filaChip.implicitWidth + 24
+                            implicitHeight: 30
+                            radius: height / 2
+                            color: zonaChip.containsMouse ? EstiloPanel.rellenoActivo : EstiloPanel.relleno
+                            border { width: 1; color: modelData.activa ? Qt.alpha(Paleta.exito, .35) : EstiloPanel.borde }
+                            Row {
+                                id: filaChip
+                                anchors.centerIn: parent
+                                spacing: 8
+                                Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: 8; height: 8; radius: height / 2
+                                    color: chipFuncion.modelData.activa ? Paleta.exito : EstiloPanel.velo
+                                }
+                                Text {
+                                    text: chipFuncion.modelData.nombre
+                                    color: chipFuncion.modelData.activa ? Paleta.texto : EstiloPanel.tenue
+                                    font { family: Paleta.fuente; pixelSize: 12; weight: Font.Medium }
+                                }
+                            }
+                            MouseArea { id: zonaChip; anchors.fill: parent; hoverEnabled: true }
+                            ToolTip.visible: zonaChip.containsMouse && !!chipFuncion.modelData.detalle
+                            ToolTip.text: chipFuncion.modelData.detalle || ""
+                            ToolTip.delay: 400
                         }
                     }
                 }
