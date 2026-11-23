@@ -584,6 +584,9 @@ kitty y el audio según sus reglas de preferencia. Si te cierra algo, es que ten
 iniciar sesión, o el puerto 853 cerrado): al conectar se comprueba y, si no pasa, esa red usa el DNS del
 router mientras tanto (se reintenta cada 15 s y vuelve al cifrado en cuanto pasa; `dns-cifrado estado` lo
 indica). Si aun así algo falla: `dns-cifrado off`, entra, y `dns-cifrado on`.
+Si Firefox dice «MOZILLA_PKIX_ERROR_MITM_DETECTED» (o «Software is Preventing Firefox…») es el portal
+interceptando HTTPS antes de iniciar sesión: abre una página **http://** como `http://neverssl.com` y saldrá
+la de acceso (el servicio `portal-cautivo` ya la abre solo).
 
 **Arranque:** GRUB usa un menú oculto con espera de 1 s. Mantén Esc o Shift al encender
 para elegir otra entrada o consultar los snapshots disponibles.

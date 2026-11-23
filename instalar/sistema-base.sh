@@ -368,7 +368,12 @@ esac
 exit 0
 PORTAL
 run sudo chmod 755 /etc/NetworkManager/dispatcher.d/90-portal-cautivo
-run sudo nmcli general reload conf   # que NM lea systemd-resolved=false
+# systemd-resolved=false no se aplica con «reload»: reiniciar NM (corta la red un par de segundos) solo si
+# todavía le pasa DNS a resolved
+if [ "$SIMULAR" = 0 ] && resolvectl status "$(ip route show default | awk '{print $5; exit}')" 2>/dev/null | grep -q 'DNS Servers' \
+   && ! systemctl list-units --state=active --no-legend 'dns-respaldo-*' | grep -q .; then
+    sudo systemctl restart NetworkManager && ok "NetworkManager reiniciado (ya no pasa el DNS del router a resolved)"
+fi
 run sudo systemctl enable --quiet --now NetworkManager-dispatcher
 run sudo systemctl enable --quiet --now systemd-resolved
 if [ "$SIMULAR" = 0 ] && [ "$(readlink /etc/resolv.conf)" != /run/systemd/resolve/stub-resolv.conf ]; then
