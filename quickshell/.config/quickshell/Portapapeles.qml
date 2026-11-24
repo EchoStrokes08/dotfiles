@@ -1,6 +1,7 @@
 // Historial del portapapeles (SUPER+SHIFT+V), sobre cliphist.
 //   escribe para filtrar · ↑↓ · Enter copia · Supr borra la entrada · las imágenes se ven en miniatura
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -15,7 +16,11 @@ Superpuesta {
     readonly property string cacheMinis: Quickshell.env("HOME") + "/.cache/quickshell/cliphist"
     property int version: 0         // sube cuando hay miniaturas nuevas (para recargarlas)
 
-    onAbriendose: { buscador.text = ""; lista.currentIndex = 0; leer.running = true; buscador.forceActiveFocus(); }
+    onAbriendose: { confirmarBorrado = false; buscador.text = ""; lista.currentIndex = 0; leer.running = true; buscador.forceActiveFocus(); }
+
+    // «Borrar todo» vacía el historial: el primer clic pide confirmar y la petición caduca sola a los 4 s
+    property bool confirmarBorrado: false
+    Timer { running: pp.confirmarBorrado; interval: 4000; onTriggered: pp.confirmarBorrado = false }
 
     function sh(cmd) { Quickshell.execDetached(["sh", "-c", cmd]); }
 
@@ -98,11 +103,16 @@ Superpuesta {
                         else e.accepted = false;
                     }
                 }
-                Rectangle {   // borrar todo
-                    implicitWidth: 92; implicitHeight: 26; radius: 8
-                    color: zonaWipe.containsMouse ? Qt.alpha(Paleta.peligro, 0.25) : EstiloPanel.rellenoActivo
-                    Text { anchors.centerIn: parent; text: "Borrar todo"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
-                    MouseArea { id: zonaWipe; anchors.fill: parent; hoverEnabled: true; onClicked: { pp.sh("cliphist wipe"); pp.entradas = []; } }
+                BotonCompacto {   // borrar todo: dos clics (el primero pide confirmar)
+                    implicitHeight: 28
+                    text: pp.confirmarBorrado ? "¿Borrar todo?" : "Borrar todo"
+                    confirmando: pp.confirmarBorrado
+                    focusPolicy: Qt.NoFocus
+                    onClicked: {
+                        if (!pp.confirmarBorrado) { pp.confirmarBorrado = true; return; }
+                        pp.confirmarBorrado = false;
+                        pp.sh("cliphist wipe"); pp.entradas = [];
+                    }
                 }
             }
         }
@@ -115,70 +125,122 @@ Superpuesta {
             spacing: 4
             model: pp.filtradas
             boundsBehavior: Flickable.StopAtBounds
-            highlightMoveDuration: 120
+            highlightMoveDuration: EstiloPanel.rapido
             keyNavigationWraps: true
-            highlight: Rectangle {
-                radius: 12
-                color: Qt.alpha(Paleta.acento, 0.13)
-                Rectangle { width: 3; height: parent.height - 14; radius: 4; color: Paleta.acento
-                            anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter } }
-            }
+            // la misma selección luminosa que el lanzador y los menús
+            highlight: FondoSeleccion { radius: EstiloPanel.rControl; marca: true }
 
             delegate: Item {
                 id: fila
                 required property var modelData
                 required property int index
+                readonly property bool actual: lista.currentIndex === index
+                readonly property var clase: modelData.imagen ? ({}) : pp.clase(modelData.texto)
+                readonly property string dominio: (String(modelData.texto).trim().match(/^(?:https?:\/\/)?(?:www\.)?([^\/\s?#]+)/i) ?? [])[1] ?? ""
+                readonly property bool esEnlace: !modelData.imagen && clase.tinte === Paleta.acento2 && dominio !== ""
                 width: lista.width
-                height: modelData.imagen ? 84 : 44
+                height: modelData.imagen ? 84 : esEnlace ? 52 : 44
 
                 RowLayout {
                     anchors { fill: parent; leftMargin: 16; rightMargin: 8 }
                     spacing: 12
-                    ClippingRectangle {
+                    Item {   // miniatura: brilla con sus colores cuando está elegida
                         visible: fila.modelData.imagen
-                        implicitWidth: 120; implicitHeight: 70; radius: 8
-                        color: Paleta.seleccion
-                        Image {
+                        implicitWidth: 120; implicitHeight: 70
+                        MultiEffect {
+                            anchors.centerIn: parent
+                            width: parent.width + 24; height: parent.height + 24
+                            visible: EstiloPanel.profundidad && fila.actual && mini.status === Image.Ready
+                            source: mini
+                            blurEnabled: true; blur: 1; blurMax: 40
+                            saturation: .4; brightness: .15
+                        }
+                        ClippingRectangle {
                             anchors.fill: parent
-                            source: fila.modelData.imagen ? "file://" + pp.cacheMinis + "/" + fila.modelData.id + "?" + pp.version : ""
-                            sourceSize { width: 240; height: 140 }
-                            fillMode: Image.PreserveAspectCrop
-                            asynchronous: true
-                            cache: false
+                            radius: EstiloPanel.rChip
+                            color: EstiloPanel.elevada
+                            border { width: 1; color: fila.actual ? Qt.alpha(Paleta.acento, .6) : EstiloPanel.borde }
+                            scale: fila.actual ? 1.03 : 1
+                            Behavior on scale { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutBack } }
+                            Image {
+                                id: mini
+                                anchors.fill: parent
+                                source: fila.modelData.imagen ? "file://" + pp.cacheMinis + "/" + fila.modelData.id + "?" + pp.version : ""
+                                sourceSize { width: 240; height: 140 }
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
+                                cache: false
+                            }
+                            Column {   // la imagen no se pudo leer (formato raro o borrada): aviso en vez de un hueco
+                                anchors.centerIn: parent
+                                visible: mini.status === Image.Error
+                                spacing: 2
+                                Text { anchors.horizontalCenter: parent.horizontalCenter; text: String.fromCodePoint(0xF0976); color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 20 } }
+                                Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Sin vista previa"; color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11 } }
+                            }
                         }
                     }
                     // Qué es cada entrada de un vistazo: enlace, ruta, comando, color o texto
                     Rectangle {
                         visible: !fila.modelData.imagen
-                        readonly property var clase: pp.clase(fila.modelData.texto)
-                        implicitWidth: 28; implicitHeight: 28; radius: EstiloPanel.rChip
-                        color: clase.color ? clase.color : Qt.alpha(clase.tinte, lista.currentIndex === fila.index ? .20 : .11)
-                        border.width: clase.color ? 1 : 0
-                        border.color: EstiloPanel.bordeFuerte
+                        implicitWidth: 30; implicitHeight: 30; radius: EstiloPanel.rChip
+                        color: fila.clase.color ? fila.clase.color : Qt.alpha(fila.clase.tinte, fila.actual ? .20 : .11)
+                        border.width: 1
+                        border.color: fila.clase.color ? EstiloPanel.bordeFuerte : Qt.alpha(fila.clase.tinte, fila.actual ? .45 : .2)
+                        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                        RectangularShadow {   // un color copiado brilla con su propio color
+                            anchors.fill: parent; z: -1
+                            visible: EstiloPanel.profundidad && (!!fila.clase.color || fila.actual)
+                            radius: parent.radius; blur: 12; spread: -2
+                            color: Qt.alpha(fila.clase.color ? fila.clase.color : fila.clase.tinte, .5)
+                        }
                         Text {
                             anchors.centerIn: parent
-                            visible: !parent.clase.color
-                            text: String.fromCodePoint(parent.clase.glifo)
-                            color: parent.clase.tinte
+                            visible: !fila.clase.color
+                            text: String.fromCodePoint(fila.clase.glifo ?? 0xF039A)
+                            color: fila.clase.tinte ?? EstiloPanel.tenue
                             font { family: Paleta.mono; pixelSize: 14 }
                         }
                     }
-                    Text {
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        text: fila.modelData.imagen
-                              ? "Imagen  " + (fila.modelData.texto.match(/(\d+x\d+)/)?.[1] ?? "")
-                              : fila.modelData.texto.replace(/\s+/g, " ")
-                        color: lista.currentIndex === fila.index ? Paleta.texto : EstiloPanel.secundario
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
-                        font { family: Paleta.fuente; pixelSize: 12; italic: fila.modelData.imagen }
+                        Layout.minimumWidth: 0
+                        spacing: 0
+                        Text {   // imagen: «Imagen» y sus medidas; enlace: el dominio destacado
+                            Layout.fillWidth: true
+                            visible: fila.modelData.imagen || fila.esEnlace
+                            text: fila.modelData.imagen ? "Imagen" : fila.dominio
+                            color: fila.actual ? Paleta.texto : EstiloPanel.secundario
+                            elide: Text.ElideRight
+                            font { family: Paleta.fuente; pixelSize: 13; bold: true }
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: fila.modelData.imagen
+                                  ? (fila.modelData.texto.match(/(\d+x\d+)/)?.[1] ?? "").replace("x", " × ") + " px"
+                                  : fila.modelData.texto.replace(/\s+/g, " ").trim()
+                            color: fila.modelData.imagen || fila.esEnlace ? EstiloPanel.tenue
+                                 : fila.actual ? Paleta.texto : EstiloPanel.secundario
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
+                            font { family: fila.clase.color ? Paleta.mono : Paleta.fuente; pixelSize: fila.modelData.imagen || fila.esEnlace ? 11 : 12 }
+                        }
                     }
-                    Text {   // borrar esta entrada
-                        text: ""
-                        visible: zonaFila.containsMouse
-                        color: zonaBorrar.containsMouse ? Paleta.peligro : Paleta.gris
-                        font { family: Paleta.fuente; pixelSize: 12 }
-                        MouseArea { id: zonaBorrar; anchors.fill: parent; anchors.margins: -6; hoverEnabled: true; onClicked: pp.borrar(fila.modelData) }
+                    Rectangle {   // borrar esta entrada
+                        visible: zonaFila.containsMouse || zonaBorrar.containsMouse
+                        implicitWidth: 28; implicitHeight: 28; radius: height / 2
+                        color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.peligro, .18) : "transparent"
+                        border { width: 1; color: zonaBorrar.containsMouse ? Qt.alpha(Paleta.peligro, .5) : "transparent" }
+                        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "\uf1f8"
+                            color: zonaBorrar.containsMouse ? Paleta.peligro : Paleta.gris
+                            font { family: Paleta.fuente; pixelSize: 12 }
+                        }
+                        MouseArea { id: zonaBorrar; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: pp.borrar(fila.modelData) }
+                        Accessible.role: Accessible.Button
+                        Accessible.name: "Borrar esta entrada"
                     }
                 }
                 MouseArea {
