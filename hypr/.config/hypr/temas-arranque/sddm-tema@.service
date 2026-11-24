@@ -1,0 +1,15 @@
+[Unit]
+Description=Copia el tema de %i (colores y fondo) al inicio de sesión de SDDM
+# al encender: antes de que salga SDDM; al apagar: se detiene después de SDDM, con /home aún montado
+Before=display-manager.service
+RequiresMountsFor=/home
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/sincronizar-sddm.sh %i
+ExecStop=/usr/local/bin/sincronizar-sddm.sh %i
+TimeoutSec=30
+
+[Install]
+WantedBy=multi-user.target

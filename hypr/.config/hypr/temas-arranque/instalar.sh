@@ -13,6 +13,15 @@ cat > /etc/sddm.conf.d/10-tema.conf <<CONF
 [Theme]
 Current=ayu-glass
 CONF
+# Colores y fondo del tema activo: se copian al login al encender y al apagar
+usuario="${SUDO_USER:-$(logname 2>/dev/null || true)}"
+install -m 755 "$DIR/sincronizar-sddm.sh" /usr/local/bin/sincronizar-sddm.sh
+install -m 644 "$DIR/sddm-tema@.service" /etc/systemd/system/sddm-tema@.service
+systemctl daemon-reload
+if [ -n "$usuario" ] && [ "$usuario" != root ]; then
+  systemctl enable "sddm-tema@$usuario.service"
+  /usr/local/bin/sincronizar-sddm.sh "$usuario"
+fi
 
 echo "==> GRUB"
 rm -rf /boot/grub/themes/ayu

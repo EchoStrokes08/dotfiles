@@ -2,8 +2,8 @@
 // │   SDDM · Ayu Dark Glass (gemelo de la pantalla de bloqueo │
 // │   de Quickshell: quickshell/PantallaBloqueo.qml)          │
 // ╰──────────────────────────────────────────────────────────╯
-// SDDM corre como otro usuario y no puede leer el tema vivo de ~/.local/state/tema,
-// así que la paleta va fija aquí (la de Paleta.qml en modo ayu oscuro).
+// SDDM corre como otro usuario y no puede leer ~/.local/state/tema: sincronizar-sddm.sh
+// (servicio sddm-tema@USUARIO, al encender y al apagar) copia aquí colores, fondo y foto.
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
@@ -14,17 +14,18 @@ Rectangle {
     width: 1920; height: 1080
     color: cFondo
 
-    // Paleta (Paleta.qml · ayu oscuro)
-    readonly property color cFondo:   "#121519"
-    readonly property color cTexto:   "#edf0f5"
-    readonly property color cAcento:  "#f19618"
-    readonly property color cAcento2: "#36a3d9"
-    readonly property color cExito:   "#b8cc52"
-    readonly property color cAviso:   "#e6c446"
-    readonly property color cPeligro: "#ff3333"
-    readonly property color cGris:    "#aab3c0"
+    // Paleta: la de tu tema activo, copiada en Tema.qml por sincronizar-sddm.sh
+    Tema { id: tema }
+    readonly property color cFondo:   tema.fondo
+    readonly property color cTexto:   tema.texto
+    readonly property color cAcento:  tema.acento
+    readonly property color cAcento2: tema.acento2
+    readonly property color cExito:   tema.exito
+    readonly property color cAviso:   tema.aviso
+    readonly property color cPeligro: tema.peligro
+    readonly property color cGris:    tema.gris
     // EstiloPanel.qml
-    readonly property color cTenue:      Qt.tint(cFondo, Qt.alpha(cTexto, .68))
+    readonly property color cTenue:      Qt.tint(cFondo, Qt.alpha(cTexto, tema.claro ? .82 : .68))
     readonly property color cSecundario: Qt.alpha(cTexto, .85)
     readonly property color cApagado:    Qt.alpha(cTexto, .45)
     readonly property string fuente: config.font || "Adwaita Sans"
@@ -154,10 +155,27 @@ Rectangle {
                     color: Qt.darker(root.cFondo, 1.2)
                     Text {
                         anchors.centerIn: parent
+                        visible: foto.status !== Image.Ready
                         text: (root.userName || "?").charAt(0).toUpperCase()
                         color: root.cTexto
                         font { family: root.fuente; pixelSize: 26; weight: Font.Bold }
                     }
+                    Image {   // tu ~/.face, si existe
+                        id: foto
+                        anchors.fill: parent
+                        source: Qt.resolvedUrl("avatar")
+                        fillMode: Image.PreserveAspectCrop
+                        visible: false
+                        sourceSize { width: 176; height: 176 }
+                    }
+                    MultiEffect {
+                        anchors.fill: parent
+                        visible: foto.status === Image.Ready
+                        source: foto
+                        maskEnabled: true
+                        maskSource: mascaraFoto
+                    }
+                    Rectangle { id: mascaraFoto; anchors.fill: parent; radius: width / 2; visible: false; layer.enabled: true }
                 }
             }
 
