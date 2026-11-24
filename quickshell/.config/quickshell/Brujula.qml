@@ -582,13 +582,53 @@ Superpuesta {
                     delegate: Rectangle {
                         id: bloque
                         required property var modelData
+                        required property int index
+                        readonly property color tono: br.colorDe(modelData.clase)
+                        readonly property bool primero: index === 0
+                        readonly property bool ultimo: index === listaBloques.count - 1
                         width: ListView.view.width - 10; implicitHeight: 52; radius: 12
                         color: Qt.alpha(Paleta.texto, hb.hovered ? .055 : .025)
+                        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                         HoverHandler { id: hb }
+                        Rectangle {   // al pasar el ratón, la fila se tiñe desde la izquierda con el color de la app
+                            anchors.fill: parent; radius: parent.radius
+                            opacity: hb.hovered ? 1 : 0
+                            Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0; color: Qt.alpha(bloque.tono, .12) }
+                                GradientStop { position: .5; color: "transparent" }
+                            }
+                        }
                         RowLayout {
                             anchors { fill: parent; leftMargin: 12; rightMargin: 12 } spacing: 12
                             Text { text: br.hora(bloque.modelData.inicio); color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12; bold: true } Layout.preferredWidth: 42 }
-                            Rectangle { width: 3; Layout.fillHeight: true; Layout.topMargin: 10; Layout.bottomMargin: 10; radius: 4; color: br.colorDe(bloque.modelData.clase) }
+                            Item {   // nodo de la línea de tiempo: hilo que une las filas y punto luminoso del color de la app
+                                Layout.fillHeight: true
+                                implicitWidth: 14
+                                Rectangle {   // hilo (cruza el hueco entre filas; empieza y acaba en el primer y último punto)
+                                    x: (parent.width - width) / 2; width: 2
+                                    y: bloque.primero ? parent.height / 2 : -6
+                                    height: (bloque.ultimo ? parent.height / 2 : parent.height + 6) - y
+                                    color: Qt.alpha(Paleta.texto, .10)
+                                }
+                                RectangularShadow {
+                                    anchors.centerIn: parent
+                                    width: punto.width; height: punto.height
+                                    visible: EstiloPanel.profundidad
+                                    radius: width / 2; blur: bloque.primero ? 14 : hb.hovered ? 10 : 6; spread: bloque.primero ? 2 : 0
+                                    color: Qt.alpha(bloque.tono, bloque.primero || hb.hovered ? .85 : .55)
+                                }
+                                Rectangle {
+                                    id: punto
+                                    anchors.centerIn: parent
+                                    width: bloque.primero ? 12 : 10; height: width; radius: height / 2
+                                    color: Qt.lighter(bloque.tono, 1.08)
+                                    border { width: 2; color: Qt.tint(EstiloPanel.superficie, Qt.alpha(bloque.tono, .25)) }
+                                    scale: hb.hovered ? 1.2 : 1
+                                    Behavior on scale { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutBack } }
+                                }
+                            }
                             Icono { nombre: bloque.modelData.icono; clase: bloque.modelData.clase; lado: 24 }
                             ColumnLayout { Layout.fillWidth: true; spacing: 1
                                 RowLayout { spacing: 8
