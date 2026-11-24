@@ -418,7 +418,7 @@ Superpuesta {
                         }
                         RowLayout {
                             Layout.fillWidth: true
-                            Boton { text: mesa.confirmarBorrado ? "Confirmar borrado" : "Eliminar"; enabled: !!mesa.plantillaId && !operacion.running; onClicked: { if (!mesa.confirmarBorrado) mesa.confirmarBorrado = true; else { mesa.ejecutar(["plantilla","eliminar","--id",mesa.plantillaId]); mesa.cambios = false; mesa.cargar(null); } } }
+                            Boton { text: mesa.confirmarBorrado ? "Confirmar borrado" : "Eliminar"; confirmando: mesa.confirmarBorrado; enabled: !!mesa.plantillaId && !operacion.running; onClicked: { if (!mesa.confirmarBorrado) mesa.confirmarBorrado = true; else { mesa.ejecutar(["plantilla","eliminar","--id",mesa.plantillaId]); mesa.cambios = false; mesa.cargar(null); } } }
                             Boton { text: "Descartar cambios"; enabled: mesa.cambios; onClicked: { mesa.cambios = false; mesa.cargar(mesa.plantillas.find(p => p.id === mesa.plantillaId)); } }
                         }
                     }

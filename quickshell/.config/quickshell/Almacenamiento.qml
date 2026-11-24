@@ -170,7 +170,7 @@ TarjetaPanel {
                     visible: !!fila.acc && (sobre.hovered || activeFocus || alm.confirmando === fila.modelData.id)
                     enabled: !accion.running && !fila.bloqueada && !(fila.modelData.limpiable === 0)
                     text: alm.confirmando === fila.modelData.id ? "¿Seguro? Vaciar" : (fila.acc?.etiqueta ?? "")
-                    acento: alm.confirmando === fila.modelData.id ? Paleta.peligro : Paleta.acento
+                    confirmando: alm.confirmando === fila.modelData.id
                     Accessible.name: (fila.acc?.etiqueta ?? "") + " · " + fila.modelData.nombre
                     onClicked: alm.actuar(fila.modelData)
                 }

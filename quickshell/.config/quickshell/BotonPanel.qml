@@ -7,6 +7,18 @@ Button {
     property bool destacado: false
     property string simbolo: ""
     property color tinte: Paleta.acento
+    // confirmando: el clic siguiente hace algo irreversible → rojo de peligro, sacudida corta al pedirlo
+    // y halo que late (FondoBoton.alerta) mientras espera
+    property bool confirmando: false
+    transform: Translate { id: desplazar }
+    onConfirmandoChanged: if (confirmando && EstiloPanel.movimiento) sacudida.restart()
+    SequentialAnimation {
+        id: sacudida
+        NumberAnimation { target: desplazar; property: "x"; to: -5; duration: 45 }
+        NumberAnimation { target: desplazar; property: "x"; to: 4;  duration: 60 }
+        NumberAnimation { target: desplazar; property: "x"; to: -2; duration: 60 }
+        NumberAnimation { target: desplazar; property: "x"; to: 0;  duration: 45 }
+    }
     Layout.fillWidth: true
     Layout.minimumWidth: 0
     Layout.preferredWidth: 1
@@ -19,9 +31,11 @@ Button {
     scale: down ? .965 : 1
     Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
     Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
+    readonly property color tinteReal: confirmando ? Paleta.peligro : tinte
     background: FondoBoton {
-        tinte: b.tinte
-        destacado: b.destacado
+        tinte: b.tinteReal
+        destacado: b.destacado || b.confirmando
+        alerta: b.confirmando
         encima: b.hovered
         pulsado: b.down
         foco: b.activeFocus
@@ -38,7 +52,7 @@ Button {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: b.simbolo !== ""
                 text: b.simbolo
-                color: b.destacado || b.hovered ? Qt.lighter(b.tinte, 1.08) : Qt.alpha(b.tinte, .85)
+                color: b.destacado || b.confirmando || b.hovered ? Qt.lighter(b.tinteReal, 1.08) : Qt.alpha(b.tinteReal, .85)
                 font { family: Paleta.fuente; pixelSize: 14 }
                 Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
             }
@@ -46,10 +60,10 @@ Button {
                 anchors.verticalCenter: parent.verticalCenter
                 width: Math.min(implicitWidth, contenido.width - (icono.visible ? icono.implicitWidth + 8 : 0))
                 text: b.text
-                color: b.destacado || b.hovered ? Paleta.texto : EstiloPanel.tenue
+                color: b.confirmando ? Qt.lighter(Paleta.peligro, 1.1) : b.destacado || b.hovered ? Paleta.texto : EstiloPanel.tenue
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
-                font { family: EstiloPanel.fuente; pixelSize: 12; weight: b.destacado ? Font.DemiBold : Font.Medium }
+                font { family: EstiloPanel.fuente; pixelSize: 12; weight: b.destacado || b.confirmando ? Font.DemiBold : Font.Medium }
                 Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
             }
         }

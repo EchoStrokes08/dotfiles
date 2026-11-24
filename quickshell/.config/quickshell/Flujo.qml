@@ -121,7 +121,7 @@ Superpuesta {
                     delegate:Boton { required property var modelData; width:ListView.view.width; text:modelData.nombre; destacado:flujo.proyectoId===modelData.id; onClicked:flujo.cargarProyecto(modelData) }
                 }
                 Boton { text:"+ Nuevo proyecto"; onClicked:flujo.cargarProyecto(null) }
-                Boton { text:flujo.confirmar ? "Confirmar eliminación" : "Eliminar proyecto"; enabled:!!flujo.proyectoId && !accion.running; onClicked:{ if (!flujo.confirmar) flujo.confirmar=true; else { flujo.ejecutar(["proyecto","eliminar","--id="+flujo.proyectoId]); flujo.cambios=false; flujo.cargarProyecto(null); } } }
+                Boton { text:flujo.confirmar ? "Confirmar eliminación" : "Eliminar proyecto"; confirmando:flujo.confirmar; enabled:!!flujo.proyectoId && !accion.running; onClicked:{ if (!flujo.confirmar) flujo.confirmar=true; else { flujo.ejecutar(["proyecto","eliminar","--id="+flujo.proyectoId]); flujo.cambios=false; flujo.cargarProyecto(null); } } }
             }
             ColumnLayout {
                 Layout.fillWidth:true; Layout.fillHeight:true; spacing:8

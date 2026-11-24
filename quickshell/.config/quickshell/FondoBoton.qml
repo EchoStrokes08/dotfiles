@@ -12,6 +12,25 @@ Item {
     property bool pulsado: false
     property bool foco: false
     property real radio: 12
+    // alerta: el botón pide confirmar algo irreversible. Halo de peligro que late (lento, InOutSine)
+    // hasta que se decide; sin movimiento, el halo queda fijo.
+    property bool alerta: false
+    property real latido: .5
+    SequentialAnimation on latido {
+        running: f.alerta && f.visible && EstiloPanel.movimiento
+        loops: Animation.Infinite
+        onRunningChanged: if (!running) f.latido = .5
+        NumberAnimation { to: 1;  duration: 700; easing.type: Easing.InOutSine }
+        NumberAnimation { to: .3; duration: 700; easing.type: Easing.InOutSine }
+    }
+    RectangularShadow {
+        anchors.fill: parent
+        visible: f.alerta
+        radius: f.radio
+        blur: 18
+        spread: -2
+        color: Qt.alpha(Paleta.peligro, .2 + .3 * f.latido)
+    }
 
     implicitWidth: 80
     implicitHeight: 38
