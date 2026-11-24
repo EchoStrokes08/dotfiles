@@ -41,15 +41,23 @@ ColumnLayout {
                 x: 8 * (index + 1); width: pila.width - 16 * (index + 1)
                 y: 5 * (index + 1); height: 56
                 radius: EstiloPanel.rTarjeta
-                color: Qt.tint(EstiloPanel.superficie, Qt.alpha("black", .10 * (index + 1)))
+                // oscuro: cada hoja algo más honda; claro: hojas de papel blanco, la sombra las separa
+                color: EstiloPanel.fondoClaro ? Qt.tint(EstiloPanel.superficie, Qt.alpha("white", .7 - .25 * index))
+                                              : Qt.tint(EstiloPanel.superficie, Qt.alpha("black", .10 * (index + 1)))
                 border { width: 1; color: Qt.alpha(Paleta.texto, .12 - .03 * index) }
+                RectangularShadow {
+                    anchors.fill: parent; z: -1
+                    visible: EstiloPanel.profundidad
+                    radius: parent.radius; offset.y: 2; blur: 8; spread: -4
+                    color: Qt.alpha("black", EstiloPanel.fondoClaro ? .10 : .25)
+                }
             }
         }
         RectangularShadow {
             anchors.fill: fila
             visible: EstiloPanel.profundidad
             radius: fila.radius; offset.y: 3; blur: 14; spread: -6
-            color: Qt.alpha("black", .30)
+            color: Qt.alpha("black", EstiloPanel.fondoClaro ? .14 : .30)
         }
         ClippingRectangle {
             id: fila
