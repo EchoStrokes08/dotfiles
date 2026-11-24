@@ -32,13 +32,13 @@ PanelWindow {
                 width: columna.width
                 onTerminada: Notificaciones.quitarEmergente(modelData)
 
-                // Entrada: desde la derecha
+                // Entrada: desde la derecha, con un pequeño rebote al llegar
                 x: 0
                 opacity: 1
                 Component.onCompleted: { x = 40; opacity = 0; entrada.start(); }
                 ParallelAnimation {
                     id: entrada
-                    NumberAnimation { target: tarj; property: "x"; to: 0; duration: EstiloPanel.normal; easing.type: Easing.OutCubic }
+                    NumberAnimation { target: tarj; property: "x"; to: 0; duration: EstiloPanel.lento; easing.type: Easing.OutBack }
                     NumberAnimation { target: tarj; property: "opacity"; to: 1; duration: EstiloPanel.normal }
                 }
             }

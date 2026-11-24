@@ -51,6 +51,23 @@ Rectangle {
         acento: tarjeta.colorUrgencia
     }
 
+    // Halo de la app: su icono (o la foto del aviso), enorme y desenfocado, tiñe la tarjeta
+    // desde la esquina del icono con sus colores. Recortado a la forma de la tarjeta.
+    ClippingRectangle {
+        anchors { fill: parent; margins: 1 }
+        radius: tarjeta.radius - 1
+        color: "transparent"
+        visible: EstiloPanel.profundidad && imagen.status === Image.Ready && !EstadoEscritorio.privacidad
+        MultiEffect {
+            x: -50; y: -50; width: 170; height: 170
+            source: imagen
+            blurEnabled: true; blur: 1; blurMax: 64
+            saturation: .6; brightness: .1
+            opacity: (EstiloPanel.fondoClaro ? .22 : .30) + (zona.containsMouse ? .1 : 0)
+            Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
+        }
+    }
+
     // Temporizador de la emergente (se pausa con el ratón encima)
     Timer {
         id: tiempo
