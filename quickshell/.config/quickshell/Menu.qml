@@ -2,6 +2,7 @@
 // Lo abre shell.qml con unas opciones concretas, p. ej. el de capturas (SHIFT+PRINT):
 //   menu.abrirCon("Capturas", [{ icono: 0xF0A6D, texto: "Región", cmd: "…" }, …])
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 
@@ -46,31 +47,61 @@ Superpuesta {
             keyNavigationWraps: true
             Keys.onReturnPressed: menu.elegir(menu.opciones[currentIndex])
             Keys.onEnterPressed: menu.elegir(menu.opciones[currentIndex])
-            highlight: Rectangle {
-                radius: 12
-                color: Qt.alpha(Paleta.acento, 0.13)
-                Rectangle { width: 3; height: parent.height - 14; radius: 4; color: Paleta.acento
-                            anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter } }
-            }
+            // la misma selección luminosa que el lanzador: superficie, borde y marca del acento con halo
+            highlight: FondoSeleccion { radius: EstiloPanel.rControl; marca: true }
             delegate: Item {
+                id: opcion
                 required property var modelData
                 required property int index
+                readonly property bool actual: lista.currentIndex === index
                 width: lista.width; height: 44
+                // entrada escalonada con rebote: cada opción llega un instante después de la anterior
+                opacity: 0
+                transform: Translate { id: desliz; y: 10 }
+                Component.onCompleted: entrada.start()
+                Connections { target: menu; function onAbriendose() { entrada.restart(); } }
+                SequentialAnimation {
+                    id: entrada
+                    PropertyAction { target: opcion; property: "opacity"; value: EstiloPanel.movimiento ? 0 : 1 }
+                    PropertyAction { target: desliz; property: "y"; value: EstiloPanel.movimiento ? 10 : 0 }
+                    PauseAnimation { duration: EstiloPanel.movimiento ? 40 + opcion.index * 35 : 0 }
+                    ParallelAnimation {
+                        NumberAnimation { target: opcion; property: "opacity"; to: 1; duration: EstiloPanel.normal }
+                        NumberAnimation { target: desliz; property: "y"; to: 0; duration: EstiloPanel.lento; easing.type: Easing.OutBack }
+                    }
+                }
                 RowLayout {
                     anchors { fill: parent; leftMargin: 16 }
                     spacing: 12
-                    Text { text: String.fromCodePoint(modelData.icono); color: Paleta.acento; font { family: Paleta.fuente; pixelSize: 16 } }
+                    Rectangle {   // baldosa del icono: se enciende con la opción elegida
+                        implicitWidth: 30; implicitHeight: 30; radius: EstiloPanel.rChip
+                        color: opcion.actual ? Qt.alpha(Paleta.acento, .16) : EstiloPanel.relleno
+                        border { width: 1; color: opcion.actual ? Qt.alpha(Paleta.acento, .55) : EstiloPanel.borde }
+                        Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+                        RectangularShadow {
+                            anchors.fill: parent; z: -1
+                            visible: EstiloPanel.profundidad && opcion.actual
+                            radius: parent.radius; blur: 14; spread: -2
+                            color: Qt.alpha(Paleta.acento, .35)
+                        }
+                        Text {
+                            anchors.centerIn: parent
+                            text: String.fromCodePoint(opcion.modelData.icono)
+                            color: opcion.actual ? Qt.lighter(Paleta.acento, 1.15) : Paleta.acento
+                            font { family: Paleta.fuente; pixelSize: 16 }
+                            scale: opcion.actual ? 1.12 : 1
+                            Behavior on scale { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutBack } }
+                        }
+                    }
                     Text {
                         Layout.fillWidth: true
-                        text: modelData.texto
-                        color: lista.currentIndex === index ? Paleta.texto : EstiloPanel.secundario
-                        font { family: Paleta.fuente; pixelSize: 13; bold: lista.currentIndex === index }
+                        text: opcion.modelData.texto
+                        color: opcion.actual ? Paleta.texto : EstiloPanel.secundario
+                        font { family: Paleta.fuente; pixelSize: 13; bold: opcion.actual }
                     }
-                    Text {   // número: pulsar 1-9 elige directamente
-                        Layout.rightMargin: 12
-                        text: index + 1
-                        color: Paleta.gris
-                        font { family: Paleta.fuente; pixelSize: 11 }
+                    Tecla {   // número: pulsar 1-9 elige directamente
+                        Layout.rightMargin: 10
+                        texto: opcion.index + 1
                     }
                 }
                 MouseArea {
