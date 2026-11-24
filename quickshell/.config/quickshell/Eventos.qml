@@ -206,6 +206,12 @@ Singleton {
         return lista.some(e => e.inicio < d1 && e.fin > d0 && e.repeticion !== "diario")
             || tareas.some(t => t.fecha && t.fecha.getTime() === d0.getTime());
     }
+    // Qué hay ese día, por separado: { eventos, tareas } (el calendario pinta un punto de cada color)
+    function marcasEn(fecha) {
+        const d0 = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()), d1 = new Date(d0.getTime() + 86400000);
+        return { eventos: lista.some(e => e.inicio < d1 && e.fin > d0 && e.repeticion !== "diario"),
+                 tareas: tareas.some(t => t.fecha && t.fecha.getTime() === d0.getTime()) };
+    }
     // Los próximos n (los de todo el día de hoy incluidos)
     function proximos(n) {
         const ahora = new Date(), hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());

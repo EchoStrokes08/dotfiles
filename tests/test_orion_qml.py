@@ -260,7 +260,7 @@ printf '%s\n' '{"ok":true,"estado":{"disponible":true,"activo":true},"error":""}
 ''')
 
     def preparar_hoy(self):
-        for nombre in ("HoyPaneles","SaludPanel","Almacenamiento","Calendario","NuevoEvento","CampoPanel","TarjetaPanel","Etiqueta","Tiempo","Interruptor"):
+        for nombre in ("HoyPaneles","SaludPanel","Almacenamiento","Calendario","FlechaMes","NuevoEvento","CampoPanel","TarjetaPanel","Etiqueta","Tiempo","Interruptor"):
             shutil.copy(QML / f"{nombre}.qml",self.config)
         (self.config / "Clima.qml").write_text('''pragma Singleton
 import Quickshell
