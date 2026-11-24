@@ -28,9 +28,14 @@ Scope {
 
     function g(cp) { return String.fromCodePoint(cp); }
 
+    // color de la barra y el icono: gris si está apagado, aviso si el volumen pasa del 100 %
+    readonly property color tono: apagado ? Paleta.gris : valor > 1.001 ? Paleta.aviso : Paleta.acento
+    signal latido()                  // cada cambio: el icono late una vez
+
     function mostrar(ic, val, txt, off) {
         icono = ic; valor = val; texto = txt ?? ""; apagado = off ?? false;
         activo = true;
+        latido();
         ocultar.restart();
     }
     Timer { id: ocultar; interval: 1500; onTriggered: osd.activo = false }
@@ -131,7 +136,7 @@ Scope {
             width: fila.implicitWidth + 36
             height: 60
             color: "transparent"
-            FondoPanel { anchors.fill: parent; radio: 24; acento: osd.apagado ? Paleta.gris : Paleta.acento }
+            FondoPanel { anchors.fill: parent; radio: 24; acento: osd.tono }
 
             opacity: osd.activo ? 1 : 0
             scale: osd.activo ? 1 : 0.92
@@ -145,16 +150,37 @@ Scope {
                 spacing: 12
 
                 Rectangle {
+                    id: medallon
                     implicitWidth: 40; implicitHeight: 40; radius: height / 2
                     gradient: Gradient {
-                        GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Qt.lighter(Paleta.acento, 1.15), .38) }
-                        GradientStop { position: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.acento, .12) }
+                        GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Qt.lighter(osd.tono, 1.15), .38) }
+                        GradientStop { position: 1; color: Qt.alpha(osd.tono, .12) }
                     }
-                    border { width: 1; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.acento, .45) }
+                    border { width: 1; color: Qt.alpha(osd.tono, .45) }
+                    RectangularShadow {
+                        anchors.fill: parent; z: -1
+                        visible: EstiloPanel.profundidad && !osd.apagado
+                        radius: parent.radius; blur: 16
+                        color: Qt.alpha(osd.tono, .25 + .35 * medallon.brillo)
+                    }
+                    // latido: crece un poco y vuelve con rebote; el halo destella a la vez
+                    property real brillo: 0
+                    Connections { target: osd; function onLatido() { if (EstiloPanel.movimiento) latidoIcono.restart(); } }
+                    ParallelAnimation {
+                        id: latidoIcono
+                        SequentialAnimation {
+                            NumberAnimation { target: medallon; property: "scale"; to: 1.1; duration: 70; easing.type: Easing.OutCubic }
+                            NumberAnimation { target: medallon; property: "scale"; to: 1; duration: EstiloPanel.lento; easing.type: Easing.OutBack }
+                        }
+                        SequentialAnimation {
+                            NumberAnimation { target: medallon; property: "brillo"; to: 1; duration: 70 }
+                            NumberAnimation { target: medallon; property: "brillo"; to: 0; duration: EstiloPanel.lento; easing.type: Easing.OutCubic }
+                        }
+                    }
                     Text {
                         anchors.centerIn: parent
                         text: osd.icono
-                        color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.acento, 1.2)
+                        color: osd.apagado ? Paleta.gris : Qt.lighter(osd.tono, 1.2)
                         font { family: Paleta.fuente; pixelSize: 20 }
                     }
                 }
@@ -171,7 +197,16 @@ Scope {
                         width: barraOsd.width; height: parent.height
                         visible: EstiloPanel.profundidad && !osd.apagado
                         radius: 4; blur: 14; spread: -1
-                        color: Qt.alpha(Paleta.acento, .45)
+                        color: Qt.alpha(osd.tono, .45)
+                    }
+                    Repeater {   // marcas al 25, 50 y 75 %
+                        model: [.25, .5, .75]
+                        Rectangle {
+                            required property real modelData
+                            x: parent.width * modelData; y: 3
+                            width: 1; height: parent.height - 6
+                            color: Qt.alpha(Paleta.texto, .18)
+                        }
                     }
                     Rectangle {
                         id: barraOsd
@@ -180,10 +215,30 @@ Scope {
                         width: Math.max(height, parent.width * Math.max(0, Math.min(1, osd.valor)))
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0; color: Qt.alpha(osd.apagado ? Paleta.gris : Paleta.acento, .55) }
-                            GradientStop { position: 1; color: osd.apagado ? Paleta.gris : Qt.lighter(Paleta.acento, 1.12) }
+                            GradientStop { position: 0; color: Qt.alpha(osd.tono, .55) }
+                            GradientStop { position: 1; color: osd.apagado ? Paleta.gris : Qt.lighter(osd.tono, 1.12) }
                         }
                         Behavior on width { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
+                    }
+                    Item {   // punta luminosa: un punto de luz en el extremo de la barra
+                        visible: !osd.apagado
+                        width: 14; height: 14
+                        x: barraOsd.width - width / 2 - 2
+                        anchors.verticalCenter: parent.verticalCenter
+                        RectangularShadow {
+                            anchors.fill: parent
+                            visible: EstiloPanel.profundidad
+                            radius: width / 2; blur: 12; spread: 1
+                            color: Qt.alpha(osd.tono, .9)
+                        }
+                        Rectangle {
+                            anchors.fill: parent; radius: width / 2
+                            gradient: Gradient {
+                                GradientStop { position: 0; color: Qt.lighter(osd.tono, 1.6) }
+                                GradientStop { position: 1; color: Qt.lighter(osd.tono, 1.15) }
+                            }
+                            border { width: 1; color: Qt.alpha("white", .5) }
+                        }
                     }
                 }
                 Text {
