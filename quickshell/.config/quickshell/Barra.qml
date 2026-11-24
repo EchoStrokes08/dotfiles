@@ -141,12 +141,27 @@ PanelWindow {
             Layout.preferredWidth: implicitWidth
             Behavior on implicitWidth { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
 
+            // Al cambiar de ventana el título entra desde abajo; si además cambia la app, el icono da un saltito
+            readonly property string app: actual?.appId ?? ""
+            onActualChanged: if (EstiloPanel.movimiento) entradaTitulo.restart()
+            onAppChanged: if (EstiloPanel.movimiento) saltoIcono.restart()
+            ParallelAnimation {
+                id: entradaTitulo
+                NumberAnimation { target: deslizTitulo; property: "y"; from: 8; to: 0; duration: EstiloPanel.normal; easing.type: Easing.OutCubic }
+                NumberAnimation { target: tituloVentana; property: "opacity"; from: 0; to: 1; duration: EstiloPanel.normal }
+            }
+            SequentialAnimation {
+                id: saltoIcono
+                NumberAnimation { target: cajaIcono; property: "scale"; from: .55; to: 1; duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: 2.2 }
+            }
+
             RowLayout {
                 id: filaVentana
                 anchors { left: parent.left; leftMargin: 8; right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
                 spacing: 8
                 // icono de la app activa con un halo de sus propios colores (como en el lanzador)
                 Item {
+                    id: cajaIcono
                     implicitWidth: 18; implicitHeight: 18
                     visible: islaVentana.icono !== ""
                     MultiEffect {
@@ -165,8 +180,10 @@ PanelWindow {
                     }
                 }
                 Text {
+                    id: tituloVentana
                     Layout.fillWidth: true
                     Layout.maximumWidth: implicitWidth
+                    transform: Translate { id: deslizTitulo }
                     text: islaVentana.actual?.title ?? ""
                     color: EstiloPanel.secundario
                     elide: Text.ElideRight
