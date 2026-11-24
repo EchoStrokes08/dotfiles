@@ -72,8 +72,10 @@ def manifiesto(p, fondo):
                                         "options": {"blend_mode": "normal", "grayscale": False}}]}],
                 "preview": {"352x248": fondo},
                 "speeddial_position": "top", "text_shadow": "#000000",
+                # islas = barra de pestañas, de direcciones y lateral: opacas a medias para que se lean
+                # sobre el wallpaper; viñeta suave para que los bordes no compitan con el contenido
                 "ui_settings": {"background_blur": 0, "background_opacity": 0, "focus_mode": False,
-                                "islands_opacity": 0, "vignette_strength": 0}}
+                                "islands_opacity": 70, "vignette_strength": 35}}
         payload["wallpaper"] = [{"id": "orion", "name": "ORION",
                                  "dark": {**capa, "text_color": f"#{p['texto']}"},
                                  "light": {**capa, "text_color": f"#{p['texto']}"}}]
@@ -123,6 +125,12 @@ def activar():
     gx.pop("sounds_browser_sounds_set", None)
     gx.pop("sounds_typing_sounds_set_2", None)
     gx["play_background_music"] = False
+    # Primera vez (si ya lo cambiaste en Ajustes, se respeta): seguir donde lo dejaste en vez de abrir
+    # GX Corner, y la barra lateral sin recompensas ni Twitch
+    prefs.setdefault("session", {}).setdefault("restore_on_startup", 1)
+    visibles = prefs["ui"].setdefault("browser", {}).setdefault("sidebar", {}).setdefault("item_prefs", {}).setdefault("visibility", {})
+    for item in ("GxRewards", "aelmefcddnelhophneodelaokjogeemi"):   # el segundo es la extensión de Twitch
+        visibles.setdefault(item, False)
     tmp = PREFS.with_name("Preferences.orion-tmp")
     tmp.write_text(json.dumps(prefs, separators=(",", ":")))
     tmp.replace(PREFS)
