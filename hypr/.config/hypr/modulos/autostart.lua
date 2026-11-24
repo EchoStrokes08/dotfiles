@@ -5,7 +5,7 @@ local p = require("modulos.programas")
 hl.on("hyprland.start", function()
     -- Apps
     hl.exec_cmd(p.terminal)
-    hl.exec_cmd("firefox")
+    hl.exec_cmd(p.opera)   -- Opera GX con el mod ORION (antes Firefox)
 
     -- Escritorio
     hl.exec_cmd("awww-daemon")      -- fondo de pantalla con transiciones (antes hyprpaper, que queda de respaldo)

@@ -6,7 +6,7 @@
 -- PERSONALIZAR: desde Mesa (SUPER+CTRL+V → Rutinas → «Apps»), o editando la tabla SESIONES
 -- (son las apps de serie; lo elegido en Mesa tiene prioridad). Cada app es { ws = workspace, clase = "class de la ventana"
 -- (hyprctl clients, o SUPER+I), cmd = "comando", nombre = "opcional, para Mesa" }. `icono` es un glifo de Nerd Font (código hex).
--- Firefox abre varias pestañas si le pasas varias direcciones.
+-- Opera GX abre varias pestañas si le pasas varias direcciones.
 --
 -- Desde fuera:  hyprctl dispatch 'sesion.abrir("universidad") or hl.dsp.no_op()'
 local p = require("modulos.programas")
@@ -15,7 +15,7 @@ local SESIONES = {
     {
         id = "universidad", nombre = "Universidad", icono = 0xF0474, ir_a = 3,
         apps = {
-            { ws = 2, clase = "firefox",       cmd = "firefox https://www.coursera.org https://classroom.google.com" },
+            { ws = 2, clase = "Opera GX",      cmd = p.opera .. " https://www.coursera.org https://classroom.google.com" },
             { ws = 3, clase = "PacketTracer",  nombre = "Packet Tracer", cmd = "/usr/lib/packettracer/packettracer.AppImage" },
             { ws = 4, clase = "sesion-notas",  nombre = "Notas (nvim)", cmd = p.terminal .. " --class sesion-notas -e nvim ~/Documents/notas.md" },
         },
@@ -24,14 +24,14 @@ local SESIONES = {
         id = "programar", nombre = "Programar", icono = 0xF0169, ir_a = 3,
         apps = {
             { ws = 1, clase = "sesion-dotfiles", nombre = "Terminal en dotfiles", cmd = p.terminal .. " --class sesion-dotfiles --directory ~/dotfiles" },
-            { ws = 2, clase = "firefox",         cmd = "firefox" },
+            { ws = 2, clase = "Opera GX",        cmd = p.opera },
             { ws = 3, clase = "code-oss",        cmd = "code" },
         },
     },
     {
         id = "descanso", nombre = "Descanso", icono = 0xF075A, ir_a = 2,
         apps = {
-            { ws = 2, clase = "firefox", cmd = "firefox https://www.youtube.com" },
+            { ws = 2, clase = "Opera GX", cmd = p.opera .. " https://www.youtube.com" },
             { ws = 9, clase = "vesktop", cmd = "vesktop" },
         },
     },

@@ -24,7 +24,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+G` | Roblox (Sober, con gamemode) |
 | `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
 | ★ `SUPER+D` | Brújula: tu día (reloj, clima, agenda, sistema y tiempo de pantalla), línea de tiempo y salud |
-| `SUPER+A`, luego una letra | Modo lanzar: `F` Firefox · `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify · `N` Nebula · `O` Opera GX · `I` impresora. Cualquier otra tecla cancela |
+| `SUPER+A`, luego una letra | Modo lanzar: `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify · `N` Nebula · `O` Opera GX · `I` impresora. Cualquier otra tecla cancela |
 
 #### Ventanas
 
@@ -184,7 +184,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 
 | Escribe | Resultado (Enter) |
 |---|---|
-| `firefox`, `ffx`, `blo`… | Apps (sin tildes, letras salteadas; las que más usas suben) y acciones: bloquear, apagar, atajos, OCR, dictar, grabar… |
+| `opera`, `opx`, `blo`… | Apps (sin tildes, letras salteadas; las que más usas suben) y acciones: bloquear, apagar, atajos, OCR, dictar, grabar… |
 | `2*(3+4)` · `5 km a mi` · `30 °C a °F` · `100 USD a COP` · `=…` | Calculadora y conversor (qalc): copia el resultado |
 | `dolar hoy` · `dólar` · `trm` | TRM oficial de hoy + dólar y euro de mercado (tasas al día por `tasas-cambio.timer`); `Enter` copia |
 | `g …` · `yt …` · `w …` · `gh …` | Buscar en Google / YouTube / Wikipedia / GitHub |
@@ -203,7 +203,7 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | `v texto` | Ventanas abiertas en cualquier workspace → ir a ella |
 | `n texto` | Buscar dentro de tus notas (`~/Documents/*.md`) → abrir nvim en esa línea |
 | `c texto` | Historial del portapapeles → copiarlo otra vez |
-| `t texto` | Pestañas abiertas de Firefox → abrir esa dirección (para saltar a la pestaña ya abierta, en Firefox escribe `%` en la barra) |
+| `t texto` | Pestañas abiertas de Opera GX → abrir esa dirección (para saltar a la pestaña ya abierta, en Opera usa `Ctrl+Espacio`) |
 | `p nombre` | Contraseñas (Bitwarden o pass) → la escribe donde esté el cursor. Primera vez: `claves.sh configurar` |
 | `ia pregunta` | Preguntar al asistente local |
 | `nota texto` | Apuntar una línea en `notas.md` |
@@ -225,7 +225,7 @@ En el lanzador, el portapapeles y el selector de wallpapers: `↑↓` (o flechas
 | Prefijo de búsqueda | Fuente |
 |---|---|
 | `d texto` | Dentro de documentos indexados |
-| `h texto` | Historial de Firefox |
+| `h texto` | Historial de Opera GX |
 | `a texto` | Atajos |
 | `l texto` | Línea de tiempo |
 | `s texto` | Ajustes y acciones del sistema |

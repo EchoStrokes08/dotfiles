@@ -19,7 +19,6 @@ end)
 -- Modo "lanzar": SUPER+A y luego UNA letra. Se cierra solo; cualquier otra tecla cancela.
 hl.bind(mod .. " + A", hl.dsp.submap("lanzar"))
 hl.define_submap("lanzar", "reset", function()
-    hl.bind("F", u.enfocar_o_abrir("firefox", "firefox"))
     hl.bind("O", u.enfocar_o_abrir("Opera GX", p.opera))
     hl.bind("T", hl.dsp.exec_cmd(p.terminal))
     hl.bind("E", hl.dsp.exec_cmd(p.fileManager))

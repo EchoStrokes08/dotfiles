@@ -110,7 +110,7 @@ hl.window_rule({
 -- ---------- Nivel 6: workspaces con propósito ----------
 -- Cada app abre siempre en "su" workspace (y te lleva ahí). Con " silent" detrás abriría sin llevarte.
 --   1 terminal · 2 navegador · 9 chats   (Spotify vive en su scratchpad: SUPER+Y)
-hl.window_rule({ name = "ws-navegador", match = { initial_class = "^firefox$" },                              workspace = "2" })
+hl.window_rule({ name = "ws-navegador", match = { initial_class = "^(firefox|Opera GX)$" },                   workspace = "2" })
 hl.window_rule({ name = "ws-chats",     match = { initial_class = "^(com.rtosta.zapzap|discord|vesktop)$" }, workspace = "9" })
 
 -- ---------- Animaciones por tipo (explicado al final de animaciones.lua) ----------

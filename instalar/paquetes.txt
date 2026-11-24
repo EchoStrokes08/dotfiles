@@ -31,7 +31,6 @@ fastfetch
 fd
 ffmpegthumbnailer
 file-roller
-firefox
 flatpak
 fuse2
 fuzzel

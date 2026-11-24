@@ -1,0 +1,24 @@
+[Desktop Entry]
+# Tapa el lanzador del paquete (/usr/share/applications/opera-gx.desktop): abre Opera GX con el mod
+# ORION (paleta y wallpaper del escritorio) también desde el menú y los enlaces de otras apps.
+Version=1.0
+Name=Opera GX
+GenericName=Navegador web
+Comment=Opera GX con el tema del escritorio
+TryExec=opera-gx
+Exec=sh -c "exec \\$HOME/.config/hypr/scripts/opera-gx.py \\"\\$@\\"" opera-gx %U
+Terminal=false
+Icon=opera-gx
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;application/x-opera-download;
+Actions=new-window;new-private-window;
+StartupWMClass=Opera GX
+
+[Desktop Action new-window]
+Name=Ventana nueva
+Exec=sh -c "exec \\$HOME/.config/hypr/scripts/opera-gx.py --new-window"
+
+[Desktop Action new-private-window]
+Name=Ventana privada
+Exec=sh -c "exec \\$HOME/.config/hypr/scripts/opera-gx.py --private"

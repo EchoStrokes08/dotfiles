@@ -9,7 +9,7 @@ import sys
 import time
 
 SCRIPTS=Path(__file__).resolve().parent
-GRUPOS=[('ventanas','Ventanas'),('documentos','Documentos'),('notas','Notas'),('historial','Visitado en Firefox'),('ajustes','Ajustes'),('linea','Línea de tiempo'),('atajos','Atajos'),('portapapeles','Portapapeles')]
+GRUPOS=[('ventanas','Ventanas'),('documentos','Documentos'),('notas','Notas'),('historial','Visitado en Opera'),('ajustes','Ajustes'),('linea','Línea de tiempo'),('atajos','Atajos'),('portapapeles','Portapapeles')]
 
 
 def buscar(tipo, consulta):

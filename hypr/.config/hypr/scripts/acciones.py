@@ -232,9 +232,9 @@ def ejecutar_accion(ref, codigo, valores=None):
     elif tipo=='web':
         if codigo=='copiar':subprocess.run(['wl-copy','--',d],check=True,timeout=4);mensaje='Enlace copiado'
         elif codigo in ('abrir','privada'):
-            subprocess.Popen(['firefox',*(['--private-window'] if codigo=='privada' else []),d],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);mensaje='Se solicitó abrir el enlace'
+            subprocess.Popen([str(HOME/'.config/hypr/scripts/opera-gx.py'),*(['--private'] if codigo=='privada' else []),d],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);mensaje='Se solicitó abrir el enlace'
         elif codigo=='ocultar':
-            actuales=ocultos();token=guardar_deshacer('web',d);atomico(ESTADO/'web-oculta.json',list(dict.fromkeys([*actuales,d])));mensaje='Enlace oculto de ORION; el historial de Firefox se conserva'
+            actuales=ocultos();token=guardar_deshacer('web',d);atomico(ESTADO/'web-oculta.json',list(dict.fromkeys([*actuales,d])));mensaje='Enlace oculto de ORION; el historial de Opera se conserva'
     elif tipo=='actividad':
         minutos=int(valores.get('minutos',30))
         if not 1<=minutos<=240:raise ValueError('Elige entre 1 y 240 minutos.')

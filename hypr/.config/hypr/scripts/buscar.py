@@ -5,10 +5,10 @@ Tipos (prefijo en el lanzador):
     ventanas (v)       ventanas abiertas en cualquier workspace → ir a ella
     notas (n)          líneas de tus notas (~/Documents/**/*.md) → abrir nvim en esa línea
     portapapeles (c)   historial del portapapeles (cliphist) → copiarlo otra vez
-    pestanas (t)       pestañas abiertas de Firefox → abrir esa dirección
+    pestanas (t)       pestañas abiertas de Opera GX → abrir esa dirección
     claves (p)         gestor de contraseñas (rbw = Bitwarden, o pass) → escribir la clave o el usuario
     documentos (d)     DENTRO de tus PDF, Word y apuntes (índice de indice.py) → abrirlo
-    historial (h)      páginas que visitaste en Firefox → abrirla
+    historial (h)      páginas que visitaste en Opera GX → abrirla
     atajos (a)         atajos de teclado del manual de usuario → verlos en la chuleta
     linea (l)          tu línea de tiempo: dónde viste algo y cuándo → abrir ese día en Brújula
     ajustes (s)        cada opción del escritorio (perfiles, tema, energía, reglas, móvil…) → aplicarla ya
@@ -86,28 +86,69 @@ def portapapeles(q):
     return res
 
 
-def pestanas(q):
-    try:
-        import lz4.block
-    except ImportError:
-        return [{"nombre": "Falta python-lz4", "detalle": "sudo pacman -S python-lz4", "glifo": 0xF0026, "cmd": []}]
-    res, vistos = [], set()
-    for perfil in (HOME / ".config/mozilla/firefox").glob("*/sessionstore-backups/recovery.jsonlz4"):
+OPERA = HOME / ".config/opera-gx/Default"
+NAVEGADOR = [S + "/opera-gx.py"]   # Opera GX con el mod ORION (si ya está abierto, solo le pasa la dirección)
+
+
+def leer_sesion(datos):
+    """Pestañas abiertas en un archivo de sesión de Chromium/Opera (SNSS): [(url, título)].
+    Registros: uint16 tamaño, uint8 tipo, datos. 0 pestaña→ventana, 6 navegación (pickle con url y título),
+    7 navegación elegida de la pestaña, 16 pestaña cerrada, 17 ventana cerrada."""
+    import struct
+    if datos[:4] != b"SNSS":
+        return []
+    nav, elegida, ventana, cerradas, ventanas_cerradas = {}, {}, {}, set(), set()
+    i = 8
+    while i + 3 <= len(datos):
+        n = struct.unpack_from("<H", datos, i)[0]
+        i += 2
+        if n == 0 or i + n > len(datos):
+            break
+        tipo, p = datos[i], datos[i + 1:i + n]
+        i += n
         try:
-            datos = json.loads(lz4.block.decompress(perfil.read_bytes()[8:]))   # 8 bytes de cabecera "mozLz40\0"
-        except Exception:
+            if tipo == 0 and len(p) >= 8:
+                v, t = struct.unpack_from("<ii", p)
+                ventana[t] = v
+            elif tipo == 6 and len(p) >= 16:
+                _, t, idx, lu = struct.unpack_from("<iiii", p)
+                url = p[16:16 + lu].decode("utf-8", "replace")
+                o = 16 + (lu + 3) // 4 * 4
+                lt = struct.unpack_from("<i", p, o)[0]
+                titulo = p[o + 4:o + 4 + lt * 2].decode("utf-16-le", "replace")
+                nav.setdefault(t, {})[idx] = (url, titulo)
+            elif tipo == 7 and len(p) >= 8:
+                t, idx = struct.unpack_from("<ii", p)
+                elegida[t] = idx
+            elif tipo == 16 and len(p) >= 4:
+                cerradas.add(struct.unpack_from("<i", p)[0])
+            elif tipo == 17 and len(p) >= 4:
+                ventanas_cerradas.add(struct.unpack_from("<i", p)[0])
+        except struct.error:
             continue
-        for v in datos.get("windows", []):
-            for tab in v.get("tabs", []):
-                e = tab.get("entries") or []
-                if not e:
-                    continue
-                e = e[min(tab.get("index", len(e)), len(e)) - 1]
-                url, titulo = e.get("url", ""), e.get("title", "")
-                if url in vistos or url.startswith("about:") or not coincide(q, titulo, url):
-                    continue
-                vistos.add(url)
-                res.append({"nombre": titulo or url, "detalle": url[:100], "glifo": 0xF0239, "cmd": ["firefox", url]})
+    res = []
+    for t, entradas in nav.items():
+        if t in cerradas or ventana.get(t) in ventanas_cerradas:
+            continue
+        url, titulo = entradas.get(elegida.get(t, max(entradas)), entradas[max(entradas)])
+        res.append((url, titulo))
+    return res
+
+
+def pestanas(q):
+    sesiones = sorted((OPERA / "Sessions").glob("Session_*"), key=lambda p: p.stat().st_mtime)
+    if not sesiones:
+        return []
+    try:
+        abiertas = leer_sesion(sesiones[-1].read_bytes())
+    except OSError:
+        return []
+    res, vistos = [], set()
+    for url, titulo in abiertas:
+        if url in vistos or not url.startswith("http") or not coincide(q, titulo, url):
+            continue
+        vistos.add(url)
+        res.append({"nombre": titulo or url, "detalle": url[:100], "glifo": 0xF0239, "cmd": [*NAVEGADOR, url]})
     return res[:30]
 
 
@@ -160,17 +201,17 @@ def historial(q):
     if len(q.strip()) < 2:
         return []
     res = []
-    for db in (HOME / ".config/mozilla/firefox").glob("*/places.sqlite"):
+    for db in [OPERA / "History"] if (OPERA / "History").exists() else []:
         try:
-            # immutable: leer sin bloquear a Firefox (puede faltar lo de los últimos minutos)
+            # immutable: leer sin bloquear a Opera (puede faltar lo de los últimos minutos)
             c = sqlite3.connect(f"file:{db}?immutable=1", uri=True, timeout=1)
             palabras = [f"%{w}%" for w in q.split()[:5]]
             donde = " AND ".join("(coalesce(title,'') || ' ' || url) LIKE ?" for _ in palabras)
-            filas = c.execute(f"SELECT url, title FROM moz_places WHERE hidden = 0 AND url LIKE 'http%' AND {donde} "
-                              "ORDER BY frecency DESC LIMIT 80", palabras).fetchall()
+            filas = c.execute(f"SELECT url, title FROM urls WHERE hidden = 0 AND url LIKE 'http%' AND {donde} "
+                              "ORDER BY typed_count * 4 + visit_count DESC, last_visit_time DESC LIMIT 80", palabras).fetchall()
             c.close()
         except sqlite3.Error:
-            ERRORES.append("No se pudo leer un perfil de Firefox")
+            ERRORES.append("No se pudo leer el historial de Opera")
             continue
         for url, titulo in filas:
             if url in ocultos(): continue
@@ -180,7 +221,7 @@ def historial(q):
             if len(res) >= 8:
                 break
             res.append({"nombre": titulo_web(url,titulo or ""), "referencia":{"tipo":"web","id":url}, "detalle": re.sub(r"^https?://(www\.)?", "", url)[:100],
-                        "glifo": 0xF02DA, "cmd": ["firefox", url]})
+                        "glifo": 0xF02DA, "cmd": [*NAVEGADOR, url]})
     return res[:8]
 
 
@@ -309,7 +350,7 @@ def ajustes(q):
     return res[:12]
 
 
-GRUPOS = [("ajustes", "Ajustes"), ("ventanas", "Ventanas"), ("documentos", "Documentos"), ("notas", "Notas"), ("historial", "Visitado en Firefox"),
+GRUPOS = [("ajustes", "Ajustes"), ("ventanas", "Ventanas"), ("documentos", "Documentos"), ("notas", "Notas"), ("historial", "Visitado en Opera"),
           ("linea", "Línea de tiempo"), ("atajos", "Atajos"), ("portapapeles", "Portapapeles")]
 
 
