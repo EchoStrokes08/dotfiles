@@ -13,12 +13,16 @@ RowLayout {
     spacing: 4
     readonly property var items: SystemTray.items.values.filter(i => !ocultarBuds || i.status === Status.NeedsAttention || !/buds/i.test(i.id + " " + i.title))
     readonly property var visibles: items.filter(i => PreferenciasUI.favoritosBandeja.includes(i.id) || i.status === Status.NeedsAttention)
-    function activar(item, boton, origen) {
+    // win: la ventana donde está `origen` (la barra o el desplegable)
+    function activar(item, boton, origen, win) {
         if (boton === Qt.MiddleButton) item.secondaryActivate();
         else if (boton === Qt.RightButton || item.onlyMenu) {
-            if (item.hasMenu) { const p = origen.mapToItem(null,0,origen.height); item.display(ventana,p.x,p.y+8); }
+            if (!item.hasMenu) return;
+            // menú con el estilo del sistema; si falla, el nativo de Qt
+            if (!menuBandeja.abrir(item, origen, win ?? ventana)) { const p = origen.mapToItem(null,0,origen.height); item.display(ventana,p.x,p.y+8); }
         } else item.activate();
     }
+    MenuBandeja { id: menuBandeja }
     Repeater {
         model: bandeja.visibles
         Item {
@@ -122,7 +126,7 @@ RowLayout {
                             anchors.fill: parent; hoverEnabled: true
                             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: (e) => bandeja.activar(fila.modelData, e.button, fila)
+                            onClicked: (e) => bandeja.activar(fila.modelData, e.button, fila, desplegable)
                         }
                         RowLayout {
                             anchors { fill: parent; leftMargin: 12; rightMargin: 4 }
