@@ -17,6 +17,7 @@ ShellRoot {
     AvisoRecarga {}
     Lanzador { id: lanzador }
     OSD {}
+    Autorizacion {}   // agente de polkit: la ventana de la contraseña de administrador
     Emergentes {}
     CentroControl { id: centro }
     Bloqueo {}

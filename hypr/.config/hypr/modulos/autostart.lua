@@ -21,7 +21,8 @@ hl.on("hyprland.start", function()
     -- historial del portapapeles, sin secretos (claves de API, tokens, lo que marca el gestor de contraseñas)
     hl.exec_cmd("wl-paste --type text --watch ~/.config/hypr/scripts/portapapeles-guardar.sh texto")
     hl.exec_cmd("wl-paste --type image --watch ~/.config/hypr/scripts/portapapeles-guardar.sh imagen")
-    hl.exec_cmd("systemctl --user start hyprpolkitagent")        -- ventana de contraseña de admin
+    -- ventana de contraseña de admin: la dibuja Quickshell (Autorizacion.qml); si no la registra, hyprpolkitagent
+    hl.exec_cmd("~/.config/hypr/scripts/polkit-respaldo.sh")
     hl.exec_cmd("systembus-notify")                               -- pasa a notificaciones los avisos del sistema (earlyoom)
     hl.exec_cmd("kdeconnect-indicator")                           -- KDE Connect: móvil (icono en la bandeja)
     hl.exec_cmd("~/.config/hypr/scripts/sonido.sh restaurar")    -- EasyEffects: último perfil de sonido de las bocinas

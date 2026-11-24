@@ -76,7 +76,7 @@ operaciones como compartir pantalla. Que un portal esté activo no prueba una vi
 `hyprland.lua` carga módulos con `require`. `autostart.lua` usa `hyprland.start`: sus programas
 se lanzan al iniciar, no en cada `hyprctl reload`. Abre Kitty y Firefox e inicia Quickshell,
 awww, tiempo de pantalla, Brújula, hyprsunset, hypridle, portapapeles de texto e imagen,
-hyprpolkitagent, systembus-notify, KDE Connect, sonido, lugares, udiskie y reconciliación de replay.
+el respaldo del agente de polkit (`polkit-respaldo.sh`: la ventana de contraseña la dibuja Quickshell en `Autorizacion.qml` y, si no se registra, arranca hyprpolkitagent), systembus-notify, KDE Connect, sonido, lugares, udiskie y reconciliación de replay.
 
 Los timers de los módulos se vuelven a configurar al recargar. La rotación de fondos usa
 **17,5 minutos** en `tema.lua`. El tema horario está apagado por defecto; al habilitarlo cambia
