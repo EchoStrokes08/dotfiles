@@ -25,14 +25,37 @@ Item {
 
     // La píldora: se coloca tras el botón activo y se anima al cambiar
     // (todos los botones miden lo mismo → su posición sale del índice; itemAt() no sería reactivo)
+    // Es «líquida»: sus dos bordes se mueven por separado. El delantero sale enseguida y el trasero
+    // lo sigue con retraso, así se estira como una gota hacia el destino y se recoge al llegar.
+    // sin enlaces a «activo»: si los tuvieran, saltarían al instante antes de que empiece la gota
+    property real izq: 2
+    property real der: anchoBoton - 2
+    property int previo: -1
+    Component.onCompleted: { previo = activo; izq = Math.max(0, activo) * anchoBoton + 2; der = izq + anchoBoton - 4; }
+    onActivoChanged: {
+        const x0 = activo * anchoBoton + 2, x1 = x0 + anchoBoton - 4;
+        if (!EstiloPanel.movimiento || previo < 0 || activo < 0) { gota.stop(); izq = x0; der = x1; previo = activo; return; }
+        const avanza = activo > previo;
+        bordeDelantero.target = raiz; bordeDelantero.property = avanza ? "der" : "izq"; bordeDelantero.to = avanza ? x1 : x0;
+        bordeTrasero.target = raiz;   bordeTrasero.property   = avanza ? "izq" : "der"; bordeTrasero.to   = avanza ? x0 : x1;
+        previo = activo;
+        gota.restart();
+    }
+    ParallelAnimation {
+        id: gota
+        NumberAnimation { id: bordeDelantero; duration: EstiloPanel.normal; easing.type: Easing.OutCubic }
+        SequentialAnimation {
+            PauseAnimation { duration: 60 }
+            NumberAnimation { id: bordeTrasero; duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+        }
+    }
     Item {
         id: pildora
         visible: raiz.activo >= 0
-        x: raiz.activo * raiz.anchoBoton + 2
-        width: raiz.anchoBoton - 4
+        x: raiz.izq
+        width: raiz.der - raiz.izq
         height: 24
         anchors.verticalCenter: parent.verticalCenter
-        Behavior on x { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
         RectangularShadow {
             anchors.fill: parent
             visible: EstiloPanel.profundidad
@@ -83,12 +106,28 @@ Item {
                     Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
                     Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: EstiloPanel.rapido } }
                 }
-                // punto: tiene ventanas
-                Rectangle {
+                // punto: tiene ventanas (urgente: rojo, con un halo que late hasta que vas)
+                Item {
                     visible: boton.ocupado && !boton.modelData.active
                     anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter; verticalCenterOffset: 8 }
-                    width: 4; height: 4; radius: height / 2
-                    color: boton.modelData.urgent ? Paleta.peligro : Qt.alpha(Paleta.acento, .8)
+                    width: 4; height: 4
+                    property real latido: 0
+                    SequentialAnimation on latido {
+                        running: boton.modelData.urgent && EstiloPanel.movimiento
+                        loops: Animation.Infinite
+                        NumberAnimation { to: 1; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 0; duration: 600; easing.type: Easing.InOutSine }
+                    }
+                    RectangularShadow {
+                        anchors.fill: parent
+                        visible: EstiloPanel.profundidad && boton.modelData.urgent
+                        radius: width / 2; blur: 6 + 6 * parent.latido; spread: 1
+                        color: Qt.alpha(Paleta.peligro, .5 + .4 * parent.latido)
+                    }
+                    Rectangle {
+                        anchors.fill: parent; radius: height / 2
+                        color: boton.modelData.urgent ? Paleta.peligro : Qt.alpha(Paleta.acento, .8)
+                    }
                 }
                 MouseArea {
                     id: zona
