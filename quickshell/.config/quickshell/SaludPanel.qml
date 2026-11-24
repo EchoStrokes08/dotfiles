@@ -1,5 +1,6 @@
 // Salud: una jerarquía común, métricas sobrias y atención solo donde hace falta.
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell.Services.UPower
@@ -78,30 +79,61 @@ Flickable {
             columnSpacing: 12; rowSpacing: 12
             Repeater {
                 model: [
-                    {nombre:"Procesador",valor:Math.round(Sistema.cpu*100)+"%",uso:Sistema.cpu,detalle:"Carga actual",alerta:Sistema.cpu>.85},
-                    {nombre:"Memoria",valor:Math.round(Sistema.ram*100)+"%",uso:Sistema.ram,detalle:"RAM en uso",alerta:Sistema.ram>.85},
-                    {nombre:"Temperatura",valor:Math.round(Sistema.temp)+"°",uso:Sistema.temp/100,detalle:"Del procesador",alerta:Sistema.temp>=80},
-                    {nombre:"Batería",valor:salud.carga>=0 ? Math.round(salud.carga)+"%" : "—",uso:Math.max(0,salud.carga)/100,detalle:UPower.onBattery ? "Con batería" : "Conectado a corriente",alerta:salud.carga>=0 && salud.carga<=15}
+                    {nombre:"Procesador",valor:Math.round(Sistema.cpu*100)+"%",uso:Sistema.cpu,detalle:"Carga actual",alerta:Sistema.cpu>.85,critico:Sistema.cpu>.95},
+                    {nombre:"Memoria",valor:Math.round(Sistema.ram*100)+"%",uso:Sistema.ram,detalle:"RAM en uso",alerta:Sistema.ram>.85,critico:Sistema.ram>.95},
+                    {nombre:"Temperatura",valor:Math.round(Sistema.temp)+"°",uso:Sistema.temp/100,detalle:"Del procesador",alerta:Sistema.temp>=80,critico:Sistema.temp>=90},
+                    {nombre:"Batería",valor:salud.carga>=0 ? Math.round(salud.carga)+"%" : "—",uso:Math.max(0,salud.carga)/100,detalle:UPower.onBattery ? "Con batería" : "Conectado a corriente",alerta:salud.carga>=0 && salud.carga<=15,critico:salud.carga>=0 && salud.carga<=5}
                 ]
-                Rectangle {
+                // Sobrias mientras todo va bien; una métrica en alerta se enciende sola (diseno.md: el color es para estados)
+                TarjetaPanel {
+                    id: metrica
                     required property var modelData
+                    readonly property color tono: modelData.critico ? Paleta.peligro : Paleta.aviso
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
                     implicitHeight: 104
-                    radius: EstiloPanel.rTarjeta
-                    color: EstiloPanel.superficie
-                    border { width: 1; color: EstiloPanel.borde }
-                    ColumnLayout {
-                        anchors { fill: parent; margins: 12 }
-                        spacing: 4
-                        Text { text: modelData.nombre; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
-                        Text { text: modelData.valor; color: modelData.alerta ? Paleta.aviso : Paleta.texto; font { family: Paleta.fuente; pixelSize: 26; bold: true } }
-                        Rectangle {
-                            Layout.fillWidth: true; height: 4; radius: 4; color: EstiloPanel.borde
-                            Rectangle { width: parent.width*Math.min(1,Math.max(0,modelData.uso)); height: 4; radius: 4; color: modelData.alerta ? Paleta.aviso : Qt.alpha(Paleta.texto,.35) }
-                        }
-                        Text { text: modelData.detalle; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
+                    relleno: 12
+                    espaciado: 4
+                    acento: modelData.alerta ? tono : Paleta.texto
+                    border.color: modelData.alerta ? Qt.alpha(tono, .45) : EstiloPanel.borde
+                    RectangularShadow {   // halo de alerta alrededor de la tarjeta
+                        parent: metrica; anchors.fill: parent; z: -2
+                        visible: EstiloPanel.profundidad && metrica.modelData.alerta
+                        radius: metrica.radius; blur: 24; spread: -4
+                        color: Qt.alpha(metrica.tono, .30)
                     }
+                    Text { text: metrica.modelData.nombre; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    Text { text: metrica.modelData.valor; color: metrica.modelData.alerta ? metrica.tono : Paleta.texto; font { family: Paleta.fuente; pixelSize: 26; bold: true; features: { "tnum": 1 } } }
+                    Item {
+                        Layout.fillWidth: true
+                        implicitHeight: 6
+                        readonly property real fraccion: Math.min(1, Math.max(0, metrica.modelData.uso))
+                        Rectangle { anchors.fill: parent; radius: height / 2; color: EstiloPanel.borde }
+                        RectangularShadow {
+                            width: barraUso.width; height: parent.height
+                            visible: EstiloPanel.profundidad && metrica.modelData.alerta
+                            radius: height / 2; blur: 10
+                            color: Qt.alpha(metrica.tono, .6)
+                        }
+                        Rectangle {
+                            id: barraUso
+                            width: Math.max(height, parent.width * parent.fraccion); height: parent.height; radius: height / 2
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0; color: metrica.modelData.alerta ? Qt.alpha(metrica.tono, .55) : Qt.alpha(Paleta.texto, .14) }
+                                GradientStop { position: 1; color: metrica.modelData.alerta ? Qt.lighter(metrica.tono, 1.12) : Qt.alpha(Paleta.texto, .42) }
+                            }
+                            Behavior on width { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
+                        }
+                        Rectangle {   // punta: un punto de luz al final del relleno
+                            width: 8; height: 8; radius: height / 2
+                            anchors.verticalCenter: parent.verticalCenter
+                            x: barraUso.width - width / 2 - 1
+                            color: metrica.modelData.alerta ? Qt.lighter(metrica.tono, 1.4) : Qt.alpha(Paleta.texto, .7)
+                            border { width: 1; color: Qt.alpha("white", .35) }
+                        }
+                    }
+                    Text { text: metrica.modelData.detalle; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
                 }
             }
         }
