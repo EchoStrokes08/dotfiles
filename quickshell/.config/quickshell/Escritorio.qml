@@ -213,6 +213,114 @@ PanelWindow {
         }
     }
 
+    // ── Cielo de noche (de 20:00 a 5:00) ──
+    // Fuera de la capa del texto: lo que se mueve aquí no obliga a repintar el reloj ni su sombra.
+    // Las estrellas son fijas (las mismas toda la noche: salen de la fecha); con efectos y movimiento
+    // (enchufado, perfil cristal) alguna titila despacio y, de vez en cuando, cruza una estrella fugaz.
+    readonly property int horaDia: reloj.date.getHours()
+    readonly property bool noche: horaDia >= 20 || horaDia < 5
+    readonly property bool cieloVivo: noche && mostrar && EstiloPanel.efectos && EstiloPanel.movimiento
+    Item {
+        id: cielo
+        anchors.fill: parent
+        opacity: v.noche && v.mostrar ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 2000; easing.type: Easing.InOutSine } }
+
+        readonly property var estrellas: {
+            const d = reloj.date, semilla0 = d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate() - (d.getHours() < 5 ? 1 : 0);
+            let semilla = semilla0 >>> 0;
+            const azar = () => { semilla = (semilla * 1664525 + 1013904223) >>> 0; return semilla / 4294967296; };
+            const r = [];
+            for (let i = 0; i < 90; i++) {
+                const t = azar();
+                r.push({ x: azar(), y: Math.pow(azar(), 1.4) * .62, lado: t > .94 ? 3 : t > .7 ? 2 : 1.5, brillo: .35 + azar() * .6,
+                         tinte: azar() > .85 ? (azar() > .5 ? Paleta.acento : Paleta.acento2) : Paleta.sobreImagen });
+            }
+            return r;
+        }
+        Repeater {
+            id: estrellas
+            model: cielo.estrellas
+            Item {
+                required property var modelData
+                property real brillo: modelData.brillo
+                x: modelData.x * cielo.width; y: modelData.y * cielo.height
+                width: modelData.lado; height: modelData.lado
+                opacity: brillo
+                Behavior on brillo { NumberAnimation { duration: 1600; easing.type: Easing.InOutSine } }
+                RectangularShadow {   // solo las grandes tienen halo
+                    anchors.fill: parent
+                    visible: parent.modelData.lado >= 3 && EstiloPanel.profundidad
+                    radius: width / 2; blur: 8; spread: 1
+                    color: Qt.alpha(parent.modelData.tinte, .7)
+                }
+                Rectangle { anchors.fill: parent; radius: width / 2; color: parent.modelData.tinte }
+            }
+        }
+        // Titileo: cada pocos segundos una estrella baja su brillo y vuelve (solo con cielo vivo)
+        Timer {
+            interval: 2600; repeat: true; running: v.cieloVivo
+            onTriggered: {
+                const e = estrellas.itemAt(Math.floor(Math.random() * estrellas.count));
+                if (!e) return;
+                const base = e.modelData.brillo;
+                e.brillo = base * .25;
+                vuelta.objetivo = e; vuelta.base = base; vuelta.restart();
+            }
+        }
+        Timer { id: vuelta; property var objetivo: null; property real base: 1; interval: 1700; onTriggered: if (objetivo) objetivo.brillo = base }
+
+        // Estrella fugaz: un trazo con cabeza luminosa que cae en diagonal hacia la derecha (hacia donde apunta) y se apaga
+        Item {
+            id: fugaz
+            visible: false
+            width: 170; height: 2
+            rotation: 28
+            transformOrigin: Item.Right
+            Rectangle {
+                anchors.fill: parent; radius: height / 2
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0; color: "transparent" }
+                    GradientStop { position: .85; color: Qt.alpha(Paleta.sobreImagen, .55) }
+                    GradientStop { position: 1; color: Paleta.sobreImagen }
+                }
+            }
+            RectangularShadow {   // cabeza
+                x: parent.width - 6; y: -2; width: 6; height: 6
+                radius: EstiloPanel.rPunto; blur: 12; spread: 2
+                color: Qt.alpha(Qt.lighter(Paleta.acento2, 1.4), .9)
+            }
+        }
+        ParallelAnimation {
+            id: vuelo
+            property real x0: 0
+            property real y0: 0
+            NumberAnimation { target: fugaz; property: "x"; from: vuelo.x0; to: vuelo.x0 + 380; duration: 1100; easing.type: Easing.InQuad }
+            NumberAnimation { target: fugaz; property: "y"; from: vuelo.y0; to: vuelo.y0 + 200; duration: 1100; easing.type: Easing.InQuad }
+            SequentialAnimation {
+                NumberAnimation { target: fugaz; property: "opacity"; from: 0; to: 1; duration: EstiloPanel.rapido }
+                PauseAnimation { duration: 600 }
+                NumberAnimation { target: fugaz; property: "opacity"; to: 0; duration: EstiloPanel.lento }
+            }
+            onStarted: fugaz.visible = true
+            onStopped: fugaz.visible = false
+        }
+        function lanzarFugaz() {
+            vuelo.x0 = cielo.width * (.05 + Math.random() * .55);
+            vuelo.y0 = cielo.height * (.04 + Math.random() * .25);
+            vuelo.restart();
+        }
+        Timer {
+            id: proximaFugaz
+            running: v.cieloVivo
+            repeat: true
+            interval: 30000
+            onTriggered: { cielo.lanzarFugaz(); interval = 25000 + Math.random() * 45000; }
+        }
+    }
+
     Item {
         id: todo
         anchors.fill: parent
@@ -235,6 +343,22 @@ PanelWindow {
             anchors { left: parent.left; bottom: parent.bottom; leftMargin: 56; bottomMargin: 48 + (v.mostrar ? 0 : -14) }
             Behavior on anchors.bottomMargin { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
             spacing: 0
+
+            Text {   // saludo según la hora
+                readonly property string nombre: {
+                    const u = Quickshell.env("USER") ?? "";
+                    return u ? u.charAt(0).toUpperCase() + u.slice(1) : "";
+                }
+                readonly property int h: v.horaDia
+                readonly property string saludo: h >= 5 && h < 12 ? "Buenos días" : h >= 12 && h < 20 ? "Buenas tardes"
+                    : h >= 0 && h < 5 ? "Ya es tarde" : "Buenas noches"
+                readonly property int glifo: h >= 5 && h < 12 ? 0xF0599 : h >= 12 && h < 20 ? 0xF0598 : 0xF0594
+                Layout.bottomMargin: -10
+                Layout.leftMargin: 6
+                text: String.fromCodePoint(glifo) + "  " + saludo + (nombre ? ", " + nombre : "") + (h >= 0 && h < 5 ? " · a descansar" : "")
+                color: Qt.alpha(v.claro, .88)
+                font { family: Paleta.fuente; pixelSize: 20; weight: Font.DemiBold; letterSpacing: .5 }
+            }
 
             Row {
                 spacing: 0
