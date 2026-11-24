@@ -59,6 +59,18 @@ hl.window_rule({
     opaque = true,
 })
 
+-- Picture-in-Picture de Opera GX: igual que el de Firefox
+hl.window_rule({
+    name  = "pip-opera",
+    match = { class = "^Opera GX$", title = "^(Picture in picture|Picture-in-Picture|Imagen en imagen)$" },
+    float = true,
+    pin   = true,
+    size  = "480 270",
+    move  = "monitor_w-490 monitor_h-280",
+    keep_aspect_ratio = true,
+    opaque = true,
+})
+
 -- Diálogos que no deberían ocupar medio mosaico: flotantes y centrados
 hl.window_rule({
     name   = "dialogos-flotantes",
@@ -115,7 +127,7 @@ hl.window_rule({
 })
 hl.window_rule({
     name  = "anim-pip",
-    match = { class = "^firefox$", title = "^(Picture-in-Picture|Imagen en imagen)$" },
+    match = { class = "^(firefox|Opera GX)$", title = "^(Picture-in-Picture|Picture in picture|Imagen en imagen)$" },
     animation = "slide right",
 })
 

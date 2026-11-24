@@ -11,7 +11,7 @@ EXCLUIR='^(yay|yay-bin|yay-debug|paru-bin|paru-bin-debug|.*-debug|packettracer)$
 # Dependencias que no son "explícitas" pero hacen falta (Buds Manager)
 EXTRA_PACMAN="python-gobject gtk4 libadwaita jq"   # jq: lo usan capturas.sh, respaldo, etc.
 # Del AUR que el instalador debe traer aunque aún no estén aquí
-EXTRA_AUR="vesktop-bin spicetify-cli"
+EXTRA_AUR="vesktop-bin spicetify-cli opera-gx"
 
 {
   echo "# pacman: paquetes de los repos oficiales (generado por actualizar-listas.sh)"
