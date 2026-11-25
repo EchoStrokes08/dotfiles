@@ -37,13 +37,22 @@ hl.window_rule({
     immediate = true,
 })
 
--- Blur detrás de las tarjetas de Quickshell. Solo las tarjetas (≥ 0.92) superan ignore_alpha: el velo (0.28)
--- y la sombra (0.42) sumados llegan a ~0.58, y con 0.3 se desenfocaba un «marco fantasma» alrededor del panel.
+-- Blur detrás de la barra, avisos y el centro de control: solo bajo las islas y tarjetas (≥ 0.92 de opacidad).
+-- Su sombra (hasta ~0.58 sumada a otra capa) queda por debajo de ignore_alpha: sin «marco fantasma».
 hl.layer_rule({
     name         = "quickshell-blur",
-    match        = { namespace = "^quickshell-(barra|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|chuleta|vista|ia|nota|brujula|agente|movil|mesa|flujo)$" },
+    match        = { namespace = "^quickshell-(barra|osd|notificaciones|centro)$" },
     blur         = true,
     ignore_alpha = 0.6,
+})
+-- Paneles con velo (lanzador y todos los de Superpuesta.qml): el velo cubre la pantalla entera (0.25–0.28),
+-- así que con un umbral bajo se desenfoca TODO el fondo de forma uniforme al abrirlos («escritorio que respira»).
+-- Entra y sale con el fundido de la capa. Con batería, en Mínimo o jugando, politicas.lua apaga el blur global.
+hl.layer_rule({
+    name         = "quickshell-blur-velo",
+    match        = { namespace = "^quickshell-(lanzador|wallpapers|portapapeles|menu|chuleta|vista|ia|nota|brujula|agente|movil|mesa|flujo|apagado|impresora|autorizacion)$" },
+    blur         = true,
+    ignore_alpha = 0.05,
 })
 
 -- ---------- Nivel 3: reglas para el día a día ----------
@@ -141,6 +150,7 @@ hl.layer_rule({
     match   = { namespace = "^quickshell-(lanzador|centro|wallpapers|portapapeles|menu|chuleta|vista|osd|ia|nota|brujula|agente|movil|mesa|flujo)$" },
     no_anim = true,
 })
+hl.layer_rule({ name = "anim-fondo-vivo", match = { namespace = "^quickshell-fondo-vivo$" }, no_anim = true })   -- copia del wallpaper: aparece sin fundido
 hl.layer_rule({ name = "anim-seleccion", match = { namespace = "^(selection|hyprpicker)$" }, no_anim = true })
 
 -- Editor de capturas (satty, SUPER+SHIFT+A): flotante y centrado, sin transparencia

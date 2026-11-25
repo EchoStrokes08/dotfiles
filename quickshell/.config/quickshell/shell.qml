@@ -61,6 +61,12 @@ ShellRoot {
         }
     }
 
+    // El wallpaper «respira» al cambiar de espacio (FondoVivo.qml). Uno por pantalla.
+    Variants {
+        model: Quickshell.screens
+        FondoVivo { required property var modelData; screen: modelData }
+    }
+
     // Widgets de escritorio (reloj, frase, lo próximo): solo con el workspace vacío. Uno por pantalla.
     PersistentProperties { id: escritorioCfg; reloadableId: "escritorio"; property bool activado: true }
     Variants {
