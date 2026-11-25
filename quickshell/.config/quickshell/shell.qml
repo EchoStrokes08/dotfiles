@@ -79,6 +79,17 @@ ShellRoot {
         }
     }
 
+    // Apagado cinematográfico (Despedida.qml): la pantalla se va a negro y la isla se despide
+    //   qs ipc call despedida probar   → la animación entera sin apagar nada
+    Variants {
+        model: Quickshell.screens
+        CapaDespedida { required property var modelData; screen: modelData }
+    }
+    IpcHandler {
+        target: "despedida"
+        function probar(): void { Despedida.hacer([], "apagar"); }
+    }
+
     // Inicio de sesión cinematográfico (Bienvenida.qml): una vez por sesión, una por pantalla
     Variants {
         model: Quickshell.screens
