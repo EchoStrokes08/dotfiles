@@ -26,6 +26,11 @@ PanelWindow {
             direcciones.includes(String(t.address).replace(/^0x/, "")));
     }
     visible: !juegoEnEspacio
+    // La isla del reloj enseña los avisos (volumen, brillo…) solo si esta barra se ve (Isla.qml)
+    function registrarIsla() { Isla.registrar(monitor?.name ?? "", visible); }
+    onVisibleChanged: registrarIsla()
+    onMonitorChanged: registrarIsla()
+    Component.onCompleted: registrarIsla()
 
     // Barra transparente con tres «islas» de cristal (IslaBarra.qml): izquierda, reloj y derecha
     anchors { top: true; left: true; right: true }   // 3 bordes → reserva su alto
@@ -40,7 +45,7 @@ PanelWindow {
     // Próxima cita en 30 min o menos (o en curso): chip junto a la hora (ORION 5.7). Nunca con privacidad.
     readonly property var citaCercana: {
         const ahora = reloj.date;
-        if (EstadoEscritorio.privacidad) return null;
+        if (EstadoEscritorio.privacidad || EstadoEscritorio.capturaPrivada) return null;
         const e = Eventos.proximos(1)[0];
         if (!e || e.todoDia) return null;
         const min = Math.round((e.inicio - ahora) / 60000);
@@ -78,7 +83,7 @@ PanelWindow {
                 anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
                 spacing: 4
 
-                BarraEspacios { id: espaciosBarra; monitor: barra.monitor }
+                BarraEspacios { monitor: barra.monitor; ayuda: ayudaBarra }
 
                 IndicadorTeclado { id: modoTeclado }
 
@@ -135,7 +140,7 @@ PanelWindow {
             // El título cede espacio: nunca debe llegar a donde va el reloj (si no, la bandeja lo tapa).
             // Hueco = desde aquí hasta la isla derecha, menos el reloj y márgenes; tope 360 px.
             readonly property real hueco: islaDerecha.x - izquierda.x - islaEspacios.width - 8 - centro.implicitWidth - 40
-            visible: !ModoTeclado.activo && !EstadoEscritorio.privacidad && actual !== null && actual.title !== "" && hueco > 80
+            visible: !ModoTeclado.activo && !EstadoEscritorio.privacidad && !EstadoEscritorio.capturaPrivada && actual !== null && actual.title !== "" && hueco > 80
             tinte: .02
             implicitWidth: Math.max(0, Math.min(360, hueco, filaVentana.implicitWidth + 28))
             Layout.preferredWidth: implicitWidth
@@ -185,6 +190,7 @@ PanelWindow {
                     Layout.maximumWidth: implicitWidth
                     transform: Translate { id: deslizTitulo }
                     text: islaVentana.actual?.title ?? ""
+                    textFormat: Text.PlainText
                     color: EstiloPanel.secundario
                     elide: Text.ElideRight
                     font { family: Paleta.fuente; pixelSize: 12; weight: Font.DemiBold }
@@ -193,67 +199,20 @@ PanelWindow {
         }
     }
 
-    // ── Centro: reloj (hover = fecha, clic = dashboard) ─────────────────
-    IslaBarra {
+    // La fecha y la cita se adaptan al hueco sin que el reloj cambie de tamaño al pasar el ratón.
+    Ayuda { id: ayudaBarra; ventana: barra; textoPlano: true }
+    RelojBarra {
         id: centro
-        // Centrado en la pantalla si cabe; si no, centrado en el hueco libre entre izquierda y derecha
+        ventana: barra
+        avisos: Isla.enfocado === (barra.monitor?.name ?? "")
+        fecha: reloj.date
+        cita: barra.citaCercana
+        ayuda: ayudaBarra
+        anchoDisponible: islaDerecha.x - izquierda.x - islaEspacios.width - 24
         readonly property real libreIni: izquierda.x + izquierda.width + 8
         readonly property real libreFin: islaDerecha.x - 8
-        x: {
-            const ideal = (barra.width - width) / 2;
-            if (ideal >= libreIni && ideal + width <= libreFin) return ideal;
-            return Math.max(libreIni, (libreIni + libreFin - width) / 2);
-        }
+        x: Math.max(libreIni, Math.min((barra.width - width) / 2, libreFin - width))
         anchors.verticalCenter: parent.verticalCenter
-        acento: Paleta.acento
-        tinte: zonaReloj.containsMouse ? .16 : .09
-        implicitWidth: filaReloj.implicitWidth + 30
-        width: implicitWidth
-        Behavior on implicitWidth { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
-
-        Row {
-            id: filaReloj
-            anchors.centerIn: parent
-            spacing: 8
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: "󰥔"
-                color: Qt.alpha(Paleta.acento, .85)
-                font { family: Paleta.fuente; pixelSize: 13 }
-            }
-            Text {
-                id: textoReloj
-                anchors.verticalCenter: parent.verticalCenter
-                text: zonaReloj.containsMouse
-                    ? reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd d 'de' MMMM") + "  ·  " + Qt.formatTime(reloj.date, "HH:mm")
-                    : Qt.formatTime(reloj.date, "HH:mm")
-                color: Qt.lighter(Paleta.acento, 1.08)
-                font { family: Paleta.fuente; pixelSize: 13; weight: Font.Bold; letterSpacing: .4; features: { "tnum": 1 } }   // cifras de igual ancho: la hora no baila
-            }
-            Rectangle {
-                visible: barra.citaCercana !== null && !zonaReloj.containsMouse
-                anchors.verticalCenter: parent.verticalCenter
-                implicitHeight: 22; radius: height / 2
-                implicitWidth: textoCita.implicitWidth + 16
-                color: EstiloPanel.elevada
-                border { width: 1; color: EstiloPanel.bordeSeleccion }
-                Text {
-                    id: textoCita
-                    anchors.centerIn: parent
-                    width: Math.min(implicitWidth, 220)
-                    elide: Text.ElideRight
-                    text: barra.citaCercana ? barra.citaCercana.titulo + " · " + barra.citaCercana.cuando : ""
-                    color: Paleta.texto
-                    font { family: Paleta.fuente; pixelSize: 11; bold: true }
-                }
-            }
-        }
-        MouseArea {
-            id: zonaReloj
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: barra.relojPulsado()
-        }
+        onPulsado: barra.relojPulsado()
     }
 }

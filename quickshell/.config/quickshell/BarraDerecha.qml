@@ -6,9 +6,11 @@
 //   qs ipc call barra refrescar buds        (también: modo-juego, red, grabacion)
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import Quickshell.Bluetooth
 import Quickshell.Widgets
 import Quickshell.Services.SystemTray
 import Quickshell.Services.Pipewire
@@ -34,44 +36,7 @@ RowLayout {
 
     Ayuda { id: ayuda; ventana: derecha.ventana }
 
-    // ── Visualizador de audio (cava): 10 barras que bailan, solo mientras suena algo ──
-    // cava se lanza solo con música (no gasta CPU en silencio); config en ~/.config/quickshell/cava.conf.
-    // Clic = abrir el centro de control (controles de la música).
-    Item {
-        id: visual
-        readonly property bool suena: Mpris.players.values.some(p => p.isPlaying)
-        property var valores: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        visible: suena && !derecha.prioridad && !derecha.compacto && !grabacion.visible && !microActividad.visible
-        implicitWidth: 10 * 3 + 9 * 2 + 8
-        implicitHeight: 34
-        Process {
-            running: visual.visible
-            command: ["cava", "-p", Quickshell.env("HOME") + "/.config/quickshell/cava.conf"]
-            stdout: SplitParser {
-                onRead: (linea) => {
-                    const v = linea.split(";").filter(x => x !== "").map(Number);
-                    if (v.length === 10) visual.valores = v;
-                }
-            }
-            onRunningChanged: if (!running) visual.valores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        }
-        Row {
-            anchors.centerIn: parent
-            spacing: 2
-            Repeater {
-                model: 10
-                Rectangle {
-                    required property int index
-                    width: 3; radius: height / 2
-                    height: 2 + (visual.valores[index] / 100) * 16
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: Qt.tint(Paleta.acento, Qt.alpha(Paleta.aviso, index / 12))
-                    Behavior on height { NumberAnimation { duration: 60 } }
-                }
-            }
-        }
-        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["qs", "ipc", "call", "notificaciones", "toggle"]) }
-    }
+    // Las ondas de la música (cava) viven ahora en la isla del reloj: RelojBarra.qml / Isla.qml
 
     // ── Grabando / dictando (solo visible mientras pasa) ─────────────────
     // grabar.sh y dictado.sh avisan con «qs ipc call barra refrescar grabacion»
@@ -159,32 +124,53 @@ RowLayout {
     // ── Redmi Buds: izquierdo · derecho · estuche ────────────────────────
     Item {
         id: buds
-        property var partes: []        // [{ parte, texto, icono, clase }]
-        property string ayudaTexto: ""
-        readonly property var visibles: partes.filter(p => p.texto !== "")
-        visible: visibles.length > 0
+        readonly property string macPreferida: (Quickshell.env("REDMI_BUDS_MAC") ?? "").toUpperCase()
+        readonly property string mac: (Bluetooth.defaultAdapter?.devices?.values ?? [])
+            .find(d => d.connected && (macPreferida ? d.address.toUpperCase() === macPreferida
+                                                    : /redmi buds|xiaomi buds/i.test(d.deviceName + " " + d.name)))?.address ?? ""
+        property var partes: []
+        property string ultimaLectura: ""
+        property bool lecturaPendiente: false
+        property int conexion: 0
+        readonly property string ayudaTexto: partes[0]?.tooltip ?? "Redmi Buds conectados · esperando lectura de batería"
+        visible: mac !== ""
         implicitWidth: filaBuds.implicitWidth + 20
         implicitHeight: 34
 
-        function leer() { if (!lectorBuds.running) lectorBuds.running = true; }
-        Timer { interval: 120000; running: true; repeat: true; triggeredOnStart: true; onTriggered: buds.leer() }
+        function leer() {
+            if (!mac) return;
+            if (lectorBuds.running) {
+                lecturaPendiente = true;
+                return;
+            }
+            lecturaPendiente = false;
+            lectorBuds.conexion = conexion;
+            lectorBuds.command = [Quickshell.env("HOME") + "/.local/bin/buds", "--mac", mac, "waybar", "--parts"];
+            lectorBuds.running = true;
+        }
+        onMacChanged: {
+            conexion++;
+            partes = [];
+            ultimaLectura = "";
+            leer();
+        }
+        Component.onCompleted: leer()
+        onAyudaTextoChanged: if (zonaBuds.containsMouse) ayuda.texto = ayudaTexto
+        Timer { interval: 10000; running: buds.visible; repeat: true; onTriggered: buds.leer() }
 
         Process {
             id: lectorBuds
-            // por cada parte: una línea JSON y otra con la ruta del icono
-            command: ["sh", "-c", "for p in left right case; do ~/.local/bin/buds waybar --part $p; echo; ~/.local/bin/buds waybar --part $p --icon; echo; done"]
+            property int conexion: -1
+            onExited: if (buds.lecturaPendiente) Qt.callLater(buds.leer)
             stdout: StdioCollector {
                 onStreamFinished: {
-                    const l = this.text.split("\n").filter(x => x.trim() !== "");
-                    const nombres = ["left", "right", "case"], res = [];
-                    for (let i = 0; i + 1 < l.length && res.length < 3; i += 2) {
-                        let d = {};
-                        try { d = JSON.parse(l[i]); } catch (e) {}
-                        res.push({ parte: nombres[res.length], texto: d.text ?? "", porcentaje: typeof d.percentage === "number" ? d.percentage : null, icono: l[i + 1].trim(),
-                                   clase: [].concat(d.class ?? []), version: Date.now() });
-                        if (d.tooltip) buds.ayudaTexto = d.tooltip;
-                    }
-                    buds.partes = res;
+                    if (lectorBuds.conexion !== buds.conexion || this.text === buds.ultimaLectura) return;
+                    try {
+                        const datos = JSON.parse(this.text);
+                        if (!Array.isArray(datos)) return;
+                        buds.partes = datos;
+                        buds.ultimaLectura = this.text;
+                    } catch (e) {}
                 }
             }
         }
@@ -202,24 +188,56 @@ RowLayout {
             id: filaBuds
             anchors.centerIn: parent
             spacing: 8
+            Text {
+                visible: buds.partes.length === 0
+                text: derecha.g(0xF02CB)
+                font { family: Paleta.mono; pixelSize: EstiloPanel.t16 }
+                color: Paleta.texto
+            }
             Repeater {
-                model: buds.visibles
+                model: buds.partes
                 RowLayout {
+                    id: pieza
                     required property var modelData
+                    readonly property bool cargando: modelData.class.includes("charging")
                     spacing: 2
                     Image {
                         sourceSize { width: 18; height: 18 }
-                        source: "file://" + modelData.icono + "?" + modelData.version   // ?… = no usar la caché
+                        source: "file://" + modelData.icon + "?v=" + modelData.icon_version
                         cache: false
                     }
                     Text {
-                        text: modelData.porcentaje === null ? "—" : modelData.porcentaje + "%"
+                        text: modelData.text
                         font { family: Paleta.fuente; pixelSize: 12; weight: Font.DemiBold }
-                        color: modelData.clase.includes("low") || modelData.clase.includes("critical") ? Paleta.peligro
-                             : modelData.clase.includes("charging") ? Paleta.aviso
-                             : modelData.clase.includes("anc") ? Paleta.acento2
-                             : modelData.clase.includes("transparency") ? Paleta.exito
+                        color: modelData.class.includes("low") || modelData.class.includes("critical") ? Paleta.peligro
+                             : pieza.cargando ? Paleta.aviso
+                             : modelData.class.includes("anc") ? Paleta.acento2
+                             : modelData.class.includes("transparency") ? Paleta.exito
                              : Paleta.texto
+                    }
+                    Rectangle {
+                        visible: pieza.cargando
+                        implicitWidth: 14
+                        implicitHeight: 16
+                        Layout.leftMargin: 2
+                        radius: width / 2
+                        color: Qt.alpha(Paleta.aviso, 0.12)
+                        border { width: 1; color: Qt.alpha(Paleta.aviso, 0.26) }
+                        Shape {
+                            anchors.fill: parent
+                            preferredRendererType: Shape.CurveRenderer
+                            ShapePath {
+                                fillColor: "transparent"
+                                strokeColor: Paleta.aviso
+                                strokeWidth: 1.5
+                                capStyle: ShapePath.RoundCap
+                                joinStyle: ShapePath.RoundJoin
+                                startX: 8.1; startY: 3.4
+                                PathLine { x: 4.8; y: 8.3 }
+                                PathLine { x: 9.2; y: 7.7 }
+                                PathLine { x: 5.9; y: 12.6 }
+                            }
+                        }
                     }
                 }
             }

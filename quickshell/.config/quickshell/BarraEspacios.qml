@@ -7,6 +7,7 @@ import Quickshell.Hyprland
 
 Item {
     id: raiz
+    property var ayuda: null
     property var monitor: null           // HyprlandMonitor de la pantalla de esta barra
 
     readonly property int anchoBoton: 30
@@ -53,23 +54,20 @@ Item {
         id: pildora
         visible: raiz.activo >= 0
         x: raiz.izq
-        width: raiz.der - raiz.izq
+        width: Math.max(0, raiz.der - raiz.izq)
         height: 24
         anchors.verticalCenter: parent.verticalCenter
         RectangularShadow {
             anchors.fill: parent
             visible: EstiloPanel.profundidad
             radius: 12; offset.y: 2; blur: 12; spread: -3
-            color: Qt.alpha(Paleta.acento, .55)
+            color: Qt.alpha(Paleta.acento, .25)
         }
         Rectangle {
             anchors.fill: parent
             radius: 12
-            gradient: Gradient {
-                GradientStop { position: 0; color: Qt.tint(Paleta.fondo, Qt.alpha(Qt.lighter(Paleta.acento, 1.1), .62)) }
-                GradientStop { position: 1; color: Qt.tint(Paleta.fondo, Qt.alpha(Paleta.acento, .38)) }
-            }
-            border { width: 1; color: Qt.alpha(Qt.lighter(Paleta.acento, 1.2), .7) }
+            color: EstiloPanel.seleccionado
+            border { width: 1; color: EstiloPanel.bordeSeleccion }
         }
     }
 
@@ -84,9 +82,16 @@ Item {
             Item {
                 id: boton
                 required property var modelData
-                readonly property bool ocupado: modelData.toplevels.values.length > 0
+                readonly property int ventanas: modelData.toplevels.values.length
+                readonly property bool ocupado: ventanas > 0
+                readonly property string nombre: modelData.name && modelData.name !== String(modelData.id)
+                    ? modelData.name : "Espacio " + modelData.id
+                readonly property string detalle: nombre + " · " + ventanas + (ventanas === 1 ? " ventana" : " ventanas")
                 width: raiz.anchoBoton
                 height: raiz.height
+                Accessible.role: Accessible.Button
+                Accessible.name: detalle + (modelData.active ? ", activo" : "")
+                Accessible.onPressAction: raiz.ir(modelData.id)
 
                 Rectangle {   // fondo al pasar el ratón
                     anchors.centerIn: parent
@@ -135,6 +140,8 @@ Item {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: raiz.ir(boton.modelData.id)
+                    onEntered: raiz.ayuda?.mostrar(boton, boton.detalle)
+                    onExited: raiz.ayuda?.ocultar()
                 }
             }
         }

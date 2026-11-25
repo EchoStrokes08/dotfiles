@@ -1,5 +1,5 @@
 // OSD: el indicador flotante de volumen, micro, brillo, Bloq Mayús, música y avisos.
-// Aparece abajo al centro y se va solo tras 1,5 s.
+// Aparece en la isla del reloj (RelojBarra.qml) o, si la barra no se ve, abajo al centro; se va solo tras 1,5 s.
 //
 // Volumen y micro: se muestran SOLOS al cambiar (escucha PipeWire), venga de donde venga.
 // El resto lo avisan los atajos después de hacer el cambio (así las teclas funcionan aunque qs no esté):
@@ -34,6 +34,9 @@ Scope {
 
     function mostrar(ic, val, txt, off) {
         icono = ic; valor = val; texto = txt ?? ""; apagado = off ?? false;
+        // Con la barra a la vista, el aviso lo enseña la isla del reloj (Isla.qml); esta pastilla
+        // queda para cuando la barra no se ve (juego, pantalla completa).
+        Isla.mostrar(ic, val, txt, off);
         activo = true;
         latido();
         ocultar.restart();
@@ -119,7 +122,7 @@ Scope {
     // ── La ventana ──────────────────────────────────────────────────────
     PanelWindow {
         id: ventana
-        visible: osd.activo || animSalida.running
+        visible: (osd.activo || animSalida.running) && !Isla.enBarra
         color: "transparent"
         anchors.bottom: true
         margins.bottom: 40

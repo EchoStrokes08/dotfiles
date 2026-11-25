@@ -7,6 +7,7 @@ PopupWindow {
     id: ayuda
     property var ventana: null       // la PanelWindow de la barra
     property string texto: ""
+    property bool textoPlano: false
     property real centroX: 0
 
     function mostrar(item, txt) {
@@ -27,7 +28,7 @@ PopupWindow {
     // centrado bajo el módulo, sin salirse por la derecha
     anchor.rect.x: Math.max(4, Math.min(centroX - implicitWidth / 2, (ventana?.width ?? 0) - implicitWidth - 4))
     anchor.rect.y: (ventana?.height ?? 34) + 6
-    implicitWidth: etiqueta.implicitWidth + 28
+    implicitWidth: Math.min(Math.max(1, (ventana?.width ?? 460) - 8), etiqueta.implicitWidth + 28)
     implicitHeight: etiqueta.implicitHeight + 18
     color: "transparent"
     visible: false
@@ -51,8 +52,11 @@ PopupWindow {
         }
         Text {
             id: etiqueta
-            anchors.centerIn: parent
+            anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 12 }
             text: ayuda.texto
+            textFormat: ayuda.textoPlano ? Text.PlainText : Text.AutoText
+            horizontalAlignment: Text.AlignHCenter
+            elide: Text.ElideRight
             color: Paleta.texto
             lineHeight: 1.15
             font { family: Paleta.fuente; pixelSize: 12 }
