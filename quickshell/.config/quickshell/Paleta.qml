@@ -33,8 +33,28 @@ Singleton {
     property bool reducirMovimiento: false
     property bool permitirTransicion: true
     readonly property bool animarColor: permitirTransicion && !reducirMovimiento && EstadoEscritorio.perfil !== "minimo" && EstadoEscritorio.perfil !== "rendimiento"
-    Behavior on acento { ColorAnimation { duration: root.animarColor ? 500 : 0 } }
-    Behavior on acento2 { ColorAnimation { duration: root.animarColor ? 500 : 0 } }
+    Behavior on acento { enabled: !root.enOnda; ColorAnimation { duration: root.animarColor ? 500 : 0 } }
+    Behavior on acento2 { enabled: !root.enOnda; ColorAnimation { duration: root.animarColor ? 500 : 0 } }
+
+    // ── Onda de color (OndaTema.qml): el tema nuevo se propaga desde el cursor ──
+    // Antes de aplicar los colores, «preparar» avisa a cada barra para que se fotografíe con los viejos;
+    // un instante después se aplican y la foto se va borrando en círculo desde el cursor.
+    readonly property bool onda: !reducirMovimiento && EstadoEscritorio.perfil !== "rendimiento"
+        && EstadoEscritorio.datos.juego_activo !== "true"
+    property bool enOnda: false
+    property bool listo: false               // la primera carga (al arrancar) nunca hace onda
+    signal preparar()
+    signal ondaLista()
+    property var pendientes: null
+    function aplicar(nuevos) {
+        for (const k in nuevos) root[k] = nuevos[k];
+    }
+    Timer {
+        id: tras
+        interval: 90                             // unos fotogramas para la foto (grabToImage)
+        onTriggered: { root.aplicar(root.pendientes); root.pendientes = null; root.ondaLista(); fin.restart(); }
+    }
+    Timer { id: fin; interval: 1400; onTriggered: root.enOnda = false }
     // Serie para DATOS por categoría (gráficas, contextos de Brújula): empieza por los colores del tema
     // y sigue con tonos Ayu fijos. No es decoración: fuera de gráficas y etiquetas de categoría, usar acento.
     readonly property var serie: [acento, acento2, exito, aviso, "#d2a6ff", "#95e6cb", "#f07178", "#ffb454"]
@@ -58,10 +78,18 @@ Singleton {
             // Cambiar de luminosidad es inmediato: no mezclar texto claro con un acento anterior claro.
             root.permitirTransicion = !nuevoFondo || nuevoFondo[1].toLowerCase() === root.fondo.toString().toLowerCase();
             let m;
+            const nuevos = {};
             while ((m = re.exec(text())) !== null) {
                 const nombre = root.antiguos[m[1]] ?? m[1];
-                if (nombre in root) root[nombre] = m[2];
+                if (nombre in root) nuevos[nombre] = m[2];
             }
+            const cambia = Object.keys(nuevos).some(k => root[k].toString().toLowerCase() !== nuevos[k].toLowerCase());
+            if (root.listo && root.onda && cambia) {
+                root.enOnda = true; root.pendientes = nuevos;
+                root.preparar();
+                tras.restart();
+            } else root.aplicar(nuevos);
+            root.listo = true;
         }
     }
     FileView {

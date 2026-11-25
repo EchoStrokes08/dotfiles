@@ -225,6 +225,8 @@ PanelWindow {
         anchors.verticalCenter: parent.verticalCenter
         onPulsado: barra.relojPulsado()
     }
+    // Cambio de tema: el color nuevo se propaga por la barra como una onda desde el cursor (OndaTema.qml)
+    OndaTema { anchors.fill: parent; pantalla: barra.screen }
     // Lo que está en marcha (Actividades.qml): una burbuja que se separa de la isla del reloj
     IslaActividades {
         ventana: barra
