@@ -23,6 +23,14 @@ Singleton {
     property int lluviaHoy: 0           // % máximo de lluvia hoy
     property var proximas: []           // [{ hora: "13", lluvia: %, temp }] próximas 6 h
 
+    // Clima vivo en el escritorio (ClimaVivo.qml): qué se dibuja según el código WMO actual.
+    //   qs ipc call clima simular lluvia   (llovizna · lluvia · chubasco · tormenta · nieve · niebla · nubes · "" = real)
+    property string simulado: ""
+    readonly property string vivo: simulado !== "" ? simulado : !listo ? ""
+        : codigo >= 95 ? "tormenta" : codigo >= 80 && codigo <= 82 ? "chubasco" : codigo >= 61 && codigo <= 67 ? "lluvia"
+        : codigo >= 51 && codigo <= 57 ? "llovizna" : (codigo >= 71 && codigo <= 77) || codigo === 85 || codigo === 86 ? "nieve"
+        : codigo === 45 || codigo === 48 ? "niebla" : codigo === 2 || codigo === 3 ? "nubes" : ""
+
     function g(cp) { return String.fromCodePoint(cp); }
     // Códigos WMO → texto e icono
     function texto(cod) {

@@ -68,6 +68,19 @@ ShellRoot {
         FondoVivo { required property var modelData; screen: modelData }
     }
 
+    // Clima vivo sobre el wallpaper (ClimaVivo.qml): lluvia, tormenta, nieve, niebla o nubes, con el
+    // espacio vacío. Antes que los widgets para quedar debajo de ellos. Uno por pantalla.
+    //   qs ipc call clima simular lluvia   (llovizna · chubasco · tormenta · nieve · niebla · nubes · "" = real)
+    Variants {
+        model: Quickshell.screens
+        ClimaVivo { required property var modelData; screen: modelData }
+    }
+    IpcHandler {
+        target: "clima"
+        function simular(tipo: string): void { Clima.simulado = tipo; }
+        function estado(): string { return Clima.vivo || "despejado"; }
+    }
+
     // Widgets de escritorio (reloj, frase, lo próximo): solo con el workspace vacío. Uno por pantalla.
     PersistentProperties { id: escritorioCfg; reloadableId: "escritorio"; property bool activado: true }
     Variants {
