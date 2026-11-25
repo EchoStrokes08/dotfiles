@@ -119,27 +119,31 @@ IslaBarra {
         IslaCapa {
             id: capaMusica
             activa: reloj.modo === "musica"
-            IslaCaratula { lado: 22; Layout.alignment: Qt.AlignVCenter }
-            Text {
-                Layout.maximumWidth: Math.max(60, Math.min(200, reloj.anchoDisponible - 260))
-                text: Isla.titulo
-                textFormat: Text.PlainText
-                elide: Text.ElideRight
-                color: Paleta.texto
-                font { family: Paleta.fuente; pixelSize: 12; weight: Font.DemiBold }
-            }
-            Row {   // ondas de cava (las mismas que antes iban a la derecha de la barra)
-                Layout.alignment: Qt.AlignVCenter
-                spacing: 2
-                Repeater {
-                    model: 6
-                    Rectangle {
-                        required property int index
-                        width: 3; radius: width / 2
-                        height: 3 + (Isla.ondas[index + 2] / 100) * 13
-                        anchors.verticalCenter: parent.verticalCenter
-                        color: Qt.tint(Paleta.acento, Qt.alpha(Paleta.aviso, index / 8))
-                        Behavior on height { NumberAnimation { duration: 60 } }
+            RowLayout {   // la canción: solo aquí se abre el minirreproductor (la hora no)
+                id: cancion
+                spacing: 8
+                IslaCaratula { lado: 22; Layout.alignment: Qt.AlignVCenter }
+                Text {
+                    Layout.maximumWidth: Math.max(60, Math.min(200, reloj.anchoDisponible - 260))
+                    text: Isla.titulo
+                    textFormat: Text.PlainText
+                    elide: Text.ElideRight
+                    color: Paleta.texto
+                    font { family: Paleta.fuente; pixelSize: 12; weight: Font.DemiBold }
+                }
+                Row {   // ondas de cava (las mismas que antes iban a la derecha de la barra)
+                    Layout.alignment: Qt.AlignVCenter
+                    spacing: 2
+                    Repeater {
+                        model: 6
+                        Rectangle {
+                            required property int index
+                            width: 3; radius: width / 2
+                            height: 3 + (Isla.ondas[index + 2] / 100) * 13
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: Qt.tint(Paleta.acento, Qt.alpha(Paleta.aviso, index / 8))
+                            Behavior on height { NumberAnimation { duration: 60 } }
+                        }
                     }
                 }
             }
@@ -234,11 +238,18 @@ IslaBarra {
             Origen.marcar(reloj, reloj.ventana?.screen?.name ?? "");   // Brújula nace de la isla
             reloj.pulsado();
         }
-        onEntered: { if (reloj.modo === "musica") abrirMini.restart(); else reloj.ayuda?.mostrar(reloj, reloj.fechaCompleta); }
-        onExited: { abrirMini.stop(); reloj.ayuda?.ocultar(); cerrarMini.restart(); }
+        onEntered: if (reloj.modo !== "musica") reloj.ayuda?.mostrar(reloj, reloj.fechaCompleta)
+        onPositionChanged: (m) => {
+            const p = cancion.mapFromItem(zona, m.x, m.y);
+            reloj.sobreCancion = reloj.modo === "musica" && p.x >= -4 && p.x <= cancion.width + 4;
+        }
+        onExited: { reloj.sobreCancion = false; reloj.ayuda?.ocultar(); }
     }
-    Timer { id: abrirMini; interval: 350; onTriggered: if (reloj.modo === "musica" && zona.containsMouse) mini.abrir() }
-    Timer { id: cerrarMini; interval: 300; onTriggered: if (!zona.containsMouse && !zonaMini.containsMouse) mini.cerrar() }
+    // El minirreproductor sale al dejar el puntero sobre la canción y se va al salir de ella (y de él)
+    property bool sobreCancion: false
+    onSobreCancionChanged: { if (sobreCancion) { cerrarMini.stop(); abrirMini.restart(); } else { abrirMini.stop(); cerrarMini.restart(); } }
+    Timer { id: abrirMini; interval: 350; onTriggered: if (reloj.modo === "musica" && reloj.sobreCancion) mini.abrir() }
+    Timer { id: cerrarMini; interval: 300; onTriggered: if (!reloj.sobreCancion && !zonaMini.containsMouse) mini.cerrar() }
     onModoChanged: if (modo !== "musica") mini.cerrar()
 
     // ── Minirreproductor: la isla «se abre» hacia abajo ──
