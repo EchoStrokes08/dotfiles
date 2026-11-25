@@ -247,15 +247,26 @@ Superpuesta {
                         required property var modelData
                         required property int index
                         width: parent.width / 3; height: parent.height
-                        Text {
+                        Row {
+                            id: rotulo
                             anchors.centerIn: parent
+                            spacing: 8
+                            readonly property bool activa: br.pestana === parent.index
                             // el icono de la pestaña activa toma el acento; el texto sigue neutro
-                            textFormat: Text.StyledText
-                            text: (br.pestana === parent.index ? "<font color='" + Qt.lighter(Paleta.acento, 1.1) + "'>" + br.g(parent.modelData[0]) + "</font>" : br.g(parent.modelData[0]))
-                                  + "&nbsp;&nbsp;" + parent.modelData[1]
-                            color: br.pestana === parent.index ? Paleta.texto : Paleta.gris
-                            font { family: Paleta.fuente; pixelSize: 12; bold: br.pestana === parent.index }
-                            Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: br.g(rotulo.parent.modelData[0])
+                                color: rotulo.activa ? Qt.lighter(Paleta.acento, 1.1) : Paleta.gris
+                                font { family: Paleta.fuente; pixelSize: 12 }
+                                Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
+                            }
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: rotulo.parent.modelData[1]
+                                color: rotulo.activa ? Paleta.texto : Paleta.gris
+                                font { family: Paleta.fuente; pixelSize: 12; bold: rotulo.activa }
+                                Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
+                            }
                         }
                         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: br.irPestana(parent.index) }
                     }

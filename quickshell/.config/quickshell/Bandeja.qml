@@ -36,13 +36,39 @@ RowLayout {
             }
         }
     }
-    BotonCompacto {
+    // Botón del desplegable: círculo del alto de las cápsulas de la barra (24 px), dentro de la isla.
+    // Antes era un BotonCompacto de 34 px de alto cuyo borde se salía del filo de la isla.
+    Item {
         id: abrir
-        text: bandeja.expandida ? "⌃" : "⌄"
-        implicitWidth: 28
+        implicitWidth: 30; implicitHeight: 34
         visible: bandeja.items.length > 0
+        Accessible.role: Accessible.Button
         Accessible.name: "Bandeja · " + bandeja.items.length + " aplicaciones"
-        onClicked: bandeja.expandida = !bandeja.expandida
+        Rectangle {
+            anchors.centerIn: parent
+            width: 24; height: 24; radius: height / 2
+            color: bandeja.expandida ? EstiloPanel.rellenoActivo : zonaAbrir.containsMouse ? EstiloPanel.relleno : "transparent"
+            border { width: 1; color: bandeja.expandida || zonaAbrir.containsMouse ? EstiloPanel.borde : "transparent" }
+            scale: zonaAbrir.pressed ? .9 : 1
+            Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
+            Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
+            Text {
+                anchors.centerIn: parent
+                anchors.verticalCenterOffset: -1
+                text: "⌄"
+                rotation: bandeja.expandida ? 180 : 0
+                color: bandeja.expandida || zonaAbrir.containsMouse ? Paleta.texto : EstiloPanel.tenue
+                font { family: Paleta.fuente; pixelSize: 13; bold: true }
+                Behavior on rotation { NumberAnimation { duration: EstiloPanel.movimiento ? EstiloPanel.normal : 0; easing.type: Easing.OutCubic } }
+            }
+        }
+        MouseArea {
+            id: zonaAbrir
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: bandeja.expandida = !bandeja.expandida
+        }
     }
     PopupWindow {
         id: desplegable

@@ -37,12 +37,13 @@ hl.window_rule({
     immediate = true,
 })
 
--- Blur detrás de las tarjetas de Quickshell (el velo y la sombra quedan por debajo de 0.3 → ignore_alpha)
+-- Blur detrás de las tarjetas de Quickshell. Solo las tarjetas (≥ 0.92) superan ignore_alpha: el velo (0.28)
+-- y la sombra (0.42) sumados llegan a ~0.58, y con 0.3 se desenfocaba un «marco fantasma» alrededor del panel.
 hl.layer_rule({
     name         = "quickshell-blur",
     match        = { namespace = "^quickshell-(barra|lanzador|osd|notificaciones|centro|wallpapers|portapapeles|menu|chuleta|vista|ia|nota|brujula|agente|movil|mesa|flujo)$" },
     blur         = true,
-    ignore_alpha = 0.3,
+    ignore_alpha = 0.6,
 })
 
 -- ---------- Nivel 3: reglas para el día a día ----------

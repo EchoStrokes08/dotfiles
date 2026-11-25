@@ -69,8 +69,9 @@ Button {
         }
         Rectangle {
             visible: control.disponible && control.activo
-            anchors { left: parent.left; top: parent.top; leftMargin: 4; topMargin: 4 }
-            width: 12; height: 12; radius: height / 2
+            // dentro de la curva de la esquina (radio 16): a 4 px montaba sobre el borde y se veía cortada
+            anchors { left: parent.left; top: parent.top; leftMargin: 8; topMargin: 8 }
+            width: 14; height: 14; radius: height / 2
             color: Paleta.acento
             Text { anchors.centerIn: parent; text: "✓"; color: Paleta.sobreAcento; font { family: Paleta.fuente; pixelSize: 11; bold: true } }
             z: 1

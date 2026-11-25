@@ -127,14 +127,14 @@ ColumnLayout {
                     onClicked: cal.elegido = parent.fecha
                 }
                 Text {
+                    // siempre centrado: con puntos o sin ellos, la fila de números queda alineada
                     anchors.centerIn: parent
-                    anchors.verticalCenterOffset: celda.marcas.eventos || celda.marcas.tareas ? -2 : 0
                     text: dia > 0 ? dia : ""
                     color: celda.esHoy ? Paleta.sobreAcento : celda.finde ? Qt.tint(Paleta.texto, Qt.alpha(Paleta.acento2, .35)) : Paleta.texto
                     font { family: Paleta.fuente; pixelSize: 12; bold: celda.esHoy || celda.esElegido }
                 }
                 Row {   // puntos: hay algo fuera de la rutina diaria (eventos) o tareas con fecha
-                    anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 2 }
+                    anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 1 }
                     spacing: 2
                     Repeater {
                         model: [celda.marcas.eventos ? Paleta.acento2 : null, celda.marcas.tareas ? Paleta.exito : null].filter(c => c)
