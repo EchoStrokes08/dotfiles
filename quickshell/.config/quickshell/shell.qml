@@ -17,6 +17,7 @@ ShellRoot {
     AvisoRecarga {}
     Lanzador { id: lanzador }
     OSD {}
+    CapaLanzamiento {}   // las apps se abren desde su icono del lanzador
     Autorizacion {}   // agente de polkit: la ventana de la contraseña de administrador
     Emergentes {}
     CentroControl { id: centro }

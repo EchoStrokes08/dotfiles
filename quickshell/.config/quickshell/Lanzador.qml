@@ -628,6 +628,9 @@ PanelWindow {
         return s.slice(0, 3);
     }
     function lanzarApp(app) {
+        // la app se abre desde su icono (CapaLanzamiento.qml): solo si se eligió en el lanzador abierto
+        const b = lista.currentItem?.baldosa;
+        if (b && b.visible && ventana.visible) Lanzamiento.desde(b, Quickshell.iconPath(app.icon, "application-x-executable"), ventana.screen?.name ?? "");
         if (app.id === "com.rtosta.zapzap" || app.id === "com.rtosta.zapzap.desktop")
             Quickshell.execDetached(["gtk-launch", "com.rtosta.zapzap"]);
         else if (app.runInTerminal) Quickshell.execDetached(["kitty", "-e", ...app.command]);
@@ -818,6 +821,7 @@ PanelWindow {
                     // encabezado al empezar un grupo nuevo (búsqueda universal)
                     readonly property bool cabecera: !!modelData.grupo && (index === 0 || ventana.resultados[index - 1]?.grupo !== modelData.grupo)
                     readonly property bool actual: lista.currentIndex === index
+                    readonly property Item baldosa: baldosaFila   // de aquí sale la app al abrirse (Lanzamiento.qml)
                     width: lista.width
                     height: 56 + (cabecera ? 26 : 0)
 
@@ -847,6 +851,7 @@ PanelWindow {
                         height: 52
                         spacing: 12
                         Rectangle {   // baldosa del icono
+                            id: baldosaFila
                             implicitWidth: 38; implicitHeight: 38; radius: 12
                             color: fila.actual ? EstiloPanel.elevada : EstiloPanel.relleno
                             border { width: 1; color: fila.actual ? EstiloPanel.bordeFuerte : EstiloPanel.borde }
