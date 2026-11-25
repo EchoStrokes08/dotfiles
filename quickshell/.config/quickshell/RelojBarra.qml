@@ -249,7 +249,7 @@ IslaBarra {
     property bool sobreCancion: false
     onSobreCancionChanged: { if (sobreCancion) { cerrarMini.stop(); abrirMini.restart(); } else { abrirMini.stop(); cerrarMini.restart(); } }
     Timer { id: abrirMini; interval: 350; onTriggered: if (reloj.modo === "musica" && reloj.sobreCancion) mini.abrir() }
-    Timer { id: cerrarMini; interval: 300; onTriggered: if (!reloj.sobreCancion && !zonaMini.containsMouse) mini.cerrar() }
+    Timer { id: cerrarMini; interval: 300; onTriggered: if (!reloj.sobreCancion && !sobreMini.hovered) mini.cerrar() }
     onModoChanged: if (modo !== "musica") mini.cerrar()
 
     // ── Minirreproductor: la isla «se abre» hacia abajo ──
@@ -281,10 +281,13 @@ IslaBarra {
             FondoPanel { anchors.fill: parent; radio: EstiloPanel.rPanel; acento: Paleta.acento }
 
             MouseArea {
-                id: zonaMini
-                anchors.fill: parent
-                hoverEnabled: true
-                onExited: cerrarMini.restart()
+                anchors.fill: parent   // solo para que los clics no atraviesen la tarjeta
+            }
+            // HoverHandler (no MouseArea): sigue viendo el puntero encima de los botones, así el
+            // minirreproductor se queda abierto mientras el ratón esté en cualquier parte de la tarjeta
+            HoverHandler {
+                id: sobreMini
+                onHoveredChanged: hovered ? cerrarMini.stop() : cerrarMini.restart()
             }
 
             RowLayout {
