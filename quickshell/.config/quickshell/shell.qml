@@ -68,6 +68,18 @@ ShellRoot {
         FondoVivo { required property var modelData; screen: modelData }
     }
 
+    // Panorama (Panorama.qml): el wallpaper es un paisaje y cada espacio, un tramo; la cámara se desliza al cambiar
+    //   qs ipc call panorama alternar
+    Variants {
+        model: Quickshell.screens
+        Panorama { required property var modelData; screen: modelData }
+    }
+    IpcHandler {
+        target: "panorama"
+        function alternar(): void { PreferenciasUI.panorama = !PreferenciasUI.panorama; PreferenciasUI.guardar(); }
+        function estado(): string { return PreferenciasUI.panorama ? "activo" : "inactivo"; }
+    }
+
     // Clima vivo sobre el wallpaper (ClimaVivo.qml): lluvia, tormenta, nieve, niebla o nubes, con el
     // espacio vacío. Antes que los widgets para quedar debajo de ellos. Uno por pantalla.
     //   qs ipc call clima simular lluvia   (llovizna · chubasco · tormenta · nieve · niebla · nubes · "" = real)

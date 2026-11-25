@@ -25,6 +25,11 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
+        Text { Layout.fillWidth: true; text: "Fondo panorámico entre espacios"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
+        Interruptor { activo: PreferenciasUI.panorama; onAlternado: { PreferenciasUI.panorama = !PreferenciasUI.panorama; PreferenciasUI.guardar(); } }
+    }
+    RowLayout {
+        Layout.fillWidth: true
         spacing: 8
         Text { Layout.fillWidth: true; text: "Tamaño de la interfaz"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
         Repeater {

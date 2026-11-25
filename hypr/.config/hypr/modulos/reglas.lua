@@ -153,6 +153,7 @@ hl.layer_rule({
 hl.layer_rule({ name = "anim-lanzamiento", match = { namespace = "^quickshell-lanzamiento$" }, no_anim = true })   -- sale justo del icono
 hl.layer_rule({ name = "anim-bienvenida", match = { namespace = "^quickshell-bienvenida$" }, no_anim = true })   -- negro desde el primer fotograma
 hl.layer_rule({ name = "anim-fondo-vivo", match = { namespace = "^quickshell-fondo-vivo$" }, no_anim = true })   -- copia del wallpaper: aparece sin fundido
+hl.layer_rule({ name = "anim-panorama", match = { namespace = "^quickshell-panorama$" }, no_anim = true })   -- el panorama: igual que awww al aparecer
 hl.layer_rule({ name = "anim-seleccion", match = { namespace = "^(selection|hyprpicker)$" }, no_anim = true })
 
 -- Editor de capturas (satty, SUPER+SHIFT+A): flotante y centrado, sin transparencia

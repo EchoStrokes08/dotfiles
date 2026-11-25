@@ -17,7 +17,9 @@ PanelWindow {
     property int anterior: 0
     property string ruta: ""
     readonly property real amplitud: 22          // px que se desplaza el fondo
+    // Con el panorama (Panorama.qml) el fondo ya se mueve entre espacios: entonces no respira
     readonly property bool permitido: EstiloPanel.movimiento && EstiloPanel.profundidad
+        && !(PreferenciasUI.panorama && EstadoEscritorio.perfil !== "rendimiento" && EstadoEscritorio.datos.juego_activo !== "true")
 
     visible: permitido
     color: "transparent"
