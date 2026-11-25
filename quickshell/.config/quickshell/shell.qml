@@ -80,6 +80,17 @@ ShellRoot {
         function estado(): string { return PreferenciasUI.panorama ? "activo" : "inactivo"; }
     }
 
+    // Actividades vivas (Actividades.qml): la burbuja de la isla con lo que está en marcha
+    //   qs ipc call actividades temporizador 300 "Té" · cronometro · poner <id> <icono> <título> <detalle> <progreso> · quitar <id>
+    IpcHandler {
+        target: "actividades"
+        function temporizador(segundos: int, nombre: string): void { Actividades.temporizar(segundos, nombre); }
+        function cronometro(): void { Actividades.alternarCronometro(); }
+        function poner(id: string, icono: string, titulo: string, detalle: string, progreso: real): void { Actividades.poner(id, icono, titulo, detalle, progreso); }
+        function quitar(id: string): void { Actividades.quitar(id); }
+        function estado(): string { return JSON.stringify(Actividades.lista.map(a => ({ id: a.id, titulo: a.titulo, detalle: a.detalle, progreso: a.progreso }))); }
+    }
+
     // ALT+TAB cinematográfico (Conmutador.qml): carrusel 3D de ventanas en vivo, por uso reciente
     CapaConmutador {}
     IpcHandler {

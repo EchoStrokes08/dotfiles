@@ -225,4 +225,11 @@ PanelWindow {
         anchors.verticalCenter: parent.verticalCenter
         onPulsado: barra.relojPulsado()
     }
+    // Lo que está en marcha (Actividades.qml): una burbuja que se separa de la isla del reloj
+    IslaActividades {
+        ventana: barra
+        isla: centro
+        x: centro.x + centro.width + 8
+        anchors.verticalCenter: parent.verticalCenter
+    }
 }
