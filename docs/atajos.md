@@ -24,6 +24,8 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+G` | Roblox (Sober, con gamemode) |
 | `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
 | ★ `SUPER+D` | Brújula: tu día (reloj, clima, agenda, sistema y tiempo de pantalla), línea de tiempo y salud |
+| `SUPER+SHIFT+D` | «Tu día»: el resumen del día en tarjetas (apps, ritmo, racha, música…). ← → mover · Espacio pausa · Esc salir |
+| `SUPER+SHIFT+H` | Máquina del tiempo: rueda o ↑ ↓ para viajar por los momentos del día · ← → otro día · Intro abre la app · T muestra los títulos · Esc vuelve |
 | `SUPER+A`, luego una letra | Modo lanzar: `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify · `N` Nebula · `O` Opera GX · `I` impresora. Cualquier otra tecla cancela |
 
 #### Ventanas
@@ -31,6 +33,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | Atajo | Acción |
 |---|---|
 | ★ `SUPER+C` | Cerrar la ventana |
+| `SUPER+SHIFT+K` | Matar una ventana colgada: haz clic en ella (Esc cancela) |
 | ★ `SUPER+V` | Flotante / en mosaico |
 | ★ `SUPER+F` | Pantalla completa |
 | `SUPER+P` | Pseudo-mosaico |
@@ -72,7 +75,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+Return` | Terminal flotante (scratchpad; se abre sola la primera vez) |
 | `SUPER+Y` | Música: Spotify en su scratchpad (si ya estaba abierto, lo trae) |
 | `SUPER+CTRL+SHIFT+O` | Notas: nvim con `~/Documents/notas.md` en un scratchpad flotante |
-| `SUPER+SHIFT+E` | Archivos: yazi en un scratchpad flotante (`SUPER+E` sigue siendo Thunar) |
+| `SUPER+SHIFT+E` | Archivos: yazi en un scratchpad flotante (`SUPER+E` sigue siendo Thunar). `Enter`, clic derecho o dos clics abren el archivo con su app (el scratchpad se esconde); `O` → «Abrir con…» para elegir otra. Si un tipo no tiene app, sale ese menú |
 | `SUPER+CTRL+←/→` | Foco al otro monitor |
 | `SUPER+CTRL+SHIFT+←/→` | Mandar la ventana al otro monitor |
 | `SUPER+CTRL+ALT+←/→` | Mandar el workspace entero al otro monitor |
@@ -82,7 +85,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | Atajo | Acción |
 |---|---|
 | ★ `SUPER+L` | Bloquear la pantalla |
-| `SUPER+M` | Menú de apagado: bloquear, cerrar sesión, reiniciar, apagar |
+| `SUPER+M` | Menú de apagado. `1` bloquea, `2` suspende, `3` hiberna, `4` cierra sesión, `5` reinicia y `6` apaga. `Esc` cierra el menú. |
 | `ALT+F4` | Cerrar la ventana activa |
 | ★ `SUPER+N` | Centro de control: botones, perfiles, sonido, música, avisos, Wi-Fi y Bluetooth, móvil y más |
 | `SUPER+SHIFT+N` | Alternar No molestar manual (respeta los motivos automáticos) |

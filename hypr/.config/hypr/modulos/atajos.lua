@@ -16,9 +16,12 @@ u.atajos({
     { mod .. " + W", u.enfocar_o_abrir("com.rtosta.zapzap", p.whatsapp) },
     { mod .. " + G", exec(p.roblox) },
     { mod .. " + D", exec("qs ipc call brujula toggle") },   -- Brújula: tu día, línea de tiempo y salud
+    { mod .. " + SHIFT + D", exec("qs ipc call tudia mostrar") },   -- «Tu día»: el resumen del día en tarjetas (TuDia.qml)
+    { mod .. " + SHIFT + H", exec("qs ipc call maquina toggle") },  -- máquina del tiempo: viajar por los momentos del día (Maquina.qml)
 
     -- Ventanas
     { mod .. " + C", hl.dsp.window.close() },
+    { mod .. " + SHIFT + K", exec("hyprctl kill") },  -- matar a la fuerza: clic en la ventana colgada (Esc cancela)
     { mod .. " + V", hl.dsp.window.float({ action = "toggle" }) },
     { mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }) },
     { mod .. " + P", hl.dsp.window.pseudo() },
@@ -59,7 +62,7 @@ u.atajos({
 
     -- Sesión
     { mod .. " + L", exec("loginctl lock-session") },  -- bloquear (hypridle → scripts/bloquear.sh → Quickshell; hyprlock de respaldo)
-    { mod .. " + M", exec("wlogout") },   -- menú de apagado (antes salía de Hyprland sin preguntar, junto a SUPER+N)
+    { mod .. " + M", exec("qs ipc call apagado toggle") },
     { "ALT + F4",    hl.dsp.window.close() },
 
     -- Notificaciones (Quickshell: Notificaciones.qml / CentroControl.qml)
