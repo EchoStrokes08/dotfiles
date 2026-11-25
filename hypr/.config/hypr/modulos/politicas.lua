@@ -17,6 +17,8 @@ M.base = {
         -- Ventanas opacas: el cristal es para los paneles, no para el contenido (kitty lleva su propio fondo translúcido)
         rounding = 14, active_opacity = 1.0, inactive_opacity = 1.0,
         shadow = { enabled = true }, blur = { enabled = true },
+        -- Modo zen: durante una sesión de concentración, las ventanas que no usas se atenúan
+        dim_inactive = false, dim_strength = 0.22,
     },
 }
 local function copiar(t)
@@ -50,6 +52,9 @@ function M.resolver(e)
         c.general.gaps_in = 0
         c.general.gaps_out = 0
         c.general.border_size = 1
+    end
+    if e.concentracion and not juego then
+        c.decoration.dim_inactive = true
     end
     if e.bateria then
         c.decoration.blur.enabled = false

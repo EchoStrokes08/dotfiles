@@ -49,3 +49,8 @@ assert(motor.es_juego('steam_app_728880') and motor.es_juego('steam_app_322170')
 assert(not motor.es_juego('steam') and not motor.es_juego('steam_app_') and not motor.es_juego('xsteam_app_1'))
 assert(not motor.es_juego(nil) and not motor.es_juego('kitty'))
 print(casos .. ' combinaciones de política correctas')
+-- Modo zen: con concentración se atenúan las ventanas inactivas; sin ella (o jugando), no
+assert(motor.resolver({perfil='cristal', concentracion=true}).config.decoration.dim_inactive, 'Concentración sin atenuar')
+assert(not motor.resolver({perfil='cristal'}).config.decoration.dim_inactive, 'Atenuado sin concentración')
+assert(not motor.resolver({perfil='cristal', concentracion=true, juego='si'}).config.decoration.dim_inactive, 'Atenuado jugando')
+assert(not motor.base.decoration.dim_inactive, 'El resolver mutó dim_inactive de la base')

@@ -361,7 +361,7 @@ RowLayout {
         onClic: derecha.ejecutar("qs ipc call notificaciones toggle")
     }
 
-    DivisorBarra { visible: cpuMod.visible || ramMod.visible || Concentracion.activo || modoJuego.activo }
+    DivisorBarra { visible: cpuMod.visible || ramMod.visible || modoJuego.activo }
 
     // ── CPU y RAM (Sistema.qml): solo cuando van altas (aparecen > 85 %, se van < 70 %) ──
     Modulo {
@@ -390,16 +390,7 @@ RowLayout {
         onClic: derecha.ejecutar("kitty -e btop")
     }
 
-    // ── Modo concentración (solo durante una sesión) ─────────────────────
-    Modulo {
-        visible: Concentracion.activo
-        gestorAyuda: ayuda
-        icono: derecha.g(0xF04FE)
-        texto: Concentracion.texto()
-        color: Paleta.acento
-        ayuda: "Concentración: " + Concentracion.minutos + " min · apps que distraen escondidas\nClic: añadir tiempo o terminar"
-        onClic: derecha.ejecutar("qs ipc call menu concentracion")
-    }
+    // La cuenta atrás de la concentración vive en la isla del reloj (modo zen, RelojBarra.qml)
 
     // ── Modo juego ───────────────────────────────────────────────────────
     Modulo {

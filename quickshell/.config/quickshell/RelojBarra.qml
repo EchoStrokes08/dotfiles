@@ -7,6 +7,7 @@
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.Widgets
 
@@ -28,9 +29,12 @@ IslaBarra {
 
     readonly property bool privado: EstadoEscritorio.privacidad || EstadoEscritorio.capturaPrivada
     readonly property string modo: avisos && Isla.aviso && Isla.enBarra ? "aviso"
+                                 : Concentracion.activo ? "zen"
                                  : Isla.suena && !privado && anchoDisponible >= 300 ? "musica"
                                  : "reposo"
-    readonly property Item capa: modo === "aviso" ? capaAviso : modo === "musica" ? capaMusica : capaReposo
+    readonly property Item capa: modo === "aviso" ? capaAviso : modo === "zen" ? capaZen : modo === "musica" ? capaMusica : capaReposo
+    // Modo zen: lo que queda de la sesión de concentración (puede pasar de 1 si se añadió tiempo)
+    readonly property real fraccionZen: Math.max(0, Math.min(1, Concentracion.restante / Math.max(1, Concentracion.minutos * 60)))
 
     function g(cp) { return String.fromCodePoint(cp); }
 
@@ -155,6 +159,44 @@ IslaBarra {
             }
         }
 
+        // ── Zen: anillo que se vacía con la sesión de concentración, cuenta atrás y hora ──
+        IslaCapa {
+            id: capaZen
+            activa: reloj.modo === "zen"
+            Item {
+                implicitWidth: 18; implicitHeight: 18
+                Layout.alignment: Qt.AlignVCenter
+                Shape {
+                    anchors.fill: parent
+                    preferredRendererType: Shape.CurveRenderer
+                    ShapePath {
+                        fillColor: "transparent"; strokeColor: EstiloPanel.velo; strokeWidth: 2
+                        PathAngleArc { centerX: 9; centerY: 9; radiusX: 7.5; radiusY: 7.5; startAngle: 0; sweepAngle: 360 }
+                    }
+                    ShapePath {
+                        fillColor: "transparent"; strokeColor: Paleta.acento; strokeWidth: 2
+                        capStyle: ShapePath.RoundCap
+                        PathAngleArc {
+                            centerX: 9; centerY: 9; radiusX: 7.5; radiusY: 7.5; startAngle: -90
+                            sweepAngle: 360 * reloj.fraccionZen
+                            Behavior on sweepAngle { NumberAnimation { duration: 900 } }
+                        }
+                    }
+                }
+            }
+            Text {
+                text: Concentracion.texto()
+                color: Qt.lighter(Paleta.acento, 1.08)
+                font { family: Paleta.fuente; pixelSize: 13; bold: true; features: { "tnum": 1 } }
+            }
+            Rectangle { implicitWidth: 1; implicitHeight: 12; color: EstiloPanel.bordeFuerte }
+            Text {
+                text: reloj.hora
+                color: EstiloPanel.tenue
+                font { family: Paleta.fuente; pixelSize: 12; weight: Font.Medium; features: { "tnum": 1 } }
+            }
+        }
+
         // ── Aviso: volumen, brillo, micro, mensajes ──
         IslaCapa {
             id: capaAviso
@@ -242,7 +284,8 @@ IslaBarra {
         onClicked: (e) => {
             if (e.button === Qt.MiddleButton) { if (Isla.jugador?.canTogglePlaying) Isla.jugador.togglePlaying(); return; }
             mini.cerrar();
-            Origen.marcar(reloj, reloj.ventana?.screen?.name ?? "");   // Brújula nace de la isla
+            Origen.marcar(reloj, reloj.ventana?.screen?.name ?? "");   // Brújula (o el menú) nace de la isla
+            if (reloj.modo === "zen") { Quickshell.execDetached(["qs", "ipc", "call", "menu", "concentracion"]); return; }
             reloj.pulsado();
         }
         onEntered: if (reloj.modo !== "musica") reloj.ayuda?.mostrar(reloj, reloj.fechaCompleta)

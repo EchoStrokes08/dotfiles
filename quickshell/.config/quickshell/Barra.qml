@@ -44,6 +44,9 @@ PanelWindow {
     SystemClock { id: reloj; precision: SystemClock.Minutes }
     // Dónde está el puntero en la barra: lo que se abra desde aquí nace de ese punto (Origen.qml)
     HoverHandler { id: puntero }
+    // Modo zen: durante una sesión de concentración se apaga todo menos la isla del reloj (el anillo);
+    // vuelve al pasar el ratón por la barra
+    readonly property bool zen: Concentracion.activo && !puntero.hovered
     function marcarOrigen() { Origen.marcarPunto(puntero.point.position.x, puntero.point.position.y, screen?.name ?? ""); }
     // Próxima cita en 30 min o menos (o en curso): chip junto a la hora (ORION 5.7). Nunca con privacidad.
     readonly property var citaCercana: {
@@ -61,6 +64,7 @@ PanelWindow {
     // ── Derecha: bandeja, Buds, volumen, red… ───────────────────────────
     IslaBarra {
         id: islaDerecha
+        atenuada: barra.zen
         anchors { right: parent.right; rightMargin: barra.margen; verticalCenter: parent.verticalCenter }
         implicitWidth: derecha.implicitWidth + 16
         BarraDerecha {
@@ -81,6 +85,7 @@ PanelWindow {
 
         IslaBarra {
             id: islaEspacios
+            atenuada: barra.zen
             implicitWidth: filaEspacios.implicitWidth + 12
             RowLayout {
                 id: filaEspacios
@@ -136,6 +141,7 @@ PanelWindow {
         // Ventana activa: icono + título, en su propia isla
         IslaBarra {
             id: islaVentana
+            atenuada: barra.zen
             readonly property var actual: ToplevelManager.activeToplevel
             readonly property string icono: {
                 const e = actual ? DesktopEntries.heuristicLookup(actual.appId) : null;

@@ -14,7 +14,13 @@ Item {
     // Bienvenida (una vez por sesión, Isla.bienvenida): las islas caen desde arriba como una ola,
     // de izquierda a derecha según su posición en la barra
     transform: Translate { id: caida }
-    Component.onCompleted: if (Isla.bienvenida) { caida.y = -56; opacity = 0; colocar.start(); }
+    // La opacidad sale de dos cosas que no se pisan: la aparición de la bienvenida y el modo zen
+    // (atenuada: la barra se apaga durante una sesión de concentración, salvo con el ratón encima)
+    property real aparicion: 1
+    property bool atenuada: false
+    opacity: aparicion * (atenuada ? .3 : 1)
+    Behavior on opacity { enabled: !entradaIsla.running; NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
+    Component.onCompleted: if (Isla.bienvenida) { caida.y = -56; aparicion = 0; colocar.start(); }
     Timer {
         id: colocar
         interval: 60                     // a que la barra tenga su sitio: el retraso sale de la posición
@@ -28,7 +34,7 @@ Item {
         PauseAnimation { id: espera }
         ParallelAnimation {
             NumberAnimation { target: caida; property: "y"; to: 0; duration: 600; easing.type: Easing.OutBack; easing.overshoot: 1.4 }
-            NumberAnimation { target: isla; property: "opacity"; to: 1; duration: EstiloPanel.normal }
+            NumberAnimation { target: isla; property: "aparicion"; to: 1; duration: EstiloPanel.normal }
         }
     }
 
