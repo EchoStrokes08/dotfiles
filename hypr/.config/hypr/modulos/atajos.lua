@@ -172,15 +172,11 @@ hl.config({ binds = { workspace_back_and_forth = true } })
 -- Se usa el código físico de la tecla (code:49) para que no dependa de la distribución del teclado.
 hl.bind(mod .. " + code:49", hl.dsp.focus({ last = true }))
 
--- ALT+TAB / ALT+SHIFT+TAB: recorrer las ventanas del workspace y traer la elegida al frente (útil con flotantes)
-hl.bind("ALT + TAB", function()
-    hl.dispatch(hl.dsp.window.cycle_next())
-    hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" }))
-end)
-hl.bind("ALT + SHIFT + TAB", function()
-    hl.dispatch(hl.dsp.window.cycle_next({ next = false }))
-    hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" }))
-end)
+-- ALT+TAB / ALT+SHIFT+TAB: carrusel 3D de todas las ventanas por uso reciente (Quickshell: Conmutador.qml).
+-- Soltar ALT va a la elegida; un toque rápido cambia a la anterior sin mostrar nada.
+hl.bind("ALT + TAB",         hl.dsp.exec_cmd("qs ipc call conmutador siguiente"))
+hl.bind("ALT + SHIFT + TAB", hl.dsp.exec_cmd("qs ipc call conmutador anterior"))
+hl.bind("ALT + Alt_L", hl.dsp.exec_cmd("qs ipc call conmutador soltar"), { release = true, non_consuming = true })
 
 -- Grupos / pestañas (Nivel 6, paso 4). Para meter o sacar ventanas: SUPER+SHIFT+flechas (ver arriba)
 hl.bind(mod .. " + T",              hl.dsp.group.toggle())                          -- convertir la ventana en grupo / deshacerlo

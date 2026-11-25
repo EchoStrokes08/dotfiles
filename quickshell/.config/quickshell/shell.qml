@@ -80,6 +80,17 @@ ShellRoot {
         function estado(): string { return PreferenciasUI.panorama ? "activo" : "inactivo"; }
     }
 
+    // ALT+TAB cinematográfico (Conmutador.qml): carrusel 3D de ventanas en vivo, por uso reciente
+    CapaConmutador {}
+    IpcHandler {
+        target: "conmutador"
+        function siguiente(): void { Conmutador.siguiente(); }
+        function anterior(): void { Conmutador.anterior(); }
+        function soltar(): void { Conmutador.soltar(); }
+        function cancelar(): void { Conmutador.cancelar(); }
+        function estado(): string { return JSON.stringify({ abierto: Conmutador.abierto, visible: Conmutador.visible_, indice: Conmutador.indice, ventanas: Conmutador.ventanas.length }); }
+    }
+
     // Al bajar 3 dedos, una cápsula sale de la isla siguiendo al dedo y se convierte en Brújula (Gestos.qml)
     Variants {
         model: Quickshell.screens

@@ -67,7 +67,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 |---|---|
 | ★ `SUPER+1` … `SUPER+0` | Ir al workspace 1-10 (el mismo otra vez = volver al anterior) |
 | `SUPER+\|` (tecla a la izquierda del 1) | Saltar a la última ventana enfocada |
-| `ALT+TAB` / `ALT+SHIFT+TAB` | Recorrer las ventanas del workspace (y traerla al frente) |
+| `ALT+TAB` / `ALT+SHIFT+TAB` | Carrusel 3D de todas las ventanas en vivo, por uso reciente: TAB gira, soltar `ALT` va a la elegida (un toque rápido = la anterior). `←` `→` mover · `Q` cerrar la elegida · `Esc` cancelar |
 | ★ `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | Mover la ventana al workspace 1-10 |
 | `SUPER+rueda del ratón` | Workspace siguiente / anterior |
 | ★ `SUPER+S` | Mostrar / ocultar el scratchpad (workspace especial «magic») |

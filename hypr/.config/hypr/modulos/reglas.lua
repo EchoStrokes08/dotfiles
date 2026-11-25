@@ -50,7 +50,7 @@ hl.layer_rule({
 -- Entra y sale con el fundido de la capa. Con batería, en Mínimo o jugando, politicas.lua apaga el blur global.
 hl.layer_rule({
     name         = "quickshell-blur-velo",
-    match        = { namespace = "^quickshell-(lanzador|wallpapers|portapapeles|menu|chuleta|vista|ia|nota|brujula|agente|movil|mesa|flujo|apagado|impresora|autorizacion)$" },
+    match        = { namespace = "^quickshell-(lanzador|wallpapers|portapapeles|menu|chuleta|vista|ia|nota|brujula|agente|movil|mesa|flujo|apagado|impresora|autorizacion|conmutador)$" },
     blur         = true,
     ignore_alpha = 0.05,
 })
@@ -147,7 +147,7 @@ hl.layer_rule({ name = "anim-notificaciones", match = { namespace = "^quickshell
 hl.layer_rule({ name = "anim-escritorio",     match = { namespace = "^quickshell-escritorio$" },     animation = "fade" })
 hl.layer_rule({
     name    = "anim-quickshell-propias",
-    match   = { namespace = "^quickshell-(lanzador|centro|wallpapers|portapapeles|menu|chuleta|vista|osd|ia|nota|brujula|agente|movil|mesa|flujo)$" },
+    match   = { namespace = "^quickshell-(lanzador|centro|wallpapers|portapapeles|menu|chuleta|vista|osd|ia|nota|brujula|agente|movil|mesa|flujo|conmutador)$" },
     no_anim = true,
 })
 hl.layer_rule({ name = "anim-lanzamiento", match = { namespace = "^quickshell-lanzamiento$" }, no_anim = true })   -- sale justo del icono
