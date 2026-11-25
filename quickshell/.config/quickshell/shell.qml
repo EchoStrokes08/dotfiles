@@ -124,6 +124,16 @@ ShellRoot {
         function estado(): string { return JSON.stringify({ activa: Maquina.activa, indice: Maquina.indice, tarjetas: Maquina.tarjetas.length }); }
     }
 
+    // Letras en modo cine (Letras.qml): lo que suena a pantalla completa con la letra sincronizada
+    //   qs ipc call letras toggle   (SUPER+SHIFT+Y)
+    CapaLetras {}
+    IpcHandler {
+        target: "letras"
+        function toggle(): void { if (!Letras.activa) cerrarTodo(); Letras.alternar(); }
+        function cerrar(): void { Letras.cerrar(); }
+        function estado(): string { return JSON.stringify({ activa: Letras.activa, letra: Letras.estadoLetra, lineas: Letras.lineas.length, actual: Letras.actual }); }
+    }
+
     // Inicio de sesión cinematográfico (Bienvenida.qml): una vez por sesión, una por pantalla
     Variants {
         model: Quickshell.screens

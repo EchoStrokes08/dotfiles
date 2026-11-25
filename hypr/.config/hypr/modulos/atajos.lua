@@ -18,6 +18,7 @@ u.atajos({
     { mod .. " + D", exec("qs ipc call brujula toggle") },   -- Brújula: tu día, línea de tiempo y salud
     { mod .. " + SHIFT + D", exec("qs ipc call tudia mostrar") },   -- «Tu día»: el resumen del día en tarjetas (TuDia.qml)
     { mod .. " + SHIFT + H", exec("qs ipc call maquina toggle") },  -- máquina del tiempo: viajar por los momentos del día (Maquina.qml)
+    { mod .. " + SHIFT + Y", exec("qs ipc call letras toggle") },   -- letras en modo cine: lo que suena con la letra sincronizada (Letras.qml)
 
     -- Ventanas
     { mod .. " + C", hl.dsp.window.close() },
