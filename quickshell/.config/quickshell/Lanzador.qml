@@ -186,6 +186,7 @@ PanelWindow {
         { n: "Nota rápida",             d: "Apuntar una línea en notas.md · SUPER+SHIFT+O", i: 0xF039A, k: "notas apuntar anotar",  c: "qs ipc call nota abrir" },
         { n: "Móvil",                   d: "Centro de control › Móvil: batería, archivos, avisos", i: 0xF011C, k: "telefono celular enviar whatsapp responder notificaciones", c: scripts + "movil.sh menu" },
         { n: "Resumen del día",         d: "Brújula › Hoy: clima, agenda, recordatorios y sistema", i: 0xF05A8, k: "manana hoy agenda",    c: "qs ipc call resumen mostrar" },
+        { n: "Tu día",                  d: "Tu día contado en tarjetas: apps, ritmo, racha, música y más", i: 0xF0954, k: "resumen dia wrapped historias", c: "qs ipc call tudia mostrar" },
         { n: "Actualizar el sistema",   d: "Con snapshot, noticias de Arch y revisión final", i: 0xF03D6, k: "update paquetes pacman yay seguro", c: scripts + "actualizaciones.sh instalar" },
         { n: "Deshacer la última actualización", d: "Devolver / a su snapshot anterior (snapper)", i: 0xF099B, k: "rollback volver snapshot actualizacion rota", c: scripts + "actualizaciones.sh deshacer" },
         { n: "Almacenamiento", d: "Qué ocupa el SSD y cómo recuperar espacio sin romper nada", i: 0xF02CA, k: "disco ssd espacio limpiar cache papelera archivos grandes almacenamiento", c: "qs ipc call brujula abrir salud" },

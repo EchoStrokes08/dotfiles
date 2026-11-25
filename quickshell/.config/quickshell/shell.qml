@@ -103,6 +103,16 @@ ShellRoot {
         function probar(): void { Despedida.hacer([], "apagar"); }
     }
 
+    // «Tu día» (TuDia.qml): el resumen del día en tarjetas, en la pantalla con el foco
+    //   qs ipc call tudia mostrar   · también al cerrar la jornada y desde el lanzador
+    CapaTuDia {}
+    IpcHandler {
+        target: "tudia"
+        function mostrar(): void { cerrarTodo(); TuDia.mostrar(); }
+        function cerrar(): void { TuDia.cerrar(); }
+        function estado(): string { return JSON.stringify({ activa: TuDia.activa, pagina: TuDia.actual, paginas: TuDia.paginas }); }
+    }
+
     // Inicio de sesión cinematográfico (Bienvenida.qml): una vez por sesión, una por pantalla
     Variants {
         model: Quickshell.screens
@@ -150,7 +160,10 @@ ShellRoot {
         function noMolestarNo(): void { Notificaciones.pausar("off"); }
         // modo: minutos («30», «60»), «siempre», «off», «concentracion» o «reunion»
         function pausar(modo: string): void { Notificaciones.pausar(modo); }
-        function motivo(nombre: string, activo: bool): void { Notificaciones.motivo(nombre, activo); }
+        function motivo(nombre: string, activo: bool): void {
+            Notificaciones.motivo(nombre, activo);
+            if (nombre === "jornada" && activo) TuDia.alCerrarJornada();   // al cerrar el día, «Tu día»
+        }
         function automatico(activo: bool): void { Notificaciones.automatico = activo; }
         function estado(): string { return Notificaciones.noMolestar ? "activo" : "inactivo"; }
         function borrar(): void { Notificaciones.borrarTodo(); }
