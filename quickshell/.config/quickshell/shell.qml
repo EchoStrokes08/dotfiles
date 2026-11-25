@@ -77,6 +77,12 @@ ShellRoot {
             activado: escritorioCfg.activado
         }
     }
+
+    // Inicio de sesión cinematográfico (Bienvenida.qml): una vez por sesión, una por pantalla
+    Variants {
+        model: Quickshell.screens
+        Bienvenida { required property var modelData; screen: modelData }
+    }
     IpcHandler {
         target: "escritorio"
         function toggle(): void { escritorioCfg.activado = !escritorioCfg.activado; }

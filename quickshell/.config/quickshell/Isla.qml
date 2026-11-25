@@ -38,6 +38,29 @@ Singleton {
     }
     Timer { id: fin; interval: 1600; onTriggered: isla.aviso = false }
 
+    // ── Bienvenida: una vez por sesión (Bienvenida.qml e IslaBarra.qml la animan) ──
+    // La marca vive en $XDG_RUNTIME_DIR, que se vacía al cerrar sesión: reiniciar Quickshell no la repite.
+    FileView {
+        id: marca
+        path: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/orion-bienvenida"
+        blockLoading: true
+        printErrors: false
+    }
+    property bool bienvenida: false
+    Component.onCompleted: {
+        bienvenida = !marca.loaded && EstiloPanel.movimiento;
+        if (!marca.loaded) marca.setText(String(Date.now()));
+    }
+    function saludar() {
+        const h = new Date().getHours();
+        const saludo = h >= 5 && h < 12 ? "Buenos días" : h >= 12 && h < 20 ? "Buenas tardes" : h < 5 ? "Ya es tarde" : "Buenas noches";
+        const u = Quickshell.env("USER") || "";
+        mostrar(String.fromCodePoint(h >= 6 && h < 19 ? 0xF0599 : 0xF0594), -1, saludo + (u ? ", " + u.charAt(0).toUpperCase() + u.slice(1) : ""));
+        fin.interval = 3200; fin.restart();
+    }
+    Timer { running: isla.bienvenida; interval: 1300; onTriggered: isla.saludar() }
+    Timer { running: isla.bienvenida; interval: 4000; onTriggered: isla.bienvenida = false }   // lo que se cree después, ya sin bienvenida
+
     // ── ¿Hay una isla a la vista? ───────────────────────────────────────
     // Cada barra avisa si se ve (Barra.qml → registrar). El aviso va a la isla del monitor enfocado,
     // salvo con una ventana a pantalla completa (tapa la barra).
