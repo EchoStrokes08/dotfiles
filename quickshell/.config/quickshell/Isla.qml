@@ -23,10 +23,18 @@ Singleton {
     property int numero: 0           // sube con cada aviso: la isla late aunque el texto no cambie
     readonly property color tono: apagado ? Paleta.gris : valor > 1.001 ? Paleta.aviso : Paleta.acento
 
+    property string imagen: ""       // icono de app (ruta o URL): en las notificaciones, en vez del glifo
+
     function mostrar(ic, val, txt, off) {
-        icono = ic; valor = val; texto = txt ?? ""; apagado = off ?? false;
+        icono = ic; imagen = ""; valor = val; texto = txt ?? ""; apagado = off ?? false;
         aviso = true; numero++;
-        fin.restart();
+        fin.interval = 1600; fin.restart();
+    }
+    // Una notificación nueva: la isla enseña el icono de la app y el título mientras la tarjeta cae debajo
+    function notificar(img, txt) {
+        icono = img ? "" : String.fromCodePoint(0xF009A); imagen = img ?? ""; valor = -1; texto = txt ?? ""; apagado = false;
+        aviso = true; numero++;
+        fin.interval = 2200; fin.restart();
     }
     Timer { id: fin; interval: 1600; onTriggered: isla.aviso = false }
 

@@ -160,8 +160,15 @@ IslaBarra {
             id: capaAviso
             activa: reloj.modo === "aviso"
             spacing: 12
+            IconImage {   // notificaciones: el icono de la app
+                visible: Isla.imagen !== ""
+                implicitSize: 18
+                source: Isla.imagen
+                scale: iconoAviso.scale
+            }
             Glifo {
                 id: iconoAviso
+                visible: Isla.imagen === ""
                 text: Isla.icono
                 color: Isla.apagado ? Paleta.gris : Qt.lighter(Isla.tono, 1.08)
                 font { family: Paleta.mono; pixelSize: 16 }
