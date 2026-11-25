@@ -338,7 +338,7 @@ ShellRoot {
     // Vista general (SUPER+ESPACIO, SUPER + 3 dedos arriba): qs ipc call vista toggle
     IpcHandler {
         target: "vista"
-        function toggle(): void { const a = vista.abierto; cerrarTodo(); vista.abierto = !a; }
+        function toggle(): void { const a = vista.abierto; cerrarTodo(); if (!a) vista.alternar(); }   // alternar(): captura para el zoom y abre
         function datos(): string {   // diagnóstico: monitor y ventanas
             const m = Hyprland.focusedMonitor;
             return `monitor ${m?.name} ${m?.width}x${m?.height} @${m?.x},${m?.y} escala ${m?.scale} · ` +

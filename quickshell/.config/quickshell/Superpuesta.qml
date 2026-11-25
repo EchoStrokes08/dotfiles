@@ -20,6 +20,7 @@ PanelWindow {
     property real anchoTarjeta: 560
     property real alturaRelativa: 0.14         // dónde empieza la tarjeta (fracción del alto)
     default property alias contenido: caja.data
+    property alias encima: capaEncima.data      // capa a pantalla completa por encima de la tarjeta (ZoomVista)
     readonly property real altoPanel: tarjeta.height
     readonly property real posicionPanel: tarjeta.y
     signal abriendose()
@@ -177,4 +178,6 @@ PanelWindow {
             }
         }
     }
+
+    Item { id: capaEncima; anchors.fill: parent; z: 50 }
 }

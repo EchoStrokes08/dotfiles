@@ -9,6 +9,7 @@ import QtQuick.Shapes
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Wayland
 
 Superpuesta {
@@ -20,6 +21,29 @@ Superpuesta {
     opacidadTarjeta: 1
 
     property string seleccion: ""            // dirección (sin 0x) de la ventana elegida
+
+    // ── Zoom tipo Mission Control (ZoomVista.qml) ──
+    // Al abrir: captura de la pantalla (~35 ms, en $XDG_RUNTIME_DIR) que se encoge hasta la miniatura del
+    // espacio activo. Al ir a un espacio o ventana: su miniatura crece hasta llenar la pantalla.
+    encima: ZoomVista { id: zoom }
+    property var miniaturas: ({})            // id del espacio → su miniatura (para apuntar el zoom)
+    property string capturaZoom: ""
+    readonly property string dirZoom: Quickshell.env("XDG_RUNTIME_DIR") || ""
+    function alternar() {
+        if (abierto || capturador.running) { abierto = false; return; }
+        const m = Hyprland.focusedMonitor?.name ?? "";
+        if (!EstiloPanel.movimiento || EstadoEscritorio.privacidad || EstadoEscritorio.capturaPrivada || dirZoom === "" || m === "") { capturaZoom = ""; abierto = true; return; }
+        capturaZoom = dirZoom + "/vista-" + m + ".ppm";
+        capturador.command = ["sh", "-c", 'umask 077; grim -o "$1" -t ppm "$2"', "sh", m, capturaZoom];
+        capturador.running = true;
+        limiteZoom.restart();
+    }
+    Process {
+        id: capturador
+        onExited: (codigo) => { if (codigo !== 0) vista.capturaZoom = ""; if (limiteZoom.running) { limiteZoom.stop(); vista.abierto = true; } }
+    }
+    Timer { id: limiteZoom; interval: 300; onTriggered: { vista.capturaZoom = ""; vista.abierto = true; } }
+    function zoomAEspacio(n) { const d = miniaturas[n]; if (d && EstiloPanel.movimiento) zoom.cerrar(d); }
     property string fondo: ""
     readonly property string fondoRuta: Quickshell.env("HOME") + "/.local/state/tema/wallpaper"
 
@@ -27,6 +51,7 @@ Superpuesta {
         const monitor = Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name);
         if (monitor) screen = monitor;
         Hyprland.refreshWorkspaces(); Hyprland.refreshToplevels(); refresco.restart();
+        if (capturaZoom !== "") { const r = capturaZoom; capturaZoom = ""; Qt.callLater(() => zoom.abrir(r, vista.miniaturas[vista.activo] ?? null)); }
         buscar.text = "";
         seleccion = Hyprland.activeToplevel?.address ?? "";
         fondo = ""; fondo = "file://" + fondoRuta;   // relee el fondo (puede haber cambiado)
@@ -89,8 +114,12 @@ Superpuesta {
     readonly property int coincidencias: orden.length
 
     // ── acciones ───────────────────────────────────────────────────────────────
-    function irVentana(dir) { cerrarY(() => Hyprland.dispatch(`hl.dsp.focus({ window = "address:0x${dir}" })`)); }
-    function irEspacio(n) { cerrarY(() => Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`)); }
+    function irVentana(dir) {
+        const t = Hyprland.toplevels.values.find(x => x.address === dir);
+        if (t?.workspace) zoomAEspacio(t.workspace.id);
+        cerrarY(() => Hyprland.dispatch(`hl.dsp.focus({ window = "address:0x${dir}" })`));
+    }
+    function irEspacio(n) { zoomAEspacio(n); cerrarY(() => Hyprland.dispatch(`hl.dsp.focus({ workspace = ${n} })`)); }
     function mover(dir, n) {
         Hyprland.dispatch(`hl.dsp.window.move({ window = "address:0x${dir}", workspace = ${n}, follow = false })`);
         refresco.restart();
@@ -220,6 +249,8 @@ Superpuesta {
                     Item {
                         id: celda
                         required property var modelData
+                        Component.onCompleted: vista.miniaturas[modelData.id] = pantalla
+                        Component.onDestruction: if (vista.miniaturas[modelData.id] === pantalla) delete vista.miniaturas[modelData.id]
                         required property int index
                         readonly property var mon: modelData.monitor
                         // tamaño LÓGICO del monitor (las ventanas vienen en lógicas: con escala 1,5, 1920 px = 1280)
