@@ -29,11 +29,23 @@ PanelWindow {
         function onCapturaPrivadaChanged() { if (EstadoEscritorio.capturaPrivada) v.abierto=false; }
     }
 
+    // Si se abrió desde algo de la barra (Origen.qml), la tarjeta nace de ese punto y vuelve a él al cerrarse
+    property var nace: null
     onAbiertoChanged: {
-        if (abierto) { cierre.stop(); mostrar = true; abriendose(); }
-        else cierre.restart();
+        if (abierto) {
+            cierre.stop(); encoger.stop();
+            nace = EstiloPanel.movimiento ? Origen.tomar(screen?.name ?? "") : null;
+            mostrar = true; abriendose();
+            if (nace) crecer.restart(); else { crecer.stop(); escalaNacer.xScale = 1; escalaNacer.yScale = 1; }
+        } else {
+            if (nace && EstiloPanel.movimiento) encoger.restart();
+            cierre.restart();
+        }
     }
-    Timer { id: cierre; interval: EstiloPanel.normal; onTriggered: v.mostrar = false }
+    Timer {
+        id: cierre; interval: EstiloPanel.normal
+        onTriggered: { v.mostrar = false; v.nace = null; escalaNacer.xScale = 1; escalaNacer.yScale = 1; }
+    }
 
     // Cerrar y DESPUÉS actuar. Mientras el panel está abierto tiene el teclado en exclusiva:
     // si se enfoca otra ventana en ese momento, Hyprland cambia de espacio pero, al soltar el
@@ -75,6 +87,21 @@ PanelWindow {
         y: Math.max(12, Math.min(parent.height * v.alturaRelativa, parent.height - height - 16)) + (v.abierto ? 0 : 14)
         opacity: v.abierto ? 1 : 0
         scale: v.abierto ? 1 : 0.965
+        transform: Scale {
+            id: escalaNacer
+            origin.x: v.nace ? v.nace.x - tarjeta.x : tarjeta.width / 2
+            origin.y: v.nace ? v.nace.y - tarjeta.y : 0
+        }
+        NumberAnimation {
+            id: crecer
+            target: escalaNacer; properties: "xScale,yScale"; from: .06; to: 1
+            duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: .9
+        }
+        NumberAnimation {
+            id: encoger
+            target: escalaNacer; properties: "xScale,yScale"; to: .06
+            duration: EstiloPanel.normal; easing.type: Easing.InCubic
+        }
         Behavior on y       { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
         Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
         Behavior on scale   { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }

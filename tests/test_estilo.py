@@ -128,6 +128,17 @@ class Componentes(unittest.TestCase):
                     malos.append(f"{p.name}:{i}")
         self.assertEqual(malos, [], "texto suelto antes de los import")
 
+    def test_singletons_sin_llaves_antes_del_pragma(self):
+        # Quickshell deja de ver un singleton si hay una «{» antes de «pragma Singleton», aunque esté en un
+        # comentario: el tipo carga, pero sus funciones salen undefined (pasó con Origen.qml).
+        malos = []
+        for p, t in qml():
+            if "pragma Singleton" not in t:
+                continue
+            if "{" in t[:t.index("pragma Singleton")]:
+                malos.append(p.name)
+        self.assertEqual(malos, [], "llaves en la cabecera de un singleton")
+
     def test_atajos_esenciales(self):
         # La chuleta abre con los esenciales: los marca una ★ en docs/atajos.md
         t = (RAIZ / "docs/atajos.md").read_text()

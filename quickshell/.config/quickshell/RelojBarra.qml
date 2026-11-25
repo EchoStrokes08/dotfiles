@@ -231,6 +231,7 @@ IslaBarra {
         onClicked: (e) => {
             if (e.button === Qt.MiddleButton) { if (Isla.jugador?.canTogglePlaying) Isla.jugador.togglePlaying(); return; }
             mini.cerrar();
+            Origen.marcar(reloj, reloj.ventana?.screen?.name ?? "");   // Brújula nace de la isla
             reloj.pulsado();
         }
         onEntered: { if (reloj.modo === "musica") abrirMini.restart(); else reloj.ayuda?.mostrar(reloj, reloj.fechaCompleta); }

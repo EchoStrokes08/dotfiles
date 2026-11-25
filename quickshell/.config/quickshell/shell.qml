@@ -44,6 +44,12 @@ ShellRoot {
     readonly property int minutosSeguidos: Pausas.seguidos                       // arranca Pausas.qml
     readonly property bool climaListo: Clima.listo && Eventos.lista.length >= 0  // arranca Clima.qml y Eventos.qml
 
+    // qs ipc call origen marcar X Y → el próximo panel nace de ese punto de la pantalla (Origen.qml)
+    IpcHandler {
+        target: "origen"
+        function marcar(x: real, y: real): void { Origen.marcarPunto(x, y, ""); }
+    }
+
     // Una barra por pantalla; si conectas un monitor, aparece otra sola
     Variants {
         id: barras

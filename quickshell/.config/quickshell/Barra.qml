@@ -42,6 +42,9 @@ PanelWindow {
     readonly property real margen: 8      // de las islas al borde de la pantalla
 
     SystemClock { id: reloj; precision: SystemClock.Minutes }
+    // Dónde está el puntero en la barra: lo que se abra desde aquí nace de ese punto (Origen.qml)
+    HoverHandler { id: puntero }
+    function marcarOrigen() { Origen.marcarPunto(puntero.point.position.x, puntero.point.position.y, screen?.name ?? ""); }
     // Próxima cita en 30 min o menos (o en curso): chip junto a la hora (ORION 5.7). Nunca con privacidad.
     readonly property var citaCercana: {
         const ahora = reloj.date;
@@ -63,6 +66,7 @@ PanelWindow {
         BarraDerecha {
             id: derecha
             ventana: barra
+            onAntesDeEjecutar: barra.marcarOrigen()
             prioridad: ModoTeclado.activo || EstadoEscritorio.privacidad
             compacto: barra.width < 1400
             anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
@@ -123,7 +127,7 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: Quickshell.execDetached(Reunion.activa ? ["qs", "ipc", "call", "mesa", "abrir", "reunion"] : ["qs", "ipc", "call", "centroEscritorio", "toggle"])
+                        onClicked: { barra.marcarOrigen(); Quickshell.execDetached(Reunion.activa ? ["qs", "ipc", "call", "mesa", "abrir", "reunion"] : ["qs", "ipc", "call", "centroEscritorio", "toggle"]); }
                     }
                 }
             }

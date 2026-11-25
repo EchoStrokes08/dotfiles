@@ -25,7 +25,8 @@ RowLayout {
     spacing: 0
 
     function g(cp) { return String.fromCodePoint(cp); }   // icono Nerd Font por su código
-    function ejecutar(cmd) { Quickshell.execDetached(["sh", "-c", cmd]); }
+    signal antesDeEjecutar()   // la barra marca el origen: el panel que se abra nace del botón pulsado
+    function ejecutar(cmd) { antesDeEjecutar(); Quickshell.execDetached(["sh", "-c", cmd]); }
 
     function refrescar(que) {
         if (que === "buds" || que === "todo") buds.leer();

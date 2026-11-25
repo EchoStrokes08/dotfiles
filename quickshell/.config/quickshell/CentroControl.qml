@@ -31,12 +31,27 @@ PanelWindow {
         if (cerrarPanel) abierto = false;
     }
 
+    // Abierto desde la barra (campana, Wi-Fi, volumen…): el panel nace del botón (Origen.qml) en vez de
+    // entrar deslizándose, y al cerrarse vuelve a él. Con el teclado, entra deslizándose como siempre.
+    property var nace: null              // {x, y} en coordenadas de esta ventana
+    property bool dentro: false          // el panel está en su sitio (x); se fija aquí, después de `nace`
     onAbiertoChanged: {
-        if (abierto) { cierre.stop(); mostrar = true; leerConmutadores.running = true; lectorBrillo.running = true; lectorMovil.running = true; salidaEscritorio = ""; leerReplay.running = true; }
-        else if (EstiloPanel.movimiento) cierre.restart();
-        else mostrar = false;
+        if (abierto) {
+            cierre.stop(); encogerCentro.stop();
+            const p = EstiloPanel.movimiento ? Origen.tomar(screen?.name ?? "") : null;
+            // esta ventana empieza bajo la barra: las coordenadas de la pantalla bajan lo que ocupa la barra
+            nace = p ? { x: p.x, y: p.y - ((screen?.height ?? height) - height) } : null;
+            dentro = true;
+            if (nace) crecerCentro.restart(); else { crecerCentro.stop(); escalaCentro.xScale = 1; escalaCentro.yScale = 1; }
+            mostrar = true; leerConmutadores.running = true; lectorBrillo.running = true; lectorMovil.running = true; salidaEscritorio = ""; leerReplay.running = true;
+        }
+        else if (EstiloPanel.movimiento) { if (nace) encogerCentro.restart(); else dentro = false; cierre.restart(); }
+        else { dentro = false; mostrar = false; nace = null; }
     }
-    Timer { id: cierre; interval: EstiloPanel.normal; onTriggered: ventana.mostrar = false }
+    Timer {
+        id: cierre; interval: EstiloPanel.normal
+        onTriggered: { ventana.mostrar = false; ventana.dentro = false; ventana.nace = null; escalaCentro.xScale = 1; escalaCentro.yScale = 1; }
+    }
 
     visible: mostrar
     color: "transparent"
@@ -191,8 +206,25 @@ PanelWindow {
         id: panel
         width: Math.min(420, Math.max(0, parent.width - 16))
         anchors { top: parent.top; bottom: parent.bottom; topMargin: 8; bottomMargin: 8 }
-        x: ventana.abierto ? parent.width - width - 8 : parent.width + 10
-        Behavior on x { NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
+        x: ventana.dentro ? parent.width - width - 8 : parent.width + 10
+        Behavior on x { enabled: !ventana.nace; NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.OutCubic } }
+        opacity: ventana.abierto || !ventana.nace ? 1 : 0
+        Behavior on opacity { enabled: !!ventana.nace; NumberAnimation { duration: EstiloPanel.normal; easing.type: Easing.InCubic } }
+        transform: Scale {
+            id: escalaCentro
+            origin.x: ventana.nace ? ventana.nace.x - panel.x : panel.width
+            origin.y: ventana.nace ? ventana.nace.y - panel.y : 0
+        }
+        NumberAnimation {
+            id: crecerCentro
+            target: escalaCentro; properties: "xScale,yScale"; from: .06; to: 1
+            duration: EstiloPanel.lento; easing.type: Easing.OutBack; easing.overshoot: .8
+        }
+        NumberAnimation {
+            id: encogerCentro
+            target: escalaCentro; properties: "xScale,yScale"; to: .06
+            duration: EstiloPanel.normal; easing.type: Easing.InCubic
+        }
         color: "transparent"
         FondoPanel { anchors.fill: parent; radio: 24 }
         MouseArea { anchors.fill: parent }
