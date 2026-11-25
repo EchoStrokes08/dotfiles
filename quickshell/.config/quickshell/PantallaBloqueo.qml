@@ -14,6 +14,8 @@ WlSessionLockSurface {
     color: Paleta.fondo
 
     SystemClock { id: reloj; precision: SystemClock.Seconds }
+    // El escritorio se aleja al bloquear y vuelve al desbloquear (encima de todo, solo durante la transición)
+    TransicionBloqueo { anchors.fill: parent; z: 100; estado: superficie.estado; pantalla: superficie.screen?.name ?? "" }
 
     // Todo aparece con un fundido y se va igual al desbloquear
     Item {

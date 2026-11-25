@@ -53,19 +53,68 @@ Scope {
                                  "sh", dirEstado, String(n)]);
     }
 
+    // ── Transición (TransicionBloqueo.qml): captura del escritorio justo ANTES de bloquear ──
+    // Va a $XDG_RUNTIME_DIR (en memoria, solo tuyo) y se borra al desbloquear. Mientras se captura,
+    // estado() responde «bloqueando» (bloquear.sh espera en vez de lanzar hyprlock). Si grim falla o
+    // tarda más de 0,4 s, se bloquea igual sin transición. Nunca con privacidad ni sin movimiento.
+    property bool capturando: false
+    property var capturas: ({})          // nombre del monitor → ruta de su captura
+    property int numeroCaptura: 0
+    signal salidaPedida()
+    readonly property string dirCapturas: Quickshell.env("XDG_RUNTIME_DIR") || ""
+
     function bloquear() {
-        if (sesion.locked) return;
+        if (sesion.locked || capturando) return;
         clave = ""; error = false; comprobando = false; saliendo = false; intentos = 0;
         autoEnvio = true;
         archivoLongitud.reload();        // por si cambiaste la longitud desde el último bloqueo
+        capturas = {};
+        if (EstiloPanel.movimiento && dirCapturas !== "" && !EstadoEscritorio.privacidad && !EstadoEscritorio.capturaPrivada) {
+            capturando = true;
+            capturador.command = ["sh", "-c",
+                'umask 077; d="$1"; shift; for o; do grim -o "$o" -t ppm "$d/bloqueo-$o.ppm" 2>/dev/null && printf "%s\\n" "$o"; done',
+                "sh", dirCapturas, ...Quickshell.screens.map(p => p.name)];
+            capturador.running = true;
+            limiteCaptura.restart();
+        } else activar();
+    }
+    function activar() {
+        if (sesion.locked) return;
+        capturando = false;
+        limiteCaptura.stop();
         sesion.locked = true;
         leerMayus();
     }
+    Process {
+        id: capturador
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (!bloqueo.capturando) return;            // llegó tarde: ya se bloqueó sin transición
+                const c = {};
+                for (const o of text.split("\n").filter(x => x !== "")) c[o] = bloqueo.dirCapturas + "/bloqueo-" + o + ".ppm";
+                bloqueo.numeroCaptura++;
+                bloqueo.capturas = c;
+                bloqueo.activar();
+            }
+        }
+        onExited: if (bloqueo.capturando) bloqueo.activar()   // por si no hubo salida que leer
+    }
+    Timer { id: limiteCaptura; interval: 400; onTriggered: if (bloqueo.capturando) { bloqueo.capturas = {}; bloqueo.activar(); } }
+
     function desbloquear() {
         saliendo = true;
+        salidaPedida();                  // el escritorio vuelve hacia ti (TransicionBloqueo)
         soltar.restart();                // deja ver la animación y luego suelta
     }
-    Timer { id: soltar; interval: 350; onTriggered: { sesion.locked = false; bloqueo.saliendo = false; bloqueo.clave = ""; } }
+    Timer {
+        id: soltar; interval: 350
+        onTriggered: {
+            sesion.locked = false; bloqueo.saliendo = false; bloqueo.clave = "";
+            bloqueo.capturas = {};
+            if (bloqueo.dirCapturas !== "")
+                Quickshell.execDetached(["sh", "-c", 'rm -f "$1"/bloqueo-*.ppm', "sh", bloqueo.dirCapturas]);
+        }
+    }
 
     // ── Comprobar la contraseña con PAM ─────────────────────────────────
     function enviar(auto) {
@@ -119,6 +168,6 @@ Scope {
     IpcHandler {
         target: "bloqueo"
         function bloquear(): void { bloqueo.bloquear(); }
-        function estado(): string { return sesion.locked ? (sesion.secure ? "bloqueado" : "bloqueando") : "libre"; }
+        function estado(): string { return sesion.locked ? (sesion.secure ? "bloqueado" : "bloqueando") : bloqueo.capturando ? "bloqueando" : "libre"; }
     }
 }
