@@ -113,6 +113,17 @@ ShellRoot {
         function estado(): string { return JSON.stringify({ activa: TuDia.activa, pagina: TuDia.actual, paginas: TuDia.paginas }); }
     }
 
+    // Máquina del tiempo (Maquina.qml): tu pantalla se vuelve la primera tarjeta de una pila con los momentos del día
+    //   qs ipc call maquina abrir
+    CapaMaquina {}
+    IpcHandler {
+        target: "maquina"
+        function abrir(): void { cerrarTodo(); Maquina.abrir(); }
+        function toggle(): void { if (Maquina.activa) Maquina.cerrar(); else { cerrarTodo(); Maquina.abrir(); } }
+        function cerrar(): void { Maquina.cerrar(); }
+        function estado(): string { return JSON.stringify({ activa: Maquina.activa, indice: Maquina.indice, tarjetas: Maquina.tarjetas.length }); }
+    }
+
     // Inicio de sesión cinematográfico (Bienvenida.qml): una vez por sesión, una por pantalla
     Variants {
         model: Quickshell.screens
