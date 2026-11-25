@@ -189,7 +189,6 @@ PanelWindow {
         { n: "Tu día",                  d: "Tu día contado en tarjetas: apps, ritmo, racha, música y más", i: 0xF0954, k: "resumen dia wrapped historias", c: "qs ipc call tudia mostrar" },
         { n: "Máquina del tiempo",      d: "Viaja por los momentos de tu día y vuelve a abrir lo que usabas", i: 0xF02DA, k: "historial atras pasado volver timeline viajar", c: "qs ipc call maquina abrir" },
         { n: "Letras en modo cine",     d: "Lo que suena a pantalla completa con la letra sincronizada · SUPER+SHIFT+Y", i: 0xF075A, k: "musica cancion karaoke letra lyrics spotify", c: "qs ipc call letras toggle" },
-        { n: "Fondo generativo",        d: "Alternar: una aurora viva con tus colores en vez de la imagen", i: 0xF0674, k: "aurora fondo vivo animado shader wallpaper nebulosa", c: "qs ipc call fondo generativo" },
         { n: "Actualizar el sistema",   d: "Con snapshot, noticias de Arch y revisión final", i: 0xF03D6, k: "update paquetes pacman yay seguro", c: scripts + "actualizaciones.sh instalar" },
         { n: "Deshacer la última actualización", d: "Devolver / a su snapshot anterior (snapper)", i: 0xF099B, k: "rollback volver snapshot actualizacion rota", c: scripts + "actualizaciones.sh deshacer" },
         { n: "Almacenamiento", d: "Qué ocupa el SSD y cómo recuperar espacio sin romper nada", i: 0xF02CA, k: "disco ssd espacio limpiar cache papelera archivos grandes almacenamiento", c: "qs ipc call brujula abrir salud" },

@@ -80,18 +80,6 @@ ShellRoot {
         function estado(): string { return PreferenciasUI.panorama ? "activo" : "inactivo"; }
     }
 
-    // Fondo generativo (FondoGenerativo.qml): una aurora viva con los colores del tema en vez de la imagen
-    //   qs ipc call fondo generativo   (alterna)
-    Variants {
-        model: Quickshell.screens
-        FondoGenerativo { required property var modelData; screen: modelData }
-    }
-    IpcHandler {
-        target: "fondo"
-        function generativo(): void { PreferenciasUI.fondoGenerativo = !PreferenciasUI.fondoGenerativo; PreferenciasUI.guardar(); }
-        function estado(): string { return PreferenciasUI.fondoGenerativo ? "generativo" : "imagen"; }
-    }
-
     // Al bajar 3 dedos, una cápsula sale de la isla siguiendo al dedo y se convierte en Brújula (Gestos.qml)
     Variants {
         model: Quickshell.screens

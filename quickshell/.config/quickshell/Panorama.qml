@@ -16,7 +16,7 @@ PanelWindow {
     id: pa
     readonly property var monitor: Hyprland.monitorFor(screen)
     readonly property int espacio: monitor?.activeWorkspace?.id ?? 1
-    readonly property bool permitido: PreferenciasUI.panorama && !PreferenciasUI.fondoGenerativo && EstadoEscritorio.perfil !== "rendimiento"
+    readonly property bool permitido: PreferenciasUI.panorama && EstadoEscritorio.perfil !== "rendimiento"
         && EstadoEscritorio.datos.juego_activo !== "true"
     readonly property real dpr: screen?.devicePixelRatio ?? 1
 
