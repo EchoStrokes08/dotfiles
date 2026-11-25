@@ -80,6 +80,12 @@ ShellRoot {
         function estado(): string { return PreferenciasUI.panorama ? "activo" : "inactivo"; }
     }
 
+    // Al bajar 3 dedos, una cápsula sale de la isla siguiendo al dedo y se convierte en Brújula (Gestos.qml)
+    Variants {
+        model: Quickshell.screens
+        CapaTirador { required property var modelData; screen: modelData; brujulaAbierta: brujula.abierto }
+    }
+
     // Clima vivo sobre el wallpaper (ClimaVivo.qml): lluvia, tormenta, nieve, niebla o nubes, con el
     // espacio vacío. Antes que los widgets para quedar debajo de ellos. Uno por pantalla.
     //   qs ipc call clima simular lluvia   (llovizna · chubasco · tormenta · nieve · niebla · nubes · "" = real)

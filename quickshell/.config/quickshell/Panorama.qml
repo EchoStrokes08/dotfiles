@@ -66,12 +66,26 @@ PanelWindow {
     readonly property real zoom: Math.max(1.12, Math.min(1.5, 1 / Math.max(.01, escalaBase)))
     // t: 0 = exactamente como awww (centrado, sin zoom) · 1 = en el panorama
     property real t: 0
-    // f: posición en el paisaje (0 = espacio 1 · 1 = espacio 10), anima al cambiar de espacio
-    property real f: (Math.max(1, Math.min(10, espacio)) - 1) / 9
+    // f: posición en el paisaje (0 = espacio 1 · 1 = espacio 10), anima al cambiar de espacio.
+    // Con 3 dedos a los lados (Gestos.qml) la cámara sigue a los dedos mientras Hyprland arrastra las
+    // ventanas; al soltar va hasta el espacio en el que acabes (o vuelve si cancelas).
+    readonly property real fEspacio: (Math.max(1, Math.min(10, espacio)) - 1) / 9
+    readonly property bool siguiendo: Gestos.activo && Gestos.dedos === 3 && Gestos.eje === "h"
+    readonly property real distancia: 300        // como workspace_swipe_distance de Hyprland (por defecto)
+    property real arrastre: 0                    // en espacios: -1 … 1 (dedos a la izquierda = siguiente)
+    property real f: Math.max(0, Math.min(1, fEspacio + arrastre / 9))
     Behavior on f {
-        enabled: pa.t >= 1
+        enabled: pa.t >= 1 && !pa.siguiendo
         NumberAnimation { duration: EstiloPanel.movimiento ? 1100 : 0; easing.type: Easing.OutCubic }
     }
+    Connections {
+        target: Gestos
+        function onDxChanged() { if (pa.siguiendo) pa.arrastre = Math.max(-1, Math.min(1, -Gestos.dx / pa.distancia)); }
+        function onTermino() { if (pa.arrastre !== 0) soltar.restart(); }
+    }
+    // Al soltar se espera un momento al cambio de espacio de Hyprland: así va directa al destino
+    Timer { id: soltar; interval: 300; onTriggered: pa.arrastre = 0 }
+    onEspacioChanged: if (arrastre !== 0) { soltar.stop(); arrastre = 0; }
     readonly property real zoomActual: 1 + (zoom - 1) * t
     readonly property real xNeutro: (width - anchoBase) / 2
     readonly property real xObjetivo: -f * (anchoBase * zoom - width)

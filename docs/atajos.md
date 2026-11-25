@@ -243,9 +243,9 @@ editar, duplicar, borrar; proyecto: retomar, editar, actualizar, archivar) y Esc
 
 | Gesto | Acción |
 |---|---|
-| 3 dedos ← → | Cambiar de workspace |
+| 3 dedos ← → | Cambiar de workspace (el fondo panorámico sigue a los dedos*) |
 | 3 dedos ↑ | Mostrar / ocultar el scratchpad |
-| 3 dedos ↓ | Brújula › Hoy |
+| 3 dedos ↓ | Brújula › Hoy (una cápsula sale de la isla siguiendo a los dedos* y Brújula nace de ella) |
 | Abrir 3 dedos | Pantalla completa (otra vez = salir) |
 | Juntar 3 dedos | Flotante ↔ mosaico |
 | 4 dedos (cualquier dirección) | Mover la ventana |
@@ -253,6 +253,8 @@ editar, duplicar, borrar; proyecto: retomar, editar, actualizar, archivar) y Esc
 | `SUPER` + 3 dedos ↓ | Cerrar la ventana |
 | `SUPER` + 3 dedos ↑ | Vista general |
 | `SUPER` + pellizco (2 dedos) | Lupa alrededor del cursor |
+
+\* Que lo visual siga a los dedos necesita, una vez, `~/dotfiles/instalar/gestos.sh` (libinput-tools y acceso solo al touchpad).
 
 ### Comportamiento automático
 

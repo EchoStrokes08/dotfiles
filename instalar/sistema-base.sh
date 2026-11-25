@@ -15,6 +15,7 @@
 #  13. Mirrors   reflector: servidores de paquetes rápidos cerca de Colombia (antes salía uno de Suecia)
 #  14. KDE Connect  puertos 1714-1764 abiertos SOLO para la red local (el móvil)
 #  17. Hibernación  swapfile de 16 GB en el subvolumen @swap (zram no sirve para hibernar)
+#  18. Gestos     libinput-tools y acceso solo al touchpad: el panorama y Brújula siguen al dedo
 #
 # Uso (SIN sudo; lo pide él):  ~/dotfiles/instalar/sistema-base.sh [--simular]
 # Idempotente: si algo ya está hecho, lo salta.
@@ -484,6 +485,11 @@ escribir /etc/systemd/sleep.conf.d/hibernar.conf <<'EOT'
 [Sleep]
 HibernateDelaySec=2h
 EOT
+
+# ── 18. Gestos que siguen el dedo ───────────────────────────────────────
+# libinput-tools y acceso SOLO al touchpad para la sesión activa (Quickshell: Gestos.qml). Detalle en gestos.sh.
+paso "Gestos del touchpad para Quickshell"
+if [ "$SIMULAR" = 1 ]; then "$(dirname "$0")/gestos.sh" --simular; else "$(dirname "$0")/gestos.sh"; fi
 
 paso "Listo"
 echo "  Comprueba:"
