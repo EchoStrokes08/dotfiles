@@ -30,6 +30,11 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
+        Text { Layout.fillWidth: true; text: "Fondo generativo (aurora con tus colores)"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
+        Interruptor { activo: PreferenciasUI.fondoGenerativo; onAlternado: { PreferenciasUI.fondoGenerativo = !PreferenciasUI.fondoGenerativo; PreferenciasUI.guardar(); } }
+    }
+    RowLayout {
+        Layout.fillWidth: true
         spacing: 8
         Text { Layout.fillWidth: true; text: "Tamaño de la interfaz"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
         Repeater {
