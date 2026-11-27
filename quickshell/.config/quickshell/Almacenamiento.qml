@@ -2,6 +2,7 @@
 //   · barra del disco por categorías (lo libre es el fondo) y leyenda con la acción de cada una
 //   · limpiar solo lo que se regenera; lo de administrador se abre en una terminal visible
 //   · archivos grandes de tus carpetas, con «Abrir carpeta» y «A la papelera» (recuperable)
+//   · «Abrir Órbita»: el gestor completo (~/proyectos/orbita), si está instalado
 // Con privacidad activa no se muestran nombres de archivos.
 import QtQuick
 import QtQuick.Layouts
@@ -18,6 +19,7 @@ TarjetaPanel {
     property string confirmando: ""            // id de la categoría que pide confirmación
     signal ejecutar(var comando)               // SaludPanel → Brújula lanza la orden (terminal, app o carpeta)
     readonly property string script: Quickshell.env("HOME") + "/.config/hypr/scripts/almacenamiento.py"
+    readonly property string orbita: Quickshell.env("HOME") + "/.local/bin/orbita"
     // Un color fijo por categoría (no por posición): la misma cosa se ve igual aunque cambie el orden
     readonly property var colores: ({ juegos: Paleta.serie[4], paquetes: Paleta.serie[0], apps: Paleta.serie[5], cache: Paleta.serie[1],
         descargas: Paleta.serie[3], firefox: Paleta.serie[2], papelera: Paleta.serie[6], registro: Paleta.serie[7], videos: EstiloPanel.tenue })
@@ -48,6 +50,9 @@ TarjetaPanel {
         alm.confirmando = "";
     }
     Component.onCompleted: revisar()
+
+    // Solo se ofrece Órbita si su lanzador existe
+    FileView { id: hayOrbita; path: alm.orbita; printErrors: false }
 
     Process {
         id: lector
@@ -189,6 +194,13 @@ TarjetaPanel {
             color: alm.error ? Paleta.peligro : EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 }
         }
         BotonCompacto { text: "Revisar"; enabled: !lector.running; onClicked: { alm.mensaje = ""; alm.revisar(); } }
+        BotonCompacto {
+            visible: hayOrbita.loaded
+            text: "Abrir Órbita"
+            destacado: true
+            Accessible.name: "Abrir Órbita, el gestor de almacenamiento completo"
+            onClicked: alm.ejecutar([alm.orbita])
+        }
         BotonCompacto {
             text: alm.verGrandes ? "Ocultar archivos grandes" : "Archivos grandes"
             destacado: alm.verGrandes
