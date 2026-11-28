@@ -95,6 +95,11 @@ ShellRoot {
         model: Quickshell.screens
         CapaEnergia { required property var modelData; screen: modelData }
     }
+    // batería baja (20 / 10 / ≤ 5 %) y carga completa en los bordes (CapaBateria.qml; avisos en Cargador.qml)
+    Variants {
+        model: Quickshell.screens
+        CapaBateria { required property var modelData; screen: modelData }
+    }
     IpcHandler {
         target: "panorama"
         function alternar(): void { PreferenciasUI.panorama = !PreferenciasUI.panorama; PreferenciasUI.guardar(); }
