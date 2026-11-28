@@ -18,6 +18,7 @@ ShellRoot {
     Lanzador { id: lanzador }
     OSD {}
     CapaLanzamiento {}   // las apps se abren desde su icono del lanzador
+    CapaCaptura {}       // las capturas vuelan a una tarjeta flotante (capturas.sh)
     Autorizacion {}   // agente de polkit: la ventana de la contraseña de administrador
     Emergentes {}
     CentroControl { id: centro }

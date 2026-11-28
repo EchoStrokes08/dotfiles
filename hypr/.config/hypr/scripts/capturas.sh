@@ -23,6 +23,9 @@ guardar() {  # recibe la geometría de grim ("" = pantalla completa)
         python3 "$(dirname "$0")/captura_privada.py" liberar "$ORION_CAPTURA_TOKEN"
     fi
     wl-copy < "$archivo"
+    # Quickshell (CapaCaptura.qml): la captura vuela a una tarjeta flotante con sus acciones.
+    # Si no responde, la notificación de siempre.
+    [ -z "$(qs ipc call captura mostrar "$archivo" "$1" 2>&1)" ] && return   # qs ipc sale con 0 aunque falle
     accion=$(notify-send -a Capturas -i "$archivo" -A anotar=Anotar -A abrir=Abrir -A carpeta="Ver carpeta" \
              "Captura guardada" "$(basename "$archivo") · copiada al portapapeles")
     case "$accion" in
@@ -33,6 +36,7 @@ guardar() {  # recibe la geometría de grim ("" = pantalla completa)
 }
 
 modo="$1"
+[ -n "$modo" ] && qs ipc call captura preparar >/dev/null 2>&1   # que la tarjeta anterior no salga en la foto
 if [ -z "$modo" ] && [ -z "$(qs ipc call menu capturas 2>&1)" ]; then
     exit 0   # el menú de Quickshell llamará a "capturas.sh <modo>"
 fi
