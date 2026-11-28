@@ -1,5 +1,8 @@
 // Clima (Open-Meteo: gratis, sin cuenta ni clave). Se actualiza cada 30 min; lo enseñan Brújula › Hoy y los widgets del escritorio.
 // Ubicación: Bogotá. Para cambiarla, edita lat/lon/lugar aquí (coordenadas: buscar «ciudad coordenadas»).
+// El «ahora» (icono, texto y clima vivo) sale de lo que observa la estación METAR más cercana (aviationweather.gov,
+// cada 10 min): el modelo puede decir «llovizna» en toda la celda mientras en tu zona hace sol. El modelo queda
+// para el pronóstico (próximas horas, máx/mín, % de lluvia) y de respaldo si no hay observación reciente.
 //   qs ipc call clima estado
 pragma Singleton
 import QtQuick
@@ -15,7 +18,10 @@ Singleton {
     property bool listo: false
     property real temp: 0
     property real sensacion: 0
-    property int codigo: 0
+    property int codigoModelo: 0        // código WMO del pronóstico (celda del modelo)
+    property int observado: -1          // código WMO deducido del METAR (-1 = sin observación reciente)
+    property string estacion: ""        // estación usada, p. ej. "SKBO"
+    readonly property int codigo: observado >= 0 ? observado : codigoModelo
     property bool deDia: true
     property int humedad: 0
     property real max: 0
@@ -55,7 +61,7 @@ Singleton {
                 try {
                     const d = JSON.parse(this.text);
                     c.temp = d.current.temperature_2m; c.sensacion = d.current.apparent_temperature;
-                    c.codigo = d.current.weather_code; c.deDia = d.current.is_day === 1;
+                    c.codigoModelo = d.current.weather_code; c.deDia = d.current.is_day === 1;
                     c.humedad = d.current.relative_humidity_2m;
                     c.max = d.daily.temperature_2m_max[0]; c.min = d.daily.temperature_2m_min[0];
                     c.lluviaHoy = d.daily.precipitation_probability_max[0] ?? 0;
@@ -67,5 +73,48 @@ Singleton {
         }
     }
     Timer { interval: 30 * 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: pedir.running = true }
-    function actualizar() { pedir.running = true; }
+
+    // Observación real: estaciones METAR de Bogotá (El Dorado al occidente, Guaymaral al norte). Se usa la más
+    // cercana a lat/lon con un reporte de hace ≤ 90 min. Solo cuenta lo que pasa EN la estación: «VC» (en las
+    // cercanías) y «RE» (hace un rato) no pintan lluvia.
+    readonly property var estaciones: ["SKBO", "SKGY"]
+    function desdeMetar(m) {
+        const fuerza = t => t.startsWith("+") ? 2 : t.startsWith("-") ? 0 : 1;
+        let cod = -1;
+        for (const t of (m.wxString || "").split(" ")) {
+            if (t === "" || t.startsWith("VC") || t.startsWith("RE")) continue;
+            const f = fuerza(t), w = t.replace(/^[-+]/, "");
+            const c2 = w.includes("TS") ? 95
+                : w.includes("SH") && w.includes("SN") ? 85 + Math.min(f, 1)
+                : w.includes("SH") ? 80 + f
+                : w.includes("RA") ? 61 + 2 * f
+                : w.includes("SN") ? 71 + 2 * f
+                : w.includes("DZ") ? 51 + 2 * f
+                : w.includes("FG") && !w.startsWith("MI") && !w.startsWith("BC") ? 45 : -1;
+            cod = Math.max(cod, c2);
+        }
+        if (cod >= 0) return cod;
+        const cubre = (m.clouds || []).map(n => n.cover);
+        return cubre.includes("OVC") || cubre.includes("VV") ? 3 : cubre.includes("BKN") || cubre.includes("SCT") ? 2
+             : cubre.includes("FEW") ? 1 : 0;
+    }
+    Process {
+        id: observar
+        command: ["curl", "-sf", "--max-time", "20",
+            `https://aviationweather.gov/api/data/metar?ids=${c.estaciones.join(",")}&format=json&hours=2`]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const ahora = Date.now() / 1000;
+                    const dist = m => Math.hypot(m.lat - c.lat, (m.lon - c.lon) * Math.cos(c.lat * Math.PI / 180));
+                    const recientes = JSON.parse(this.text).filter(m => ahora - m.obsTime <= 90 * 60)
+                        .sort((a, b) => dist(a) - dist(b) || b.obsTime - a.obsTime);
+                    if (recientes.length === 0) { c.observado = -1; c.estacion = ""; return; }
+                    c.observado = c.desdeMetar(recientes[0]); c.estacion = recientes[0].icaoId;
+                } catch (e) { c.observado = -1; c.estacion = ""; }
+            }
+        }
+    }
+    Timer { interval: 10 * 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: observar.running = true }
+    function actualizar() { pedir.running = true; observar.running = true; }
 }

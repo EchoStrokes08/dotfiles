@@ -95,7 +95,9 @@ def vectores(textos, consulta=False):
     salida = []
     for i in range(0, len(textos), 24):
         cuerpo = json.dumps({"model": modelo(), "input": [pref + t[:2000] for t in textos[i:i + 24]],
-                             "keep_alive": "5m", "truncate": True}).encode()
+                             "keep_alive": "30s", "truncate": True,
+                             # Ollama calcula en su propio servicio, fuera del nice de Brújula.
+                             "options": {"num_thread": 2}}).encode()
         req = urllib.request.Request(OLLAMA + "/api/embed", cuerpo, {"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=300) as r:
             salida += json.loads(r.read())["embeddings"]

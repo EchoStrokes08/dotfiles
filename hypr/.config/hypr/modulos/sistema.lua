@@ -11,6 +11,12 @@ hl.config({
         enable_swallow = true,
         swallow_regex  = "^(kitty)$",   -- class de las terminales que se "tragan" ventanas
     },
+    xwayland = {
+        -- Las apps X11 se dibujan a resolución nativa en vez de estirarse ×1.5 (borrosas).
+        -- Quien no sepa escalarse se verá más pequeño: Steam se corrige con
+        -- STEAM_FORCE_DESKTOPUI_SCALING (entorno.lua).
+        force_zero_scaling = true,
+    },
     layers = {
         -- capas nuevas (notificaciones, menús) se dibujan encima de una ventana a pantalla completa
         allow_new_top_layers_over_existing_fullscreen = true,

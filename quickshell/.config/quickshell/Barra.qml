@@ -25,10 +25,18 @@ PanelWindow {
         return ws.toplevels.values.some(t =>
             direcciones.includes(String(t.address).replace(/^0x/, "")));
     }
-    visible: !juegoEnEspacio
+    // Nunca `visible: false`: ocultar un PanelWindow destruye su superficie mientras los textos de la
+    // barra (título «Geometry Dash», reloj…) siguen actualizándose en el mismo instante, y Quickshell
+    // se caía (SIGSEGV en QQuickText → QQuickLayout::invalidate, 26-nov 14:27 y 23:04). Jugando la barra
+    // sigue mapeada: sin contenido, sin reservar alto y sin recibir clics (tests/test_estilo.py lo vigila).
+    readonly property bool oculta: juegoEnEspacio
+    contentItem.visible: !oculta
+    exclusionMode: oculta ? ExclusionMode.Ignore : ExclusionMode.Auto
+    mask: oculta ? sinEntrada : null
+    Region { id: sinEntrada }
     // La isla del reloj enseña los avisos (volumen, brillo…) solo si esta barra se ve (Isla.qml)
-    function registrarIsla() { Isla.registrar(monitor?.name ?? "", visible); }
-    onVisibleChanged: registrarIsla()
+    function registrarIsla() { Isla.registrar(monitor?.name ?? "", !oculta); }
+    onOcultaChanged: registrarIsla()
     onMonitorChanged: registrarIsla()
     Component.onCompleted: registrarIsla()
 

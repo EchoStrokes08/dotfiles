@@ -1,7 +1,5 @@
-// Lo que se ve en cada monitor bloqueado (mismo diseño que tenía hyprlock):
-// saludo · hora naranja y minutos azules · fecha · campo de contraseña · batería, estado y música.
+// Una superficie por monitor. Bloqueo.qml comparte la entrada y coordina la sesión.
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
@@ -10,317 +8,351 @@ import Quickshell.Services.UPower
 
 WlSessionLockSurface {
     id: superficie
-    required property var estado          // el Scope de Bloqueo.qml (clave, error, comprobando…)
+    required property var estado
     color: Paleta.fondo
 
-    SystemClock { id: reloj; precision: SystemClock.Seconds }
+    SystemClock { id: reloj; precision: SystemClock.Minutes }
     // El escritorio se aleja al bloquear y vuelve al desbloquear (encima de todo, solo durante la transición)
     TransicionBloqueo { anchors.fill: parent; z: 100; estado: superficie.estado; pantalla: superficie.screen?.name ?? "" }
 
-    // Todo aparece con un fundido y se va igual al desbloquear
     Item {
-        id: todo
+        id: escena
         anchors.fill: parent
+        readonly property bool compacto: width < 760 || height < 620
+        readonly property bool horizontal: width >= 760
+        readonly property real margen: compacto ? EstiloPanel.e5 : Math.round(Math.min(136, width * .077))
+        readonly property color claro: Paleta.sobreImagen
+        readonly property color tenue: Qt.alpha(claro, .78)
+        readonly property color luz: Qt.tint(Paleta.acento, Qt.alpha(claro, EstiloPanel.fondoClaro ? .58 : .24))
+        readonly property color reflejo: Qt.tint(Paleta.acento2, Qt.alpha(claro, EstiloPanel.fondoClaro ? .58 : .24))
+
         opacity: 0
         Component.onCompleted: opacity = 1
         Behavior on opacity { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
-        states: State { when: superficie.estado.saliendo; PropertyChanges { target: todo; opacity: 0 } }
+        states: State { when: superficie.estado.saliendo; PropertyChanges { target: escena; opacity: 0 } }
 
-        // ── Fondo: el wallpaper desenfocado y oscurecido ──
         Image {
-            id: fondo
-            anchors { fill: parent; margins: -80 }   // más grande que la pantalla: el desenfoque no deja bordes claros
+            anchors.fill: parent
             source: "file://" + Quickshell.env("HOME") + "/.local/state/tema/wallpaper"
+            sourceSize.width: Math.max(1280, Math.min(2560, escena.width))
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
-            visible: false
         }
-        MultiEffect {
-            anchors { fill: parent; margins: -80 }
-            source: fondo
-            blurEnabled: true
-            blur: 1.0
-            blurMax: 64
-            brightness: -0.42
-            saturation: 0.45
-        }
-        // Luz del acento detrás del reloj y contraluz del segundo color abajo
         Rectangle {
             anchors.fill: parent
             gradient: Gradient {
-                GradientStop { position: 0;   color: Qt.alpha(Paleta.fondo, .15) }
-                GradientStop { position: .55; color: "transparent" }
-                GradientStop { position: 1;   color: Qt.alpha(Paleta.fondo, .65) }
+                orientation: escena.horizontal ? Gradient.Horizontal : Gradient.Vertical
+                GradientStop { position: 0; color: Qt.alpha("black", .90) }
+                GradientStop { position: .37; color: Qt.alpha("black", escena.horizontal ? .78 : .67) }
+                GradientStop { position: .72; color: Qt.alpha("black", escena.horizontal ? .26 : .58) }
+                GradientStop { position: 1; color: Qt.alpha("black", escena.horizontal ? .08 : .80) }
             }
         }
-        Item {
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -150
-            width: 900; height: 600
-            opacity: .55
-            Rectangle {
-                anchors.centerIn: parent
-                width: 520; height: 360; radius: height / 2
-                color: Qt.alpha(Paleta.acento, .45)
-                layer.enabled: true
-                layer.effect: MultiEffect { blurEnabled: true; blur: 1; blurMax: 64 }
-            }
-        }
-        Item {
-            anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: -120 }
-            width: 1100; height: 420
-            opacity: .12
-            Rectangle {
-                anchors.centerIn: parent
-                width: 760; height: 240; radius: height / 2
-                color: Qt.alpha(Paleta.acento2, .5)
-                layer.enabled: true
-                layer.effect: MultiEffect { blurEnabled: true; blur: 1; blurMax: 64 }
+        Rectangle {
+            anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+            height: parent.height * .34
+            gradient: Gradient {
+                GradientStop { position: 0; color: "transparent" }
+                GradientStop { position: 1; color: Qt.alpha("black", .75) }
             }
         }
 
-        // ── Centro ──
         ColumnLayout {
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -10
-            spacing: 0
+            id: centro
+            x: escena.horizontal ? escena.margen : (parent.width - width) / 2
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenterOffset: escena.compacto ? -12 : -24
+            width: Math.max(1, Math.min(480, parent.width - escena.margen * 2))
+            spacing: escena.compacto ? EstiloPanel.e2 : EstiloPanel.e4
 
-            // Tu foto (~/.face) o tu inicial, en un círculo con el degradado del tema
-            Item {
-                id: avatar
-                Layout.alignment: Qt.AlignHCenter
-                Layout.bottomMargin: 12
-                implicitWidth: 64; implicitHeight: 64
-                readonly property string usuario: Quickshell.env("USER") || "?"
-                RectangularShadow {
-                    anchors.fill: parent
-                    radius: width / 2; blur: 32; spread: -4
-                    color: Qt.alpha(Paleta.acento, .45)
+            RowLayout {
+                spacing: 8
+                Glifo {
+                    text: String.fromCodePoint(0xF033E)
+                    alto: 20
+                    color: escena.luz
+                    font.pixelSize: 14
                 }
-                Rectangle {   // aro en degradado
-                    anchors.fill: parent
-                    radius: width / 2
-                    gradient: Gradient {
-                        orientation: Gradient.Horizontal
-                        GradientStop { position: 0; color: Paleta.acento }
-                        GradientStop { position: 1; color: Paleta.acento2 }
-                    }
-                }
-                Rectangle {
-                    anchors { fill: parent; margins: 4 }
-                    radius: width / 2
-                    color: Qt.darker(Paleta.fondo, 1.2)
-                    Text {
-                        anchors.centerIn: parent
-                        visible: foto.status !== Image.Ready
-                        text: avatar.usuario.charAt(0).toUpperCase()
-                        color: Paleta.texto
-                        font { family: Paleta.fuente; pixelSize: 26; weight: Font.Bold }
-                    }
-                    Image {
-                        id: foto
-                        anchors.fill: parent
-                        source: "file://" + Quickshell.env("HOME") + "/.face"
-                        fillMode: Image.PreserveAspectCrop
-                        visible: false
-                        asynchronous: true
-                        sourceSize { width: 176; height: 176 }
-                    }
-                    MultiEffect {
-                        anchors.fill: parent
-                        visible: foto.status === Image.Ready
-                        source: foto
-                        maskEnabled: true
-                        maskSource: mascaraFoto
-                    }
-                    Rectangle { id: mascaraFoto; anchors.fill: parent; radius: width / 2; visible: false; layer.enabled: true }
-                }
-            }
-
-            Text {   // saludo
-                Layout.alignment: Qt.AlignHCenter
-                Layout.bottomMargin: 14
-                readonly property int h: reloj.date.getHours()
-                text: (h < 6 ? "Dulces sueños" : h < 13 ? "Buenos días" : h < 20 ? "Buenas tardes" : "Buenas noches")
-                      + ", <b>" + Quickshell.env("USER") + "</b>"
-                textFormat: Text.StyledText
-                color: EstiloPanel.tenue
-                font { family: Paleta.fuente; pixelSize: 20; italic: true }
-            }
-
-            // Hora naranja y minutos azules, con resplandor de su color
-            Repeater {
-                model: [
-                    { txt: Qt.formatTime(reloj.date, "HH"), col: Paleta.acento },
-                    { txt: Qt.formatTime(reloj.date, "mm"), col: Paleta.acento2 }
-                ]
                 Text {
-                    required property var modelData
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.topMargin: -34
-                    text: modelData.txt
-                    color: modelData.col
-                    font { family: Paleta.fuente; pixelSize: 150; weight: Font.ExtraBold }
-                    layer.enabled: true
-                    layer.effect: MultiEffect {
-                        shadowEnabled: true
-                        shadowColor: Qt.alpha(modelData.col, 0.35)
-                        shadowBlur: 1.0
-                        shadowHorizontalOffset: 0
-                        shadowVerticalOffset: 0
+                    text: "SESIÓN BLOQUEADA"
+                    color: escena.claro
+                    font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1.4 }
+                }
+            }
+
+            Row {
+                id: cifras
+                readonly property int tam: escena.width < 400 ? 62 : escena.compacto ? 104 : 150
+                spacing: 4
+                Accessible.name: Qt.formatTime(reloj.date, "HH:mm")
+
+                Repeater {
+                    model: [Qt.formatTime(reloj.date, "HH"), ":", Qt.formatTime(reloj.date, "mm")]
+                    Text {
+                        required property string modelData
+                        required property int index
+                        text: modelData
+                        color: index === 0 ? escena.claro : index === 1 ? escena.tenue : escena.reflejo
+                        topPadding: -Math.round(cifras.tam * .18)
+                        bottomPadding: -Math.round(cifras.tam * .15)
+                        font { family: Paleta.fuente; pixelSize: cifras.tam; weight: Font.Bold; letterSpacing: -3 }
                     }
                 }
             }
 
-            Rectangle {   // rayita naranja → azul
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 10
-                implicitWidth: 70; implicitHeight: 4; radius: height / 2
+            Text {
+                Layout.fillWidth: true
+                readonly property string fecha: reloj.date.toLocaleDateString(Qt.locale("es_CO"), "dddd, d 'de' MMMM")
+                text: fecha.charAt(0).toUpperCase() + fecha.slice(1)
+                color: escena.claro
+                elide: Text.ElideRight
+                font { family: Paleta.fuente; pixelSize: escena.compacto ? 16 : 20; weight: Font.DemiBold }
+            }
+
+            Rectangle {
+                implicitWidth: 80
+                implicitHeight: 2
+                radius: EstiloPanel.rPunto
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: Paleta.acento }
-                    GradientStop { position: 1; color: Paleta.acento2 }
+                    GradientStop { position: 0; color: escena.luz }
+                    GradientStop { position: 1; color: escena.reflejo }
                 }
             }
 
-            Text {   // fecha
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 22
-                text: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd  ·  dd MMMM").toUpperCase()
-                color: EstiloPanel.secundario
-                font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 4 }
-            }
-
-            // ── Campo de contraseña: píldora con borde naranja → azul ──
             Item {
-                id: campo
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 32
-                implicitWidth: 340; implicitHeight: 56
+                id: tarjeta
+                Layout.fillWidth: true
+                Layout.topMargin: escena.compacto ? EstiloPanel.e2 : EstiloPanel.e4
+                readonly property int margen: escena.compacto ? EstiloPanel.e3 : EstiloPanel.e4
+                implicitHeight: formulario.implicitHeight + margen * 2
 
-                // sacudida al fallar (un desplazamiento: dentro de un layout no valen los anchors)
-                transform: Translate { id: desplazar; x: 0 }
-                SequentialAnimation {
-                    id: sacudida
-                    NumberAnimation { target: desplazar; property: "x"; to: -14; duration: 50 }
-                    NumberAnimation { target: desplazar; property: "x"; to: 12; duration: 70 }
-                    NumberAnimation { target: desplazar; property: "x"; to: -8; duration: 70 }
-                    NumberAnimation { target: desplazar; property: "x"; to: 0; duration: 60 }
-                }
-                Connections {
-                    target: superficie.estado
-                    function onErrorChanged() { if (superficie.estado.error) sacudida.start(); }
-                    // si la clave se vacía desde fuera (fallo, Esc), vaciar también la entrada
-                    function onClaveChanged() { if (entrada.text !== superficie.estado.clave) entrada.text = superficie.estado.clave; }
-                }
-
-                RectangularShadow {   // resplandor del campo, del color de su estado
+                FondoPanel {
                     anchors.fill: parent
-                    radius: height / 2; blur: 28; spread: -6
-                    color: Qt.alpha(superficie.estado.error ? Paleta.peligro : Paleta.acento, .45)
-                    Behavior on color { ColorAnimation { duration: EstiloPanel.normal } }
+                    radio: EstiloPanel.rPanel
+                    opacidad: 1
                 }
-                Rectangle {   // borde con degradado (un rectángulo debajo, 2 px más grande)
-                    anchors.fill: parent
-                    radius: height / 2
-                    gradient: Gradient {
-                        orientation: Gradient.Horizontal
-                        GradientStop { position: 0; color: superficie.estado.error ? Paleta.peligro
-                                                         : superficie.estado.comprobando ? Paleta.aviso
-                                                         : superficie.estado.bloqMayus ? Paleta.exito : Paleta.acento }
-                        GradientStop { position: 1; color: superficie.estado.error ? Paleta.peligro
-                                                         : superficie.estado.comprobando ? Paleta.acento : Paleta.acento2 }
-                    }
-                }
-                Rectangle {   // cristal oscuro
-                    anchors { fill: parent; margins: 2 }
-                    radius: height / 2
-                    color: Qt.alpha(Qt.darker(Paleta.fondo, 1.3), 0.88)
+                ColumnLayout {
+                    id: formulario
+                    anchors { top: parent.top; left: parent.left; right: parent.right; margins: tarjeta.margen }
+                    spacing: escena.compacto ? EstiloPanel.e2 : EstiloPanel.e3
 
-                    // Puntos de la contraseña
-                    Row {
-                        anchors.centerIn: parent
-                        spacing: 8
-                        Repeater {
-                            model: Math.min(superficie.estado.clave.length, 22)
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+
+                        Item {
+                            id: avatar
+                            implicitWidth: escena.compacto ? 36 : 48
+                            implicitHeight: implicitWidth
+                            readonly property string usuario: Quickshell.env("USER") || "?"
                             Rectangle {
-                                width: 11; height: 11; radius: 8
+                                anchors.fill: parent
+                                radius: height / 2
+                                color: EstiloPanel.seleccionado
+                                border { width: 1; color: EstiloPanel.bordeSeleccion }
+                            }
+                            MarcoFondo {
+                                anchors { fill: parent; margins: 2 }
+                                radio: height / 2
+                                Image {
+                                    id: foto
+                                    anchors.fill: parent
+                                    source: "file://" + Quickshell.env("HOME") + "/.face"
+                                    fillMode: Image.PreserveAspectCrop
+                                    asynchronous: true
+                                    sourceSize { width: 96; height: 96 }
+                                }
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                visible: foto.status !== Image.Ready
+                                text: avatar.usuario.charAt(0).toUpperCase()
+                                color: Paleta.acento
+                                font { family: Paleta.fuente; pixelSize: 20; weight: Font.Bold }
+                            }
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+                            Text {
+                                Layout.fillWidth: true
+                                text: {
+                                    const h = reloj.date.getHours();
+                                    return h < 6 ? "Dulces sueños" : h < 13 ? "Buenos días" : h < 20 ? "Buenas tardes" : "Buenas noches";
+                                }
+                                color: EstiloPanel.tenue
+                                font { family: Paleta.fuente; pixelSize: 12 }
+                                elide: Text.ElideRight
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                text: avatar.usuario.charAt(0).toUpperCase() + avatar.usuario.slice(1)
+                                textFormat: Text.PlainText
                                 color: Paleta.texto
-                                scale: 0
-                                Component.onCompleted: scale = 1
-                                Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
+                                font { family: Paleta.fuente; pixelSize: 16; weight: Font.DemiBold }
+                                elide: Text.ElideRight
                             }
                         }
                     }
-                    Text {   // texto de ejemplo / error / comprobando
-                        anchors.centerIn: parent
-                        visible: superficie.estado.clave.length === 0
-                        textFormat: Text.StyledText
-                        text: superficie.estado.comprobando ? "<i>comprobando…</i>"
-                            : superficie.estado.error ? "<b>Contraseña incorrecta</b>  <i>(" + superficie.estado.intentos + ")</i>"
-                            : "<i>  contraseña…</i>"
-                        color: superficie.estado.error ? Paleta.peligro : Paleta.gris
-                        font { family: Paleta.fuente; pixelSize: 14 }
+
+                    Item {
+                        id: campo
+                        Layout.fillWidth: true
+                        implicitHeight: escena.compacto ? 44 : 52
+                        readonly property color tono: superficie.estado.error ? Paleta.peligro
+                            : superficie.estado.comprobando ? Paleta.aviso : Paleta.acento
+
+                        transform: Translate { id: desplazar; x: 0 }
+                        SequentialAnimation {
+                            id: sacudida
+                            NumberAnimation { target: desplazar; property: "x"; to: -8; duration: 45 }
+                            NumberAnimation { target: desplazar; property: "x"; to: 6; duration: 60 }
+                            NumberAnimation { target: desplazar; property: "x"; to: -3; duration: 60 }
+                            NumberAnimation { target: desplazar; property: "x"; to: 0; duration: 45 }
+                        }
+                        Connections {
+                            target: superficie.estado
+                            function onErrorChanged() {
+                                if (superficie.estado.error && EstiloPanel.movimiento) sacudida.restart();
+                            }
+                            function onClaveChanged() {
+                                if (entrada.text !== superficie.estado.clave) entrada.text = superficie.estado.clave;
+                            }
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: EstiloPanel.rControl
+                            color: EstiloPanel.elevada
+                            border { width: entrada.activeFocus ? 2 : 1; color: campo.tono }
+                        }
+
+                        RowLayout {
+                            anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
+                            spacing: 8
+
+                            Glifo {
+                                text: String.fromCodePoint(superficie.estado.error ? 0xF0026 : 0xF033E)
+                                alto: campo.height
+                                color: campo.tono
+                                font.pixelSize: 16
+                            }
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.fillHeight: true
+                                visible: !superficie.estado.comprobando && superficie.estado.clave.length > 0
+
+                                Row {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 4
+                                    Repeater {
+                                        model: Math.min(superficie.estado.clave.length, Math.floor(parent.width / 12), 22)
+                                        Rectangle {
+                                            width: 8; height: width
+                                            radius: height / 2
+                                            color: Paleta.texto
+                                        }
+                                    }
+                                }
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                visible: superficie.estado.comprobando || superficie.estado.clave.length === 0
+                                text: superficie.estado.comprobando ? "Verificando…"
+                                    : superficie.estado.error ? "Contraseña incorrecta" : "Contraseña"
+                                color: superficie.estado.error ? Paleta.peligro : EstiloPanel.tenue
+                                font { family: Paleta.fuente; pixelSize: 14 }
+                                elide: Text.ElideRight
+                            }
+                            Tecla {
+                                visible: !superficie.estado.comprobando && campo.width >= 172
+                                texto: "↵"
+                            }
+                        }
+
+                        TextInput {
+                            id: entrada
+                            anchors.fill: parent
+                            opacity: 0
+                            focus: true
+                            echoMode: TextInput.Password
+                            Accessible.name: "Contraseña"
+                            enabled: !superficie.estado.comprobando
+                            onTextChanged: superficie.estado.clave = text
+                            Keys.onReturnPressed: superficie.estado.enviar()
+                            Keys.onEnterPressed: superficie.estado.enviar()
+                            Keys.onEscapePressed: superficie.estado.clave = ""
+                            Keys.onPressed: (e) => { if (e.key === Qt.Key_CapsLock) avisoMayus.restart(); }
+                            Component.onCompleted: forceActiveFocus()
+                        }
+                        Timer { id: avisoMayus; interval: 150; onTriggered: superficie.estado.leerMayus() }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: superficie.estado.bloqMayus ? "Bloq Mayús activado"
+                            : superficie.estado.error ? superficie.estado.intentos + (superficie.estado.intentos === 1 ? " intento fallido" : " intentos fallidos")
+                            : "Enter para desbloquear"
+                        color: superficie.estado.bloqMayus ? Paleta.aviso : EstiloPanel.tenue
+                        font { family: Paleta.fuente; pixelSize: 12 }
+                        elide: Text.ElideRight
                     }
                 }
+            }
+        }
 
-                // La entrada real (invisible): recibe el teclado
-                TextInput {
-                    id: entrada
-                    anchors.fill: parent
-                    opacity: 0
-                    focus: true
-                    echoMode: TextInput.Password
-                    enabled: !superficie.estado.comprobando
-                    onTextChanged: superficie.estado.clave = text
-                    Keys.onReturnPressed: superficie.estado.enviar()
-                    Keys.onEnterPressed: superficie.estado.enviar()
-                    Keys.onEscapePressed: superficie.estado.clave = ""
-                    Keys.onPressed: (e) => { if (e.key === Qt.Key_CapsLock) avisoMayus.restart(); }
-                    Component.onCompleted: forceActiveFocus()
+        RowLayout {
+            anchors { left: parent.left; right: parent.right; bottom: parent.bottom
+                leftMargin: escena.margen; rightMargin: escena.margen; bottomMargin: escena.compacto ? 12 : 32 }
+            spacing: 16
+            visible: escena.height >= 360
+
+            RowLayout {
+                readonly property var bat: UPower.displayDevice
+                readonly property int pct: Math.round(bat ? (bat.percentage > 1 ? bat.percentage : bat.percentage * 100) : 0)
+                visible: bat?.isLaptopBattery ?? false
+                spacing: 8
+                Glifo { text: String.fromCodePoint(0xF0079); alto: 20; color: escena.luz; font.pixelSize: 14 }
+                Text {
+                    text: parent.pct + " %"
+                    color: escena.claro
+                    font { family: Paleta.fuente; pixelSize: 12; weight: Font.DemiBold }
                 }
-                Timer { id: avisoMayus; interval: 150; onTriggered: superficie.estado.leerMayus() }
             }
-
-            Text {   // aviso de Bloq Mayús
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 14
-                opacity: superficie.estado.bloqMayus ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
-                text: String.fromCodePoint(0xF0A9B) + "  Bloq Mayús activado"
-                color: Paleta.exito
-                font { family: Paleta.fuente; pixelSize: 13 }
+            RowLayout {
+                spacing: 8
+                Glifo { text: String.fromCodePoint(0xF030C); alto: 20; color: escena.reflejo; font.pixelSize: 14 }
+                Text {
+                    text: "latam"
+                    color: escena.claro
+                    font { family: Paleta.fuente; pixelSize: 12 }
+                }
             }
-        }
-
-        // ── Pie: batería · estado · música ──
-        Text {
-            anchors { left: parent.left; bottom: parent.bottom; margins: 40 }
-            readonly property var bat: UPower.displayDevice
-            readonly property int pct: Math.round(bat ? (bat.percentage > 1 ? bat.percentage : bat.percentage * 100) : 0)
-            visible: bat?.isLaptopBattery ?? false
-            textFormat: Text.StyledText
-            text: `<font color="${Paleta.exito}">${String.fromCodePoint(0xF0079)}</font> ${pct}%    <font color="${Paleta.acento2}">${String.fromCodePoint(0xF030C)}</font> latam`
-            color: EstiloPanel.tenue
-            font { family: Paleta.fuente; pixelSize: 14 }
-        }
-        Text {
-            anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 40 }
-            textFormat: Text.StyledText
-            text: `<font color="${Paleta.acento}">${String.fromCodePoint(0xF033E)}</font>  BLOQUEADO`
-            color: EstiloPanel.apagado
-            font { family: Paleta.fuente; pixelSize: 13; bold: true; letterSpacing: 3 }
-        }
-        Text {
-            anchors { right: parent.right; bottom: parent.bottom; margins: 40 }
-            readonly property var j: Mpris.players.values.find(p => p.isPlaying) ?? null
-            visible: j !== null
-            width: Math.min(implicitWidth, 420)
-            elide: Text.ElideRight
-            textFormat: Text.StyledText
-            text: j ? `<font color="${Paleta.acento}">${String.fromCodePoint(0xF075A)}</font>  <i>${j.trackArtist} — ${j.trackTitle}</i>` : ""
-            color: EstiloPanel.tenue
-            font { family: Paleta.fuente; pixelSize: 14 }
+            Item { Layout.fillWidth: true }
+            RowLayout {
+                id: musica
+                readonly property var j: Mpris.players.values.find(p => p.isPlaying) ?? null
+                readonly property real ancho: Math.min(380, escena.width * .55, pista.implicitWidth + 24)
+                visible: !!j && escena.height >= 440
+                Layout.preferredWidth: ancho
+                Layout.maximumWidth: ancho
+                Layout.minimumWidth: 0
+                spacing: 8
+                Glifo { text: String.fromCodePoint(0xF075A); alto: 20; color: escena.reflejo; font.pixelSize: 14 }
+                Text {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    id: pista
+                    text: [musica.j?.trackArtist, musica.j?.trackTitle].filter(Boolean).join(" · ")
+                    textFormat: Text.PlainText
+                    elide: Text.ElideRight
+                    color: escena.claro
+                    font { family: Paleta.fuente; pixelSize: 12 }
+                }
+            }
         }
     }
 }

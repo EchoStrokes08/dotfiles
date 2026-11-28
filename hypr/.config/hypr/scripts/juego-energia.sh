@@ -2,7 +2,9 @@
 # Lo llama gamemode (~/.config/gamemode.ini) al empezar y al terminar un juego.
 #   inicio      → perfil de energía «performance», GPU a reloj máximo (si estás en el grupo gamemode),
 #                 aviso para juego-potencia (más vatios al procesador, ver ~/dotfiles/potencia),
-#                 ZapZap y Spotify congelados (Spotify no, si está sonando) y EasyEffects en bypass
+#                 Spotify congelado (no, si está sonando), EasyEffects en bypass y, si WhatsApp (ZapZap) está
+#                 abierto, un aviso pregunta qué hacer con él: pausarlo, cerrarlo o dejarlo (sin respuesta en
+#                 45 s se queda abierto; nunca se toca sin preguntar)
 #   fin         → todo como estaba (o ahorro de energía si sigues con batería)
 #   descongelar → devuelve las apps congeladas sin salir del juego (p. ej. para contestar un WhatsApp)
 umask 077
@@ -44,16 +46,55 @@ con_bateria() {
     done
     return 1
 }
-congelar() {  # cada app flatpak vive en su scope de systemd: congelarlo para todos sus procesos a la vez
+scopes() {  # cada app flatpak vive en su scope de systemd: congelarlo para todos sus procesos a la vez
+    systemctl --user list-units --type=scope --state=running --no-legend --plain "$@" 2>/dev/null |
+        while read -r u _; do echo "$u"; done
+}
+congelar() {  # $@ = scopes
     local u
-    systemctl --user list-units --type=scope --state=running --no-legend --plain \
-        'app-flatpak-com.rtosta.zapzap-*' 'app-flatpak-com.spotify.Client-*' 2>/dev/null |
-    while read -r u _; do
-        if [[ $u == *spotify* ]] && [ "$(timeout 2 playerctl -p spotify status 2>/dev/null)" = Playing ]; then
-            continue   # si estás escuchando música, se respeta
-        fi
-        systemctl --user freeze "$u" 2>/dev/null && echo "$u" >> "$congeladas"
-    done
+    for u in "$@"; do systemctl --user freeze "$u" 2>/dev/null && echo "$u" >> "$congeladas"; done
+}
+congelar_spotify() {  # si estás escuchando música, se respeta
+    [ "$(timeout 2 playerctl -p spotify status 2>/dev/null)" = Playing ] && return 0
+    mapfile -t s < <(scopes 'app-flatpak-com.spotify.Client-*')
+    congelar "${s[@]}"
+}
+pregunta="$run/juego-pregunta"
+preguntar_whatsapp() {  # en segundo plano: el juego arranca sin esperar la respuesta
+    local salida id accion pid i=0
+    mapfile -t z < <(scopes 'app-flatpak-com.rtosta.zapzap-*')
+    [ "${#z[@]}" -gt 0 ] && command -v notify-send >/dev/null || return 0
+    salida=$(mktemp "$run/juego-pregunta.XXXXXX") || return 0
+    # Crítica: es la única que se muestra con el No molestar del modo juego (Notificaciones.qml)
+    notify-send -p -u critical -a "Modo juego" -i com.rtosta.zapzap \
+        -A pausar="Pausar" -A cerrar="Cerrar" -A dejar="Dejar abierto" \
+        "¿Qué hago con WhatsApp mientras juegas?" \
+        "Pausar libera procesador y memoria y vuelve tal cual al terminar. Si no eliges, se queda abierto." \
+        > "$salida" 2>/dev/null &
+    pid=$!
+    cerrar_aviso() {
+        id=$(head -n1 "$salida" 2>/dev/null)
+        [[ $id =~ ^[0-9]+$ ]] && timeout 2 gdbus call --session --dest org.freedesktop.Notifications \
+            --object-path /org/freedesktop/Notifications \
+            --method org.freedesktop.Notifications.CloseNotification "$id" >/dev/null 2>&1
+        kill "$pid" 2>/dev/null
+    }
+    trap 'cerrar_aviso; rm -f "$salida"; exit 0' TERM INT
+    while kill -0 "$pid" 2>/dev/null && [ $i -lt 90 ]; do sleep 0.5 & wait $!; i=$((i+1)); done
+    kill -0 "$pid" 2>/dev/null && cerrar_aviso
+    accion=$(sed -n 2p "$salida"); rm -f "$salida"
+    exec 9>"$run/juego-energia.lock"; flock -w 8 9 || return 0
+    [ -e "$run/juego-activo" ] || return 0          # el juego ya terminó: no se toca nada
+    mapfile -t z < <(scopes 'app-flatpak-com.rtosta.zapzap-*')
+    case "$accion" in
+        pausar) congelar "${z[@]}" ;;
+        cerrar) for u in "${z[@]}"; do systemctl --user stop "$u" 2>/dev/null; done ;;  # SIGTERM: cierre normal
+    esac
+}
+cancelar_pregunta() {
+    local pid
+    read -r pid < "$pregunta" 2>/dev/null && [[ $pid =~ ^[0-9]+$ ]] && kill "$pid" 2>/dev/null
+    rm -f "$pregunta"
 }
 descongelar() {
     local u
@@ -72,7 +113,10 @@ case "${1:-}" in
         powerprofilesctl set performance || echo "No se pudo activar el perfil de rendimiento" >&2
         touch "$run/juego-activo"
         gpu_inicio
-        congelar
+        congelar_spotify
+        cancelar_pregunta
+        preguntar_whatsapp 9>&- </dev/null >/dev/null 2>&1 &
+        echo $! > "$pregunta"
         easyeffects_bypass 1 ;;
     fin)
         rm -f "$run/juego-energia.$origen"
@@ -83,6 +127,7 @@ case "${1:-}" in
         if con_bateria; then previo=power-saver; fi
         powerprofilesctl set "${previo:-balanced}"
         gpu_fin
+        cancelar_pregunta
         descongelar
         easyeffects_bypass 2 ;;
     descongelar) descongelar ;;

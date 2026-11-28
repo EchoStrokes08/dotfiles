@@ -8,14 +8,15 @@ Item {
     id: car
     property real lado: 22
     implicitWidth: lado; implicitHeight: lado
+    // Halo: del mismo tamaño que la carátula; solo el desenfoque lo asoma (≤ 18 px) para que no se
+    // salga de la tarjeta ni de la ventana. En la isla (carátula pequeña) no cabe: se quita.
     MultiEffect {
-        anchors.centerIn: parent
-        width: car.lado * 1.6; height: car.lado * 1.6
-        visible: EstiloPanel.profundidad && imagen.status === Image.Ready
+        anchors.fill: parent
+        visible: car.lado >= 40 && EstiloPanel.profundidad && imagen.status === Image.Ready
         source: imagen
-        blurEnabled: true; blur: 1; blurMax: 24
-        saturation: .4; brightness: .1
-        opacity: .8
+        blurEnabled: true; blur: 1; blurMax: 18
+        saturation: .4; brightness: .05
+        opacity: .55
     }
     ClippingRectangle {
         anchors.fill: parent

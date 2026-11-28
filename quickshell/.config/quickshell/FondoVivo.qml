@@ -21,7 +21,10 @@ PanelWindow {
     readonly property bool permitido: EstiloPanel.movimiento && EstiloPanel.profundidad
         && !(PreferenciasUI.panorama && EstadoEscritorio.perfil !== "rendimiento" && EstadoEscritorio.datos.juego_activo !== "true")
 
-    visible: permitido
+    // Siempre mapeada (transparente y sin clics): mostrar/ocultar un PanelWindow con `visible` lo destruye
+    // y lo recrea, y si en ese instante cambia una imagen o un texto Quickshell se cae (26-nov, al cerrar un
+    // juego). Se apaga el contenido; tests/test_estilo.py lo vigila.
+    contentItem.visible: permitido
     color: "transparent"
     anchors { top: true; bottom: true; left: true; right: true }
     exclusionMode: ExclusionMode.Ignore
@@ -62,7 +65,7 @@ PanelWindow {
         Image {
             id: imagen
             anchors.fill: parent
-            source: fv.ruta ? "file://" + fv.ruta : ""
+            source: fv.permitido && fv.ruta ? "file://" + fv.ruta : ""
             // como awww: recorte centrado que llena la pantalla, a resolución física
             fillMode: Image.PreserveAspectCrop
             sourceSize: Qt.size(Math.ceil(fv.width * (fv.screen?.devicePixelRatio ?? 1) * 1.04),

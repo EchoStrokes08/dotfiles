@@ -16,7 +16,6 @@ local SESIONES = {
         id = "universidad", nombre = "Universidad", icono = 0xF0474, ir_a = 3,
         apps = {
             { ws = 2, clase = "Opera GX",      cmd = p.opera .. " https://www.coursera.org https://classroom.google.com" },
-            { ws = 3, clase = "PacketTracer",  nombre = "Packet Tracer", cmd = "/usr/lib/packettracer/packettracer.AppImage" },
             { ws = 4, clase = "sesion-notas",  nombre = "Notas (nvim)", cmd = p.terminal .. " --class sesion-notas -e nvim ~/Documents/notas.md" },
         },
     },

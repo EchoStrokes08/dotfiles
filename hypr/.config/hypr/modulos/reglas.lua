@@ -33,7 +33,7 @@ hl.window_rule({
 -- Juegos de Steam con Proton (Overcooked, Geometry Dash…) y gamescope: igual, tearing permitido
 hl.window_rule({
     name  = "steam-juegos-immediate",
-    match = { class = "^(steam_app_[0-9]+|gamescope)$" },
+    match = { class = "^(steam_app_[0-9]+|steam_app_default|gamescope|.+\\.[eE][xX][eE])$" },   -- + Wine/Heroic
     immediate = true,
 })
 
@@ -171,6 +171,23 @@ hl.window_rule({
 hl.window_rule({
     name   = "kitty-actualizar",
     match  = { class = "^kitty-actualizar$" },
+    float  = true,
+    size   = "900 520",
+    center = true,
+})
+
+-- Órbita (~/proyectos/orbita, gestor de almacenamiento): flotante, grande y centrada;
+-- su terminal de órdenes de administrador, flotante encima
+hl.window_rule({
+    name   = "orbita",
+    match  = { class = "^org.quickshell$", title = "^Órbita$" },
+    float  = true,
+    size   = "(monitor_w*0.94) (monitor_h*0.92)",
+    center = true,
+})
+hl.window_rule({
+    name   = "orbita-terminal",
+    match  = { class = "^orbita-terminal$" },
     float  = true,
     size   = "900 520",
     center = true,

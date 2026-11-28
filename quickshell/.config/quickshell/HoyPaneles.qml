@@ -208,7 +208,7 @@ Item {
                 }
             }
         }
-        TarjetaPanel { Layout.fillWidth: true; relleno: 12; Tiempo { Layout.fillWidth: true; compacto: true } }
+        TarjetaPanel { Layout.fillWidth: true; relleno: 12; Tiempo { Layout.fillWidth: true } }
     }
     } // columnas
     Rectangle {

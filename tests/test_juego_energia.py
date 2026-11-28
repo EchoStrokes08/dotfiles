@@ -69,6 +69,59 @@ esac''')
         self.assertEqual(self.energia("inicio", "otro").returncode, 2)
         self.assertFalse((self.runtime / "juego-activo").exists())
 
+    def whatsapp(self, respuesta, espera="0"):
+        """Simula WhatsApp abierto y un aviso que responde `respuesta`; devuelve el registro de systemctl."""
+        registro = self.base / "systemctl.log"
+        self.env.update(REGISTRO=str(registro), RESPUESTA=respuesta, ESPERA=espera)
+        self.mock("systemctl", '''if [ "$2" = list-units ]; then
+    case "$*" in *zapzap*) echo "app-flatpak-com.rtosta.zapzap-1.scope loaded active running x" ;; esac
+else echo "$*" >> "$REGISTRO"; fi''')
+        self.mock("notify-send", 'echo 42; sleep "$ESPERA"; [ -n "$RESPUESTA" ] && echo "$RESPUESTA"; exit 0')
+        self.mock("gdbus", 'echo "gdbus $*" >> "$REGISTRO"')
+        return registro
+
+    def esperar_pregunta(self):
+        import time
+        for _ in range(100):
+            if not (self.runtime / "juego-pregunta").exists():
+                return
+            pid = (self.runtime / "juego-pregunta").read_text().strip()
+            if not Path(f"/proc/{pid}").exists():
+                return
+            time.sleep(0.05)
+        self.fail("la pregunta de WhatsApp no terminó")
+
+    def test_whatsapp_no_se_toca_sin_preguntar(self):
+        registro = self.whatsapp("")
+        self.assertEqual(self.energia("inicio").returncode, 0)
+        self.esperar_pregunta()
+        self.assertNotIn("zapzap", registro.read_text() if registro.exists() else "")
+        self.assertFalse((self.runtime / "juego-congeladas").exists())
+
+    def test_whatsapp_pausado_si_se_elige_y_vuelve_al_terminar(self):
+        registro = self.whatsapp("pausar")
+        self.energia("inicio")
+        self.esperar_pregunta()
+        self.assertIn("--user freeze app-flatpak-com.rtosta.zapzap-1.scope", registro.read_text())
+        self.energia("fin")
+        self.assertIn("--user thaw app-flatpak-com.rtosta.zapzap-1.scope", registro.read_text())
+
+    def test_whatsapp_cerrado_si_se_elige(self):
+        registro = self.whatsapp("cerrar")
+        self.energia("inicio")
+        self.esperar_pregunta()
+        self.assertIn("--user stop app-flatpak-com.rtosta.zapzap-1.scope", registro.read_text())
+
+    def test_fin_del_juego_cancela_la_pregunta_y_cierra_el_aviso(self):
+        registro = self.whatsapp("pausar", espera="30")
+        self.energia("inicio")
+        import time; time.sleep(0.3)
+        self.energia("fin")
+        self.esperar_pregunta()
+        texto = registro.read_text() if registro.exists() else ""
+        self.assertNotIn("freeze", texto)
+        self.assertIn("CloseNotification 42", texto)
+
     def test_lanzador_nativo_preserva_argumentos_y_codigo_de_salida(self):
         self.mock("gamemoderun", 'printf "%s\\n" "$@" > "$PERFIL_PRUEBA"; exit 7')
         r = subprocess.run(["bash", str(FSR), "juego", "ruta con espacios", "--opcion"],

@@ -11,6 +11,9 @@ hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Ice")
 -- Apps Qt: que usen el tema GTK (colores oscuros) en vez del suyo por defecto
 hl.env("QT_QPA_PLATFORMTHEME", "gtk3")
 
+-- Steam es X11: con xwayland.force_zero_scaling (sistema.lua) hay que decirle la escala a mano
+hl.env("STEAM_FORCE_DESKTOPUI_SCALING", "1.5")
+
 -- Apps de flatpak (WhatsApp/zapzap, Roblox/Sober) en el menú de fuzzel
 hl.env("XDG_DATA_DIRS", "/usr/local/share:/usr/share:/var/lib/flatpak/exports/share:" .. os.getenv("HOME") .. "/.local/share/flatpak/exports/share")
 

@@ -88,6 +88,8 @@ alias ...='cd ../..'
 alias rz='exec zsh'                 # recargar zsh tras editar este archivo
 alias actualizar='yay -Syu'
 alias dns-cifrado='~/.config/hypr/scripts/dns-cifrado.sh'   # on · off (Wi-Fi con portal) · estado
+alias opera-sync='~/.config/hypr/scripts/opera-gx.py --sincronizar'   # deja el tema del sistema listo en Opera sin cerrarlo (se ve al próximo arranque)
+alias opera-reset='~/.config/hypr/scripts/opera-gx.py --reiniciar'    # reaplica el tema ya mismo: reinicia Opera restaurando la sesión
 
 # y: abre yazi (gestor de archivos) y al salir con q te deja en la carpeta donde estabas
 # (Q sale sin cambiar de carpeta). yazi escribe la carpeta final en un archivo temporal.

@@ -25,7 +25,8 @@ ShellRoot {
     AvisoCopiado {}      // al copiar, la isla enseña lo copiado (contraseñas ocultas)
     Autorizacion {}   // agente de polkit: la ventana de la contraseña de administrador
     Emergentes {}
-    CentroControl { id: centro }
+    CentroControl { id: centro; onApagadoSolicitado: abrirApagado() }
+    Apagado { id: apagado }
     Bloqueo {}
     Wallpapers { id: wallpapers }
     Portapapeles { id: portapapeles }
@@ -321,7 +322,17 @@ ShellRoot {
         cerrarTodo();
         if (!cerrar) centro.abrirEn(seccion);
     }
-    function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; lanzador.abierto = false; centro.abierto = false;
+    function abrirApagado() {
+        cerrarTodo();
+        apagado.screen = Quickshell.screens.find(pantalla => pantalla.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0] ?? null;
+        apagado.abierto = true;
+    }
+    IpcHandler {
+        target: "apagado"
+        function toggle(): void { if (apagado.abierto) apagado.abierto = false; else abrirApagado(); }
+    }
+
+    function cerrarTodo() { agente.abierto = false; movil.abierto = false; brujula.abierto = false; flujo.abierto = false; mesa.abierto = false; lanzador.abierto = false; centro.abierto = false; apagado.abierto = false;
                             wallpapers.abierto = false; portapapeles.abierto = false; menu.abierto = false;
                             chuleta.abierto = false; impresora.abierto = false;
                             vista.abierto = false; ia.abierto = false; nota.abierto = false; resumen.abierto = false; }
@@ -376,7 +387,7 @@ ShellRoot {
                     { icono: 0xF04FE, texto: "50 min",             cmd: q + "empezar 50" },
                     { icono: 0xF04FE, texto: "90 min",             cmd: q + "empezar 90" } ]);
         }
-        // Pantalla externa conectada (modulos/presentacion.lua; SUPER+ALT+P)
+        // Pantalla externa conectada (modulos/presentacion.lua; SUPER+ALT+V)
         function pantalla(nombre: string): void {
             cerrarTodo();
             const h = f => `hyprctl dispatch 'pantalla.${f}("${nombre}") or hl.dsp.no_op()'`;

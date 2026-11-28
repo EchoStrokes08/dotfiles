@@ -139,6 +139,18 @@ class Componentes(unittest.TestCase):
                 malos.append(p.name)
         self.assertEqual(malos, [], "llaves en la cabecera de un singleton")
 
+    def test_capas_automaticas_no_se_destruyen(self):
+        # En Quickshell, `visible: false` en un PanelWindow destruye la ventana y `true` crea otra. Si eso
+        # pasa justo cuando cambia un texto o una imagen de dentro, se cae (26-nov: la barra al abrir un
+        # juego, FondoVivo al cerrarlo). Las capas que se ocultan solas por el estado del sistema siguen
+        # mapeadas y apagan su contenido con `contentItem.visible`.
+        automaticas = re.compile(r"juego|perfil|permitido|vacio|opacity|EstiloPanel|oculta")
+        malos = [f"{p.name}: {m.group(1)}" for p, t in qml() if re.match(r"(?s)(\s*(//[^\n]*|import [^\n]*|pragma [^\n]*)\n)*\s*PanelWindow\s*\{", t)
+                 for m in re.finditer(r"(?m)^    visible:\s*(.*)$", t) if automaticas.search(m.group(1))]
+        self.assertEqual(malos, [], "capas que se ocultan solas con visible: usa contentItem.visible")
+        for nombre in ("Barra", "FondoVivo", "Panorama", "ClimaVivo", "Escritorio"):
+            self.assertIn("contentItem.visible:", (QS / f"{nombre}.qml").read_text(), nombre)
+
     def test_atajos_esenciales(self):
         # La chuleta abre con los esenciales: los marca una ★ en docs/atajos.md
         t = (RAIZ / "docs/atajos.md").read_text()

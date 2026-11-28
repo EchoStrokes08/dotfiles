@@ -7,6 +7,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Effects
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -15,7 +16,7 @@ import Quickshell.Wayland
 Superpuesta {
     id: vista
     espacio: "vista"
-    anchoTarjeta: Math.min(1440, (screen?.width ?? 1280) - 56)
+    anchoTarjeta: Math.max(1, Math.min(1360, (screen?.width ?? 1280) - 40))
     alturaRelativa: 0.05
     panelCuidado: true
     opacidadTarjeta: 1
@@ -60,16 +61,25 @@ Superpuesta {
     Timer { id: refresco; interval: 150; onTriggered: Hyprland.refreshToplevels() }   // posiciones al día
 
     // ── datos ──────────────────────────────────────────────────────────────────
+    readonly property bool privacidad: EstadoEscritorio.privacidad || EstadoEscritorio.capturaPrivada
+    function cantidad(n, singular, plural) { return n + " " + (n === 1 ? singular : plural); }
+    function aplicacion(t) {
+        return { clase: t?.lastIpcObject?.class ?? "", nombre: nombreApp(t) };
+    }
+    function aplicacionesDe(ventanas) {
+        const apps = new Map();
+        for (const t of ventanas) {
+            const app = aplicacion(t);
+            apps.set(app.clase || app.nombre, app);
+        }
+        return Array.from(apps.values()).slice(0, 3);
+    }
     function normalizar(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
     function coincide(t) {
         const q = normalizar(buscar.text.trim());
         if (!q) return true;
-        const titulo = EstadoEscritorio.privacidad ? "" : t.title;
-        return normalizar((t.lastIpcObject?.class ?? "") + " " + titulo).includes(q);
-    }
-    function icono(t) {
-        const e = DesktopEntries.heuristicLookup(t?.lastIpcObject?.class ?? "");
-        return e ? Quickshell.iconPath(e.icon, true) : "";
+        const titulo = privacidad ? "" : t.title;
+        return normalizar((t.lastIpcObject?.class ?? "") + " " + nombreApp(t) + " " + titulo).includes(q);
     }
     function nombreApp(t) {
         const clase = t?.lastIpcObject?.class ?? "";
@@ -78,7 +88,7 @@ Superpuesta {
     }
     function tituloVentana(t) {
         if (!t) return "";
-        return EstadoEscritorio.privacidad ? nombreApp(t) : (t.title || nombreApp(t));
+        return privacidad ? nombreApp(t) : (t.title || nombreApp(t));
     }
     readonly property var cantidadPorClase: {
         const cantidades = new Map();
@@ -101,8 +111,10 @@ Superpuesta {
         .sort((a, b) => a.id - b.id)
     // Primer número libre (para «Espacio nuevo»)
     readonly property int libre: {
-        for (let i = 1; i <= 10; i++) if (!espacios.some(w => w.id === i)) return i;
-        return 10;
+        const ids = new Set(espacios.map(w => w.id));
+        let siguiente = 1;
+        while (ids.has(siguiente)) siguiente++;
+        return siguiente;
     }
     // Orden de recorrido con el teclado: espacio a espacio, de izquierda a derecha
     readonly property var orden: {
@@ -145,22 +157,25 @@ Superpuesta {
     }
 
     // ── geometría: elegir columnas para que todo quepa sin desplazar ───────────
-    readonly property real anchoUtil: anchoTarjeta - margenPanel * 2
-    readonly property real altoDisponible: (screen?.height ?? 720) * 0.9 - 150
+    readonly property real anchoUtil: Math.max(1, anchoTarjeta - margenPanel * 2)
+    readonly property bool compacto: anchoUtil < 690
+    readonly property real altoDisponible: (screen?.height ?? 720) * .92 - 240
     readonly property real proporcion: {
         const m = Hyprland.focusedMonitor;
-        return m ? m.height / Math.max(1, m.width) : 9 / 16;
+        return m ? Math.min(.85, m.height / Math.max(1, m.width)) : 9 / 16;
     }
     readonly property int celdas: espacios.length + 1
     readonly property int columnas: {
-        for (let c = Math.min(3, celdas); c <= 5; c++) {
+        const tope = Math.max(1, Math.min(celdas, 5, Math.floor((anchoUtil + 16) / 170)));
+        for (let c = Math.min(3, tope); c < tope; c++) {
             const ancho = (anchoUtil - (c - 1) * 16) / c;
             const filas = Math.ceil(celdas / c);
-            if (filas * (ancho * proporcion + 40) + (filas - 1) * 16 <= altoDisponible) return c;
+            if (filas * (ancho * proporcion + 66) + (filas - 1) * 16 <= altoDisponible) return c;
         }
-        return 5;
+        return tope;
     }
-    readonly property real anchoCelda: (anchoUtil - (columnas - 1) * 16) / columnas
+    readonly property real anchoCelda: Math.floor((anchoUtil - (columnas - 1) * 16) / columnas)
+    readonly property real altoMiniatura: Math.round(anchoCelda * proporcion)
 
     Item {
         id: raiz
@@ -172,43 +187,28 @@ Superpuesta {
             width: parent.width
             spacing: 16
 
-            // ── cabecera: título, recuento y buscador ──────────────────────────
-            Row {
+            // ── cabecera ─────────────────────────────────────────────────────
+            EncabezadoPanel {
                 width: parent.width
-                height: 44
-                spacing: 12
-                Column {
-                    id: titulo
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-                    Text {
-                        text: "VISTA GENERAL"
-                        color: Paleta.acento
-                        font { family: EstiloPanel.fuente; pixelSize: 11; weight: Font.Bold; letterSpacing: 1.4 }
-                    }
-                    Text {
-                        text: buscar.text
-                            ? (vista.coincidencias === 1 ? "1 coincidencia" : vista.coincidencias + " coincidencias")
-                            : Hyprland.toplevels.values.filter(t => (t.workspace?.id ?? 0) > 0).length + " ventanas · " + vista.espacios.length + " espacios"
-                        color: Paleta.texto
-                        font { family: EstiloPanel.fuente; pixelSize: 16; weight: Font.DemiBold }
-                    }
-                }
-                Text {
-                    width: Math.max(0, parent.width - titulo.width - buscar.width - parent.spacing * 2)
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: vista.tituloVentana(vista.elegida)
-                    textFormat: Text.PlainText
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                    maximumLineCount: 2
-                    elide: Text.ElideRight
-                    color: Paleta.texto
-                    font { family: EstiloPanel.fuente; pixelSize: 14; weight: Font.Medium }
-                }
+                simbolo: String.fromCodePoint(0xF056E)
+                titulo: "Vista general"
+                seccion: vista.cantidad(Hyprland.toplevels.values.filter(t => (t.workspace?.id ?? 0) > 0).length,
+                                        "ventana", "ventanas") + " · " + vista.cantidad(vista.espacios.length, "espacio", "espacios")
+                onCerrar: vista.abierto = false
+            }
+
+            GridLayout {
+                width: parent.width
+                columns: vista.compacto ? 1 : 2
+                columnSpacing: 16
+                rowSpacing: 8
+
                 CampoPanel {
                     id: buscar
-                    width: Math.min(360, parent.width * 0.4)
-                    anchors.verticalCenter: parent.verticalCenter
+                    Layout.row: 0
+                    Layout.column: vista.compacto ? 0 : 1
+                    Layout.fillWidth: vista.compacto
+                    Layout.preferredWidth: vista.compacto ? -1 : Math.min(360, parent.width * .42)
                     placeholderText: "󰍉  Buscar ventana…"
                     onTextChanged: vista.seleccion = vista.orden[0]?.address ?? ""
                     Keys.onPressed: (e) => {
@@ -236,11 +236,51 @@ Superpuesta {
                         }
                     }
                 }
+                Rectangle {
+                    Layout.row: vista.compacto ? 1 : 0
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 40
+                    radius: EstiloPanel.rControl
+                    color: EstiloPanel.relleno
+                    border { width: 1; color: EstiloPanel.borde }
+
+                    RowLayout {
+                        anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
+                        spacing: 8
+                        IconoApp {
+                            visible: !!vista.elegida
+                            lado: 18
+                            app: vista.elegida ? vista.aplicacion(vista.elegida) : null
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: vista.elegida ? vista.tituloVentana(vista.elegida)
+                                : buscar.text.trim() ? "No hay ventanas que coincidan" : "Sin ventanas abiertas"
+                            textFormat: Text.PlainText
+                            elide: Text.ElideRight
+                            color: vista.elegida ? Paleta.texto : EstiloPanel.tenue
+                            font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold }
+                        }
+                        Text {
+                            visible: buscar.text.trim() !== "" && !vista.compacto && vista.coincidencias > 0
+                            text: vista.cantidad(vista.coincidencias, "coincidencia", "coincidencias")
+                            color: EstiloPanel.tenue
+                            font { family: Paleta.fuente; pixelSize: 12 }
+                        }
+                        BotonCompacto {
+                            visible: buscar.text !== ""
+                            text: "Limpiar"
+                            onClicked: { buscar.clear(); buscar.forceActiveFocus(); }
+                        }
+                    }
+                }
+
             }
 
             // ── rejilla de espacios ────────────────────────────────────────────
             Flow {
-                id: rejilla
                 width: parent.width
                 spacing: 16
 
@@ -249,56 +289,65 @@ Superpuesta {
                     Item {
                         id: celda
                         required property var modelData
-                        Component.onCompleted: vista.miniaturas[modelData.id] = pantalla
-                        Component.onDestruction: if (vista.miniaturas[modelData.id] === pantalla) delete vista.miniaturas[modelData.id]
                         required property int index
                         readonly property var mon: modelData.monitor
                         // tamaño LÓGICO del monitor (las ventanas vienen en lógicas: con escala 1,5, 1920 px = 1280)
                         readonly property real anchoLog: (mon?.width ?? 1920) / (mon?.scale ?? 1)
+                        readonly property real altoLog: (mon?.height ?? 1080) / (mon?.scale ?? 1)
+                        readonly property real aspecto: altoLog / Math.max(1, anchoLog)
                         readonly property real escala: pantalla.width / Math.max(1, anchoLog)
                         readonly property bool esActivo: modelData.id === vista.activo
                         readonly property bool resaltada: destino.containsDrag || (vista.elegida?.workspace?.id === modelData.id && !esActivo)
                         readonly property var ventanas: vista.ventanasDe(modelData.id)
                         width: vista.anchoCelda
-                        height: pantalla.height + 34
+                        height: vista.altoMiniatura + 66
+                        Accessible.role: Accessible.Button
+                        Accessible.name: modelData.name + ", " + vista.cantidad(ventanas.length, "ventana", "ventanas")
+                        Accessible.onPressAction: vista.irEspacio(modelData.id)
 
-                        // entrada escalonada
+                        readonly property int duracion: EstiloPanel.movimiento ? EstiloPanel.normal + Math.min(5, index) * 25 : 0
+                        Component.onCompleted: vista.miniaturas[modelData.id] = pantalla
+                        Component.onDestruction: if (vista.miniaturas[modelData.id] === pantalla) delete vista.miniaturas[modelData.id]
                         opacity: vista.abierto ? 1 : 0
-                        transform: Translate { y: vista.abierto ? 0 : 10; Behavior on y { NumberAnimation { duration: EstiloPanel.normal + celda.index * 35; easing.type: Easing.OutCubic } } }
-                        Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal + celda.index * 35 } }
+                        transform: Translate {
+                            y: vista.abierto ? 0 : 8
+                            Behavior on y { NumberAnimation { duration: celda.duracion; easing.type: Easing.OutCubic } }
+                        }
+                        Behavior on opacity { NumberAnimation { duration: celda.duracion } }
 
-                        // rótulo: número, nombre y nº de ventanas
-                        Row {
-                            id: rotulo
-                            height: 26
+                        RowLayout {
+                            width: parent.width
+                            height: 24
                             spacing: 8
+
                             Rectangle {
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: Math.max(22, numero.implicitWidth + 12); height: 22; radius: 8
-                                color: celda.esActivo ? Paleta.acento : EstiloPanel.rellenoActivo
+                                implicitWidth: Math.max(24, numero.implicitWidth + 12)
+                                implicitHeight: 24
+                                radius: EstiloPanel.rChip
+                                color: celda.esActivo ? EstiloPanel.seleccionado : EstiloPanel.elevada
+                                border { width: 1; color: celda.esActivo ? EstiloPanel.bordeSeleccion : EstiloPanel.bordeFuerte }
                                 Text {
                                     id: numero
                                     anchors.centerIn: parent
                                     text: celda.modelData.id
-                                    color: celda.esActivo ? Paleta.fondo : Paleta.texto
+                                    color: celda.esActivo ? Paleta.acento : Paleta.texto
                                     font { family: Paleta.fuente; pixelSize: 12; bold: true }
                                 }
                             }
                             Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: (celda.modelData.name !== String(celda.modelData.id) ? celda.modelData.name + " · " : "")
-                                    + (celda.ventanas.length === 0 ? "vacío"
-                                       : celda.ventanas.length === 1 ? vista.nombreApp(celda.ventanas[0])
-                                       : celda.ventanas.length + " ventanas")
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                text: celda.modelData.name !== String(celda.modelData.id) ? celda.modelData.name : "Espacio " + celda.modelData.id
+                                textFormat: Text.PlainText
+                                elide: Text.ElideRight
                                 color: celda.esActivo ? Paleta.texto : EstiloPanel.tenue
-                                font { family: EstiloPanel.fuente; pixelSize: 12; weight: celda.esActivo ? Font.DemiBold : Font.Normal }
+                                font { family: Paleta.fuente; pixelSize: 13; weight: Font.DemiBold }
                             }
                             Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                visible: celda.esActivo
-                                text: "· aquí estás"
+                                visible: celda.width >= 128 && (celda.esActivo || destino.containsDrag)
+                                text: destino.containsDrag ? "Soltar aquí" : "Activo"
                                 color: Paleta.acento
-                                font { family: EstiloPanel.fuente; pixelSize: 11 }
+                                font { family: Paleta.fuente; pixelSize: 11; weight: Font.DemiBold }
                             }
                         }
 
@@ -307,7 +356,7 @@ Superpuesta {
                             id: marco
                             y: 32
                             width: parent.width
-                            height: pantalla.height
+                            height: vista.altoMiniatura
                             scale: zonaCelda.containsMouse && !celda.esActivo ? 1.012 : 1
                             Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
 
@@ -318,17 +367,16 @@ Superpuesta {
                                 offset.y: 8; blur: 26; spread: -8
                                 color: celda.esActivo || celda.resaltada ? Qt.alpha(Paleta.acento, .35) : Qt.alpha("black", .55)
                             }
-                            Item {
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: EstiloPanel.rControl
+                                color: EstiloPanel.superficie
+                            }
+                            MarcoFondo {
                                 id: pantalla
-                                width: parent.width
-                                height: width * vista.proporcion
-                                layer.enabled: true
-                                layer.effect: MultiEffect {
-                                    maskEnabled: true
-                                    maskSource: mascara
-                                    maskThresholdMin: 0.5
-                                    maskSpreadAtMin: 1
-                                }
+                                anchors.centerIn: parent
+                                width: Math.min(parent.width, parent.height / Math.max(.1, celda.aspecto))
+                                height: Math.min(parent.height, width * celda.aspecto)
 
                                 Image {
                                     anchors.fill: parent
@@ -337,9 +385,9 @@ Superpuesta {
                                     fillMode: Image.PreserveAspectCrop
                                     cache: false
                                     asynchronous: true
-                                    opacity: celda.esActivo ? 0.95 : 0.7
+                                    opacity: celda.esActivo ? .96 : .82
                                 }
-                                Rectangle { anchors.fill: parent; color: Qt.alpha(Paleta.fondo, celda.esActivo ? 0.12 : 0.35) }
+                                Rectangle { anchors.fill: parent; color: Qt.alpha(Paleta.fondo, celda.esActivo ? .10 : .24) }
 
                                 // hueco = ir a ese espacio
                                 MouseArea {
@@ -356,12 +404,21 @@ Superpuesta {
                                     keys: ["ventana"]
                                     onDropped: (d) => vista.mover(d.source.dir, celda.modelData.id)
                                 }
-                                Text {
+                                Rectangle {
                                     anchors.centerIn: parent
                                     visible: celda.ventanas.length === 0
-                                    text: "Espacio vacío"
-                                    color: EstiloPanel.tenue
-                                    font { family: EstiloPanel.fuente; pixelSize: 12 }
+                                    width: rotuloVacio.implicitWidth + 16
+                                    height: 28
+                                    radius: height / 2
+                                    color: Paleta.fondo
+                                    border { width: 1; color: EstiloPanel.bordeFuerte }
+                                    Text {
+                                        id: rotuloVacio
+                                        anchors.centerIn: parent
+                                        text: "Espacio vacío"
+                                        color: EstiloPanel.tenue
+                                        font { family: Paleta.fuente; pixelSize: 12 }
+                                    }
                                 }
 
                                 Repeater {
@@ -397,7 +454,7 @@ Superpuesta {
                                             clip: true
                                             ScreencopyView {
                                                 anchors { fill: parent; margins: 1 }
-                                                captureSource: vista.abierto && !EstadoEscritorio.privacidad ? ventanita.modelData.wayland : null
+                                                captureSource: vista.abierto && !vista.privacidad ? ventanita.modelData.wayland ?? null : null
                                                 live: true
                                             }
                                             // velo + título al pasar el ratón o al elegirla
@@ -428,22 +485,21 @@ Superpuesta {
                                             border.color: ventanita.elegida ? Paleta.acento : ventanita.encima ? EstiloPanel.tenue : EstiloPanel.bordeFuerte
                                             Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
                                         }
-                                        // icono de la app, en el centro
+                                        // El icono deja libre el centro de las capturas en vivo.
                                         Rectangle {
-                                            anchors.centerIn: parent
-                                            readonly property real lado: Math.min(34, Math.max(18, Math.min(parent.width, parent.height) * 0.32))
-                                            width: lado; height: lado; radius: lado * 0.28
-                                            color: Qt.alpha(Paleta.fondo, .72)
+                                            id: insigniaApp
+                                            readonly property bool centrada: vista.privacidad || !ventanita.modelData.wayland
+                                            readonly property real lado: Math.min(centrada ? 36 : 24, Math.max(16, Math.min(parent.width, parent.height) * .34))
+                                            x: centrada ? (parent.width - width) / 2 : 6
+                                            y: centrada ? (parent.height - height) / 2 : 6
+                                            width: lado; height: lado; radius: EstiloPanel.rChip
+                                            color: Qt.alpha(Paleta.fondo, .92)
                                             border { width: 1; color: EstiloPanel.bordeFuerte }
-                                            visible: parent.height > 30 && imagenIcono.status === Image.Ready
-                                            opacity: ventanita.encima ? 0 : 1
-                                            Behavior on opacity { NumberAnimation { duration: EstiloPanel.rapido } }
-                                            Image {
-                                                id: imagenIcono
-                                                anchors { fill: parent; margins: parent.lado * 0.14 }
-                                                source: vista.icono(ventanita.modelData)
-                                                sourceSize { width: 64; height: 64 }
-                                                asynchronous: true
+                                            visible: parent.height >= 34 && parent.width >= 34
+                                            IconoApp {
+                                                anchors.centerIn: parent
+                                                lado: Math.max(12, insigniaApp.lado - 8)
+                                                app: vista.aplicacion(ventanita.modelData)
                                             }
                                         }
                                         MouseArea {
@@ -481,16 +537,42 @@ Superpuesta {
                                     }
                                 }
                             }
-                            Rectangle { id: mascara; anchors.fill: pantalla; radius: 12; visible: false; layer.enabled: true }
                             Rectangle {   // filo
-                                anchors.fill: pantalla
-                                radius: 12
+                                anchors.fill: parent
+                                radius: EstiloPanel.rControl
                                 color: "transparent"
                                 border.width: celda.esActivo || celda.resaltada ? 2 : 1
+                                gradient: Gradient {
+                                    GradientStop { position: 0; color: "transparent" }
+                                    GradientStop { position: 1; color: Qt.alpha(Paleta.acento, destino.containsDrag ? .18 : 0) }
+                                }
                                 border.color: celda.esActivo ? Paleta.acento
                                             : celda.resaltada ? Qt.alpha(Paleta.acento, .6)
                                             : Qt.alpha(Paleta.texto, zonaCelda.containsMouse ? .3 : .12)
                                 Behavior on border.color { ColorAnimation { duration: EstiloPanel.rapido } }
+                            }
+                        }
+                        RowLayout {
+                            y: marco.y + marco.height + 4
+                            width: parent.width
+                            height: 26
+                            spacing: 4
+                            Repeater {
+                                model: vista.aplicacionesDe(celda.ventanas)
+                                IconoApp {
+                                    required property var modelData
+                                    lado: 16
+                                    app: modelData
+                                }
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                Layout.leftMargin: 4
+                                Layout.minimumWidth: 0
+                                text: vista.cantidad(celda.ventanas.length, "ventana", "ventanas")
+                                elide: Text.ElideRight
+                                color: EstiloPanel.tenue
+                                font { family: Paleta.fuente; pixelSize: 11 }
                             }
                         }
                     }
@@ -498,25 +580,30 @@ Superpuesta {
 
                 // ── espacio nuevo: clic = ir; soltar = mandar allí la ventana ──
                 Item {
-                    // estrecha: es un destino para soltar, no una pantalla; cabe junto al último espacio
-                    width: Math.max(150, Math.round(vista.anchoCelda * .42))
-                    height: vista.anchoCelda * vista.proporcion + 34
+                    id: nuevo
+                    readonly property int posicion: vista.espacios.length % vista.columnas
+                    readonly property bool filaPropia: vista.espacios.length > 0 && posicion === 0 && vista.columnas > 1
+                    width: vista.anchoUtil - posicion * (vista.anchoCelda + 16)
+                    height: filaPropia ? 96 : vista.altoMiniatura + 66
+                    Accessible.role: Accessible.Button
+                    Accessible.name: "Crear espacio " + vista.libre
+                    Accessible.onPressAction: vista.irEspacio(vista.libre)
                     opacity: vista.abierto ? 1 : 0
-                    Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal + vista.espacios.length * 35 } }
+                    Behavior on opacity { NumberAnimation { duration: EstiloPanel.movimiento ? EstiloPanel.lento : 0 } }
                     Text {
                         height: 26
                         verticalAlignment: Text.AlignVCenter
-                        text: "Nuevo · " + vista.libre
+                        text: "Espacio " + vista.libre
                         color: EstiloPanel.tenue
                         font { family: EstiloPanel.fuente; pixelSize: 12 }
                     }
                     Rectangle {
                         y: 32
                         width: parent.width
-                        height: parent.height - 32
+                        height: nuevo.filaPropia ? 60 : vista.altoMiniatura
                         radius: 12
                         id: cajaNuevo
-                        color: nuevoDestino.containsDrag ? Qt.alpha(Paleta.acento, .10) : Qt.alpha(Paleta.texto, nuevoZona.containsMouse ? .05 : .015)
+                        color: nuevoDestino.containsDrag ? EstiloPanel.seleccionado : nuevoZona.containsMouse ? EstiloPanel.elevada : EstiloPanel.superficie
                         Behavior on color { ColorAnimation { duration: EstiloPanel.rapido } }
                         Shape {   // borde discontinuo: «suelta aquí»
                             anchors.fill: parent
@@ -541,7 +628,7 @@ Superpuesta {
                             }
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: nuevoDestino.containsDrag ? "Suelta para moverla aquí" : "Espacio nuevo"
+                                text: nuevoDestino.containsDrag ? "Soltar para mover" : "Crear espacio"
                                 color: EstiloPanel.tenue
                                 font { family: EstiloPanel.fuente; pixelSize: 11 }
                             }
@@ -566,9 +653,10 @@ Superpuesta {
             // ── pie: atajos ────────────────────────────────────────────────────
             PieAtajos {
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 16
-                atajos: [["Enter", "ir"], ["← →", "elegir"], ["↑ ↓", "otro espacio"], ["1-9", "espacio"],
-                         ["Ctrl 1-9", "mover"], ["Supr", "cerrar"], ["arrastrar", "mover"], ["Esc", "salir"]]
+                spacing: vista.compacto ? EstiloPanel.e2 : EstiloPanel.e4
+                visible: implicitWidth <= columna.width
+                atajos: vista.compacto ? [["↵", "abrir"], ["← →", "elegir"], ["Esc", "salir"]]
+                    : [["↵", "abrir"], ["← →", "elegir"], ["↑ ↓", "otro espacio"], ["Ctrl 1–9", "mover"], ["Esc", "salir"]]
             }
         }
     }

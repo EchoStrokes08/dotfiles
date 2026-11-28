@@ -1,16 +1,20 @@
 """Salud, actualizaciones seguras, reabrir ventana y fin de jornada (sin tocar el sistema real)."""
 import datetime as dt
+from contextlib import redirect_stdout
+import io
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "hypr/.config/hypr/scripts"))
 import actualizar  # noqa: E402
 import brujula as b  # noqa: E402
+import respaldo_brujula as respaldo  # noqa: E402
 import salud  # noqa: E402
 
 
@@ -32,6 +36,40 @@ class Salud(unittest.TestCase):
         with patch.object(salud, "sh", lambda a, timeout=6: "\n".join(["usb 1-1: device descriptor read/64, error -71"] * 3)):
             self.assertEqual(salud.usb()["valor"], "3 errores")
         self.assertEqual(salud.hace(86400 + 5), "hace 1 día")
+
+
+class Respaldo(unittest.TestCase):
+    def test_monta_el_uuid_configurado_antes_de_copiar(self):
+        disco = {"path": "/dev/sdb1", "uuid": "CONFIGURADO", "fstype": "ntfs", "mountpoints": []}
+        punto = "/run/media/oscar/TOSHIBA EXT"
+        lsblk = ["lsblk", "--json", "--list", "--paths", "-o", "PATH,UUID,FSTYPE,MOUNTPOINTS"]
+        with tempfile.TemporaryDirectory() as t:
+            configuracion = Path(t) / "config"
+            configuracion.write_text('UUID="configurado"\n')
+            ejecutable = Path(t) / "respaldo"
+            ejecutable.touch()
+            with patch.object(respaldo, "CONFIG", configuracion), patch.object(respaldo, "RESPALDO", ejecutable), \
+                    patch.object(subprocess, "check_output", side_effect=[
+                        json.dumps({"blockdevices": [{"path": "/dev/sda1"}, disco]}),
+                        json.dumps({"blockdevices": [{**disco, "mountpoints": [punto]}]}), "rw,nosuid\n",
+                    ]) as consulta, patch.object(subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as ejecuta, \
+                    redirect_stdout(io.StringIO()):
+                self.assertEqual(respaldo.copiar(), 0)
+        self.assertEqual(consulta.call_args_list, [
+            call(lsblk, text=True, timeout=5), call(lsblk, text=True, timeout=5),
+            call(["findmnt", "-fno", "OPTIONS", "--mountpoint", punto], text=True, timeout=5),
+        ])
+        self.assertEqual(ejecuta.call_args_list, [call(["udisksctl", "mount", "-b", "/dev/sdb1"]),
+                                                  call([str(ejecutable), "ahora"])])
+
+    def test_no_copia_si_ntfs_sigue_sin_montar(self):
+        disco = {"path": "/dev/sdb1", "fstype": "ntfs", "mountpoints": []}
+        with patch.object(respaldo, "RESPALDO", Path(__file__)), patch.object(respaldo, "uuid_configurado", return_value="uuid"), \
+                patch.object(respaldo, "disco", return_value=disco), redirect_stdout(io.StringIO()) as salida, \
+                patch.object(subprocess, "run", return_value=subprocess.CompletedProcess([], 1)) as ejecuta:
+            self.assertEqual(respaldo.copiar(), 1)
+        ejecuta.assert_called_once_with(["udisksctl", "mount", "-b", "/dev/sdb1"])
+        self.assertIn("chkdsk", salida.getvalue())
 
 
 class Actualizar(unittest.TestCase):

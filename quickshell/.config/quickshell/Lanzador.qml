@@ -206,7 +206,7 @@ PanelWindow {
         { n: "Línea de tiempo", d: "Qué tuviste delante y cuándo", i: 0xF0954, k: "historial actividad timeline ayer", c: "qs ipc call brujula abrir linea" },
         { n: "Contexto automático", d: "Reglas que adaptan el escritorio a lo que haces", i: 0xF0493, k: "reglas automatico perfil adaptar", c: "qs ipc call brujula abrir contexto" },
         { n: "Restaurar sesión anterior", d: "Reabrir las apps de antes del reinicio en sus espacios", i: 0xF099B, k: "recuperar reabrir reinicio cuelgue", c: "qs ipc call brujula abrir sesion" },
-        { n: "Copia de seguridad ahora", d: "Con el disco TOSHIBA conectado",              i: 0xF0E26, k: "respaldo backup",      c: "kitty -e sh -c 'respaldo ahora; read -p \"Enter para cerrar\" x'" }
+        { n: "Copia de seguridad ahora", d: "Con el disco TOSHIBA conectado",              i: 0xF0E26, k: "respaldo backup",      c: 'kitty --class kitty-salud --hold -e python3 "$HOME/.config/hypr/scripts/respaldo_brujula.py"' }
     ]
     function puntajeAccion(a, q) {
         if (q.length < 2) return 0;

@@ -23,7 +23,9 @@ PanelWindow {
     readonly property real intensidad: tipo === "llovizna" ? .35 : tipo === "lluvia" ? .7 : 1
     readonly property color claro: Paleta.sobreImagen
 
-    visible: lienzo.opacity > 0
+    // Siempre mapeada: `visible` destruiría y recrearía la ventana en cada cambio de espacio, justo
+    // cuando cambian sus textos, y eso tumba Quickshell (ver Barra.qml). Se apaga solo el contenido.
+    contentItem.visible: lienzo.opacity > 0
     color: "transparent"
     anchors { top: true; bottom: true; left: true; right: true }
     exclusionMode: ExclusionMode.Ignore

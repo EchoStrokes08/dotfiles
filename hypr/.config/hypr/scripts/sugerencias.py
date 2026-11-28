@@ -18,6 +18,7 @@ import urllib.request
 
 sys.path.insert(0, str(Path(__file__).parent))
 import brujula as b  # noqa: E402
+import respaldo_brujula  # noqa: E402
 
 HOME = Path.home()
 STATE = Path(os.environ.get("XDG_STATE_HOME", HOME / ".local/state"))
@@ -193,7 +194,7 @@ def calcular():
         sug.append({"id": "respaldo", "icono": "f0e26", "tono": "rojo",
                     "titulo": f"Tu última copia es de hace {dias} días",
                     "detalle": "Conecta el disco TOSHIBA: la copia empieza sola en cuanto lo detecta.",
-                    "boton": "Copiar ahora", "cmd": ["kitty", "-e", "sh", "-c", "respaldo ahora; read -p 'Enter para cerrar' x"]})
+                    "boton": "Copiar ahora", "cmd": respaldo_brujula.comando_terminal()})
 
     # 6. Una jornada de pantalla muy larga ayer → pausas
     total_ayer = sum(ayer.values())

@@ -18,6 +18,8 @@ import subprocess
 import sys
 import time
 
+import respaldo_brujula
+
 HOME = Path.home()
 SCRIPTS = Path(__file__).resolve().parent
 ORDEN = {"mal": 0, "aviso": 1, "info": 2, "ok": 3}
@@ -55,11 +57,19 @@ def respaldo():
         ultima = int(Path("/var/lib/respaldo/ultima").read_text().strip() or 0)
     except (OSError, ValueError):
         ultima = 0
-    accion = {"texto": "Copiar ahora", "cmd": terminal("respaldo ahora")}
-    if not ultima:
-        return c("respaldo", "Copia de seguridad", "mal", "nunca", "No hay registro de ninguna copia. Conecta el disco TOSHIBA.", accion, "f0e26")
     edad = time.time() - ultima
     estado = "ok" if edad < 3 * 86400 else "aviso" if edad < 8 * 86400 else "mal"
+    accion = {"texto": "Copiar ahora", "cmd": respaldo_brujula.comando_terminal()}
+    try:
+        dispositivo = respaldo_brujula.disco(respaldo_brujula.uuid_configurado())
+    except (OSError, ValueError, subprocess.SubprocessError):
+        dispositivo = None
+    if dispositivo is not None and not respaldo_brujula.puntos_montaje(dispositivo):
+        detalle = f"Última copia: {hace(edad) if ultima else 'nunca'}. Pulsa «Copiar ahora» para montar el disco."
+        return c("respaldo", "Copia de seguridad", "mal" if estado == "mal" else "aviso", "sin montar",
+                 detalle, accion, "f0e26")
+    if not ultima:
+        return c("respaldo", "Copia de seguridad", "mal", "nunca", "No hay registro de ninguna copia. Conecta el disco TOSHIBA.", accion, "f0e26")
     return c("respaldo", "Copia de seguridad", estado, hace(edad),
              "Al día." if estado == "ok" else "Conecta el disco TOSHIBA: la copia empieza sola.", accion, "f0e26")
 

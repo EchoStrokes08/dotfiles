@@ -20,7 +20,10 @@ ColumnLayout {
     }
     function formato(seg) {
         const m = Math.floor(seg / 60), h = Math.floor(m / 60);
-        return h > 0 ? `${h} h ${String(m % 60).padStart(2, "0")}` : `${m} min`;
+        return h > 0 ? `${h} h${m % 60 ? " " + (m % 60) + " min" : ""}` : `${m} min`;
+    }
+    function fechaDia(dia) {
+        return new Date(dia + "T12:00").toLocaleDateString(Qt.locale("es_CO"), "ddd d");
     }
     function nombre(clase) {
         const e = DesktopEntries.heuristicLookup(clase);
@@ -50,7 +53,13 @@ ColumnLayout {
 
     // Últimos 7 días (tiempo-pantalla.py --semana)
     property var dias: []           // [{ dia: "2026-11-09", total: s, top: "Firefox" }]
-    property int elegido: -1        // día bajo el ratón
+    property int apuntado: -1
+    property int enfocado: -1
+    readonly property int elegido: apuntado >= 0 ? apuntado : enfocado
+    readonly property var diaElegido: dias[elegido]
+    readonly property real media: dias.length ? dias.reduce((a, d) => a + d.total, 0) / dias.length : 0
+    // Dos intervalos en minutos con marcas de 30 min, incluso en semanas con poco uso.
+    readonly property int intervalo: Math.max(1800, Math.ceil(dias.reduce((a, d) => Math.max(a, d.total), 0) / 3600) * 1800)
     Process {
         id: semana
         command: ["python3", "-I", Quickshell.env("HOME") + "/.config/hypr/scripts/tiempo-pantalla.py", "--semana"]
@@ -63,9 +72,9 @@ ColumnLayout {
         font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1 }
     }
     Text {
-        text: tiempo.total > 0 ? tiempo.formato(tiempo.total) : "—"
+        text: tiempo.total > 0 ? tiempo.formato(tiempo.total) : "Sin actividad registrada"
         color: Paleta.texto
-        font { family: Paleta.fuente; pixelSize: 20; bold: true }
+        font { family: Paleta.fuente; pixelSize: tiempo.total > 0 ? 20 : 13; bold: true }
     }
 
     Repeater {
@@ -85,7 +94,7 @@ ColumnLayout {
                     font { family: Paleta.fuente; pixelSize: 11 }
                 }
                 Text {
-                    text: tiempo.formato(modelData.seg)
+                    text: tiempo.formato(modelData.seg) + " · " + Math.round(modelData.seg * 100 / Math.max(1, tiempo.total)) + " %"
                     color: Paleta.gris
                     font { family: Paleta.fuente; pixelSize: 11 }
                 }
@@ -96,69 +105,126 @@ ColumnLayout {
                 color: EstiloPanel.rellenoActivo
                 Rectangle {
                     height: parent.height; radius: height / 2
-                    width: parent.width * modelData.seg / Math.max(1, tiempo.apps[0]?.seg ?? 1)
+                    width: parent.width * modelData.seg / Math.max(1, tiempo.total)
                     color: Paleta.serie[index % 4]
                 }
             }
         }
     }
 
-    // ── Semana ──
-    Item { visible: !tiempo.compacto; Layout.preferredHeight: 4 }
-    RowLayout {
-        visible: !tiempo.compacto
+    // Una escala compartida y fondo de foco para leer las barras con ratón o teclado.
+    Rectangle {
+        visible: !tiempo.compacto && tiempo.dias.length > 0
         Layout.fillWidth: true
-        Text {
-            text: "ÚLTIMOS 7 DÍAS"
-            color: Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 1 }
-        }
-        Item { Layout.fillWidth: true }
-        Text {   // detalle del día bajo el ratón, o la media
-            readonly property var d: tiempo.dias[tiempo.elegido]
-            readonly property real media: tiempo.dias.length ? tiempo.dias.reduce((a, x) => a + x.total, 0) / tiempo.dias.length : 0
-            text: d ? `${tiempo.formato(d.total)}${d.top ? " · " + d.top : ""}` : `media ${tiempo.formato(media)}`
-            color: d ? Paleta.texto : Paleta.gris
-            font { family: Paleta.fuente; pixelSize: 11 }
-        }
-    }
-    RowLayout {
-        Layout.fillWidth: true
-        visible: !tiempo.compacto
-        Layout.preferredHeight: 62
-        spacing: 4
-        readonly property real maximo: Math.max(3600, ...tiempo.dias.map(d => d.total))
-        Repeater {
-            model: tiempo.dias
-            ColumnLayout {
-                required property var modelData
-                required property int index
-                readonly property bool esHoy: index === tiempo.dias.length - 1
+        implicitHeight: semanaVista.implicitHeight + 2 * EstiloPanel.e3
+        radius: EstiloPanel.rControl
+        color: EstiloPanel.relleno
+        border { width: 1; color: EstiloPanel.bordeFuerte }
+
+        ColumnLayout {
+            id: semanaVista
+            anchors { left: parent.left; top: parent.top; right: parent.right; margins: 12 }
+            spacing: 12
+
+            Text {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                spacing: 2
-                Item {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Rectangle {
-                        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
-                        width: Math.min(parent.width, 18); radius: 4
-                        height: Math.max(2, parent.height * modelData.total / parent.parent.parent.maximo)
-                        color: esHoy ? Paleta.acento : tiempo.elegido === index ? Paleta.acento2 : Qt.alpha(Paleta.acento2, 0.45)
-                        Behavior on height { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
-                    }
-                    MouseArea {
-                        anchors.fill: parent; hoverEnabled: true
-                        onEntered: tiempo.elegido = index
-                        onExited: if (tiempo.elegido === index) tiempo.elegido = -1
+                text: "Últimos 7 días"
+                color: Paleta.texto
+                font { family: Paleta.fuente; pixelSize: 14; weight: Font.DemiBold }
+            }
+
+            Item {
+                id: grafica
+                Layout.fillWidth: true
+                implicitHeight: 98
+                readonly property int altoEje: 68
+                readonly property int anchoEje: 60
+
+                Repeater {
+                    model: [2, 1, 0]
+                    Item {
+                        required property int modelData
+                        width: grafica.width
+                        y: (2 - modelData) * grafica.altoEje / 2 + EstiloPanel.e2
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: modelData ? tiempo.formato(modelData * tiempo.intervalo) : "0"
+                            color: EstiloPanel.tenue
+                            font { family: Paleta.fuente; pixelSize: 11 }
+                        }
+                        Rectangle {
+                            x: grafica.anchoEje
+                            width: Math.max(0, parent.width - x)
+                            height: 1
+                            color: modelData ? EstiloPanel.borde : EstiloPanel.bordeFuerte
+                        }
                     }
                 }
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: ["D", "L", "M", "X", "J", "V", "S"][new Date(modelData.dia + "T12:00").getDay()]
-                    color: esHoy ? Paleta.acento : Paleta.gris
-                    font { family: Paleta.fuente; pixelSize: 11; bold: esHoy }
+
+                RowLayout {
+                    anchors { fill: parent; leftMargin: grafica.anchoEje }
+                    spacing: 4
+                    Repeater {
+                        model: tiempo.dias
+                        Item {
+                            id: dia
+                            required property var modelData
+                            required property int index
+                            readonly property bool esHoy: modelData.dia === tiempo.hoy()
+                            readonly property bool elegido: index === tiempo.elegido
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.fillHeight: true
+                            activeFocusOnTab: tiempo.visible
+                            Accessible.role: Accessible.StaticText
+                            Accessible.name: tiempo.fechaDia(modelData.dia) + ", " + tiempo.formato(modelData.total)
+                                + (modelData.top ? ", " + modelData.top : "")
+                            onActiveFocusChanged: {
+                                if (activeFocus) tiempo.enfocado = index;
+                                else if (tiempo.enfocado === index) tiempo.enfocado = -1;
+                            }
+                            HoverHandler {
+                                onHoveredChanged: {
+                                    if (hovered) tiempo.apuntado = dia.index;
+                                    else if (tiempo.apuntado === dia.index) tiempo.apuntado = -1;
+                                }
+                            }
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: EstiloPanel.rChip
+                                color: elegido ? EstiloPanel.rellenoActivo : "transparent"
+                                border { width: dia.activeFocus ? 1 : 0; color: EstiloPanel.bordeSeleccion }
+                            }
+                            Rectangle {
+                                y: EstiloPanel.e2 + grafica.altoEje - height
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: Math.min(parent.width * .58, 36)
+                                height: grafica.altoEje * modelData.total / (2 * tiempo.intervalo)
+                                radius: EstiloPanel.rPunto
+                                color: esHoy ? Paleta.acento : elegido ? Paleta.acento2 : Qt.alpha(Paleta.acento2, .58)
+                            }
+                            Text {
+                                anchors { bottom: parent.bottom; bottomMargin: 4; horizontalCenter: parent.horizontalCenter }
+                                text: esHoy && dia.width >= 25 ? "Hoy" : ["D", "L", "M", "X", "J", "V", "S"][new Date(modelData.dia + "T12:00").getDay()]
+                                color: esHoy ? Paleta.acento : elegido ? Paleta.texto : EstiloPanel.tenue
+                                font { family: Paleta.fuente; pixelSize: 11; bold: esHoy || elegido }
+                            }
+                        }
+                    }
                 }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                text: tiempo.diaElegido
+                    ? tiempo.fechaDia(tiempo.diaElegido.dia) + " · " + tiempo.formato(tiempo.diaElegido.total)
+                        + (tiempo.diaElegido.top ? " · " + tiempo.diaElegido.top : "")
+                    : "Promedio diario · " + tiempo.formato(tiempo.media)
+                textFormat: Text.PlainText
+                elide: Text.ElideRight
+                color: tiempo.diaElegido ? Paleta.texto : EstiloPanel.tenue
+                font { family: Paleta.fuente; pixelSize: 12 }
             }
         }
     }

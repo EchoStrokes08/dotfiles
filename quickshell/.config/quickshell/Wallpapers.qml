@@ -1,167 +1,282 @@
-// Selector de wallpapers (SUPER+SHIFT+W): rejilla de miniaturas grandes.
-//   flechas/clic para elegir · Enter aplica · el actual lleva borde naranja
-// Aplica con ~/.config/hypr/scripts/wallpaper.sh poner <ruta> (hyprpaper + colores si el modo es "wallpaper").
+// Galería de fondos (SUPER+SHIFT+W). Las flechas y el clic eligen, Enter o doble clic aplica.
 import QtQuick
-import QtQuick.Effects
+import QtQuick.Controls
 import QtQuick.Layouts
 import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
-import Quickshell.Widgets
 
 Superpuesta {
     id: sel
     espacio: "wallpapers"
-    anchoTarjeta: 4 * 214 + 2 * margenPanel + 4   // cuatro columnas exactas: antes cabían tres y sobraba un hueco
+    panelCuidado: true
+    margenPanel: height < 640 ? EstiloPanel.e4 : EstiloPanel.e5
+    anchoTarjeta: Math.min(1060, Math.max(1, width - 32))
     alturaRelativa: 0.10
 
     readonly property string carpeta: Quickshell.env("HOME") + "/Imágenes/wallpapers"
-    property string actual: ""          // ruta real del wallpaper puesto
-    property string modo: Paleta.modo         // ayu | wallpaper (tema.sh estado)
+    readonly property string scripts: Quickshell.env("HOME") + "/.config/hypr/scripts/"
+    readonly property bool horizontal: galeria.width >= 760
+    readonly property string ruta: rejilla.currentIndex >= 0 && rejilla.currentIndex < archivos.count
+        ? String(archivos.get(rejilla.currentIndex, "filePath")) : ""
+    readonly property string nombre: ruta.split("/").pop()
+    property string actual: ""
 
-    function guion(args) { Quickshell.execDetached(["sh", "-c", "~/.config/hypr/scripts/" + args]); }
-    function poner(ruta) { guion(`wallpaper.sh poner "${ruta}"`); abierto = false; }
+    function titulo(archivo) {
+        const base = archivo.replace(/\.[^.]+$/, "");
+        const numerado = /^thumb-1920-(\d+)$/.exec(base);
+        if (numerado) return "Fondo " + numerado[1];
+        const limpio = base.replace(/_\d+x\d+.*$/i, "").replace(/[-_]+/g, " ").trim();
+        return limpio.charAt(0).toUpperCase() + limpio.slice(1);
+    }
 
-    onAbriendose: { leerActual.running = true; leerModo.running = true; rejilla.forceActiveFocus(); }
+    function seleccionarActual() {
+        for (let i = 0; i < archivos.count; i++) {
+            if (archivos.get(i, "fileName") === actual) {
+                rejilla.currentIndex = i;
+                rejilla.positionViewAtIndex(i, GridView.Contain);
+                return;
+            }
+        }
+        rejilla.currentIndex = archivos.count > 0 ? 0 : -1;
+    }
+
+    function poner() {
+        if (!ruta) return;
+        Quickshell.execDetached([scripts + "wallpaper.sh", "poner", ruta]);
+        abierto = false;
+    }
+
+    onAbriendose: {
+        ajustes.visible = false;
+        seleccionarActual();
+        leerActual.running = true;
+        rejilla.forceActiveFocus();
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        enabled: sel.abierto
+        onActivated: sel.abierto = false
+    }
 
     Process {
         id: leerActual
         command: ["readlink", "-f", Quickshell.env("HOME") + "/.local/state/tema/wallpaper"]
         stdout: StdioCollector {
             onStreamFinished: {
-                sel.actual = this.text.trim();
-                // empezar con el actual seleccionado
-                const nombre = sel.actual.split("/").pop();
-                for (let i = 0; i < archivos.count; i++)
-                    if (archivos.get(i, "fileName") === nombre) { rejilla.currentIndex = i; break; }
+                sel.actual = text.trim().split("/").pop();
+                if (sel.abierto) sel.seleccionarActual();
             }
         }
     }
-    Process {
-        id: leerModo
-        command: ["sh", "-c", "~/.config/hypr/scripts/tema.sh estado"]
-        stdout: StdioCollector { onStreamFinished: sel.modo = this.text.trim() }
-    }
-    // (~/Imágenes/wallpapers es un enlace al repo: por eso se compara solo el nombre del archivo)
 
     FolderListModel {
         id: archivos
         folder: "file://" + sel.carpeta
-        nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.JPG", "*.JPEG", "*.PNG"]
+        nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.JPG", "*.JPEG", "*.PNG", "*.WEBP"]
         showDirs: false
         sortField: FolderListModel.Name
+        onStatusChanged: if (status === FolderListModel.Ready && sel.abierto) sel.seleccionarActual()
     }
 
     ColumnLayout {
+        id: galeria
         width: parent.width
-        spacing: 12
+        spacing: sel.height < 640 ? EstiloPanel.e3 : EstiloPanel.e4
 
-        // Cabecera: título · colores · aleatorio
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
-            Text {
-                Layout.fillWidth: true
-                text: String.fromCodePoint(0xF0E09) + "  Wallpapers  <font color='" + Paleta.gris + "'>(" + archivos.count + ")</font>"
-                textFormat: Text.StyledText
-                color: Paleta.texto
-                font { family: Paleta.fuente; pixelSize: 16; bold: true }
-            }
-            Text { text: "Color actual: " + (Paleta.fijado ? "fijado" : Paleta.modo === "wallpaper" ? "del fondo" : "Ayu"); color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
-            BotonCompacto { text: "Cambiar colores"; onClicked: ajustesColores.visible = !ajustesColores.visible }
-            BotonCompacto { text: "Aleatorio"; onClicked: { sel.guion("wallpaper.sh aleatorio"); sel.abierto = false; } }
-
+        EncabezadoPanel {
+            titulo: "Fondos de pantalla"
+            seccion: (archivos.count === 1 ? "1 imagen" : archivos.count + " imágenes")
+                + "  ·  " + (Paleta.fijado ? "Acento fijado" : Paleta.modo === "wallpaper" ? "Colores del fondo" : "Paleta Ayu")
+            simbolo: String.fromCodePoint(0xF0E09)
+            onCerrar: sel.abierto = false
         }
 
-        AjustesApariencia { id: ajustesColores; visible: false; Layout.fillWidth: true }
-
-        GridView {
-            id: rejilla
+        GridLayout {
             Layout.fillWidth: true
-            implicitHeight: Math.min(3, Math.ceil(count / 4)) * cellHeight
-            cellWidth: 214
-            cellHeight: 134
-            clip: true
-            focus: true
-            model: archivos
-            boundsBehavior: Flickable.StopAtBounds
-            keyNavigationWraps: true
-            highlightFollowsCurrentItem: true
-            Keys.onReturnPressed: sel.poner(archivos.get(currentIndex, "filePath"))
-            Keys.onEnterPressed: sel.poner(archivos.get(currentIndex, "filePath"))
+            columns: sel.horizontal ? 2 : 1
+            columnSpacing: 16
+            rowSpacing: 12
 
-            delegate: Item {
-                id: celda
-                required property string filePath
-                required property string fileName
-                required property int index
-                readonly property bool esActual: sel.actual !== "" && sel.actual.split("/").pop() === fileName
-                readonly property bool marcada: GridView.isCurrentItem
-                width: rejilla.cellWidth
-                height: rejilla.cellHeight
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.preferredWidth: sel.horizontal ? 54 : 1
+                Layout.minimumWidth: 0
+                Layout.alignment: Qt.AlignTop
+                spacing: 8
 
-                // resplandor bajo la miniatura: del acento en el fondo puesto, neutro en la marcada
-                RectangularShadow {
-                    anchors { fill: parent; margins: 4 }
-                    visible: EstiloPanel.profundidad && (celda.marcada || celda.esActual)
-                    radius: 12; offset.y: 6; blur: 26; spread: -4
-                    color: celda.esActual ? Qt.alpha(Paleta.acento, .55) : Qt.alpha("black", .55)
-                    scale: marco.scale
-                }
-                ClippingRectangle {
-                    id: marco
-                    anchors { fill: parent; margins: 4 }
-                    radius: 12
-                    color: Paleta.seleccion
-                    border { width: celda.esActual ? 3 : celda.marcada ? 2 : 0
-                             color: celda.esActual ? Paleta.acento : Paleta.texto }
-                    scale: celda.marcada ? 1.0 : 0.95
-                    Behavior on scale { NumberAnimation { duration: EstiloPanel.rapido; easing.type: Easing.OutCubic } }
+                MarcoFondo {
+                    id: portada
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.min(width * 9 / 16, sel.height * (sel.horizontal ? .43 : .25))
+                    radio: EstiloPanel.rTarjeta
+
+                    Rectangle { anchors.fill: parent; radius: EstiloPanel.rTarjeta; color: EstiloPanel.elevada }
 
                     Image {
                         anchors.fill: parent
-                        source: "file://" + celda.filePath
-                        sourceSize { width: 404; height: 244 }   // se decodifica pequeña: rápido y ligero
+                        source: sel.ruta ? archivos.get(rejilla.currentIndex, "fileUrl") : ""
+                        sourceSize.width: 1200
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
-                        scale: celda.marcada ? 1.07 : 1      // se acerca dentro de su marco
-                        Behavior on scale { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
                         opacity: status === Image.Ready ? 1 : 0
                         Behavior on opacity { NumberAnimation { duration: EstiloPanel.normal } }
                     }
-                    // nombre al pasar el ratón o al estar seleccionada
                     Rectangle {
-                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                        height: 34
-                        visible: celda.marcada || zonaCelda.containsMouse
-                        gradient: Gradient {
-                            GradientStop { position: 0; color: "transparent" }
-                            GradientStop { position: 1; color: Qt.alpha(Paleta.fondo, .85) }
-                        }
-                        Text {
-                            anchors { fill: parent; leftMargin: 8; rightMargin: 8; topMargin: 8 }
-                            verticalAlignment: Text.AlignVCenter
-                            text: (celda.esActual ? "  " : "") + celda.fileName
-                            color: celda.esActual ? Paleta.acento : Paleta.texto
-                            elide: Text.ElideMiddle
-                            font { family: Paleta.fuente; pixelSize: 11 }
-                        }
+                        anchors { fill: parent; margins: 1 }
+                        radius: EstiloPanel.rTarjeta
+                        color: "transparent"
+                        border { width: 1; color: Qt.alpha("white", .18) }
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        visible: !sel.ruta
+                        text: archivos.status === FolderListModel.Loading ? "Cargando imágenes…" : "La colección está vacía"
+                        color: EstiloPanel.tenue
+                        font { family: Paleta.fuente; pixelSize: 14 }
                     }
                 }
-                MouseArea {
-                    id: zonaCelda
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onEntered: rejilla.currentIndex = celda.index
-                    onClicked: sel.poner(celda.filePath)
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        text: sel.ruta ? sel.titulo(sel.nombre) : "Vista previa"
+                        textFormat: Text.PlainText
+                        elide: Text.ElideRight
+                        color: Paleta.texto
+                        font { family: Paleta.fuente; pixelSize: 20; weight: Font.DemiBold }
+                    }
+                    Text {
+                        visible: !!sel.ruta && sel.nombre === sel.actual
+                        text: "✓ En uso"
+                        color: Paleta.acento
+                        font { family: Paleta.fuente; pixelSize: 12; bold: true }
+                    }
+                }
+            }
+
+            GridView {
+                id: rejilla
+                Layout.fillWidth: true
+                Layout.preferredWidth: sel.horizontal ? 46 : 1
+                Layout.minimumWidth: 0
+                Layout.alignment: Qt.AlignTop
+                Layout.preferredHeight: sel.horizontal ? portada.height
+                    : Math.min(sel.height * .30, Math.min(2, Math.ceil(count / columnas)) * cellHeight)
+                readonly property int columnas: width >= 380 ? 3 : 2
+                readonly property int anchoUtil: Math.max(1, width - 12)
+                cellWidth: Math.max(1, Math.floor(anchoUtil / columnas))
+                cellHeight: sel.horizontal ? Math.max(40, Math.floor(portada.height / 3))
+                    : Math.max(40, Math.min(Math.round(cellWidth * .67), Math.floor(sel.height * .15)))
+                clip: true
+                focus: true
+                activeFocusOnTab: true
+                keyNavigationEnabled: true
+                keyNavigationWraps: true
+                boundsBehavior: Flickable.StopAtBounds
+                model: archivos
+                ScrollBar.vertical: ScrollBar {
+                    policy: rejilla.contentHeight > rejilla.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+                }
+
+                Keys.onReturnPressed: event => { if (!event.isAutoRepeat) sel.poner(); }
+                Keys.onEnterPressed: event => { if (!event.isAutoRepeat) sel.poner(); }
+
+                delegate: Item {
+                    id: celda
+                    required property url fileUrl
+                    required property string fileName
+                    required property int index
+                    readonly property bool esActual: fileName === sel.actual
+                    readonly property bool marcada: GridView.isCurrentItem
+                    width: rejilla.cellWidth
+                    height: rejilla.cellHeight
+                    Accessible.role: Accessible.Button
+                    Accessible.name: sel.titulo(fileName) + (esActual ? ", en uso" : "")
+                    Accessible.onPressAction: { rejilla.currentIndex = index; rejilla.forceActiveFocus(); }
+
+                    MarcoFondo {
+                        anchors { fill: parent; margins: 4 }
+                        Rectangle { anchors.fill: parent; radius: EstiloPanel.rControl; color: EstiloPanel.elevada }
+                        Image {
+                            anchors.fill: parent
+                            source: celda.fileUrl
+                            sourceSize.width: 420
+                            fillMode: Image.PreserveAspectCrop
+                            asynchronous: true
+                            scale: cursor.containsMouse ? 1.06 : 1
+                            Behavior on scale { NumberAnimation { duration: EstiloPanel.lento; easing.type: Easing.OutCubic } }
+                        }
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: EstiloPanel.rControl
+                            color: Qt.alpha("black", celda.marcada || cursor.containsMouse ? 0 : .16)
+                            border.width: celda.marcada ? 2 : 1
+                            border.color: celda.marcada ? Paleta.acento : Qt.alpha("white", cursor.containsMouse ? .55 : .18)
+                        }
+                        Rectangle {
+                            anchors { right: parent.right; top: parent.top; margins: 8 }
+                            visible: celda.esActual
+                            width: 22; height: width; radius: height / 2
+                            color: Paleta.acento
+                            Text {
+                                anchors.centerIn: parent
+                                text: "✓"
+                                color: Paleta.sobreAcento
+                                font { family: Paleta.fuente; pixelSize: 12; bold: true }
+                            }
+                        }
+                    }
+
+                    MouseArea {
+                        id: cursor
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: { rejilla.currentIndex = celda.index; rejilla.forceActiveFocus(); }
+                        onDoubleClicked: { rejilla.currentIndex = celda.index; sel.poner(); }
+                    }
                 }
             }
         }
 
+        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: EstiloPanel.bordeFuerte }
+
+        Flow {
+            Layout.fillWidth: true
+            spacing: 8
+            BotonCompacto {
+                text: "Aplicar fondo"
+                destacado: true
+                enabled: !!sel.ruta
+                onClicked: sel.poner()
+            }
+            BotonCompacto {
+                text: "Aleatorio"
+                enabled: archivos.count > 0
+                onClicked: {
+                    Quickshell.execDetached([sel.scripts + "wallpaper.sh", "aleatorio"]);
+                    sel.abierto = false;
+                }
+            }
+            BotonCompacto {
+                text: "Colores y apariencia"
+                destacado: ajustes.visible
+                onClicked: ajustes.visible = !ajustes.visible
+            }
+        }
+
+        AjustesApariencia { id: ajustes; visible: false; Layout.fillWidth: true }
+
         PieAtajos {
             Layout.alignment: Qt.AlignHCenter
-            atajos: [["↵", "poner"], ["← →", "moverse"], ["Esc", "cerrar"]]
+            visible: sel.height >= 600 && implicitWidth <= galeria.width
+            atajos: [["← ↑ ↓ →", "elegir"], ["↵", "aplicar"], ["Esc", "cerrar"]]
         }
     }
 }

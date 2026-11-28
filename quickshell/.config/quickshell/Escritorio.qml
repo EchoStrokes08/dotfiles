@@ -8,7 +8,6 @@
 //   qs ipc call escritorio toggle   → esconder/mostrar los widgets (hasta cerrar sesión)
 import QtQuick
 import QtQuick.Effects
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
@@ -20,9 +19,10 @@ PanelWindow {
     readonly property var monitor: Hyprland.monitorFor(screen)
     readonly property bool vacio: (monitor?.activeWorkspace?.toplevels.values.length ?? 0) === 0
     readonly property bool mostrar: activado && vacio
-    readonly property color claro: Paleta.sobreImagen
 
-    visible: todo.opacity > 0
+    // Siempre mapeada: `visible` destruiría y recrearía la ventana en cada cambio de espacio, justo
+    // cuando cambian sus textos, y eso tumba Quickshell (ver Barra.qml). Se apaga solo el contenido.
+    contentItem.visible: todo.opacity > 0
     color: "transparent"
     anchors { top: true; bottom: true; left: true; right: true }
     exclusionMode: ExclusionMode.Ignore
@@ -201,18 +201,6 @@ PanelWindow {
         return ev.concat(re).sort((a, b) => a.t - b.t).slice(0, 4);
     }
 
-    // Velo inferior: oscurece el 45 % de abajo del wallpaper para que el texto se lea en fondos claros
-    Rectangle {
-        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-        height: parent.height * 0.45
-        opacity: v.mostrar ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: v.mostrar ? 600 : 180; easing.type: Easing.OutCubic } }
-        gradient: Gradient {
-            GradientStop { position: 0; color: "transparent" }
-            GradientStop { position: 1; color: Qt.alpha("black", 0.45) }
-        }
-    }
-
     // ── Cielo de noche (de 20:00 a 5:00) ──
     // Fuera de la capa del texto: lo que se mueve aquí no obliga a repintar el reloj ni su sombra.
     // Las estrellas son fijas (las mismas toda la noche: salen de la fecha); con efectos y movimiento
@@ -225,7 +213,7 @@ PanelWindow {
         anchors.fill: parent
         opacity: v.noche && v.mostrar ? 1 : 0
         visible: opacity > 0
-        Behavior on opacity { NumberAnimation { duration: 2000; easing.type: Easing.InOutSine } }
+        Behavior on opacity { NumberAnimation { duration: EstiloPanel.movimiento ? 2000 : 0; easing.type: Easing.InOutSine } }
 
         readonly property var estrellas: {
             const d = reloj.date, semilla0 = d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate() - (d.getHours() < 5 ? 1 : 0);
@@ -248,7 +236,7 @@ PanelWindow {
                 x: modelData.x * cielo.width; y: modelData.y * cielo.height
                 width: modelData.lado; height: modelData.lado
                 opacity: brillo
-                Behavior on brillo { NumberAnimation { duration: 1600; easing.type: Easing.InOutSine } }
+                Behavior on brillo { NumberAnimation { duration: EstiloPanel.movimiento ? 1600 : 0; easing.type: Easing.InOutSine } }
                 RectangularShadow {   // solo las grandes tienen halo
                     anchors.fill: parent
                     visible: parent.modelData.lado >= 3 && EstiloPanel.profundidad
@@ -321,148 +309,21 @@ PanelWindow {
         }
     }
 
-    Item {
+    ComposicionEscritorio {
         id: todo
         anchors.fill: parent
         opacity: v.mostrar ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: v.mostrar ? 600 : 180; easing.type: Easing.OutCubic } }
-
-        // Sombra suave bajo todo el texto: legible sobre fondos claros u oscuros
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: "black"
-            shadowOpacity: 0.75
-            shadowBlur: 0.7
-            shadowVerticalOffset: 2
+        Behavior on opacity {
+            NumberAnimation { duration: v.mostrar && EstiloPanel.movimiento ? 600 : EstiloPanel.normal; easing.type: Easing.OutCubic }
         }
-
-        // ── Reloj, fecha, clima y frase ──
-        ColumnLayout {
-            id: izquierda
-            anchors { left: parent.left; bottom: parent.bottom; leftMargin: 56; bottomMargin: 48 + (v.mostrar ? 0 : -14) }
-            Behavior on anchors.bottomMargin { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
-            spacing: 0
-
-            Text {   // saludo según la hora
-                readonly property string nombre: {
-                    const u = Quickshell.env("USER") ?? "";
-                    return u ? u.charAt(0).toUpperCase() + u.slice(1) : "";
-                }
-                readonly property int h: v.horaDia
-                readonly property string saludo: h >= 5 && h < 12 ? "Buenos días" : h >= 12 && h < 20 ? "Buenas tardes"
-                    : h >= 0 && h < 5 ? "Ya es tarde" : "Buenas noches"
-                readonly property int glifo: h >= 5 && h < 12 ? 0xF0599 : h >= 12 && h < 20 ? 0xF0598 : 0xF0594
-                Layout.bottomMargin: -10
-                Layout.leftMargin: 6
-                text: String.fromCodePoint(glifo) + "  " + saludo + (nombre ? ", " + nombre : "") + (h >= 0 && h < 5 ? " · a descansar" : "")
-                color: Qt.alpha(v.claro, .88)
-                font { family: Paleta.fuente; pixelSize: 20; weight: Font.DemiBold; letterSpacing: .5 }
-            }
-
-            Row {
-                spacing: 0
-                // Hora y minutos con un halo de su color (estático: el escritorio no se repinta por él)
-                Repeater {
-                    model: [
-                        { t: Qt.formatTime(reloj.date, "HH"), c: Paleta.acento, halo: true },
-                        { t: ":", c: Qt.alpha(v.claro, 0.55), halo: false },
-                        { t: Qt.formatTime(reloj.date, "mm"), c: Paleta.acento2, halo: true }
-                    ]
-                    Item {
-                        required property var modelData
-                        implicitWidth: cifra.implicitWidth; implicitHeight: cifra.implicitHeight
-                        Text {
-                            anchors.centerIn: parent
-                            visible: parent.modelData.halo && EstiloPanel.profundidad
-                            text: parent.modelData.t; color: parent.modelData.c
-                            opacity: .8
-                            font: cifra.font
-                            layer.enabled: visible
-                            layer.effect: MultiEffect { blurEnabled: true; blur: 1; blurMax: 48 }
-                        }
-                        Text {
-                            id: cifra
-                            text: parent.modelData.t; color: parent.modelData.c
-                            font { family: Paleta.fuente; pixelSize: 104; bold: true }
-                        }
-                    }
-                }
-            }
-            Text {
-                Layout.topMargin: -8
-                // Solo la primera letra en mayúscula: «Viernes, 13 de noviembre» (Font.Capitalize daba «De Noviembre»)
-                readonly property string fecha: reloj.date.toLocaleDateString(Qt.locale("es_ES"), "dddd, d 'de' MMMM")
-                text: fecha.charAt(0).toUpperCase() + fecha.slice(1)
-                color: v.claro
-                font { family: Paleta.fuente; pixelSize: 20 }
-            }
-            Text {   // clima (solo cuando ya llegó el dato)
-                Layout.topMargin: 8
-                visible: Clima.listo
-                text: `${Clima.icono(Clima.codigo, Clima.deDia)}  ${Math.round(Clima.temp)}°  ${Clima.texto(Clima.codigo)} en ${Clima.lugar}`
-                      + (Clima.lluviaHoy >= 30 ? `  ·  lluvia ${Clima.lluviaHoy} %` : "")
-                color: Qt.alpha(v.claro, 0.92)
-                font { family: Paleta.fuente; pixelSize: 13 }
-            }
-            Rectangle {   // rayita naranja
-                Layout.topMargin: 20; Layout.bottomMargin: 14
-                width: 44; height: 3; radius: 4; color: Paleta.acento
-            }
-            Text {
-                Layout.maximumWidth: 460
-                text: "«" + v.frase[0] + "»"
-                wrapMode: Text.WordWrap
-                color: Qt.alpha(v.claro, 0.92)
-                font { family: Paleta.fuente; pixelSize: 14; italic: true }
-                lineHeight: 1.25
-            }
-            Text {
-                Layout.topMargin: 6
-                text: "— " + v.frase[1]
-                color: Qt.alpha(v.claro, 0.8)
-                font { family: Paleta.fuente; pixelSize: 12 }
-            }
-        }
-
-        // ── Lo próximo ──
-        ColumnLayout {
-            visible: v.proximo.length > 0
-            anchors { right: parent.right; bottom: parent.bottom; rightMargin: 56; bottomMargin: 56 }
-            spacing: 8
-            Text {
-                Layout.alignment: Qt.AlignRight
-                text: "LO PRÓXIMO"
-                color: Paleta.acento
-                font { family: Paleta.fuente; pixelSize: 11; bold: true; letterSpacing: 2 }
-            }
-            Repeater {
-                model: v.proximo
-                RowLayout {
-                    required property var modelData
-                    Layout.alignment: Qt.AlignRight
-                    spacing: 8
-                    ColumnLayout {
-                        spacing: 1
-                        Text {
-                            Layout.alignment: Qt.AlignRight
-                            Layout.maximumWidth: 320
-                            text: modelData.texto
-                            elide: Text.ElideRight
-                            color: v.claro
-                            font { family: Paleta.fuente; pixelSize: 14; bold: true }
-                        }
-                        Text {
-                            Layout.alignment: Qt.AlignRight
-                            text: modelData.cuando
-                            color: Qt.alpha(v.claro, 0.8)
-                            font { family: Paleta.fuente; pixelSize: 12 }
-                        }
-                    }
-                    Text { text: String.fromCodePoint(modelData.icono); color: Paleta.acento2
-                           font { family: Paleta.fuente; pixelSize: 20 } }
-                }
-            }
-        }
+        ahora: reloj.date
+        frase: v.frase
+        agenda: EstadoEscritorio.privacidad || EstadoEscritorio.capturaPrivada ? [] : v.proximo
+        clima: Clima.listo ? ({
+            icono: Clima.icono(Clima.codigo, Clima.deDia),
+            grados: Math.round(Clima.temp) + "°",
+            detalle: Clima.texto(Clima.codigo) + " en " + Clima.lugar
+                + (Clima.lluviaHoy >= 30 ? " · lluvia " + Clima.lluviaHoy + " %" : "")
+        }) : null
     }
 }

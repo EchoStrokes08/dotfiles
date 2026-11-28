@@ -847,6 +847,18 @@ corre en segundo plano. «Archivos grandes» ignora las carpetas ocultas de las 
 `escala` de `~/.local/state/quickshell/preferencias.json` (1, 1.1 o 1.25); `shell.sh reiniciar`
 cierra la instancia y la vuelve a abrir. Si la escala deja algo mal, edita ese archivo y ejecuta
 `~/.config/hypr/scripts/shell.sh reiniciar` desde una terminal.
+Deja además un guardián: si Quickshell muere lo vuelve a abrir a los 2 s; si se relanza él mismo, el
+guardián cierra la ventana «Quickshell has crashed» (el informe queda en `~/.cache/quickshell/crashes`)
+y avisa. Tras más de 4 caídas en 3 minutos deja de insistir y avisa (`shell.sh parar` lo cierra sin que vuelva; `shell.sh` lo reabre).
+También avisa si Qt se actualizó después que Quickshell: entonces ejecuta
+`instalar/quickshell-recompilar.sh`. Las capas que se ocultan solas (barra, FondoVivo, Panorama,
+ClimaVivo, Escritorio) nunca usan `visible: false`: en Quickshell eso destruye y recrea la ventana y, si
+justo cambia un texto o una imagen, se cae (al abrir o cerrar un juego). Siguen mapeadas, transparentes
+y sin recibir clics, y apagan su contenido con `contentItem.visible` (lo vigila `tests/test_estilo.py`).
+
+Al empezar un juego, `juego-energia.sh` no toca WhatsApp sin preguntar: si ZapZap está abierto sale un
+aviso (crítico, para que se vea con No molestar) con «Pausar» (se congela y vuelve al terminar),
+«Cerrar» o «Dejar abierto»; sin respuesta en 45 s se queda abierto.
 
 `ModoTeclado.qml` comparte una conexión de eventos entre barras, escucha `submap` y consulta
 `hyprctl repl 'hl.get_current_submap()'` al conectar o reconectar (API instalada de Hyprland 0.57).

@@ -17,9 +17,13 @@ PanelWindow {
     id: ventana
     Connections { target: EstadoEscritorio; function onCapturaPrivadaChanged() { if(EstadoEscritorio.capturaPrivada) ventana.abierto=false; } }
     property bool abierto: false
+    signal apagadoSolicitado()
     property bool mostrar: false
     property bool sonidoAmpliado: false
     property bool musicaAmpliada: false
+    property var preferenciaControles: null
+    readonly property bool inicioCompacto: vistaContenido.height < 500
+    readonly property bool controlesVisibles: preferenciaControles ?? !inicioCompacto
     readonly property bool microEnUso: Pipewire.nodes.values.some(n => n.isStream && n.properties["media.class"] === "Stream/Input/Audio")
     function nombreControl(cosa) { return ({replay:"Replay",rendimiento:"Energía alta",conservacion:"Conservar batería",luz:"Luz nocturna"})[cosa] || cosa; }
     function iconoControl(cosa) { return g(({replay:0xF044B,rendimiento:0xF140B,conservacion:0xF032A,luz:0xF0594})[cosa] || 0xF0493); }
@@ -118,6 +122,7 @@ PanelWindow {
 
     // ── Sección de abajo: notificaciones · conexiones · móvil · más ──────
     property string seccion: "notificaciones"
+    onSeccionChanged: vistaContenido.contentY = 0
     property alias listaConexiones: listaConexiones
     function abrirEn(que, pestanaConexion) {
         seccion = que;
@@ -130,7 +135,10 @@ PanelWindow {
             Qt.callLater(() => listaAvisos.positionViewAtBeginning());
         }
     }
-    onMostrarChanged: if (!mostrar) seccion = "notificaciones"
+    onMostrarChanged: if (!mostrar) {
+        seccion = "notificaciones";
+        vistaContenido.contentY = 0;
+    }
 
     // Móvil (KDE Connect): lo mismo que lee el panel de avisos (scripts/movil.py estado, JSON)
     property bool movilListo: false
@@ -241,23 +249,97 @@ PanelWindow {
             anchors { fill: parent; margins: 16 }
             spacing: 8
 
-            // Cabecera: título y acciones de sesión pequeñas, siempre identificadas.
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                Text { Layout.fillWidth: true; text: ventana.seccion === "avisos" ? "Avisos" : ventana.seccion === "sonido" ? "Sonido" : "Centro de control"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 20; bold: true } }
-                BotonCompacto { text: "󰌾"; Accessible.name: "Bloquear"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.ejecutar("loginctl lock-session",true) }
-                BotonCompacto { text: "󰐥"; Accessible.name: "Opciones de apagado"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.ejecutar("wlogout",true) }
-                BotonCompacto { text: "×"; Accessible.name: "Cerrar centro de control"; Layout.preferredWidth: 32; Layout.minimumWidth: 32; implicitWidth: 32; leftPadding: 0; rightPadding: 0; onClicked: ventana.abierto = false }
+                Rectangle {
+                    visible: contenido.width >= 320
+                    implicitWidth: 36; implicitHeight: 36; radius: EstiloPanel.rControl
+                    color: Qt.alpha(Paleta.acento, .12)
+                    border { width: 1; color: Qt.alpha(Paleta.acento, .28) }
+                    Text {
+                        anchors.centerIn: parent
+                        text: ventana.g(ventana.seccion === "avisos" ? 0xF009A : ventana.seccion === "sonido" ? 0xF057E : 0xF062E)
+                        color: Paleta.acento
+                        font { family: Paleta.mono; pixelSize: EstiloPanel.t20 }
+                    }
+                }
+                Text {
+                    Layout.fillWidth: true
+                    text: ventana.seccion === "avisos" ? "Avisos" : ventana.seccion === "sonido" ? "Sonido" : "Centro de control"
+                    elide: Text.ElideRight
+                    color: Paleta.texto
+                    font { family: Paleta.fuente; pixelSize: EstiloPanel.t20; weight: Font.DemiBold }
+                }
+                Repeater {
+                    model: [{icono: "󰌾", nombre: "Bloquear", accion: () => ventana.ejecutar("loginctl lock-session", true)},
+                            {icono: "󰐥", nombre: "Opciones de apagado", accion: () => ventana.apagadoSolicitado()},
+                            {icono: "×", nombre: "Cerrar centro de control", accion: () => ventana.abierto = false}]
+                    BotonCompacto {
+                        required property var modelData
+                        text: modelData.icono
+                        Accessible.name: modelData.nombre
+                        ToolTip.visible: hovered
+                        ToolTip.delay: 600
+                        ToolTip.text: modelData.nombre
+                        implicitWidth: 32
+                        leftPadding: 0; rightPadding: 0
+                        onClicked: modelData.accion()
+                    }
+                }
             }
             NavegacionPanel {
-                opciones: [{texto:"Inicio"}, {texto:"Redes"}, {texto:"Móvil"}, {texto:"Más"}]
+                readonly property bool conIconos: width >= 340
+                opciones: [{texto:"Inicio", icono: conIconos ? ventana.g(0xF02DC) : ""},
+                           {texto:"Redes", icono: conIconos ? ventana.g(0xF05A9) : ""},
+                           {texto:"Móvil", icono: conIconos ? ventana.g(0xF0011) : ""},
+                           {texto:"Más", icono: conIconos ? ventana.g(0xF01D8) : ""}]
                 actual: panel.secciones.indexOf(ventana.seccion)
                 onElegir: indice => ventana.seccion = panel.secciones[indice]
             }
-            GridLayout {
+            Flickable {
+                id: vistaContenido
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                contentWidth: width
+                contentHeight: Math.max(height, contenido.Layout.minimumHeight)
+                interactive: contentHeight > height
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                ScrollBar.vertical: ScrollBar {
+                    parent: panel
+                    y: vistaContenido.parent.y + vistaContenido.y
+                    height: vistaContenido.height
+                    anchors { right: parent.right; rightMargin: 4 }
+                }
+            }
+        }
+
+        ColumnLayout {
+            id: contenido
+            parent: vistaContenido.contentItem
+            width: vistaContenido.contentWidth
+            height: vistaContenido.contentHeight
+            spacing: 8
+            RowLayout {
                 Layout.fillWidth: true
                 visible: ventana.seccion === "notificaciones"
+                spacing: 8
+                SelectorEnergia {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    compacto: true
+                }
+                BotonCompacto {
+                    implicitWidth: 136
+                    text: ventana.controlesVisibles ? "Menos controles  ⌃" : "Más controles  ⌄"
+                    Accessible.name: ventana.controlesVisibles ? "Plegar controles rápidos" : "Mostrar controles rápidos"
+                    onClicked: ventana.preferenciaControles = !ventana.controlesVisibles
+                }
+            }
+            GridLayout {
+                Layout.fillWidth: true
+                visible: ventana.seccion === "notificaciones" && ventana.controlesVisibles
                 columns: 2; columnSpacing: 8; rowSpacing: 8
                 Repeater {
                     model: [{cosa:"wifi",nombre:"Wi-Fi",icono:0xF0928},{cosa:"bluetooth",nombre:"Bluetooth",icono:0xF00AF}]
@@ -294,17 +376,12 @@ PanelWindow {
                 BotonCompacto { text: "Consultar"; enabled: !leerConmutadores.running; onClicked: { ventana.avisoControl = ""; leerConmutadores.running = true; } }
             }
 
-            SelectorEnergia {
-                Layout.fillWidth: true
-                visible: ventana.seccion === "notificaciones"
-            }
-
             // Sonido y brillo, juntos en una tarjeta
             TarjetaPanel {
                 Layout.fillWidth: true
                 visible: ventana.seccion === "notificaciones" || ventana.seccion === "sonido"
                 espaciado: 8
-                relleno: 12
+                relleno: ventana.seccion === "sonido" ? EstiloPanel.e3 : EstiloPanel.e2
                 Text {
                     Layout.fillWidth: true
                     visible: ventana.seccion === "sonido"
@@ -313,97 +390,127 @@ PanelWindow {
                     font { family: Paleta.fuente; pixelSize: 14; bold: true }
                     elide: Text.ElideRight
                 }
-                // Volumen general + por app
-                RowLayout {
-                Layout.fillWidth: true
-                spacing: 4
-                Deslizador {
+                GridLayout {
+                    id: controlesAudio
                     Layout.fillWidth: true
-                    readonly property bool mudo: ventana.salida?.audio?.muted ?? false
-                    icono: ventana.g(mudo ? 0xF075F : 0xF057E)
-                    nombre: "Volumen"
-                    apagado: mudo
-                    valor: ventana.salida?.audio?.volume ?? 0
-                    onMovido: (v) => { if (ventana.salida?.audio) ventana.salida.audio.volume = v; }
-                    onIconoPulsado: { if (ventana.salida?.audio) ventana.salida.audio.muted = !mudo; }
-                }
-                BotonCompacto {
-                    text: ventana.sonidoAmpliado ? "⌃" : "⌄"
-                    Accessible.name: ventana.sonidoAmpliado ? "Cerrar mezclador y dispositivos" : "Mezclador y dispositivos"
-                    ToolTip.visible: hovered; ToolTip.delay: 500
-                    ToolTip.text: ventana.sonidoAmpliado ? "Cerrar mezclador" : "Mezclador por app y salidas"
-                    onClicked: ventana.sonidoAmpliado = !ventana.sonidoAmpliado
-                }
-                }
-                Repeater {
-                    model: ventana.sonidoAmpliado && !EstadoEscritorio.privacidad ? ventana.apps : []
+                    readonly property bool brilloEnFila: ventana.seccion === "notificaciones" && width >= 336
+                    columns: brilloEnFila ? 3 : 2
+                    columnSpacing: 8
+                    rowSpacing: 8
                     Deslizador {
-                        required property var modelData
                         Layout.fillWidth: true
-                        Layout.leftMargin: 14
-                        icono: ventana.g(0xF075A)
-                        etiqueta: modelData.properties["application.name"] || modelData.description || modelData.name
-                        apagado: modelData.audio.muted
-                        valor: modelData.audio.volume
-                        onMovido: (v) => modelData.audio.volume = v
-                        onIconoPulsado: modelData.audio.muted = !modelData.audio.muted
+                        Layout.preferredWidth: 1
+                        readonly property bool mudo: ventana.salida?.audio?.muted ?? false
+                        icono: ventana.g(mudo ? 0xF075F : 0xF057E)
+                        nombre: "Volumen"
+                        apagado: mudo
+                        valor: ventana.salida?.audio?.volume ?? 0
+                        onMovido: (v) => { if (ventana.salida?.audio) ventana.salida.audio.volume = v; }
+                        onIconoPulsado: { if (ventana.salida?.audio) ventana.salida.audio.muted = !mudo; }
                     }
-                }
-
-                // Salida de audio: un chip por dispositivo; clic = sonar por ahí (solo si hay más de uno)
-                Flow {
-                    Layout.fillWidth: true
-                    spacing: 4
-                    visible: ventana.sonidoAmpliado && ventana.salidas.length > 1
-                    Repeater {
-                        model: ventana.salidas
-                        Rectangle {
-                            required property var modelData
-                            readonly property bool actual: modelData === ventana.salida
-                            width: filaSalida.implicitWidth + 22; height: 28; radius: height / 2
-                            color: actual ? Qt.alpha(Paleta.acento, 0.22) : Qt.alpha(Paleta.texto, zonaSalida.containsMouse ? 0.10 : 0.05)
-                            border { width: 1; color: actual ? Qt.alpha(Paleta.acento, .55) : EstiloPanel.borde }
-                            Row {
-                                id: filaSalida
-                                anchors.centerIn: parent
-                                spacing: 4
-                                Text { text: ventana.iconoSalida(modelData); color: actual ? Paleta.acento : Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
-                                Text {
-                                    text: (modelData.nickname || modelData.description || modelData.name).replace(/ (Analog|Digital) Stereo$/, "")
-                                    color: actual ? Paleta.texto : Paleta.gris
-                                    font { family: Paleta.fuente; pixelSize: 11; bold: actual }
-                                }
-                            }
-                            MouseArea { id: zonaSalida; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                        onClicked: Pipewire.preferredDefaultAudioSink = modelData }
+                    BotonCompacto {
+                        text: ventana.sonidoAmpliado ? "⌃" : "⌄"
+                        implicitWidth: 32
+                        leftPadding: 0; rightPadding: 0
+                        Accessible.name: ventana.sonidoAmpliado ? "Cerrar mezclador y dispositivos" : "Mezclador y dispositivos"
+                        ToolTip.visible: hovered; ToolTip.delay: 500
+                        ToolTip.text: ventana.sonidoAmpliado ? "Cerrar mezclador" : "Mezclador por app y salidas"
+                        onClicked: ventana.sonidoAmpliado = !ventana.sonidoAmpliado
+                    }
+                    Deslizador {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        Layout.columnSpan: controlesAudio.brilloEnFila ? 1 : 2
+                        icono: ventana.g(0xF00E0)
+                        visible: ventana.seccion !== "sonido"
+                        nombre: "Brillo"
+                        valor: ventana.brillo
+                        onMovido: (v) => {
+                            const p = Math.max(5, Math.round(v * 100));        // nunca a 0 (pantalla negra)
+                            ventana.brillo = p / 100;
+                            Quickshell.execDetached(["brightnessctl", "set", p + "%"]);
                         }
                     }
                 }
-
-                // Micrófono (clic en el icono = silenciar / activar)
-                Deslizador {
+                Flickable {
+                    id: mezclador
+                    readonly property bool muestraApps: ventana.sonidoAmpliado && !EstadoEscritorio.privacidad && ventana.apps.length > 0
+                    readonly property bool muestraSalidas: ventana.sonidoAmpliado && ventana.salidas.length > 1
+                    readonly property bool muestraMicro: ventana.entrada?.audio !== undefined
+                        && (ventana.sonidoAmpliado || microfono.mudo || ventana.microEnUso)
+                    visible: muestraApps || muestraSalidas || muestraMicro
                     Layout.fillWidth: true
-                    visible: ventana.entrada?.audio !== undefined && (ventana.sonidoAmpliado || mudo || ventana.microEnUso)
-                    readonly property bool mudo: ventana.entrada?.audio?.muted ?? true
-                    icono: ventana.g(mudo ? 0xF036D : 0xF036C)
-                    nombre: "Micrófono"
-                    apagado: mudo
-                    valor: ventana.entrada?.audio?.volume ?? 0
-                    onMovido: (v) => { if (ventana.entrada?.audio) ventana.entrada.audio.volume = v; }
-                    onIconoPulsado: { if (ventana.entrada?.audio) ventana.entrada.audio.muted = !mudo; }
-                }
+                    // En Inicio el mezclador se desplaza dentro de su tarjeta y deja espacio para los avisos.
+                    Layout.preferredHeight: ventana.seccion === "sonido" ? contentHeight
+                        : Math.min(contentHeight, ventana.inicioCompacto ? 48 : 120)
+                    contentWidth: width
+                    contentHeight: detallesSonido.implicitHeight
+                    interactive: contentHeight > height
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    ScrollBar.vertical: ScrollBar {}
+                    ColumnLayout {
+                        id: detallesSonido
+                        width: mezclador.contentWidth
+                        spacing: 8
+                        Repeater {
+                            model: mezclador.muestraApps ? ventana.apps : []
+                            Deslizador {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                Layout.leftMargin: 14
+                                icono: ventana.g(0xF075A)
+                                etiqueta: modelData.properties["application.name"] || modelData.description || modelData.name
+                                apagado: modelData.audio.muted
+                                valor: modelData.audio.volume
+                                onMovido: (v) => modelData.audio.volume = v
+                                onIconoPulsado: modelData.audio.muted = !modelData.audio.muted
+                            }
+                        }
 
-                // Brillo
-                Deslizador {
-                    Layout.fillWidth: true
-                    icono: ventana.g(0xF00E0)
-                    visible: ventana.seccion !== "sonido"
-                    nombre: "Brillo"
-                    valor: ventana.brillo
-                    onMovido: (v) => {
-                        const p = Math.max(5, Math.round(v * 100));        // nunca a 0 (pantalla negra)
-                        ventana.brillo = p / 100;
-                        Quickshell.execDetached(["brightnessctl", "set", p + "%"]);
+                        // Salida de audio: un chip por dispositivo; clic = sonar por ahí (solo si hay más de uno)
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            visible: mezclador.muestraSalidas
+                            Repeater {
+                                model: ventana.salidas
+                                Rectangle {
+                                    required property var modelData
+                                    readonly property bool actual: modelData === ventana.salida
+                                    width: filaSalida.implicitWidth + 22; height: 28; radius: height / 2
+                                    color: actual ? Qt.alpha(Paleta.acento, 0.22) : Qt.alpha(Paleta.texto, zonaSalida.containsMouse ? 0.10 : 0.05)
+                                    border { width: 1; color: actual ? Qt.alpha(Paleta.acento, .55) : EstiloPanel.borde }
+                                    Row {
+                                        id: filaSalida
+                                        anchors.centerIn: parent
+                                        spacing: 4
+                                        Text { text: ventana.iconoSalida(modelData); color: actual ? Paleta.acento : Paleta.gris; font { family: Paleta.fuente; pixelSize: 12 } }
+                                        Text {
+                                            text: (modelData.nickname || modelData.description || modelData.name).replace(/ (Analog|Digital) Stereo$/, "")
+                                            color: actual ? Paleta.texto : Paleta.gris
+                                            font { family: Paleta.fuente; pixelSize: 11; bold: actual }
+                                        }
+                                    }
+                                    MouseArea { id: zonaSalida; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                                onClicked: Pipewire.preferredDefaultAudioSink = modelData }
+                                }
+                            }
+                        }
+
+                        // Micrófono (clic en el icono = silenciar / activar)
+                        Deslizador {
+                            id: microfono
+                            Layout.fillWidth: true
+                            visible: mezclador.muestraMicro
+                            readonly property bool mudo: ventana.entrada?.audio?.muted ?? true
+                            icono: ventana.g(mudo ? 0xF036D : 0xF036C)
+                            nombre: "Micrófono"
+                            apagado: mudo
+                            valor: ventana.entrada?.audio?.volume ?? 0
+                            onMovido: (v) => { if (ventana.entrada?.audio) ventana.entrada.audio.volume = v; }
+                            onIconoPulsado: { if (ventana.entrada?.audio) ventana.entrada.audio.muted = !mudo; }
+                        }
                     }
                 }
             }
@@ -421,39 +528,79 @@ PanelWindow {
                 Layout.fillHeight: true
                 visible: ventana.seccion === "notificaciones" || ventana.seccion === "avisos"
                 spacing: 8
-                RowLayout {
+                TarjetaPanel {
                     Layout.fillWidth: true
-                    Layout.leftMargin: 4
-                    spacing: 8
-                    Text {
-                        text: ventana.g(Notificaciones.noMolestar ? 0xF009B : 0xF009A)
-                        color: Notificaciones.noMolestar ? Paleta.acento : Paleta.gris
-                        font { family: Paleta.fuente; pixelSize: 16 }
-                    }
-                    ColumnLayout {
+                    relleno: EstiloPanel.e2
+                    acento: Notificaciones.noMolestar ? Paleta.acento : Paleta.texto
+                    RowLayout {
                         Layout.fillWidth: true
-                        spacing: 0
-                        Text { Layout.fillWidth: true; text: "No molestar"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
-                        Text { Layout.fillWidth: true; text: Notificaciones.explicacion; elide: Text.ElideRight; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 11 } }
-                    }
-                    SelectorPanel {
-                        Layout.preferredWidth: 120
-                        model: [{texto:"Pausar…",valor:""},{texto:"30 minutos",valor:"30"},{texto:"1 hora",valor:"60"},
-                            ...(Concentracion.activo ? [{texto:"Hasta fin de concentración",valor:"concentracion"}] : []),...(Reunion.activa ? [{texto:"Hasta fin de reunión",valor:"reunion"}] : []),{texto:"Hasta desactivar",valor:"siempre"},{texto:"Quitar pausa manual",valor:"off"}]
-                        textRole:"texto"; valueRole:"valor"
-                        currentIndex:0
-                        onActivated: { if (currentValue) Notificaciones.pausar(currentValue); currentIndex=0; }
-                    }
-                    Interruptor {
-                        activo: Notificaciones.manual
-                        acento: Paleta.acento
-                        Accessible.name: "No molestar"
-                        onAlternado: Notificaciones.alternarNoMolestar()
+                        spacing: 8
+                        Rectangle {
+                            visible: contenido.width >= 320
+                            implicitWidth: 32; implicitHeight: 32; radius: EstiloPanel.rControl
+                            color: Notificaciones.noMolestar ? Qt.alpha(Paleta.acento, .16) : EstiloPanel.elevada
+                            border { width: 1; color: Notificaciones.noMolestar ? Qt.alpha(Paleta.acento, .32) : EstiloPanel.borde }
+                            Text {
+                                anchors.centerIn: parent
+                                text: ventana.g(Notificaciones.noMolestar ? 0xF009B : 0xF009A)
+                                color: Notificaciones.noMolestar ? Paleta.acento : Paleta.gris
+                                font { family: Paleta.mono; pixelSize: EstiloPanel.t16 }
+                            }
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
+                            Text { Layout.fillWidth: true; text: "No molestar"; elide: Text.ElideRight; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 13; bold: true } }
+                            Text {
+                                Layout.fillWidth: true
+                                text: Notificaciones.explicacion
+                                wrapMode: Text.Wrap
+                                maximumLineCount: 2
+                                elide: Text.ElideRight
+                                color: EstiloPanel.tenue
+                                font { family: Paleta.fuente; pixelSize: EstiloPanel.t11 }
+                            }
+                        }
+                        SelectorPanel {
+                            Layout.preferredWidth: 112
+                            model: [{texto:"Pausar…",valor:""},{texto:"30 minutos",valor:"30"},{texto:"1 hora",valor:"60"},
+                                ...(Concentracion.activo ? [{texto:"Hasta fin de concentración",valor:"concentracion"}] : []),...(Reunion.activa ? [{texto:"Hasta fin de reunión",valor:"reunion"}] : []),{texto:"Hasta desactivar",valor:"siempre"},{texto:"Quitar pausa manual",valor:"off"}]
+                            textRole:"texto"; valueRole:"valor"
+                            currentIndex:0
+                            onActivated: { if (currentValue) Notificaciones.pausar(currentValue); currentIndex=0; }
+                        }
+                        Interruptor {
+                            activo: Notificaciones.manual
+                            acento: Paleta.acento
+                            Accessible.name: "No molestar"
+                            onAlternado: Notificaciones.alternarNoMolestar()
+                        }
                     }
                 }
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { Layout.fillWidth: true; text: "Avisos · " + Notificaciones.lista.length; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 12 } }
+                    spacing: 8
+                    Text {
+                        text: ventana.seccion === "avisos"
+                            ? Notificaciones.lista.length + (Notificaciones.lista.length === 1 ? " aviso" : " avisos") : "Avisos"
+                        color: Paleta.texto
+                        font { family: Paleta.fuente; pixelSize: EstiloPanel.t14; weight: Font.DemiBold }
+                    }
+                    Rectangle {
+                        visible: ventana.seccion !== "avisos" && Notificaciones.lista.length > 0
+                        implicitWidth: Math.max(24, cuentaAvisos.implicitWidth + 12)
+                        implicitHeight: 20; radius: height / 2
+                        color: EstiloPanel.elevada
+                        border { width: 1; color: EstiloPanel.borde }
+                        Text {
+                            id: cuentaAvisos
+                            anchors.centerIn: parent
+                            text: Notificaciones.lista.length
+                            color: EstiloPanel.secundario
+                            font { family: Paleta.mono; pixelSize: EstiloPanel.t11 }
+                        }
+                    }
+                    Item { Layout.fillWidth: true }
                     Text {
                         visible: Notificaciones.pendientes.length > 0
                         text: "Avisos borrados"
@@ -461,13 +608,14 @@ PanelWindow {
                         font { family: Paleta.fuente; pixelSize: 12 }
                     }
                     BotonCompacto { text: "Deshacer"; visible: Notificaciones.pendientes.length > 0; onClicked: Notificaciones.deshacerBorrado() }
-                    BotonCompacto { text: "Borrar todo"; visible: Notificaciones.lista.length > 0; onClicked: Notificaciones.borrarTodo() }
+                    BotonCompacto { text: "Borrar todo"; acento: Paleta.peligro; visible: Notificaciones.lista.length > 0; onClicked: Notificaciones.borrarTodo() }
                 }
                 ListView {
                     id: listaAvisos
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.minimumHeight: 180      // siempre caben al menos tres grupos de avisos
+                    Layout.minimumHeight: 72       // deja espacio para un grupo incluso con el mezclador abierto
+                    Layout.preferredHeight: 180
                     clip: true
                     spacing: 8
                     ScrollBar.vertical: ScrollBar {}

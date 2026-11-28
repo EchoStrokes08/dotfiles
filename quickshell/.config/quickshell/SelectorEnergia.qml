@@ -6,6 +6,7 @@ import Quickshell.Services.UPower
 TarjetaPanel {
     id: energia
     property string aviso: ""
+    property bool compacto: false
     readonly property var opciones: {
         const perfiles = [
             {nombre: "Ahorro de energía", id: "power-saver", perfil: PowerProfile.PowerSaver},
@@ -22,7 +23,7 @@ TarjetaPanel {
         cambio.destino = opciones[indice].id;
         cambio.running = true;
     }
-    relleno: 12
+    relleno: compacto ? EstiloPanel.e2 : EstiloPanel.e3
     espaciado: 8
     RowLayout {
         Layout.fillWidth: true
@@ -48,6 +49,7 @@ TarjetaPanel {
     }
     Text {
         Layout.fillWidth: true
+        visible: !energia.compacto || cambio.running
         text: cambio.running ? "Aplicando perfil…"
             : PowerProfiles.profile === PowerProfile.Performance ? "Máxima potencia disponible · mayor consumo y calor."
             : PowerProfiles.profile === PowerProfile.PowerSaver ? "Prioriza la autonomía y reduce el consumo."

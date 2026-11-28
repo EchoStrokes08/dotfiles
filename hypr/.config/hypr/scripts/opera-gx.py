@@ -9,9 +9,16 @@ Este script arma un mod con la paleta activa y lo carga al abrir Opera:
     sonidos    ninguno: sin música de fondo ni teclas que suenan
 
 El mod se escribe en ~/.local/share/opera-gx-orion (generado: no editar) y se carga con
---load-extension. Al cambiar de tema se ve la próxima vez que abras Opera (como en Firefox).
+--load-extension. Al cambiar de tema se ve la próxima vez que abras Opera (como en Firefox):
+un mod desempaquetado no se recarga en marcha, así que la sincronización automática nunca
+reinicia Opera. Si quieres verlo al momento, reinícialo tú.
     opera-gx.py [direcciones…]    genera el mod y abre Opera GX
     opera-gx.py --solo-generar    solo genera (para pruebas)
+    opera-gx.py --sincronizar     deja el mod al día con el tema del sistema sin tocar Opera si
+                                  está abierto (lo llama tema.py en cada cambio de tema o wallpaper,
+                                  incluida la rotación automática). Se ve al próximo arranque.
+    opera-gx.py --reiniciar       reaplica el tema ahora mismo: regenera el mod y, si Opera está
+                                  abierto, lo reinicia restaurando la sesión (hazlo tú a mano).
 """
 import colorsys
 import hashlib
@@ -21,11 +28,13 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ESTADO = Path.home() / ".local/state/tema"
 MOD = Path.home() / ".local/share/opera-gx-orion"
 PREFS = Path.home() / ".config/opera-gx/Default/Preferences"
+PERFIL = Path.home() / ".config/opera-gx"   # donde Opera deja su SingletonLock
 
 # Ayu: respaldo si todavía no hay paleta generada
 RESPALDO = {"fondo": "0e1419", "texto": "e5e1cf", "acento": "f19618", "seleccion": "243340", "gris": "5c6773"}
@@ -136,19 +145,114 @@ def activar():
     tmp.replace(PREFS)
 
 
+def pids():
+    r = subprocess.run(["pgrep", "-x", "opera"], capture_output=True, text=True)
+    return [int(x) for x in r.stdout.split()]
+
+
 def abierto():
-    return subprocess.run(["pgrep", "-x", "opera"], capture_output=True).returncode == 0
+    return bool(pids())
+
+
+def lanzar(args):
+    os.execvp("opera-gx", ["opera-gx", f"--load-extension={MOD}", "--ozone-platform-hint=auto",
+                           "--enable-features=TouchpadOverscrollHistoryNavigation", *args])
+
+
+def lanzar_suelto(args):
+    """Como lanzar(), pero sin reemplazar este proceso: Opera queda desvinculado de la terminal
+    (sesión nueva, sin heredar stdio) para que sobreviva al cierre de la consola. Para --reiniciar,
+    que se ejecuta desde una terminal y no debe morir con ella."""
+    with open(os.devnull, "r+b") as nulo:
+        subprocess.Popen(["opera-gx", f"--load-extension={MOD}", "--ozone-platform-hint=auto",
+                          "--enable-features=TouchpadOverscrollHistoryNavigation", *args],
+                         stdin=nulo, stdout=nulo, stderr=nulo, start_new_session=True)
+
+
+def lock_huerfano():
+    """SingletonLock apunta a HOST-PID; es huérfano si ese PID ya no existe. Opera no arranca si
+    queda un lock vivo de otra instancia, y al cerrarse a veces tarda en soltarlo o lo deja colgado."""
+    lock = PERFIL / "SingletonLock"
+    try:
+        destino = os.readlink(lock)
+    except OSError:
+        return False   # no hay lock
+    pid = destino.rsplit("-", 1)[-1]
+    if not pid.isdigit():
+        return False
+    try:
+        os.kill(int(pid), 0)   # señal 0: solo comprueba si el proceso existe
+    except ProcessLookupError:
+        return True
+    except PermissionError:
+        return False   # existe pero no es nuestro: no tocar
+    return False
+
+
+def cerrar_limpio(espera=10.0):
+    """Cierra Opera con SIGTERM y espera a que salga y suelte su SingletonLock, para que guarde la
+    sesión (sin SIGKILL: un cierre forzado haría aparecer el aviso de restaurar y perder la sesión)
+    y para que el nuevo Opera no vea un lock vivo. Si el lock queda huérfano, lo borra.
+    Devuelve True si no quedó ningún proceso."""
+    vivos = pids()
+    for pid in vivos:
+        try:
+            os.kill(pid, 15)   # SIGTERM: cierre ordenado
+        except ProcessLookupError:
+            pass
+    fin = time.monotonic() + espera
+    while time.monotonic() < fin:
+        if not abierto() and not lock_huerfano():
+            break
+        time.sleep(0.2)
+    if abierto():
+        return False
+    if lock_huerfano():   # Opera salió pero dejó el lock colgado: quitarlo para que el nuevo arranque
+        (PERFIL / "SingletonLock").unlink(missing_ok=True)
+    return True
+
+
+def sincronizar():
+    """Deja el mod al día con el tema del sistema SIN tocar Opera si está abierto. Un mod
+    desempaquetado no se recarga en marcha, así que, como Firefox, el cambio se ve la próxima vez
+    que abras Opera. Con Opera cerrado además lo elige ya en Preferences. Lo llama tema.py en cada
+    cambio de tema o de wallpaper (incluida la rotación automática), por eso aquí no se reinicia:
+    para forzar el reinicio y verlo al momento, usa --reiniciar."""
+    generar()
+    if not abierto():
+        activar()
+    return 0
+
+
+def reiniciar():
+    """Reaplica el tema del sistema reiniciando Opera (a mano). Regenera el mod, cierra Opera
+    guardando la sesión y lo reabre restaurándola (activar() dejó restore_on_startup=1). Con Opera
+    cerrado equivale a --sincronizar."""
+    if not abierto():
+        generar()
+        activar()
+        return 0
+    if not cerrar_limpio():
+        print("opera-gx: Opera sigue abierto; no se reinició para sincronizar el tema", file=sys.stderr)
+        return 1
+    generar()
+    activar()   # ahora que está cerrado, elige el mod en Preferences
+    lanzar_suelto([])   # desvinculado de la terminal: Opera sobrevive al cierre de la consola
+    return 0
 
 
 def main(args):
     if "--solo-generar" in args:
         generar()
         return 0
+    if "--sincronizar" in args:
+        return sincronizar()
+    if "--reiniciar" in args:
+        return reiniciar()
     if not abierto():   # con Opera abierto solo se le pasan las direcciones (no tocar su mod en marcha)
         generar()
         activar()
-    os.execvp("opera-gx", ["opera-gx", f"--load-extension={MOD}", "--ozone-platform-hint=auto",
-                           "--enable-features=TouchpadOverscrollHistoryNavigation", *args])
+    lanzar(args)
 
 
 if __name__ == "__main__":

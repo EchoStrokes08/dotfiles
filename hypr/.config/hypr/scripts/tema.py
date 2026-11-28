@@ -207,6 +207,13 @@ def recargar(variante, anterior):
                  ["pkill","-SIGUSR1","-x","kitty"]):
         try: subprocess.run(args,timeout=5,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
         except (OSError,subprocess.TimeoutExpired): pass
+    # Opera no lee el mod en marcha: --sincronizar solo deja el mod al día (se ve al próximo
+    # arranque, como Firefox) y nunca reinicia Opera, para no cerrarlo en la rotación de wallpaper.
+    # En segundo plano para no bloquear. Para verlo al momento: opera-gx.py --reiniciar.
+    try:
+        subprocess.Popen([str(HOME/".config/hypr/scripts/opera-gx.py"),"--sincronizar"],
+                         stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    except OSError: pass
     if variante != anterior:
         for clave, valor in (("color-scheme","prefer-light" if variante=="claro" else "prefer-dark"),
                              ("gtk-theme","adw-gtk3" if variante=="claro" else "adw-gtk3-dark")):

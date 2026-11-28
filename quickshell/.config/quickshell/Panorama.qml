@@ -20,7 +20,10 @@ PanelWindow {
         && EstadoEscritorio.datos.juego_activo !== "true"
     readonly property real dpr: screen?.devicePixelRatio ?? 1
 
-    visible: permitido && ruta !== ""
+    // Siempre mapeada (transparente y sin clics): mostrar/ocultar un PanelWindow con `visible` lo destruye
+    // y lo recrea, y si en ese instante cambia una imagen o un texto Quickshell se cae (26-nov, al cerrar un
+    // juego). Se apaga el contenido; tests/test_estilo.py lo vigila.
+    contentItem.visible: permitido && ruta !== ""
     color: "transparent"
     anchors { top: true; bottom: true; left: true; right: true }
     exclusionMode: ExclusionMode.Ignore

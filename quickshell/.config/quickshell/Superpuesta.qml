@@ -118,30 +118,30 @@ PanelWindow {
         // Destello al abrir: una luz recorre una vez el filo superior de la tarjeta, como un reflejo en el cristal
         Item {
             id: destello
-            property real p: -.3
-            visible: EstiloPanel.profundidad && p > -.3 && p < 1.3
-            x: EstiloPanel.rPanel; y: 0
-            width: tarjeta.width - 2 * EstiloPanel.rPanel; height: 2
+            property real avance: 0
+            visible: EstiloPanel.profundidad && barrido.running
+            x: EstiloPanel.rPanel * .8
+            y: 1
+            width: Math.max(0, tarjeta.width - 2 * x)
+            height: 3
+            clip: true
+
             Rectangle {
-                anchors.fill: parent
+                width: Math.min(150, destello.width * .38)
+                height: 2
+                x: (destello.width + width) * destello.avance - width
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: Math.max(0, destello.p - .18); color: "transparent" }
-                    GradientStop { position: Math.min(1, Math.max(0, destello.p)); color: Qt.alpha(Qt.lighter(v.acentoPanel, 1.5), .95) }
-                    GradientStop { position: Math.min(1, destello.p + .18); color: "transparent" }
+                    GradientStop { position: 0; color: "transparent" }
+                    GradientStop { position: .5; color: Qt.alpha(Qt.lighter(v.acentoPanel, 1.35), .85) }
+                    GradientStop { position: 1; color: "transparent" }
                 }
-            }
-            RectangularShadow {   // el resplandor que deja la luz al pasar
-                x: destello.width * destello.p - 40; width: 80
-                y: -2; height: 6
-                radius: EstiloPanel.rPunto; blur: 14
-                color: Qt.alpha(v.acentoPanel, .55)
             }
             SequentialAnimation {
                 id: barrido
-                PropertyAction { target: destello; property: "p"; value: -.3 }
+                PropertyAction { target: destello; property: "avance"; value: 0 }
                 PauseAnimation { duration: 90 }
-                NumberAnimation { target: destello; property: "p"; to: 1.3; duration: 900; easing.type: Easing.InOutCubic }
+                NumberAnimation { target: destello; property: "avance"; to: 1; duration: 760 }
             }
         }
         Connections {

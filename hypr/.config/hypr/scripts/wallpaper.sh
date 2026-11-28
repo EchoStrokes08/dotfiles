@@ -6,6 +6,7 @@
 #   wallpaper.sh restaurar     -> al iniciar sesión: vuelve a poner el último elegido (sin transición)
 # El fondo lo pinta awww (awww-daemon): cambia con TRANSICIÓN. A mano, el fondo nuevo crece desde el
 # cursor; en la rotación automática entra con un barrido suave; con batería, un fundido corto.
+# Los perfiles Mínimo y Rendimiento y el modo juego aplican el fondo directamente.
 # Si awww-daemon no corre, se usa hyprpaper (respaldo).
 # Las miniaturas se crean una vez con ffmpeg en ~/.cache/wallpapers-mini (fuzzel solo muestra PNG/SVG).
 # El wallpaper elegido queda enlazado en ~/.local/state/tema/wallpaper (se restaura al arrancar)
@@ -21,12 +22,23 @@ TEMA="$HOME/.config/hypr/scripts/tema.sh"
 
 con_bateria() { grep -qs 0 /sys/class/power_supply/A{DP,C}*/online; }
 
+sin_transicion() {
+    local estado="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr-escritorio-${HYPRLAND_INSTANCE_SIGNATURE:-}.state"
+    grep -qEx 'perfil=(minimo|rendimiento)|juego_activo=true' "$estado" 2>/dev/null
+}
+
 pintar() {   # pintar <ruta> <estilo: cursor|barrido|nada>
     if ! pgrep -x awww-daemon >/dev/null; then
         hyprctl hyprpaper wallpaper "$MONITOR, $1, cover" >/dev/null; return
     fi
     local estilo="$2"
-    [ "$estilo" != nada ] && con_bateria && estilo=fundido
+    if [ "$estilo" != nada ]; then
+        if sin_transicion; then
+            estilo=nada
+        elif con_bateria; then
+            estilo=fundido
+        fi
+    fi
     case "$estilo" in
         cursor)   # crece en círculo desde donde está el cursor (posición en % de la pantalla)
             local pos

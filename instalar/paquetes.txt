@@ -152,10 +152,6 @@ vulkan-radeon
 vulkan-tools
 wf-recorder
 wget
-wine
-wine-gecko
-wine-mono
-winetricks
 wireplumber
 wl-clipboard
 wtype

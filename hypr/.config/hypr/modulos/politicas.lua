@@ -2,11 +2,15 @@
 local M = {}
 M.perfiles = { cristal = true, lectura = true, minimo = true, rendimiento = true }
 -- Ventanas que activan el modo juego automático: Roblox (Sober), los juegos de Steam (Proton: steam_app_<id>)
--- y los que van dentro de gamescope (FSR, scripts/juego-fsr.sh)
+-- y los que van dentro de gamescope (FSR, scripts/juego-fsr.sh). También Wine: sus ventanas X11 llevan
+-- de class el ejecutable («juego.exe»), y Heroic (Epic/GOG) marca el proceso con HEROIC_APP_NAME
+-- (con GE-Proton vía umu la class puede ser «steam_app_default»).
 function M.es_juego(clase, entorno)
     return clase == "org.vinegarhq.Sober" or clase == "gamescope"
-        or (type(clase) == "string" and clase:match("^steam_app_%d+$") ~= nil)
-        or (type(entorno) == "string" and ("\0" .. entorno):match("%zSteamAppId=[1-9]%d*%z") ~= nil)
+        or (type(clase) == "string" and (clase:match("^steam_app_%d+$") ~= nil
+            or clase == "steam_app_default" or clase:lower():match("^[^/]+%.exe$") ~= nil))
+        or (type(entorno) == "string" and (("\0" .. entorno):match("%zSteamAppId=[1-9]%d*%z") ~= nil
+            or ("\0" .. entorno):match("%zHEROIC_APP_NAME=[^%z]") ~= nil))
 end
 M.base = {
     general = { gaps_in = 4, gaps_out = 8, border_size = 2 },

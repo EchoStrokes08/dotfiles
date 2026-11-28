@@ -13,3 +13,40 @@ scrolloff      = 5
 # Imágenes: kitty las pinta de verdad (protocolo gráfico de kitty), no con caracteres
 max_width  = 1200
 max_height = 1200
+
+[opener]
+# Abrir/reproducir con la app por defecto; abrir.sh esconde antes el scratchpad para que
+# la app no quede tapada detrás de yazi, y si no hay app muestra un menú «Abrir con».
+# Los textos y el código siguen abriéndose en nvim dentro de yazi (Enter); O da más opciones.
+open = [
+	{ run = '~/.config/yazi/abrir.sh %s1', desc = "Abrir", for = "linux", orphan = true },
+]
+play = [
+	{ run = '~/.config/yazi/abrir.sh %s1', desc = "Reproducir", for = "linux", orphan = true },
+	{ run = "mediainfo %s1; echo 'Enter para salir'; read _", block = true, desc = "Info del medio", for = "unix" },
+]
+# Editor fijo: el scratchpad lo lanza Hyprland, sin $EDITOR de zsh, y yazi caía en `vi` (no instalado)
+edit = [
+	{ run = 'nvim %s', desc = "nvim", for = "unix", block = true },
+]
+elegir = [
+	{ run = '~/.config/yazi/abrir.sh --elegir %s1', desc = "Abrir con…", for = "linux", orphan = true },
+]
+
+[open]
+# yazi averigua el tipo con `file`, que se equivoca con algunos: un .docx/.pptx/.xlsx/.apk/.jar
+# «es un zip» (yazi lo descomprimía) y un .circ o un .html «es texto» (se abría en nvim).
+# Estas reglas van antes que las de yazi y los mandan a su programa.
+prepend_rules = [
+	{ url = "*.{docx,xlsx,pptx,doc,xls,ppt,odt,ods,odp,odg,rtf,epub,apk,jar,pkt,pka,circ,html,htm,svg,csv}", use = [ "open", "elegir", "edit", "reveal" ] },
+	# Comprimidos: abrirlos (File Roller); descomprimir queda en O
+	{ mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", use = [ "open", "extract", "elegir", "reveal" ] },
+	# El resto, igual que yazi pero con «Abrir con…» en O
+	{ mime = "text/*", use = [ "edit", "elegir", "open", "reveal" ] },
+	{ mime = "application/{json,ndjson,javascript,xml,x-shellscript}", use = [ "edit", "elegir", "open", "reveal" ] },
+	{ mime = "image/*", use = [ "open", "elegir", "reveal" ] },
+	{ mime = "{audio,video}/*", use = [ "play", "elegir", "reveal" ] },
+	{ mime = "inode/empty", use = [ "edit", "elegir", "reveal" ] },
+	{ mime = "folder/*", use = [ "edit", "open", "reveal" ] },
+	{ url = "*", use = [ "open", "elegir", "edit", "reveal" ] },
+]

@@ -126,8 +126,9 @@ function M.alternar_juego()
 end
 function M.juego_activo() return motor.resolver(e).juego end
 function M.ventanas_cambiaron(excluida)
+    local anteriores = table.concat(ventanas_juego, ",")
     detectar_juegos(excluida)
-    M.sincronizar()
+    if table.concat(ventanas_juego, ",") ~= anteriores then M.sincronizar() end
 end
 leer()
 detectar()

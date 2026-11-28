@@ -37,6 +37,11 @@ IslaBarra {
     readonly property real fraccionZen: Math.max(0, Math.min(1, Concentracion.restante / Math.max(1, Concentracion.minutos * 60)))
 
     function g(cp) { return String.fromCodePoint(cp); }
+    // segundos → «3:07» (o «1:02:45» si pasa de una hora)
+    function tiempo(seg) {
+        const t = Math.max(0, Math.floor(seg)), h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
+        return (h > 0 ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s).padStart(2, "0");
+    }
 
 
 
@@ -146,7 +151,8 @@ IslaBarra {
                             height: 3 + (Isla.ondas[index + 2] / 100) * 13
                             anchors.verticalCenter: parent.verticalCenter
                             color: Qt.tint(Paleta.acento, Qt.alpha(Paleta.aviso, index / 8))
-                            Behavior on height { NumberAnimation { duration: 60 } }
+                            // cava llega a 60 fps; SmoothedAnimation conserva la velocidad al cambiar de destino
+                            Behavior on height { SmoothedAnimation { velocity: -1; duration: 90 } }
                         }
                     }
                 }
@@ -312,15 +318,15 @@ IslaBarra {
 
         anchor.window: reloj.ventana
         anchor.rect.x: reloj.mapToItem(null, 0, 0).x + reloj.width / 2 - implicitWidth / 2
-        anchor.rect.y: reloj.mapToItem(null, 0, 0).y
+        anchor.rect.y: reloj.mapToItem(null, 0, 0).y + reloj.height + 6   // debajo de la isla, sin taparla
         implicitWidth: 360
-        implicitHeight: 150
+        implicitHeight: 168
         color: "transparent"
 
         Item {
             id: tarjetaMini
             x: 12; y: 0
-            width: parent.width - 24; height: 128
+            width: parent.width - 24; height: 146
             transformOrigin: Item.Top
             // nace con el tamaño de la isla y crece con rebote
             scale: mini.abierto ? 1 : .55
@@ -382,6 +388,21 @@ IslaBarra {
                             width: parent.width * Math.min(1, (Isla.jugador?.position ?? 0) / Math.max(1, Isla.jugador?.length ?? 1))
                             color: Paleta.acento
                             Behavior on width { NumberAnimation { duration: 900 } }
+                        }
+                    }
+                    RowLayout {   // tiempos: transcurrido · total
+                        Layout.fillWidth: true
+                        visible: (Isla.jugador?.lengthSupported ?? false) && Isla.jugador.length > 0
+                        Text {
+                            text: reloj.tiempo(Isla.jugador?.position ?? 0)
+                            color: EstiloPanel.tenue
+                            font { family: Paleta.fuente; pixelSize: 11; weight: Font.Medium; features: { "tnum": 1 } }
+                        }
+                        Item { Layout.fillWidth: true }
+                        Text {
+                            text: reloj.tiempo(Isla.jugador?.length ?? 0)
+                            color: EstiloPanel.tenue
+                            font { family: Paleta.fuente; pixelSize: 11; weight: Font.Medium; features: { "tnum": 1 } }
                         }
                     }
                 }
