@@ -1,5 +1,5 @@
 // Lado derecho de la barra. Siempre: bandeja · volumen · red (solo icono) · batería · avisos.
-// Solo cuando importan: grabación, móvil con batería baja, actualizaciones, Buds conectados,
+// Solo cuando importan: grabación, cámara en uso (Camara.qml), móvil con batería baja, actualizaciones, Buds conectados,
 // CPU o RAM altas, concentración y modo juego activos. Energía siempre permite abrir el selector.
 //
 // Para que un script avise de un cambio al momento (en vez de esperar al sondeo):
@@ -286,6 +286,16 @@ RowLayout {
         ayuda: "Micrófono en uso" + (aplicaciones ? " · " + aplicaciones : "") + "\nClic: sonido · Clic derecho: silenciar"
         gestorAyuda: ayuda
         onClic: boton => derecha.ejecutar(boton === Qt.RightButton ? "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle" : "qs ipc call notificaciones sonido")
+    }
+
+    Modulo {
+        id: camaraActividad
+        visible: Camara.enUso
+        texto: derecha.compacto ? "" : "Cámara"
+        icono: derecha.g(0xF05A0)
+        color: Paleta.exito
+        ayuda: "Cámara en uso\nUna app tiene abierta la webcam"
+        gestorAyuda: ayuda
     }
 
     // ── Red (NetworkManager) ─────────────────────────────────────────────
