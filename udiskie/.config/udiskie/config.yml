@@ -1,5 +1,6 @@
 # udiskie: monta solos los USB / discos externos al conectarlos (en /run/media/oscar/<nombre>)
-# y avisa con una notificación (la pinta Quickshell). Arranca desde autostart.lua.
+# Al montarse, Quickshell enseña una tarjeta (CapaUnidad.qml) con Abrir y Expulsar, y la isla avisa al
+# desmontar: aquí solo quedan los avisos de error. Arranca desde autostart.lua.
 #   Expulsar: icono de la bandeja (aparece solo si hay algo montado) o `udiskie-umount -a`
 #   Botón "Abrir" de la notificación → Thunar en esa carpeta
 program_options:
@@ -12,8 +13,8 @@ program_options:
 
 notifications:
   timeout: 5
-  device_mounted: 6
-  device_unmounted: 3
+  device_mounted: false    # la tarjeta de Quickshell (CapaUnidad.qml)
+  device_unmounted: false  # la isla: «ya puedes retirarlo»
   device_added: false      # ya avisa al montarse; no repetir
-  device_removed: 3
+  device_removed: false
   job_failed: -1           # los errores no desaparecen solos
