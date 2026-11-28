@@ -82,6 +82,16 @@ ShellRoot {
         model: Quickshell.screens
         CieloSolar { required property var modelData; screen: modelData }
     }
+    // Esquinas de pantalla redondeadas (EsquinasPantalla.qml) y la energía que recorre el borde al
+    // enchufar o desenchufar el cargador (CapaEnergia.qml)
+    Variants {
+        model: Quickshell.screens
+        EsquinasPantalla { required property var modelData; screen: modelData }
+    }
+    Variants {
+        model: Quickshell.screens
+        CapaEnergia { required property var modelData; screen: modelData }
+    }
     IpcHandler {
         target: "panorama"
         function alternar(): void { PreferenciasUI.panorama = !PreferenciasUI.panorama; PreferenciasUI.guardar(); }

@@ -14,6 +14,15 @@ Singleton {
     id: c
     readonly property bool conBateria: UPower.onBattery
     property string perfilAntes: "balanced"     // el perfil que había al desenchufar
+    signal probar(bool ac)                       // solo el efecto de CapaEnergia.qml
+    IpcHandler {
+        target: "energia"
+        function probar(modo: string): void { c.probar(modo !== "bat"); }
+    }
+    readonly property int porcentaje: {
+        const b = UPower.displayDevice;
+        return Math.round(b ? (b.percentage > 1 ? b.percentage : b.percentage * 100) : 0);
+    }
 
     function sh(cmd) { Quickshell.execDetached(["sh", "-c", cmd]); }
 
@@ -26,7 +35,7 @@ Singleton {
     function alEnchufar() {
         sh(`powerprofilesctl set ${c.perfilAntes}`);
         sh("hyprctl dispatch 'bateria.normal() or hl.dsp.no_op()'");
-        sh("qs ipc call osd mensaje 'Cargando · modo normal' f0084");
+        sh(`qs ipc call osd mensaje 'Cargando · ${c.porcentaje} %' f0084`);
         sh("~/.config/hypr/scripts/inactividad.sh red");
     }
 
