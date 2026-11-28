@@ -19,6 +19,7 @@ parar() {
     kill -INT "$(cat "$PID")"
     for _ in $(seq 50); do grabando || break; sleep 0.1; done
     rm -f "$PID" "$ESTADO"; barra
+    qs ipc call grabacion parar >/dev/null 2>&1
     if [ "$modo" = gif ]; then
         qs ipc call osd mensaje "Creando el GIF…" f0d78 >/dev/null 2>&1
         gif="${archivo%.mp4}.gif"
@@ -27,6 +28,8 @@ parar() {
             && rm -f "$archivo" && archivo=$gif
     fi
     printf '%s' "$archivo" | wl-copy
+    # la tarjeta con el vídeo desde la isla (CapaGrabacion.qml); sin Quickshell, la notificación
+    [ -z "$(qs ipc call grabacion lista "$archivo" "$modo" 2>&1)" ] && return 0   # qs ipc sale con 0 aunque falle
     accion=$(notify-send -a Grabación -A abrir=Abrir -A carpeta="Ver carpeta" \
              "Grabación guardada" "$(basename "$archivo") · $(du -h "$archivo" | cut -f1) · ruta copiada")
     case "$accion" in
@@ -50,6 +53,7 @@ empezar() {   # empezar <modo>
     echo "$modo $archivo $(date +%s)" > "$ESTADO"
     sleep 0.3; grabando || { notify-send -a Grabación "No se pudo empezar a grabar"; rm -f "$PID" "$ESTADO"; exit 1; }
     barra
+    [ -n "$geo" ] && qs ipc call grabacion marco "$geo" >/dev/null 2>&1   # marco rojo por fuera de la región
 }
 
 case "${1:-}" in
