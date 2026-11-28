@@ -40,6 +40,11 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
+        Text { Layout.fillWidth: true; text: "Esquina activa: arriba a la izquierda abre la vista general"; color: Paleta.texto; wrapMode: Text.WordWrap; font { family: Paleta.fuente; pixelSize: 12 } }
+        Interruptor { activo: PreferenciasUI.esquinaActiva; onAlternado: { PreferenciasUI.esquinaActiva = !PreferenciasUI.esquinaActiva; PreferenciasUI.guardar(); } }
+    }
+    RowLayout {
+        Layout.fillWidth: true
         spacing: 8
         Text { Layout.fillWidth: true; text: "Tamaño de la interfaz"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
         Repeater {
