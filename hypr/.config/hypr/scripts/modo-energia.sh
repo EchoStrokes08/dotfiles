@@ -10,8 +10,10 @@ esac
 powerprofilesctl set "$siguiente"
 
 case "$siguiente" in
-    power-saver) nombre="Ahorro de energía"; icono=battery-profile-powersave ;;
-    balanced)    nombre="Equilibrado";       icono=battery-profile-balanced ;;
-    performance) nombre="Rendimiento";       icono=battery-profile-performance ;;
+    power-saver) nombre="Ahorro de energía"; icono=ahorro ;;
+    balanced)    nombre="Equilibrado";       icono=equilibrado ;;
+    performance) nombre="Rendimiento";       icono=rendimiento ;;
 esac
+# Iconos propios (velocímetro con la aguja según el modo) en ~/.config/hypr/iconos
+icono="$HOME/.config/hypr/iconos/energia-$icono.svg"
 notify-send -a "Energía" -i "$icono" -t 1500 -h string:x-canonical-private-synchronous:modo-energia "Modo de energía" "$nombre"
