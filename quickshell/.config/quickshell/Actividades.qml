@@ -2,6 +2,8 @@
 // Como las «Live Activities»: cada una con icono, color, título, detalle, progreso y una acción.
 //   Solas:      grabación de pantalla (grabar.sh) · descargas (.crdownload / .part en ~/Downloads)
 //               · paquetes (pacman instalando) · reunión (Reunion.qml)
+//               · el próximo evento del calendario: cuenta atrás con anillo desde 10 min antes hasta 5 min
+//                 después de empezar; si el lugar trae un enlace (Teams, Meet, Zoom…) el botón «Unirse» lo abre
 //   Propias:    temporizador y cronómetro
 //     qs ipc call actividades temporizador 300 "Té"     (segundos y nombre opcional)
 //     qs ipc call actividades cronometro                (otra vez: lo para)
@@ -89,6 +91,11 @@ Singleton {
         return (h > 0 ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0");
     }
     function bytes(b) { return b >= 1e9 ? (b / 1e9).toFixed(1) + " GB" : b >= 1e6 ? (b / 1e6).toFixed(0) + " MB" : Math.round(b / 1e3) + " KB"; }
+    // el evento (con hora) que empieza en ≤ 10 min o empezó hace < 5 min; con privacidad no se enseña
+    function proximoEvento(t) {
+        if (EstadoEscritorio.privacidad) return null;
+        return Eventos.lista.find(e => !e.todoDia && e.inicio.getTime() - t <= 600000 && t - e.inicio.getTime() < 300000 && e.fin.getTime() > t) ?? null;
+    }
     readonly property var lista: {
         const l = [], t = ahora;
         if (grabacion) l.push({ id: "grabacion", icono: 0xF044A, color: Paleta.peligro, titulo: grabacion.modo === "gif" ? "Grabando GIF" : "Grabando",
@@ -96,6 +103,14 @@ Singleton {
             accion: { icono: 0xF04DB, texto: "Parar", cmd: ["sh", "-c", "$HOME/.config/hypr/scripts/grabar.sh parar"] } });
         if (Reunion.activa) l.push({ id: "reunion", icono: 0xF036C, color: Paleta.acento2, titulo: "Reunión", detalle: "quedan " + Reunion.cuenta,
             corto: Reunion.cuenta, progreso: -1 });
+        const ev = proximoEvento(t);
+        if (ev) {
+            const falta = (ev.inicio.getTime() - t) / 1000, url = (ev.lugar || "").match(/https?:\/\/\S+/);
+            l.push({ id: "evento", icono: 0xF00ED, color: Paleta.acento, titulo: ev.titulo,
+                detalle: falta > 0 ? "empieza en " + duracion(falta) : "empezó hace " + Math.max(1, Math.round(-falta / 60)) + " min",
+                corto: falta > 0 ? duracion(falta) : "Ahora", progreso: falta > 0 ? 1 - falta / 600 : 1, late: falta <= 60,
+                accion: url ? { icono: 0xF0567, texto: "Unirse", cmd: ["xdg-open", url[0]] } : undefined });
+        }
         if (temporizador) {
             const q = Math.max(0, (temporizador.fin - t) / 1000);
             l.push({ id: "temporizador", icono: 0xF051B, color: Paleta.aviso, titulo: temporizador.nombre, detalle: "quedan " + duracion(q),
