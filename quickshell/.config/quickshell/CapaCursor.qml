@@ -1,9 +1,10 @@
 // CapaCursor: sacude el dedo en el touchpad y el puntero se señala solo (Gestos.sacudida).
-// La pantalla se apaga un poco salvo un foco alrededor del puntero y dos anillos del acento se cierran
-// hacia él; el foco lo sigue mientras dura (1,4 s). Los clics atraviesan la capa.
+// Un halo suave del acento aparece grande alrededor del puntero y se encoge sobre él con un pequeño
+// rebote, con un anillo fino detrás; al final una onda se abre y se desvanece (1,1 s). La pantalla no se
+// oscurece y el puntero se sigue 10 veces por segundo, suavizado: es ligero. Los clics atraviesan la capa.
 //   qs ipc call cursor buscar   para verlo sin sacudir
 import QtQuick
-import QtQuick.Shapes
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
@@ -50,56 +51,43 @@ PanelWindow {
             }
         }
     }
-    Timer { interval: 33; repeat: true; running: anim.running; onTriggered: if (!posicion.running) posicion.running = true }
-    NumberAnimation { id: anim; target: c; property: "t"; from: 0; to: 1; duration: 1400; easing.type: Easing.Linear }
+    Timer { interval: 100; repeat: true; running: anim.running; onTriggered: if (!posicion.running) posicion.running = true }
+    NumberAnimation { id: anim; target: c; property: "t"; from: 0; to: 1; duration: 1100; easing.type: Easing.Linear }
 
-    Behavior on px { enabled: anim.running; SmoothedAnimation { velocity: 4000; duration: 60 } }
-    Behavior on py { enabled: anim.running; SmoothedAnimation { velocity: 4000; duration: 60 } }
+    Behavior on px { enabled: anim.running; SmoothedAnimation { velocity: 2500 } }
+    Behavior on py { enabled: anim.running; SmoothedAnimation { velocity: 2500 } }
 
-    // el foco: todo se oscurece menos un círculo alrededor del puntero (degradado radial)
-    readonly property real radio: 110 + 260 * Math.pow(1 - Math.min(1, c.t * 2.2), 3)
-    Shape {
-        anchors.fill: parent
-        opacity: c.velo
-        preferredRendererType: Shape.CurveRenderer
-        ShapePath {
-            strokeWidth: 0; strokeColor: "transparent"
-            fillGradient: RadialGradient {
-                centerX: c.px; centerY: c.py; centerRadius: c.radio * 2.4
-                focalX: c.px; focalY: c.py
-                GradientStop { position: 0;   color: "transparent" }
-                GradientStop { position: .38; color: "transparent" }
-                GradientStop { position: .55; color: Qt.alpha(Paleta.fondo, .48) }
-                GradientStop { position: 1;   color: Qt.alpha(Paleta.fondo, .62) }
-            }
-            startX: 0; startY: 0
-            PathLine { x: c.width; y: 0 }
-            PathLine { x: c.width; y: c.height }
-            PathLine { x: 0; y: c.height }
-            PathLine { x: 0; y: 0 }
-        }
+    // encogerse: de grande a su sitio con un rebote (OutBack a mano, sin animaciones anidadas)
+    function rebote(k) { const s = 1.6; k = Math.min(1, Math.max(0, k)) - 1; return k * k * ((s + 1) * k + s) + 1; }
+    readonly property real cierre: rebote(c.t / .6)              // 0 → 1 en el primer 60 %
+
+    // el halo: un círculo difuminado que pasa de 200 a 52 px
+    RectangularShadow {
+        readonly property real lado: 200 - 148 * c.cierre
+        x: c.px - lado / 2; y: c.py - lado / 2
+        width: lado; height: lado
+        radius: lado / 2
+        blur: 28; spread: -4
+        color: Qt.alpha(Paleta.acento, .55)
+        opacity: c.velo * .9
     }
-    // dos anillos que se cierran hacia el puntero, uno tras otro
-    Repeater {
-        model: 2
-        Rectangle {
-            required property int index
-            readonly property real k: Math.max(0, Math.min(1, (c.t - index * .14) / .55))   // 0 → 1 su recorrido
-            readonly property real r: 14 + 150 * Math.pow(1 - k, 2)
-            x: c.px - r; y: c.py - r
-            width: r * 2; height: width; radius: width / 2
-            color: "transparent"
-            border { width: 3 - index; color: index === 0 ? Paleta.acento : Paleta.acento2 }
-            opacity: c.velo * (k > 0 && k < 1 ? Math.min(1, k * 4) * (1 - k * .6) : 0)
-        }
+    // anillo fino que llega un poco después
+    Rectangle {
+        readonly property real lado: 240 - 196 * c.rebote((c.t - .08) / .6)
+        x: c.px - lado / 2; y: c.py - lado / 2
+        width: lado; height: lado; radius: lado / 2
+        color: "transparent"
+        border { width: 2; color: Qt.alpha(Paleta.acento2, .9) }
+        opacity: c.velo * Math.min(1, c.t * 8)
     }
-    // al final, un punto que late justo encima del puntero
+    // la onda final: se abre desde el puntero y se apaga
     Rectangle {
         readonly property real k: Math.max(0, (c.t - .55) / .45)
-        width: 26 + 18 * Math.sin(k * Math.PI); height: width; radius: width / 2
-        x: c.px - width / 2; y: c.py - height / 2
+        readonly property real lado: 44 + 70 * Math.sqrt(k)
+        x: c.px - lado / 2; y: c.py - lado / 2
+        width: lado; height: lado; radius: lado / 2
         color: "transparent"
         border { width: 2; color: Paleta.acento }
-        opacity: c.velo * (k > 0 ? .8 : 0)
+        opacity: k > 0 ? (1 - k) * .8 : 0
     }
 }

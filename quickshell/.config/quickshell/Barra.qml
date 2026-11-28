@@ -100,7 +100,7 @@ PanelWindow {
                 anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
                 spacing: 4
 
-                BarraEspacios { monitor: barra.monitor; ayuda: ayudaBarra }
+                BarraEspacios { monitor: barra.monitor; ayuda: ayudaBarra; previa: previaEspacio }
 
                 IndicadorTeclado { id: modoTeclado }
 
@@ -219,6 +219,7 @@ PanelWindow {
 
     // La fecha y la cita se adaptan al hueco sin que el reloj cambie de tamaño al pasar el ratón.
     Ayuda { id: ayudaBarra; ventana: barra; textoPlano: true }
+    PreviaEspacio { id: previaEspacio; ventana: barra; monitor: barra.monitor }
     RelojBarra {
         id: centro
         ventana: barra

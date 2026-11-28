@@ -4,7 +4,7 @@
 // Hyprland sigue haciendo lo suyo con el mismo gesto (cambiar de espacio, abrir Brújula…); esto solo
 // permite que lo visual siga al dedo: Panorama.qml (3 dedos a los lados) y CapaTirador.qml (3 dedos abajo).
 //   Gestos.activo · dedos · eje ("" | "h" | "v") · dx, dy (acumulados, + = derecha / abajo)
-//   Gestos.sacudida()  el puntero se sacudió de lado a lado (4 vueltas rápidas): CapaCursor.qml lo señala
+//   Gestos.sacudida()  el puntero se sacudió de lado a lado (5 vueltas amplias y rápidas): CapaCursor.qml lo señala
 pragma Singleton
 import QtQuick
 import Quickshell
@@ -24,22 +24,23 @@ Singleton {
     signal termino()
     signal sacudida()
 
-    // Sacudida: cada cambio de sentido en horizontal tras un tramo largo cuenta una vuelta;
-    // 4 vueltas en menos de 0,9 s = «¿dónde está el puntero?». Luego 1,5 s de descanso.
+    // Sacudida: cada cambio de sentido en horizontal tras un tramo largo (≥ 140) cuenta una vuelta;
+    // 5 vueltas en menos de 1 s = «¿dónde está el puntero?». Luego 4 s de descanso.
+    // (Antes 4 vueltas de 40 en 0,9 s: saltaba con solo mover el ratón con un poco de vaivén.)
     property real tramo: 0
     property var vueltas: []
     property real ultimaSacudida: 0
     function moverPuntero(x, y) {
-        if (Math.abs(x) < Math.abs(y) * .7) return;               // solo de lado a lado
+        if (Math.abs(x) < 1.5 || Math.abs(x) < Math.abs(y) * .7) return;   // solo de lado a lado, sin temblores
         if (tramo !== 0 && Math.sign(x) !== Math.sign(tramo)) {
             const ahora = Date.now();
-            if (Math.abs(tramo) > 40) {
-                vueltas = vueltas.filter(t => ahora - t < 900).concat([ahora]);
-                if (vueltas.length >= 4 && ahora - ultimaSacudida > 1500) {
+            if (Math.abs(tramo) >= 140) {
+                vueltas = vueltas.filter(t => ahora - t < 1000).concat([ahora]);
+                if (vueltas.length >= 5 && ahora - ultimaSacudida > 4000) {
                     ultimaSacudida = ahora; vueltas = [];
                     sacudida();
                 }
-            }
+            } else vueltas = [];                                       // un vaivén corto rompe la racha
             tramo = 0;
         }
         tramo += x;

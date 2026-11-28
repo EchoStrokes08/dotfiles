@@ -1,5 +1,6 @@
 // Workspaces de la barra: números, con una píldora de color que se DESLIZA hasta el activo
 // y un punto bajo los que tienen ventanas. Rueda del ratón = siguiente/anterior. Clic = ir.
+// Ratón quieto encima de un espacio con ventanas (no el activo) = miniatura debajo (PreviaEspacio.qml).
 import QtQuick
 import QtQuick.Effects
 import Quickshell
@@ -8,6 +9,7 @@ import Quickshell.Hyprland
 Item {
     id: raiz
     property var ayuda: null
+    property var previa: null            // PreviaEspacio de esta barra
     property var monitor: null           // HyprlandMonitor de la pantalla de esta barra
 
     readonly property int anchoBoton: 30
@@ -139,12 +141,35 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: raiz.ir(boton.modelData.id)
-                    onEntered: raiz.ayuda?.mostrar(boton, boton.detalle)
-                    onExited: raiz.ayuda?.ocultar()
+                    onClicked: { raiz.previa?.ocultar(); raiz.ir(boton.modelData.id); }
+                    onEntered: {
+                        if (raiz.previa && boton.ocupado && !boton.modelData.active) {
+                            raiz.ayuda?.ocultar();
+                            raiz.previa.mostrar(boton, boton.modelData);
+                        } else {
+                            raiz.previa?.ocultar();
+                            raiz.ayuda?.mostrar(boton, boton.detalle);
+                        }
+                    }
+                    onPositionChanged: if (raiz.previa && boton.ocupado && !boton.modelData.active) raiz.previa.mostrar(boton, boton.modelData)
+                    onExited: { raiz.ayuda?.ocultar(); salida.restart(); }
                 }
             }
         }
+    }
+
+    // al salir de un número la previa espera un poco: si entras en otro, cambia sin cerrarse
+    Timer {
+        id: salida
+        interval: 90
+        onTriggered: if (!botones.count || !raiz.dentro()) raiz.previa?.ocultar()
+    }
+    function dentro() {
+        for (let i = 0; i < botones.count; i++) {
+            const b = botones.itemAt(i);
+            if (b && b.children.some(c => c.containsMouse === true)) return true;
+        }
+        return false;
     }
 
     WheelHandler {
