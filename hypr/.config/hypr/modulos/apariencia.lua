@@ -78,16 +78,22 @@ hl.config({
 -- Todo lo que depende de la paleta va aquí, en una función: al cambiar de tema o de wallpaper, tema.sh la
 -- llama en caliente (hyprctl dispatch 'colores_tema() or hl.dsp.no_op()') en vez de hacer «hyprctl reload».
 -- Una recarga completa reinicia temporizadores y reglas de espacio, y el 13-11-2026 dejó Hyprland colgado.
+-- borde_musica(a, b, sombra): mientras suena algo con carátula, Quickshell (BordeMusica.qml) pone en el
+-- borde activo y su resplandor los colores de la portada; borde_musica() vuelve a los del tema.
+local musica = nil
 local function colores()
+    local acento, acento2 = c.rgba("acento", "ff"), c.rgba("acento2", "ff")
+    local brillo = c.rgba("acento", "3d")
+    if musica then acento, acento2, brillo = musica[1], musica[2], musica[3] end
     hl.config({
         general = { col = {
             -- borde activo: degradado acento → acento2 en diagonal (gira una vez al enfocar: borderangle en
             -- animaciones.lua). El inactivo, casi invisible: la ventana activa se reconoce por su luz
-            active_border   = { colors = { c.rgba("acento", "ff"), c.rgba("acento2", "ff") }, angle = 45 },
+            active_border   = { colors = { acento, acento2 }, angle = 45 },
             inactive_border = c.rgba("texto", "14"),
         } },
         -- La ventana activa proyecta un resplandor del acento; las demás, una sombra neutra
-        decoration = { shadow = { color = c.rgba("acento", "3d"), color_inactive = c.rgba("fondo", "66") } },
+        decoration = { shadow = { color = brillo, color_inactive = c.rgba("fondo", "66") } },
         group = {
             col = {
                 -- borde de una ventana agrupada: acento2, para distinguirla de una normal (acento)
@@ -106,6 +112,11 @@ local function colores()
     })
 end
 colores()
+
+_G.borde_musica = function(a, b, sombra)
+    musica = a and { a, b or a, sombra or a } or nil
+    colores()
+end
 
 _G.colores_tema = function()
     c.recargar()

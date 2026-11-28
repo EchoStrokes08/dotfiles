@@ -25,6 +25,7 @@ ShellRoot {
     CapaUnidad {}        // al montar un USB o disco, tarjeta con espacio, Abrir y Expulsar (qs ipc call unidad muestra)
     CapaDescarga {}      // al terminar una descarga, tarjeta con miniatura, Abrir y Carpeta (qs ipc call descarga muestra)
     CapaGrabacion {}     // grabar: marco rojo alrededor de la región y tarjeta con el vídeo al parar (qs ipc call grabacion muestra)
+    BordeMusica {}       // con música, el borde de la ventana activa toma los colores de la carátula
     VentanaViva {}       // SUPER+ALT+V: la ventana activa, en vivo y flotando en una esquina
     AvisoCopiado {}      // al copiar, la isla enseña lo copiado (contraseñas ocultas)
     Autorizacion {}   // agente de polkit: la ventana de la contraseña de administrador

@@ -50,6 +50,11 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
+        Text { Layout.fillWidth: true; text: "Borde de la ventana con los colores de la carátula"; color: Paleta.texto; wrapMode: Text.WordWrap; font { family: Paleta.fuente; pixelSize: 12 } }
+        Interruptor { activo: PreferenciasUI.bordeMusica; onAlternado: { PreferenciasUI.bordeMusica = !PreferenciasUI.bordeMusica; PreferenciasUI.guardar(); } }
+    }
+    RowLayout {
+        Layout.fillWidth: true
         spacing: 8
         Text { Layout.fillWidth: true; text: "Tamaño de la interfaz"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 12 } }
         Repeater {
