@@ -18,7 +18,34 @@ Singleton {
     // Mejora de sonido (EasyEffects, scripts/sonido.sh): los perfiles son para las bocinas. Al cambiar
     // la salida se le avisa y él decide si aplica los efectos (bocinas) o los salta (audífonos).
     readonly property string salida: Pipewire.defaultAudioSink?.name ?? ""
-    onSalidaChanged: Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/sonido.sh", "salida"])
+    onSalidaChanged: {
+        Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/sonido.sh", "salida"]);
+        anuncio.restart();
+    }
+
+    // La isla dice por dónde sale ahora el sonido («Sonido por REDMI Buds 8 Pro», «… por las bocinas»).
+    // Espera 0,8 s a que la salida se asiente (al conectar Bluetooth salta varias veces); no avisa al
+    // arrancar, por el sink virtual de EasyEffects ni si es la misma de antes.
+    property bool arrancado: false
+    property string anunciada: ""
+    property real pausaAvisada: 0            // la desconexión ya avisó: no pisar su mensaje
+    Timer { interval: 4000; running: true; onTriggered: { a.arrancado = true; a.anunciada = a.salida; } }
+    Timer {
+        id: anuncio
+        interval: 800
+        onTriggered: {
+            const n = Pipewire.defaultAudioSink;
+            if (!a.arrancado || !n || n.name === a.anunciada || /^easyeffects/.test(n.name)) return;
+            a.anunciada = n.name;
+            if (Date.now() - a.pausaAvisada < 3000) return;
+            const desc = n.description || n.nickname || n.name;
+            const [ic, txt] = a.esAudifono(n) ? [0xF02CB, "Sonido por " + desc]
+                : /hdmi|displayport/i.test(n.name + desc) ? [0xF0379, "Sonido por la pantalla"]
+                : /headphone|auricular|usb/i.test(n.name + desc) ? [0xF02CB, "Sonido por " + desc]
+                : [0xF04C3, "Sonido por las bocinas"];
+            Isla.mostrar(String.fromCodePoint(ic), -1, txt);
+        }
+    }
 
     Timer {
         interval: 2000; running: a.hayAudifonos; repeat: true; triggeredOnStart: true
@@ -27,6 +54,7 @@ Singleton {
     onHayAudifonosChanged: {
         if (hayAudifonos || !sonabaEnAudifonos) return;
         sonabaEnAudifonos = false;
+        pausaAvisada = Date.now();
         for (const p of Mpris.players.values) if (p.isPlaying && p.canPause) p.pause();
         Quickshell.execDetached(["qs", "ipc", "call", "osd", "mensaje", "Audífonos desconectados · música en pausa", "f02cb"]);
     }
