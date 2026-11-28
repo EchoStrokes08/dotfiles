@@ -67,10 +67,12 @@ Singleton {
         running: g.disponible
         command: ["stdbuf", "-oL", "libinput", "debug-events", "--device", g.dispositivo]
         stdout: SplitParser {
+            // libinput mete un contador entre el tipo y la hora cuando se repite el evento:
+            //   POINTER_MOTION   2  +0.045s  -11.52/ 0.89   → (?:\d+\s+)? lo salta
             onRead: (l) => {
-                const pm = l.match(/POINTER_MOTION\s+\+?[\d.]+s\s+(-?[\d.]+)\/\s*(-?[\d.]+)/);
+                const pm = l.match(/POINTER_MOTION\s+(?:\d+\s+)?\+?[\d.]+s\s+(-?[\d.]+)\/\s*(-?[\d.]+)/);
                 if (pm) { g.moverPuntero(+pm[1], +pm[2]); return; }
-                const m = l.match(/GESTURE_SWIPE_(BEGIN|UPDATE|END)\s+\+?[\d.]+s\s+(\d+)\s*(.*)$/);
+                const m = l.match(/GESTURE_SWIPE_(BEGIN|UPDATE|END)\s+(?:\d+\s+)?\+?[\d.]+s\s+(\d+)\s*(.*)$/);
                 if (!m) return;
                 if (m[1] === "BEGIN") {
                     g.dedos = +m[2]; g.dx = 0; g.dy = 0; g.eje = ""; g.cancelado = false; g.activo = true;
