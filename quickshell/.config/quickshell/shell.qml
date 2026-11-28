@@ -75,6 +75,11 @@ ShellRoot {
         model: Quickshell.screens
         Panorama { required property var modelData; screen: modelData }
     }
+    // La luz del escritorio sigue al sol real (CieloSolar.qml + Sol.qml): dorada, rosada, azul o de noche
+    Variants {
+        model: Quickshell.screens
+        CieloSolar { required property var modelData; screen: modelData }
+    }
     IpcHandler {
         target: "panorama"
         function alternar(): void { PreferenciasUI.panorama = !PreferenciasUI.panorama; PreferenciasUI.guardar(); }

@@ -60,6 +60,11 @@ Singleton {
     readonly property var serie: [acento, acento2, exito, aviso, "#d2a6ff", "#95e6cb", "#f07178", "#ffb454"]
     // Texto sobre fotos (widgets del escritorio): marfil fijo, no depende del tema
     readonly property color sobreImagen: "#f3efe0"
+    // Luz del sol sobre el escritorio (CieloSolar.qml): colores de la luz real, no dependen del tema
+    readonly property color solDorado: "#ffb35c"     // hora dorada
+    readonly property color solOcaso:  "#ff6f7d"     // horizonte rosado del ocaso y el alba
+    readonly property color cieloAzul: "#5b6fd6"     // hora azul, justo después
+    readonly property color cieloNoche: "#060a1c"    // noche cerrada
     readonly property string fuente: "Adwaita Sans"            // texto de la interfaz
     readonly property string mono: "JetBrainsMono Nerd Font"   // código, atajos y cifras alineadas
 
