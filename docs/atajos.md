@@ -75,6 +75,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+Return` | Terminal flotante (scratchpad; se abre sola la primera vez) |
 | `SUPER+Y` | Música: Spotify en su scratchpad (si ya estaba abierto, lo trae) |
 | `SUPER+SHIFT+Y` | Letras en modo cine: la canción a pantalla completa con la letra sincronizada (Espacio pausa · ← → 5 s · ↑ ↓ otra canción · Esc) |
+| `SUPER+ALT+V` | Ventana viva: la ventana activa en vivo y flotando en una esquina, encima de todo (arrastrar la mueve, rueda cambia el tamaño, doble clic va a ella; otra vez la suelta) |
 | `SUPER+CTRL+SHIFT+O` | Notas: nvim con `~/Documents/notas.md` en un scratchpad flotante |
 | `SUPER+SHIFT+E` | Archivos: yazi en un scratchpad flotante (`SUPER+E` sigue siendo Thunar). `Enter`, clic derecho o dos clics abren el archivo con su app (el scratchpad se esconde); `O` → «Abrir con…» para elegir otra. Si un tipo no tiene app, sale ese menú |
 | `SUPER+CTRL+←/→` | Foco al otro monitor |
