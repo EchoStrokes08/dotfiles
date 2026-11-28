@@ -268,7 +268,7 @@ IslaBarra {
 
     // Progreso de la canción: un hilo de luz en el borde inferior de la isla
     Rectangle {
-        visible: reloj.modo === "musica" && (Isla.jugador?.lengthSupported ?? false) && Isla.jugador.length > 0
+        visible: reloj.modo === "musica" && (Isla.jugador?.lengthSupported ?? false) && Isla.jugador.length >= 1
         anchors { left: parent.left; bottom: parent.bottom; leftMargin: 16; bottomMargin: 2 }
         height: 1.5; radius: height / 2
         width: (parent.width - 32) * Math.min(1, (Isla.jugador?.position ?? 0) / Math.max(1, Isla.jugador?.length ?? 1))
@@ -380,7 +380,7 @@ IslaBarra {
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.topMargin: 4
-                        visible: (Isla.jugador?.lengthSupported ?? false) && Isla.jugador.length > 0
+                        visible: (Isla.jugador?.lengthSupported ?? false) && Isla.jugador.length >= 1
                         implicitHeight: 4; radius: height / 2
                         color: EstiloPanel.velo
                         Rectangle {
@@ -392,7 +392,7 @@ IslaBarra {
                     }
                     RowLayout {   // tiempos: transcurrido · total
                         Layout.fillWidth: true
-                        visible: (Isla.jugador?.lengthSupported ?? false) && Isla.jugador.length > 0
+                        visible: (Isla.jugador?.lengthSupported ?? false) && Isla.jugador.length >= 1
                         Text {
                             text: reloj.tiempo(Isla.jugador?.position ?? 0)
                             color: EstiloPanel.tenue

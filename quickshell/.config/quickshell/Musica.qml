@@ -149,9 +149,10 @@ RowLayout {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
-            visible: !musica.compacto && (musica.jugador?.lengthSupported ?? false) && musica.jugador.length > 0
+            // una duración de menos de 1 s es un dato roto del reproductor («0:00» con la barra llena): sin barra
+            visible: !musica.compacto && (musica.jugador?.lengthSupported ?? false) && musica.jugador.length >= 1
             Text {
-                text: musica.mmss(musica.jugador?.position ?? 0)
+                text: musica.mmss(Math.min(musica.jugador?.position ?? 0, musica.jugador?.length ?? 0))
                 color: Paleta.gris; font { family: Paleta.fuente; pixelSize: 11; features: { "tnum": 1 } }
             }
             Rectangle {
