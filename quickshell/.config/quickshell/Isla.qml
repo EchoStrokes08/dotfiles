@@ -25,10 +25,10 @@ Singleton {
 
     property string imagen: ""       // icono de app (ruta o URL): en las notificaciones, en vez del glifo
 
-    function mostrar(ic, val, txt, off) {
+    function mostrar(ic, val, txt, off, ms) {   // ms: cuánto se queda (1,6 s si no se dice)
         icono = ic; imagen = ""; valor = val; texto = txt ?? ""; apagado = off ?? false;
         aviso = true; numero++;
-        fin.interval = 1600; fin.restart();
+        fin.interval = ms ?? 1600; fin.restart();
     }
     // Una notificación nueva: la isla enseña el icono de la app y el título mientras la tarjeta cae debajo
     function notificar(img, txt) {

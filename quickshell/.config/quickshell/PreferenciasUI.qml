@@ -12,10 +12,11 @@ Singleton {
     property bool cieloSolar: true          // la luz del escritorio sigue al sol (CieloSolar.qml)
     property bool esquinas: true            // la pantalla con las esquinas redondeadas (EsquinasPantalla.qml)
     property bool esquinaActiva: true       // puntero arriba a la izquierda → vista general (EsquinasPantalla.qml)
+    property bool reposo: true              // reloj de mesa al dejar el equipo quieto (Reposo.qml)
     property real escala: 1                 // tamaño de la interfaz: 1, 1.1 o 1.25 (QT_SCALE_FACTOR al arrancar)
     readonly property real escalaActiva: Number(Quickshell.env("QT_SCALE_FACTOR") || 1)
     function guardar() {
-        archivo.setText(JSON.stringify({controles:favoritosControles,bandeja:favoritosBandeja,escala:escala,mostrarContinuidad:mostrarContinuidad,panorama:panorama,cieloSolar:cieloSolar,esquinas:esquinas,esquinaActiva:esquinaActiva}));
+        archivo.setText(JSON.stringify({controles:favoritosControles,bandeja:favoritosBandeja,escala:escala,mostrarContinuidad:mostrarContinuidad,panorama:panorama,cieloSolar:cieloSolar,esquinas:esquinas,esquinaActiva:esquinaActiva,reposo:reposo}));
     }
     // Cambiar la escala reinicia la barra y los paneles (unos 2 s); los avisos abiertos se pierden.
     function fijarEscala(v) {
@@ -44,7 +45,7 @@ Singleton {
         id: archivo
         printErrors: false
         onLoaded: {
-            try { const p = JSON.parse(text()); ajustes.favoritosControles = p.controles || []; ajustes.favoritosBandeja = p.bandeja || []; ajustes.escala = Number(p.escala) || 1; ajustes.mostrarContinuidad = p.mostrarContinuidad !== false; ajustes.panorama = p.panorama !== false; ajustes.cieloSolar = p.cieloSolar !== false; ajustes.esquinas = p.esquinas !== false; ajustes.esquinaActiva = p.esquinaActiva !== false; } catch (e) { }
+            try { const p = JSON.parse(text()); ajustes.favoritosControles = p.controles || []; ajustes.favoritosBandeja = p.bandeja || []; ajustes.escala = Number(p.escala) || 1; ajustes.mostrarContinuidad = p.mostrarContinuidad !== false; ajustes.panorama = p.panorama !== false; ajustes.cieloSolar = p.cieloSolar !== false; ajustes.esquinas = p.esquinas !== false; ajustes.esquinaActiva = p.esquinaActiva !== false; ajustes.reposo = p.reposo !== false; } catch (e) { }
         }
     }
     Process {

@@ -20,6 +20,7 @@ ShellRoot {
     CapaLanzamiento {}   // las apps se abren desde su icono del lanzador
     CapaCaptura {}       // las capturas vuelan a una tarjeta flotante (capturas.sh)
     CapaCursor {}        // sacudir el dedo en el touchpad señala el puntero (Gestos.sacudida)
+    Reposo {}            // reloj de mesa al dejar el equipo quieto (y «volviste» en la isla)
     VentanaViva {}       // SUPER+ALT+V: la ventana activa, en vivo y flotando en una esquina
     AvisoCopiado {}      // al copiar, la isla enseña lo copiado (contraseñas ocultas)
     Autorizacion {}   // agente de polkit: la ventana de la contraseña de administrador
