@@ -21,6 +21,7 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
     readonly property var d: TuDia.datos ?? ({})
+    readonly property bool sem: d.semanal === true   // «Tu semana»: los mismos datos sumando 7 días
     property real p: 0                   // 0 = el escritorio tal cual · 1 = dentro de «Tu día»
     property real progreso: 0            // de la tarjeta actual
     property bool pausado: false
@@ -40,6 +41,15 @@ PanelWindow {
         if (!dia) return "";
         const f = new Date(dia + "T12:00:00").toLocaleDateString(Qt.locale("es_CO"), "dddd d 'de' MMMM");
         return f.charAt(0).toUpperCase() + f.slice(1);
+    }
+    function rango(desde, hasta) {    // «Del 22 al 28 de noviembre» (o «Del 28 de nov. al 4 de dic.»)
+        if (!desde || !hasta) return "";
+        const a = new Date(desde + "T12:00:00"), b = new Date(hasta + "T12:00:00"), l = Qt.locale("es_CO");
+        return a.getMonth() === b.getMonth() ? `Del ${a.getDate()} al ${b.toLocaleDateString(l, "d 'de' MMMM")}`
+             : `Del ${a.toLocaleDateString(l, "d 'de' MMM")} al ${b.toLocaleDateString(l, "d 'de' MMM")}`;
+    }
+    function nombreDia(dia) {         // «el viernes»
+        return dia ? "el " + new Date(dia + "T12:00:00").toLocaleDateString(Qt.locale("es_CO"), "dddd") : "";
     }
     // Orden de la serie que separa más los tonos (acento y aviso se parecen en muchos temas)
     readonly property var ordenSerie: [0, 1, 4, 2, 6, 5, 3, 7]
@@ -239,7 +249,7 @@ PanelWindow {
             Aparece { anchors.horizontalCenter: parent.horizontalCenter
                 Glifo { alto: 120; text: String.fromCodePoint(0xF0594); color: TuDia.tono; font { family: Paleta.mono; pixelSize: 104 } } }
             Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 150
-                Text { text: "Aún no hay día que contar"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 36; bold: true } } }
+                Text { text: c.sem ? "Aún no hay semana que contar" : "Aún no hay día que contar"; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 36; bold: true } } }
             Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 300
                 Text { text: "Brújula va apuntando lo que usas. Vuelve más tarde."; color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 16 } } }
         }
@@ -252,18 +262,18 @@ PanelWindow {
                 anchors.centerIn: parent
                 spacing: 16
                 Aparece { anchors.horizontalCenter: parent.horizontalCenter
-                    Text { text: "TU DÍA"; color: TuDia.tono; font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 6 } } }
+                    Text { text: c.sem ? "TU SEMANA" : "TU DÍA"; color: TuDia.tono; font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 6 } } }
                 Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 150; desde: 48
                     Text { text: c.d.titulo ?? ""; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 62; bold: true } } }
                 Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 350
-                    Text { text: c.fecha(c.d.dia); color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 20 } } }
+                    Text { text: c.sem ? c.rango(c.d.desde, c.d.dia) : c.fecha(c.d.dia); color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 20 } } }
                 Item { width: 1; height: 24 }
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 12
                     Repeater {
                         model: [
-                            { g: 0xF0954, t: (c.d.hoy ? "Desde las " : "De ") + c.hora(c.d.inicio) + (c.d.hoy ? "" : " a " + c.hora(c.d.fin)) },
+                            c.sem ? { g: 0xF00ED, t: (c.d.diasActivos ?? 0) + " de 7 días activos" } : { g: 0xF0954, t: (c.d.hoy ? "Desde las " : "De ") + c.hora(c.d.inicio) + (c.d.hoy ? "" : " a " + c.hora(c.d.fin)) },
                             { g: 0xF0379, t: c.duracion(c.d.total) + " de pantalla" },
                             { g: 0xF003B, t: (c.d.numeroApps ?? 0) + " apps" }
                         ]
@@ -300,7 +310,7 @@ PanelWindow {
                 anchors.centerIn: parent
                 spacing: 12
                 Aparece { anchors.horizontalCenter: parent.horizontalCenter
-                    Text { text: c.d.hoy ? "Hoy, hasta ahora, estuviste delante de la pantalla" : "Ese día estuviste delante de la pantalla"
+                    Text { text: c.sem ? "Esta semana estuviste delante de la pantalla" : c.d.hoy ? "Hoy, hasta ahora, estuviste delante de la pantalla" : "Ese día estuviste delante de la pantalla"
                            color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 20 } } }
                 Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 200; escalaDesde: .85
                     Text {
@@ -316,7 +326,9 @@ PanelWindow {
                 Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 900
                     visible: (c.d.media ?? 0) > 0
                     Text {
-                        text: Math.abs(tarjetaPantalla.dif) < 900 ? "Más o menos como cualquier día de la semana"
+                        text: c.sem ? (Math.abs(tarjetaPantalla.dif) < 3600 ? "Más o menos como la semana anterior"
+                                   : c.duracion(Math.abs(tarjetaPantalla.dif)) + (tarjetaPantalla.dif > 0 ? " más" : " menos") + " que la semana anterior")
+                            : Math.abs(tarjetaPantalla.dif) < 900 ? "Más o menos como cualquier día de la semana"
                             : c.duracion(Math.abs(tarjetaPantalla.dif)) + (tarjetaPantalla.dif > 0 ? " más" : " menos") + " que tu media de la semana" + (c.d.hoy ? ", por ahora" : "")
                         color: TuDia.tono
                         font { family: Paleta.fuente; pixelSize: 16; bold: true }
@@ -327,7 +339,7 @@ PanelWindow {
                     id: semana
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 16
-                    readonly property var dias: (c.d.semana ?? []).concat([{ letra: c.d.hoy ? "Hoy" : "Ese día", segundos: c.d.total ?? 0, hoy: true }])
+                    readonly property var dias: c.sem ? (c.d.semana ?? []) : (c.d.semana ?? []).concat([{ letra: c.d.hoy ? "Hoy" : "Ese día", segundos: c.d.total ?? 0, hoy: true }])
                     readonly property real maximo: Math.max(1, ...dias.map(x => x.segundos))
                     Repeater {
                         model: semana.dias
@@ -389,12 +401,12 @@ PanelWindow {
                         }
                     }
                     Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 400
-                        Text { text: "TU APP DEL DÍA"; color: c.color(0); font { family: Paleta.fuente; pixelSize: 12; bold: true; letterSpacing: 4 } } }
+                        Text { text: c.sem ? "TU APP DE LA SEMANA" : "TU APP DEL DÍA"; color: c.color(0); font { family: Paleta.fuente; pixelSize: 12; bold: true; letterSpacing: 4 } } }
                     Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 500
                         Text { width: Math.min(implicitWidth, 380); elide: Text.ElideRight; text: primera?.nombre ?? ""
                                color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 44; bold: true } } }
                     Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 650
-                        Text { text: c.duracion(primera?.segundos ?? 0) + " · " + (primera?.porcentaje ?? 0) + " % de tu día"
+                        Text { text: c.duracion(primera?.segundos ?? 0) + " · " + (primera?.porcentaje ?? 0) + (c.sem ? " % de tu semana" : " % de tu día")
                                color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 20 } } }
                 }
                 Column {
@@ -460,7 +472,9 @@ PanelWindow {
                     Text { text: pico >= 0 ? `Tu hora fuerte: de ${pico}:00 a ${pico + 1}:00` : ""
                            color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 36; bold: true } } }
                 Aparece { anchors.horizontalCenter: parent.horizontalCenter; retraso: 300
-                    Text { text: `Empezaste a las ${c.hora(c.d.inicio)}` + (c.d.hoy ? " y sigues aquí" : ` y lo último fue a las ${c.hora(c.d.fin)}`)
+                    Text { text: c.sem ? `Tus días solían empezar hacia las ${c.hora(c.d.inicio)} y acabar hacia las ${c.hora(c.d.fin)}`
+                               + ((c.d.madrugada ?? 0) >= 1800 ? ` · ${c.duracion(c.d.madrugada)} de trasnocho en total` : "")
+                               : `Empezaste a las ${c.hora(c.d.inicio)}` + (c.d.hoy ? " y sigues aquí" : ` y lo último fue a las ${c.hora(c.d.fin)}`)
                                + ((c.d.madrugada ?? 0) >= 600 ? ` · antes, ${c.duracion(c.d.madrugada)} de trasnocho` : "")
                            color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 16 } } }
                 Item { width: 1; height: 40 }
@@ -578,7 +592,8 @@ PanelWindow {
                         Text { width: 500; wrapMode: Text.WordWrap; text: `Sin soltar ${r.nombre ?? ""}`
                                color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 44; bold: true } } }
                     Aparece { retraso: 500
-                        Text { text: `De ${c.hora(r.inicio)} a ${c.hora((r.inicio ?? 0) + (r.segundos ?? 0))} · ${Math.round(100 * anillo.fraccion)} % de tu día`
+                        Text { text: (c.sem ? c.nombreDia(r.dia).charAt(0).toUpperCase() + c.nombreDia(r.dia).slice(1) + `, de ${c.hora(r.inicio)}` : `De ${c.hora(r.inicio)}`)
+                               + ` a ${c.hora((r.inicio ?? 0) + (r.segundos ?? 0))} · ${Math.round(100 * anillo.fraccion)} % de tu ${c.sem ? "semana" : "día"}`
                                color: EstiloPanel.tenue; font { family: Paleta.fuente; pixelSize: 16 } } }
                     Item { width: 1; height: 32 }
                     Aparece { retraso: 1100
@@ -667,7 +682,7 @@ PanelWindow {
                     width: 520
                     spacing: 12
                     Aparece { retraso: 300
-                        Text { text: "LA CANCIÓN DEL DÍA"; color: TuDia.tono; font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 6 } } }
+                        Text { text: c.sem ? "LA CANCIÓN DE LA SEMANA" : "LA CANCIÓN DEL DÍA"; color: TuDia.tono; font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 6 } } }
                     Aparece { retraso: 450
                         Text { width: 520; wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight; text: cancion.titulo ?? ""
                                color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 44; bold: true } } }
@@ -783,7 +798,8 @@ PanelWindow {
         id: cierre
         Item {
             readonly property int h: new Date().getHours()
-            readonly property string saludo: !c.d.hoy ? "Así fue ese día"
+            readonly property string saludo: c.sem ? `Así fue tu semana` + (c.d.mejorDia ? ` · lo más fuerte, ${c.nombreDia(c.d.mejorDia)}` : "")
+                : !c.d.hoy ? "Así fue ese día"
                 : (h >= 20 || h < 5 ? "Buen descanso" : h >= 13 ? "Buena tarde" : "Buen día") + (c.nombre ? ", " + c.nombre : "")
             Row {
                 anchors.centerIn: parent
@@ -865,7 +881,7 @@ PanelWindow {
                     width: 440
                     spacing: 12
                     Aparece { retraso: 200
-                        Text { text: "TU DÍA EN UN CÍRCULO"; color: TuDia.tono; font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 6 } } }
+                        Text { text: c.sem ? "TU SEMANA EN UN CÍRCULO" : "TU DÍA EN UN CÍRCULO"; color: TuDia.tono; font { family: Paleta.fuente; pixelSize: 14; bold: true; letterSpacing: 6 } } }
                     Aparece { retraso: 350
                         Text { width: 440; wrapMode: Text.WordWrap; text: saludo; color: Paleta.texto; font { family: Paleta.fuente; pixelSize: 44; bold: true } } }
                     Item { width: 1; height: 12 }

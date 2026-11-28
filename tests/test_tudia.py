@@ -56,6 +56,32 @@ class TuDia(unittest.TestCase):
         self.assertEqual(m["cancion"]["caratula"], "file:///a.png")
         self.assertEqual((m["canciones"], m["segundos"], m["artista"]), (2, 120, "X"))
 
+    def test_musica_ignora_avisos_del_navegador(self):
+        (self.root / "musica").mkdir()
+        lineas = [{"t": 1, "s": 30, "ti": "Un sitio está reproduciendo contenido multimedia"}] * 5 + [{"t": 1, "s": 30, "ti": "B"}]
+        (self.root / "musica" / f"{self.dia}.jsonl").write_text("\n".join(json.dumps(x) for x in lineas))
+        self.assertEqual(tudia.datos(self.dia)["musica"]["cancion"]["titulo"], "B")
+
+    def test_semana_suma_siete_dias_y_marca_el_mejor(self):
+        otro = self.dia - dt.timedelta(days=2)
+        regs = [{"t": t(otro, 9), "c": "code"}, {"t": t(otro, 9, 30), "e": "pausa"}]
+        (self.root / "linea" / f"{otro}.jsonl").write_text("\n".join(json.dumps(r) for r in regs))
+        viejo = self.dia - dt.timedelta(days=9)     # la semana anterior: solo cuenta para comparar
+        (self.root / "linea" / f"{viejo}.jsonl").write_text("\n".join(json.dumps(r) for r in
+            [{"t": t(viejo, 9), "c": "kitty"}, {"t": t(viejo, 10), "e": "pausa"}]))
+        s = tudia.semana(self.dia)
+        self.assertTrue(s["semanal"])
+        self.assertEqual(s["desde"], str(self.dia - dt.timedelta(days=6)))
+        self.assertEqual(s["total"], int(3.5 * 3600) + 1800)
+        self.assertEqual(s["media"], 3600)
+        self.assertEqual(len(s["semana"]), 7)
+        self.assertEqual([x["hoy"] for x in s["semana"]].index(True), 6)   # el día más largo
+        self.assertEqual(s["mejorDia"], str(self.dia))
+        self.assertEqual(s["diasActivos"], 2)
+        self.assertEqual(s["apps"][0]["clase"], "code")
+        self.assertEqual(s["racha"]["dia"], str(self.dia))
+        self.assertTrue(all(-1 <= x["app"] < len(s["apps"]) for x in s["tramos"]))
+
 
 if __name__ == "__main__":
     unittest.main()

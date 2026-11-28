@@ -169,6 +169,7 @@ ShellRoot {
     IpcHandler {
         target: "tudia"
         function mostrar(): void { cerrarTodo(); TuDia.mostrar(); }
+        function semana(): void { cerrarTodo(); TuDia.mostrar(true); }
         function cerrar(): void { TuDia.cerrar(); }
         function estado(): string { return JSON.stringify({ activa: TuDia.activa, pagina: TuDia.actual, paginas: TuDia.paginas }); }
     }

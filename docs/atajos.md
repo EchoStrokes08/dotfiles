@@ -25,6 +25,7 @@ Para entender cada función, el [manual de usuario](manual.md).
 | `SUPER+B` | Buds Manager (lo enfoca si ya está abierto) |
 | ★ `SUPER+D` | Brújula: tu día (reloj, clima, agenda, sistema y tiempo de pantalla), línea de tiempo y salud |
 | `SUPER+SHIFT+D` | «Tu día»: el resumen del día en tarjetas (apps, ritmo, racha, música…). ← → mover · Espacio pausa · Esc salir |
+| `SUPER+CTRL+D` | «Tu semana»: lo mismo con los últimos 7 días (tu mejor día, comparación con la semana anterior, la canción de la semana). También sale sola al cerrar la jornada del domingo |
 | `SUPER+SHIFT+H` | Máquina del tiempo: rueda o ↑ ↓ para viajar por los momentos del día · ← → otro día · Intro abre la app · T muestra los títulos · Esc vuelve |
 | `SUPER+A`, luego una letra | Modo lanzar: `T` terminal · `E` archivos · `W` WhatsApp · `G` Roblox · `S` Spotify · `N` Nebula · `O` Opera GX · `I` impresora. Cualquier otra tecla cancela |
 

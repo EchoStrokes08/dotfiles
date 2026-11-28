@@ -8,6 +8,8 @@ Todo sale de lo que el equipo ya apunta, en local:
 
 Uso
   tudia.py [--dia AAAA-MM-DD]     JSON con todo lo que necesitan las tarjetas
+  tudia.py --semana [--dia …]     «Tu semana»: los 7 días que acaban en ese día (hoy si no se dice),
+                                  con la misma forma y semanal=true; media = la semana anterior
 """
 import argparse
 import datetime as dt
@@ -21,6 +23,8 @@ import brujula as b  # noqa: E402
 
 MUSICA = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "quickshell/musica"
 CAPTURAS = Path.home() / "Imágenes/screenshots"
+# lo que mandan los navegadores cuando una pestaña suena sin título de canción: no es música
+GENERICOS = ("reproduciendo contenido multimedia", "is playing media", "playing audio")
 TOP = 5            # apps con color propio; el resto es «otras»
 TITULOS = {        # el contexto que más pesó → cómo se llama el día
     "programar": "Un día de código", "estudiar": "Un día de estudio", "jugar": "Un día de juego",
@@ -46,18 +50,20 @@ def por_horas(bloques):
     return horas
 
 
-def musica(dia):
-    try:
-        lineas = (MUSICA / f"{dia.isoformat()}.jsonl").read_text().splitlines()
-    except OSError:
-        return None
+def musica(*dias):
+    lineas = []
+    for dia in dias:
+        try:
+            lineas += (MUSICA / f"{dia.isoformat()}.jsonl").read_text().splitlines()
+        except OSError:
+            pass
     canciones, artistas, total = {}, {}, 0
     for linea in lineas:
         try:
             r = json.loads(linea)
         except ValueError:
             continue
-        if not isinstance(r, dict) or not r.get("ti"):
+        if not isinstance(r, dict) or not r.get("ti") or any(g in r["ti"].lower() for g in GENERICOS):
             continue
         s = int(r.get("s", 30))
         total += s
@@ -75,13 +81,13 @@ def musica(dia):
     return {"cancion": orden[0], "otras": orden[1:4], "segundos": total, "canciones": len(canciones), "artista": artista}
 
 
-def capturas(dia):
+def capturas(*dias):
     if not CAPTURAS.is_dir():
         return 0
     n = 0
     for f in CAPTURAS.iterdir():
         try:
-            if f.is_file() and dt.date.fromtimestamp(f.stat().st_mtime) == dia:
+            if f.is_file() and dt.date.fromtimestamp(f.stat().st_mtime) in dias:
                 n += 1
         except OSError:
             pass
@@ -160,11 +166,104 @@ def datos(dia):
     }
 
 
+SEMANAS = {       # el contexto que más pesó → cómo se llama la semana
+    "programar": "Una semana de código", "estudiar": "Una semana de estudio", "jugar": "Una semana de juego",
+    "leer": "Una semana de lectura", "reunion": "Una semana de reuniones", "descansar": "Una semana tranquila",
+}
+
+
+def hora_tipica(marcas):
+    """La hora del día (segundos desde las 0:00) que hace de mediana entre varios días."""
+    if not marcas:
+        return None
+    s = sorted(marcas)
+    return s[len(s) // 2]
+
+
+def semana(fin):
+    """«Tu semana»: los 7 días que acaban en `fin`, con la misma forma que datos() para las tarjetas."""
+    dias = [fin - dt.timedelta(days=i) for i in range(6, -1, -1)]
+    por_dia = [datos(d) for d in dias]
+    total = sum(d["total"] for d in por_dia)
+    anterior = sum(total_dia(fin - dt.timedelta(days=i)) for i in range(13, 6, -1))
+
+    apps = {}
+    for d in por_dia:
+        for a in d["apps"]:
+            x = apps.setdefault(a["clase"], {"clase": a["clase"], "nombre": a["nombre"], "segundos": 0})
+            x["segundos"] += a["segundos"]
+    top = sorted(apps.values(), key=lambda a: -a["segundos"])
+    nombres_apps = set()
+    for dia in dias:
+        nombres_apps.update(x["clase"] for x in b.bloques(dia, vivo=dia == dt.date.today()))
+    contextos = {}
+    for d in por_dia:
+        for c in d["contextos"]:
+            contextos[c["nombre"]] = contextos.get(c["nombre"], 0) + c["segundos"]
+    orden_ctx = [{"nombre": k, "segundos": v} for k, v in sorted(contextos.items(), key=lambda c: -c[1])]
+    horas = [sum(d["horas"][h] for d in por_dia) for h in range(24)]
+
+    mejor = max(range(7), key=lambda i: por_dia[i]["total"]) if total else -1
+    barras = [{"dia": d["dia"], "letra": b.DIAS[dia.weekday()].capitalize(), "segundos": d["total"], "hoy": i == mejor}
+              for i, (d, dia) in enumerate(zip(por_dia, dias))]
+
+    # Inicio y final típicos (mediana de los días con algo), como hora de hoy para que la capa la formatee
+    def de_hoy(segundos):
+        return int(dt.datetime.combine(dt.date.today(), dt.time()).timestamp()) + segundos if segundos is not None else 0
+    def seg(ts):
+        f = dt.datetime.fromtimestamp(ts)
+        return f.hour * 3600 + f.minute * 60
+    activos = [d for d in por_dia if d["total"] >= 600]
+    rachas = [dict(d["racha"], dia=d["dia"]) for d in por_dia if d["racha"]]
+    racha = max(rachas, key=lambda r: r["segundos"], default=None)
+    if racha:
+        racha["diaNombre"] = b.DIAS[dt.date.fromisoformat(racha["dia"]).weekday()]
+    tramos = [x for d in por_dia for x in d["tramos"]]
+    # en el anillo, cada tramo con el índice de su app en el top de la SEMANA
+    indice = {a["clase"]: i for i, a in enumerate(top[:TOP])}
+    for d in por_dia:
+        locales = [a["clase"] for a in d["apps"]]
+        for x in d["tramos"]:
+            x["app"] = indice.get(locales[x["app"]], -1) if 0 <= x["app"] < len(locales) else -1
+
+    return {
+        "semanal": True,
+        "dia": fin.isoformat(),
+        "desde": dias[0].isoformat(),
+        "hoy": False,
+        "titulo": ("Una semana ligera" if total < 5 * 3600 else
+                   SEMANAS.get(orden_ctx[0]["nombre"].lower(), f"Una semana de {orden_ctx[0]['nombre'].lower()}")
+                   if orden_ctx else "Tu semana, en cifras"),
+        "total": total,
+        "media": anterior,
+        "diasActivos": len(activos),
+        "semana": barras,
+        "mejorDia": barras[mejor]["dia"] if mejor >= 0 else "",
+        "inicio": de_hoy(hora_tipica([seg(d["inicio"]) for d in activos if d["inicio"]])),
+        "madrugada": sum(d["madrugada"] for d in por_dia),
+        "fin": de_hoy(hora_tipica([seg(d["fin"]) for d in activos if d["fin"]])),
+        "apps": [dict(a, porcentaje=round(100 * a["segundos"] / total) if total else 0) for a in top[:TOP]],
+        "otras": sum(a["segundos"] for a in top[TOP:]),
+        "numeroApps": len(nombres_apps),
+        "horas": horas,
+        "horaPico": max(range(24), key=lambda h: horas[h]) if total else -1,
+        "racha": racha,
+        "saltos": sum(d["saltos"] for d in por_dia),
+        "contextos": orden_ctx[:4],
+        "tramos": tramos[-600:],
+        "musica": musica(*dias),
+        "capturas": capturas(*dias),
+        "archivos": sum(d["archivos"] for d in por_dia),
+    }
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dia", type=dt.date.fromisoformat, default=None)
+    p.add_argument("--semana", action="store_true", help="los 7 días que acaban en --dia (o hoy)")
     a = p.parse_args()
-    print(json.dumps(datos(a.dia or dt.date.today()), ensure_ascii=False))
+    dia = a.dia or dt.date.today()
+    print(json.dumps(semana(dia) if a.semana else datos(dia), ensure_ascii=False))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,8 @@
 // TuDia: «Tu día», el resumen cinematográfico del día en tarjetas (CapaTuDia.qml lo dibuja).
 //   TuDia.mostrar()            captura la pantalla, lee scripts/tudia.py y empieza
 //   qs ipc call tudia mostrar  · también al cerrar la jornada (Brújula) y desde el lanzador
+//   TuDia.mostrar(true) / qs ipc call tudia semana   «Tu semana»: los últimos 7 días (tudia.py --semana);
+//   sale sola al cerrar la jornada del domingo
 // Los datos salen de la línea de tiempo de Brújula; la música la apunta este archivo cada 30 s en
 // ~/.local/state/quickshell/musica/AAAA-MM-DD.jsonl (nunca con la privacidad activa). Todo local.
 // Se ve también en el perfil mínimo (lo abres tú, como un vídeo); sin animaciones solo con
@@ -49,14 +51,14 @@ Singleton {
         racha: Paleta.exito, musica: Paleta.serie[4], hiciste: Paleta.aviso, cierre: Paleta.acento, vacio: Paleta.acento2
     })[actual] ?? Paleta.acento
 
-    function mostrar() {
+    function mostrar(semanal) {
         if (activa || cargador.running) return;
         pantalla = Hyprland.focusedMonitor?.name ?? (Quickshell.screens[0]?.name ?? "");
         const ruta = cine && dir && pantalla ? dir + "/tudia-" + pantalla + ".ppm" : "";
         cargador.ruta = ruta;
         cargador.command = ["sh", "-c",
-            'umask 077; [ -n "$1" ] && { grim -o "$2" -t ppm "$1" 2>/dev/null || rm -f "$1"; }; exec python3 "$3/tudia.py"',
-            "sh", ruta, pantalla, scripts];
+            'umask 077; [ -n "$1" ] && { grim -o "$2" -t ppm "$1" 2>/dev/null || rm -f "$1"; }; exec python3 "$3/tudia.py" $4',
+            "sh", ruta, pantalla, scripts, semanal ? "--semana" : ""];
         cargador.running = true;
     }
     function ir(n) {
@@ -68,7 +70,7 @@ Singleton {
     function cerrar() { if (activa) saliendo = true; }
     // Al cerrar la jornada (Brújula avisa con «notificaciones motivo jornada true»): una vez, no si acabas de verlo
     property real visto: 0
-    function alCerrarJornada() { if (Date.now() - visto > 600000) mostrar(); }
+    function alCerrarJornada() { if (Date.now() - visto > 600000) mostrar(new Date().getDay() === 0); }
     // CapaTuDia la llama cuando termina de irse
     function terminar() {
         activa = false; saliendo = false; datos = null; pagina = 0; visto = Date.now();
